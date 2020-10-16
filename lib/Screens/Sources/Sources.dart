@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:collection/collection.dart';
+import 'dart:ui';
 
 class SourcesPage extends StatefulWidget {
   @override
@@ -12,7 +14,6 @@ class SourcesPage extends StatefulWidget {
 
 class _SourcesPageState extends State<SourcesPage> {
   ApiManager server = ApiManager();
-
 
   // Retrieve Source from Server
   Future<Map> getSources() async {
@@ -25,6 +26,9 @@ class _SourcesPageState extends State<SourcesPage> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context,
+        designSize: Size(450, 747.5), allowFontScaling: true);
+
     return Scaffold(
       body: FutureBuilder(
         future: getSources(),
@@ -58,7 +62,11 @@ class _SourcesPageState extends State<SourcesPage> {
                     tabs: List<Widget>.generate(
                       sourcePacks.length,
                       (index) => Tab(
-                        text: keys[index],
+                        child: Text(
+                          keys[index],
+                          style: TextStyle(fontSize: 17.sp),
+                        ),
+                        // text: ,
                       ),
                     ),
                   ),
@@ -69,14 +77,15 @@ class _SourcesPageState extends State<SourcesPage> {
                     (int index) {
                       List<Source> _sources = values[index];
                       return Container(
-                        padding: EdgeInsets.all(8),
+                        padding: EdgeInsets.all(ScreenUtil().setWidth(8)),
                         child: GridView.builder(
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              childAspectRatio: .77, // todo, variable resizing
+                              crossAxisSpacing: ScreenUtil().setWidth(10),
+                              mainAxisSpacing: ScreenUtil().setWidth(10),
+                              childAspectRatio: ScreenUtil().setHeight(77) /
+                                  ScreenUtil().setWidth(100), // 77/100
                             ),
                             itemCount: _sources.length,
                             itemBuilder: (BuildContext context, int i) {
@@ -86,7 +95,7 @@ class _SourcesPageState extends State<SourcesPage> {
                                   debugPrint(source.thumbnail);
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.all(5),
+                                  padding: EdgeInsets.all(5.w),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
@@ -115,8 +124,9 @@ class _SourcesPageState extends State<SourcesPage> {
                                         child: Text(
                                           source.name,
                                           style: TextStyle(
-                                            fontSize: 15,
+                                            fontSize: 17.sp,
                                             color: Colors.white,
+                                            fontWeight: FontWeight.bold
                                           ),
                                         ),
                                       ),
@@ -134,7 +144,7 @@ class _SourcesPageState extends State<SourcesPage> {
                                                   color: Colors.amber,
                                                 ),
                                                 SizedBox(
-                                                  width: 3,
+                                                  width: 3.w,
                                                 ),
                                                 Text(
                                                   "VIP",
@@ -157,28 +167,28 @@ class _SourcesPageState extends State<SourcesPage> {
           } else
             // todo, raise error here
             return Scaffold(
+              appBar: AppBar(
+                title: Text("Sources"),
+                centerTitle: true,
+              ),
               body: Container(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
                 child: Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        'An error Occurred while retrieving sources',
-                        style: TextStyle(color: Colors.white),
+                  child: Center(
+                    child: InkWell(
+                      child: Text(
+                        "An Error Occurred \n Tap to Retry",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp),
+                        textAlign: TextAlign.center,
                       ),
-                      Center(
-                        child: InkWell(
-                          child: Text(
-                            "Retry",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          onTap: () {
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                    ],
+                      onTap: () {
+                        setState(() {});
+                      },
+                    ),
                   ),
                 ),
               ),

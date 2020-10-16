@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/test_preference.dart';
@@ -15,6 +15,9 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context,
+        designSize: Size(450, 747.5), allowFontScaling: true);
+
     return DefaultTabController(
       initialIndex: 1,
       length: 3,
@@ -26,7 +29,10 @@ class _HomeState extends State<Home> {
             IconButton(
               icon: Icon(CupertinoIcons.cloud),
               onPressed: () {
-                Navigator.pushNamed(context, '/sources', );
+                Navigator.pushNamed(
+                  context,
+                  '/sources',
+                );
               },
             ),
             IconButton(
@@ -38,11 +44,12 @@ class _HomeState extends State<Home> {
             ),
           ],
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(30),
+            preferredSize: Size.fromHeight(ScreenUtil().setHeight(30)),
             child: TabBar(
               indicatorColor: Colors.transparent,
               labelColor: Colors.purple,
               unselectedLabelColor: Colors.grey,
+              labelStyle: TextStyle(fontSize: 17.sp),
               tabs: <Widget>[
                 Tab(
                   text: "For You",
@@ -90,7 +97,9 @@ class _HomeState extends State<Home> {
             Container(
                 child: CupertinoButton(
               child: Text("RETRIEVE"),
-              onPressed: retrieve,
+              onPressed: () {
+                debugPrint(MediaQuery.of(context).size.width.toString());
+              },
             ))
           ],
         ),

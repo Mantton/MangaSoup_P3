@@ -36,8 +36,8 @@ class _LandingState extends State<Landing> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
         backgroundColor: Colors.black,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         selectedItemColor: Colors.purple,
         unselectedItemColor: Colors.grey[700],
         type: BottomNavigationBarType.fixed,

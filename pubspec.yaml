@@ -26,6 +26,10 @@ dependencies:
   shared_preferences: ^0.5.12+2
   cached_network_image: ^2.3.3
   flutter_platform_widgets: ^0.70.2
+  flutter_screenutil: ^3.1.1
+  responsive_framework: ^0.0.9
+
+
 
 
 
