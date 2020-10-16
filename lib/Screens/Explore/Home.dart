@@ -13,6 +13,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<Source> sources = [];
+  int segmentedControlGroupValue = 0;
+  final Map<int, Widget> myTabs = const <int, Widget>{
+    0: Text("For You"),
+    1: Text("Home"),
+    2: Text("Latest"),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -21,36 +27,32 @@ class _HomeState extends State<Home> {
 
     return DefaultTabController(
       length: 3,
-      child: PlatformScaffold(
-        iosContentPadding: true,
-        appBar: PlatformAppBar(
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(CupertinoIcons.cloud),
+            onPressed: () {},
+          ),
           title: Text("Discover"),
-          leading: PlatformIconButton(
-            icon: Icon(
-              CupertinoIcons.cloud,
-              color: Colors.white,
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: Icon(CupertinoIcons.search),
+              onPressed: () {},
             ),
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                '/sources',
-              );
-            },
-          ),
-          cupertino: (_, __) => CupertinoNavigationBarData(
-            backgroundColor: Colors.black,
-            
-
-            // transitionBetweenRoutes: true,
-            title: Text("Discover"),
-          ),
-          material: (_, __) => MaterialAppBarData(
-            centerTitle: true,
-            bottom: PreferredSize(
-              preferredSize: Size.fromHeight(
-                ScreenUtil().setHeight(30),
-              ),
-              child: TabBar(
+          ],
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(30.h),
+            child: PlatformWidget(
+              cupertino: (_, __) => CupertinoSlidingSegmentedControl(
+                  groupValue: segmentedControlGroupValue,
+                  children: myTabs,
+                  onValueChanged: (i) {
+                    setState(() {
+                      segmentedControlGroupValue = i;
+                    });
+                  }),
+              material: (_, __) => TabBar(
                 indicatorColor: Colors.transparent,
                 labelColor: Colors.purple,
                 unselectedLabelColor: Colors.grey,
@@ -60,7 +62,7 @@ class _HomeState extends State<Home> {
                     text: "For You",
                   ),
                   Tab(
-                    text: "All Comics",
+                    text: "Home",
                   ),
                   Tab(
                     text: "Latest",
@@ -69,17 +71,6 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-          trailingActions: [
-
-            PlatformIconButton(
-              icon: Icon(
-                context.platformIcons.search,
-                color: Colors.white,
-              ),
-              onPressed: () {},
-            ),
-          ],
-          backgroundColor: Colors.black,
         ),
         body: TabBarView(
           // physics: NeverScrollableScrollPhysics(),
@@ -134,7 +125,7 @@ class _HomeState extends State<Home> {
     //         IconButton(
     //           icon: Icon(CupertinoIcons.cloud),
     //           onPressed: () {
-
+    //
     //           },
     //         ),
     //         IconButton(
@@ -147,23 +138,8 @@ class _HomeState extends State<Home> {
     //       ],
     //       bottom: PreferredSize(
     //         preferredSize: Size.fromHeight(ScreenUtil().setHeight(30)),
-    //         child: TabBar(
-    //           indicatorColor: Colors.transparent,
-    //           labelColor: Colors.purple,
-    //           unselectedLabelColor: Colors.grey,
-    //           labelStyle: TextStyle(fontSize: 17.sp),
-    //           tabs: <Widget>[
-    //             Tab(
-    //               text: "For You",
-    //             ),
-    //             Tab(
-    //               text: "All Comics",
-    //             ),
-    //             Tab(
-    //               text: "Latest",
-    //             )
-    //           ],
-    //         ),
+    //         child:
+
     //       ),
     //     ),
     //
