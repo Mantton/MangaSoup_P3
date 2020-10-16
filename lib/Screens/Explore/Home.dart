@@ -25,8 +25,25 @@ class _HomeState extends State<Home> {
         iosContentPadding: true,
         appBar: PlatformAppBar(
           title: Text("Discover"),
-          cupertino: (_, __) =>
-              CupertinoNavigationBarData(backgroundColor: Colors.black, transitionBetweenRoutes: true, title: Text("Discover")),
+          leading: PlatformIconButton(
+            icon: Icon(
+              CupertinoIcons.cloud,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/sources',
+              );
+            },
+          ),
+          cupertino: (_, __) => CupertinoNavigationBarData(
+            backgroundColor: Colors.black,
+            
+
+            // transitionBetweenRoutes: true,
+            title: Text("Discover"),
+          ),
           material: (_, __) => MaterialAppBarData(
             centerTitle: true,
             bottom: PreferredSize(
@@ -53,16 +70,55 @@ class _HomeState extends State<Home> {
             ),
           ),
           trailingActions: [
+
             PlatformIconButton(
-              icon: Icon(CupertinoIcons.cloud),
-              onPressed: () {},
-            ),
-            PlatformIconButton(
-              icon: Icon(context.platformIcons.search),
+              icon: Icon(
+                context.platformIcons.search,
+                color: Colors.white,
+              ),
               onPressed: () {},
             ),
           ],
           backgroundColor: Colors.black,
+        ),
+        body: TabBarView(
+          // physics: NeverScrollableScrollPhysics(),
+          children: [
+            Container(
+              color: Colors.grey,
+            ),
+            Container(
+              color: Colors.blueGrey[800],
+              child: Center(
+                child: (sources.length == 0)
+                    ? CupertinoButton(
+                        child: Text("TEST"),
+                        onPressed: simulate,
+                      )
+                    : Container(
+                        child: GridView.builder(
+                            itemCount: sources.length,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4),
+                            itemBuilder: (context, index) {
+                              Source source = sources[index];
+                              return GridTile(
+                                footer: Text(source.name),
+                                child: Image.network(source.thumbnail),
+                              );
+                            }),
+                      ),
+              ),
+            ),
+            Container(
+                child: CupertinoButton(
+              child: Text("RETRIEVE"),
+              onPressed: () {
+                debugPrint(MediaQuery.of(context).size.width.toString());
+              },
+            ))
+          ],
         ),
       ),
     );
@@ -78,10 +134,7 @@ class _HomeState extends State<Home> {
     //         IconButton(
     //           icon: Icon(CupertinoIcons.cloud),
     //           onPressed: () {
-    //             Navigator.pushNamed(
-    //               context,
-    //               '/sources',
-    //             );
+
     //           },
     //         ),
     //         IconButton(
@@ -113,46 +166,7 @@ class _HomeState extends State<Home> {
     //         ),
     //       ),
     //     ),
-    //     body: TabBarView(
-    //       physics: NeverScrollableScrollPhysics(),
-    //       children: [
-    //         Container(
-    //           color: Colors.grey,
-    //         ),
-    //         Container(
-    //           color: Colors.blueGrey[800],
-    //           child: Center(
-    //             child: (sources.length == 0)
-    //                 ? CupertinoButton(
-    //                     child: Text("TEST"),
-    //                     onPressed: simulate,
-    //                   )
-    //                 : Container(
-    //                     child: GridView.builder(
-    //                         itemCount: sources.length,
-    //                         gridDelegate:
-    //                             SliverGridDelegateWithFixedCrossAxisCount(
-    //                                 crossAxisCount: 4),
-    //                         itemBuilder: (context, index) {
-    //                           Source source = sources[index];
-    //                           return GridTile(
-    //                             footer: Text(source.name),
-    //                             child: Image.network(source.thumbnail),
-    //                           );
-    //                         }),
-    //                   ),
-    //           ),
-    //         ),
-    //         Container(
-    //             child: CupertinoButton(
-    //           child: Text("RETRIEVE"),
-    //           onPressed: () {
-    //             debugPrint(MediaQuery.of(context).size.width.toString());
-    //           },
-    //         ))
-    //       ],
-    //     ),
-    //   ),
+    //
     // );
   }
 

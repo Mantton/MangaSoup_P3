@@ -43,6 +43,7 @@ class _LandingState extends State<Landing> {
             _index = v;
           });
         },
+
         items: [
           BottomNavigationBarItem(
               icon: (_index != 0)
@@ -76,6 +77,7 @@ class _LandingState extends State<Landing> {
           activeColor: Colors.purple,
           inactiveColor: Colors.grey,
           backgroundColor: Colors.black,
+
 
         ),
 
