@@ -83,15 +83,18 @@ class _AppState extends State<App> {
     final materialDarkTheme = ThemeData(
         brightness: Brightness.dark,
         primaryColor: Colors.black,
-        scaffoldBackgroundColor: Colors.black);
+        scaffoldBackgroundColor: Colors.black,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent);
 
     final cupertinoTheme = CupertinoThemeData(
-        brightness: brightness, // if null will use the system theme
-        primaryColor: CupertinoDynamicColor.withBrightness(
-          color: Colors.black,
-          darkColor: Colors.black,
-        ),
-        scaffoldBackgroundColor: Colors.black);
+      brightness: brightness, // if null will use the system theme
+      primaryColor: CupertinoDynamicColor.withBrightness(
+        color: Colors.black,
+        darkColor: Colors.black,
+      ),
+      scaffoldBackgroundColor: Colors.black,
+    );
 
     // Example of optionally setting the platform upfront.
     //final initialPlatform = TargetPlatform.iOS;
@@ -104,12 +107,6 @@ class _AppState extends State<App> {
     return Theme(
       data: brightness == Brightness.light ? materialTheme : materialDarkTheme,
       child: PlatformProvider(
-        //initialPlatform: initialPlatform,
-        // settings: PlatformSettingsData(
-        //   platformStyle: PlatformStyleData(
-        //     web: PlatformStyle.Cupertino,
-        //   ),
-        // ),
         builder: (context) => PlatformApp(
           localizationsDelegates: <LocalizationsDelegate<dynamic>>[
             DefaultMaterialLocalizations.delegate,
@@ -122,10 +119,38 @@ class _AppState extends State<App> {
               theme: materialTheme,
               darkTheme: materialDarkTheme,
               themeMode: ThemeMode.dark,
+              builder: (context, widget) => ResponsiveWrapper.builder(
+                BouncingScrollWrapper.builder(context, widget),
+                maxWidth: 1200,
+                minWidth: 450,
+                defaultScale: true,
+                breakpoints: [
+                  ResponsiveBreakpoint.resize(450, name: MOBILE),
+                  ResponsiveBreakpoint.autoScale(800, name: TABLET),
+                  ResponsiveBreakpoint.autoScale(1000, name: TABLET),
+                  ResponsiveBreakpoint.resize(1200, name: DESKTOP),
+                  ResponsiveBreakpoint.autoScale(2460, name: "4K"),
+                ],
+                background: Container(color: Colors.black),
+              ),
             );
           },
           cupertino: (_, __) => CupertinoAppData(
             theme: cupertinoTheme,
+            builder: (context, widget) => ResponsiveWrapper.builder(
+              BouncingScrollWrapper.builder(context, widget),
+              maxWidth: 1200,
+              minWidth: 450,
+              defaultScale: true,
+              breakpoints: [
+                ResponsiveBreakpoint.resize(450, name: MOBILE),
+                ResponsiveBreakpoint.autoScale(800, name: TABLET),
+                ResponsiveBreakpoint.autoScale(1000, name: TABLET),
+                ResponsiveBreakpoint.resize(1200, name: DESKTOP),
+                ResponsiveBreakpoint.autoScale(2460, name: "4K"),
+              ],
+              background: Container(color: Colors.black),
+            ),
           ),
           home: Landing(),
           debugShowCheckedModeBanner: false,
