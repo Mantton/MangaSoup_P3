@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
         appBar: PlatformAppBar(
           title: Text("Discover"),
           cupertino: (_, __) =>
-              CupertinoNavigationBarData(backgroundColor: Colors.black),
+              CupertinoNavigationBarData(backgroundColor: Colors.black, transitionBetweenRoutes: true, title: Text("Discover")),
           material: (_, __) => MaterialAppBarData(
             centerTitle: true,
             bottom: PreferredSize(
