@@ -1,19 +1,19 @@
 import 'package:flutter/cupertino.dart'
     show
-    CupertinoActionSheet,
-    CupertinoActionSheetAction,
-    CupertinoDynamicColor,
-    CupertinoIcons,
-    CupertinoThemeData,
-    DefaultCupertinoLocalizations;
+        CupertinoActionSheet,
+        CupertinoActionSheetAction,
+        CupertinoDynamicColor,
+        CupertinoIcons,
+        CupertinoThemeData,
+        DefaultCupertinoLocalizations;
 import 'package:flutter/material.dart'
     show
-    Colors,
-    DefaultMaterialLocalizations,
-    Icons,
-    Theme,
-    ThemeData,
-    ThemeMode;
+        Colors,
+        DefaultMaterialLocalizations,
+        Icons,
+        Theme,
+        ThemeData,
+        ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -69,32 +69,29 @@ void main() {
 //   }
 // }
 
-
 class App extends StatefulWidget {
   @override
   _AppState createState() => _AppState();
 }
 
 class _AppState extends State<App> {
-  Brightness brightness = Brightness.light;
+  Brightness brightness = Brightness.dark;
 
   @override
   Widget build(BuildContext context) {
-    final materialTheme = new ThemeData(
-      primarySwatch: Colors.purple,
-    );
-    final materialDarkTheme = new ThemeData(
-      brightness: Brightness.dark,
-      primarySwatch: Colors.teal,
-    );
+    final materialTheme = ThemeData(primaryColor: Colors.black);
+    final materialDarkTheme = ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: Colors.black,
+        scaffoldBackgroundColor: Colors.black);
 
-    final cupertinoTheme = new CupertinoThemeData(
-      brightness: brightness, // if null will use the system theme
-      primaryColor: CupertinoDynamicColor.withBrightness(
-        color: Colors.purple,
-        darkColor: Colors.cyan,
-      ),
-    );
+    final cupertinoTheme = CupertinoThemeData(
+        brightness: brightness, // if null will use the system theme
+        primaryColor: CupertinoDynamicColor.withBrightness(
+          color: Colors.black,
+          darkColor: Colors.black,
+        ),
+        scaffoldBackgroundColor: Colors.black);
 
     // Example of optionally setting the platform upfront.
     //final initialPlatform = TargetPlatform.iOS;
@@ -121,18 +118,20 @@ class _AppState extends State<App> {
           ],
           title: 'Flutter Platform Widgets',
           material: (_, __) {
-            return new MaterialAppData(
+            return MaterialAppData(
               theme: materialTheme,
               darkTheme: materialDarkTheme,
-              themeMode: brightness == Brightness.light
-                  ? ThemeMode.light
-                  : ThemeMode.dark,
+              themeMode: ThemeMode.dark,
             );
           },
-          cupertino: (_, __) => new CupertinoAppData(
+          cupertino: (_, __) => CupertinoAppData(
             theme: cupertinoTheme,
           ),
           home: Landing(),
+          debugShowCheckedModeBanner: false,
+          routes: {
+            "/sources": (_) => SourcesPage(),
+          },
         ),
       ),
     );
