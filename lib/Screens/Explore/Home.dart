@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
@@ -19,92 +20,140 @@ class _HomeState extends State<Home> {
         designSize: Size(450, 747.5), allowFontScaling: true);
 
     return DefaultTabController(
-      initialIndex: 1,
       length: 3,
-      child: Scaffold(
-        appBar: AppBar(
+      child: PlatformScaffold(
+        iosContentPadding: true,
+        appBar: PlatformAppBar(
           title: Text("Discover"),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Icon(CupertinoIcons.cloud),
-              onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  '/sources',
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {
-                debugPrint('Go To Search Page');
-              },
-              color: Colors.white,
-            ),
-          ],
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(ScreenUtil().setHeight(30)),
-            child: TabBar(
-              indicatorColor: Colors.transparent,
-              labelColor: Colors.purple,
-              unselectedLabelColor: Colors.grey,
-              labelStyle: TextStyle(fontSize: 17.sp),
-              tabs: <Widget>[
-                Tab(
-                  text: "For You",
-                ),
-                Tab(
-                  text: "All Comics",
-                ),
-                Tab(
-                  text: "Latest",
-                )
-              ],
-            ),
-          ),
-        ),
-        body: TabBarView(
-          physics: NeverScrollableScrollPhysics(),
-          children: [
-            Container(
-              color: Colors.grey,
-            ),
-            Container(
-              color: Colors.blueGrey[800],
-              child: Center(
-                child: (sources.length == 0)
-                    ? CupertinoButton(
-                        child: Text("TEST"),
-                        onPressed: simulate,
-                      )
-                    : Container(
-                        child: GridView.builder(
-                            itemCount: sources.length,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4),
-                            itemBuilder: (context, index) {
-                              Source source = sources[index];
-                              return GridTile(
-                                footer: Text(source.name),
-                                child: Image.network(source.thumbnail),
-                              );
-                            }),
-                      ),
+          cupertino: (_, __) =>
+              CupertinoNavigationBarData(backgroundColor: Colors.black),
+          material: (_, __) => MaterialAppBarData(
+            centerTitle: true,
+            bottom: PreferredSize(
+              preferredSize: Size.fromHeight(
+                ScreenUtil().setHeight(30),
+              ),
+              child: TabBar(
+                indicatorColor: Colors.transparent,
+                labelColor: Colors.purple,
+                unselectedLabelColor: Colors.grey,
+                labelStyle: TextStyle(fontSize: 17.sp),
+                tabs: <Widget>[
+                  Tab(
+                    text: "For You",
+                  ),
+                  Tab(
+                    text: "All Comics",
+                  ),
+                  Tab(
+                    text: "Latest",
+                  )
+                ],
               ),
             ),
-            Container(
-                child: CupertinoButton(
-              child: Text("RETRIEVE"),
-              onPressed: () {
-                debugPrint(MediaQuery.of(context).size.width.toString());
-              },
-            ))
+          ),
+          trailingActions: [
+            PlatformIconButton(
+              icon: Icon(CupertinoIcons.cloud),
+              onPressed: () {},
+            ),
+            PlatformIconButton(
+              icon: Icon(context.platformIcons.search),
+              onPressed: () {},
+            ),
           ],
+          backgroundColor: Colors.black,
         ),
       ),
     );
+
+    //   DefaultTabController(
+    //   initialIndex: 1,
+    //   length: 3,
+    //   child: Scaffold(
+    //     appBar: AppBar(
+    //       title: Text("Discover"),
+    //       centerTitle: true,
+    //       actions: [
+    //         IconButton(
+    //           icon: Icon(CupertinoIcons.cloud),
+    //           onPressed: () {
+    //             Navigator.pushNamed(
+    //               context,
+    //               '/sources',
+    //             );
+    //           },
+    //         ),
+    //         IconButton(
+    //           icon: Icon(Icons.search),
+    //           onPressed: () {
+    //             debugPrint('Go To Search Page');
+    //           },
+    //           color: Colors.white,
+    //         ),
+    //       ],
+    //       bottom: PreferredSize(
+    //         preferredSize: Size.fromHeight(ScreenUtil().setHeight(30)),
+    //         child: TabBar(
+    //           indicatorColor: Colors.transparent,
+    //           labelColor: Colors.purple,
+    //           unselectedLabelColor: Colors.grey,
+    //           labelStyle: TextStyle(fontSize: 17.sp),
+    //           tabs: <Widget>[
+    //             Tab(
+    //               text: "For You",
+    //             ),
+    //             Tab(
+    //               text: "All Comics",
+    //             ),
+    //             Tab(
+    //               text: "Latest",
+    //             )
+    //           ],
+    //         ),
+    //       ),
+    //     ),
+    //     body: TabBarView(
+    //       physics: NeverScrollableScrollPhysics(),
+    //       children: [
+    //         Container(
+    //           color: Colors.grey,
+    //         ),
+    //         Container(
+    //           color: Colors.blueGrey[800],
+    //           child: Center(
+    //             child: (sources.length == 0)
+    //                 ? CupertinoButton(
+    //                     child: Text("TEST"),
+    //                     onPressed: simulate,
+    //                   )
+    //                 : Container(
+    //                     child: GridView.builder(
+    //                         itemCount: sources.length,
+    //                         gridDelegate:
+    //                             SliverGridDelegateWithFixedCrossAxisCount(
+    //                                 crossAxisCount: 4),
+    //                         itemBuilder: (context, index) {
+    //                           Source source = sources[index];
+    //                           return GridTile(
+    //                             footer: Text(source.name),
+    //                             child: Image.network(source.thumbnail),
+    //                           );
+    //                         }),
+    //                   ),
+    //           ),
+    //         ),
+    //         Container(
+    //             child: CupertinoButton(
+    //           child: Text("RETRIEVE"),
+    //           onPressed: () {
+    //             debugPrint(MediaQuery.of(context).size.width.toString());
+    //           },
+    //         ))
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 
   simulate() async {

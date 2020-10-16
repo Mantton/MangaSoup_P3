@@ -137,6 +137,7 @@ class _AppState extends State<App> {
           },
           cupertino: (_, __) => CupertinoAppData(
             theme: cupertinoTheme,
+
             builder: (context, widget) => ResponsiveWrapper.builder(
               BouncingScrollWrapper.builder(context, widget),
               maxWidth: 1200,
