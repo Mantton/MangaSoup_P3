@@ -20,6 +20,7 @@ class ApiManager {
 
   /// ------------- Server Resources
   Future<List<Source>> getServerSources(String server) async {
+    debugPrint('Starting');
     Response response = await _dio.get(
       "/app/sources",
       queryParameters: {

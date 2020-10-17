@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart'
     show
         CupertinoActionSheet,
@@ -46,22 +48,6 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   Brightness brightness = Brightness.dark;
 
-  // bool firstRodeo = true;
-  bool ran = false;
-  Future<bool> initSource() async {
-    TestPreference _prefs = TestPreference();
-    await _prefs.init();
-    Source source = await _prefs.loadSource();
-    if (source == null) {
-      debugPrint("IS NULL");
-      return true;
-    } else {
-      await Provider.of<SourceNotifier>(context, listen: false)
-          .loadSource(source);
-      return false;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final materialTheme = ThemeData(primaryColor: Colors.black);
@@ -92,7 +78,7 @@ class _AppState extends State<App> {
     return Theme(
       data: brightness == Brightness.light ? materialTheme : materialDarkTheme,
       child: PlatformProvider(
-        builder: (context) => PlatformApp(
+        builder: (_) => PlatformApp(
           localizationsDelegates: <LocalizationsDelegate<dynamic>>[
             DefaultMaterialLocalizations.delegate,
             DefaultWidgetsLocalizations.delegate,
@@ -137,32 +123,70 @@ class _AppState extends State<App> {
               background: Container(color: Colors.black),
             ),
           ),
-          home: FutureBuilder(
-            future: initSource(),
-            builder: (BuildContext context,snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting)
-                return Center(
-                  child: CupertinoActivityIndicator(),
-                );
 
-              if (snapshot.hasData) {
-                if (snapshot.data)
-                  return SourcesPage();
-                else
-                  return Landing();
-              } else
-                return Text(
-                  "ERROR",
-                  style: TextStyle(color: Colors.white),
-                );
-            },
-          ),
+          initialRoute: "handler",
+          // (_firstRun) ? "sources" : "landing",
           debugShowCheckedModeBanner: false,
           routes: {
+            "/": (_)=> Landing(),
+            "handler": (_) => Handler(),
             "/sources": (_) => SourcesPage(),
+            "landing": (_) => Landing(),
           },
         ),
       ),
     );
+  }
+}
+
+class Handler extends StatefulWidget {
+  @override
+  _HandlerState createState() => _HandlerState();
+}
+
+class _HandlerState extends State<Handler> {
+  Future<bool> initSource() async {
+    TestPreference _prefs = TestPreference();
+    await _prefs.init();
+    Source source = await _prefs.loadSource();
+    if (source == null) {
+      debugPrint("Not Initialized");
+      return true;
+    } else {
+      await Provider.of<SourceNotifier>(context, listen: false)
+          .loadSource(source);
+      return false;
+    }
+  }
+
+  Future<bool> firstLaunch;
+  @override
+  void initState() {
+    super.initState();
+    firstLaunch = initSource();
+  }
+
+  @override
+  Widget build(BuildContext c) {
+    return FutureBuilder(
+        future: firstLaunch,
+        builder: (BuildContext cxt, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return Center(
+              child: CupertinoActivityIndicator(),
+            );
+
+          if (snapshot.hasData) {
+            bool _x = snapshot.data;
+            if (_x)
+              return SourcesPage();
+            else
+              return Landing();
+          } else
+            return Text(
+              "error",
+              style: TextStyle(color: Colors.white),
+            );
+        });
   }
 }

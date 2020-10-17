@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
@@ -51,7 +52,7 @@ class _SourcesPageState extends State<SourcesPage> {
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     } else
-      Navigator.pushNamed(context, '/');
+      Navigator.pushReplacementNamed(context, 'landing');
   }
 
   @override
@@ -128,69 +129,70 @@ class _SourcesPageState extends State<SourcesPage> {
                               Source source = _sources[i];
                               return GestureDetector(
                                 onTap: () async {
-                                  selectSource(source);
+                                  if (!source.isEnabled)
+                                    sourceDisabledDialog();
+                                  else
+                                    selectSource(source);
                                 },
-                                child: Consumer<SourceNotifier>(
-                                  builder: (context, item, _) => Container(
-                                    padding: EdgeInsets.all(5.w),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          color: (!source.isEnabled)
-                                              ? Colors.red
-                                              : (source.selector !=
-                                                      _currentSelector) // todo change to active source
-                                                  ? (source.vipProtected)
-                                                      ? Colors.amber
-                                                      : Colors.grey[900]
-                                                  : Colors.purple),
-                                    ),
-                                    child: GridTile(
-                                      child: Image.network(source.thumbnail),
+                                child: Container(
+                                  padding: EdgeInsets.all(5.w),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                        color: (!source.isEnabled)
+                                            ? Colors.red
+                                            : (source.selector !=
+                                                    _currentSelector)
+                                                ? (source.vipProtected)
+                                                    ? Colors.amber
+                                                    : Colors.grey[900]
+                                                : Colors.purple),
+                                  ),
+                                  child: GridTile(
+                                    child: Image.network(source.thumbnail),
 
-                                      // CachedNetworkImage(
-                                      //   imageUrl: source.thumbnail,
-                                      //   fadeInDuration:
-                                      //       Duration(milliseconds: 200),
-                                      //   placeholder: (context, url) => Center(
-                                      //     child: CupertinoActivityIndicator(),
-                                      //   ),
-                                      // ),
-                                      footer: Center(
-                                        child: FittedBox(
-                                          child: Text(
-                                            source.name,
-                                            style: TextStyle(
-                                                fontSize: 17.sp,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
-                                          ),
+                                    // CachedNetworkImage(
+                                    //   imageUrl: source.thumbnail,
+                                    //   fadeInDuration:
+                                    //       Duration(milliseconds: 200),
+                                    //   placeholder: (context, url) => Center(
+                                    //     child: CupertinoActivityIndicator(),
+                                    //   ),
+                                    // ),
+                                    footer: Center(
+                                      child: FittedBox(
+                                        child: Text(
+                                          source.name,
+                                          style: TextStyle(
+                                              fontSize: 17.sp,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold),
                                         ),
                                       ),
-                                      header: (!source.vipProtected)
-                                          ? Container()
-                                          : Container(
-                                              alignment: Alignment.topRight,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children: [
-                                                  Icon(
-                                                    Icons.verified_sharp,
-                                                    color: Colors.amber,
-                                                  ),
-                                                  SizedBox(
-                                                    width: 3.w,
-                                                  ),
-                                                  Text(
-                                                    "VIP",
-                                                    style: TextStyle(
-                                                        color: Colors.amber),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
                                     ),
+                                    header: (!source.vipProtected)
+                                        ? Container()
+                                        : Container(
+                                            alignment: Alignment.topRight,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Icon(
+                                                  Icons.verified_sharp,
+                                                  color: Colors.amber,
+                                                ),
+                                                SizedBox(
+                                                  width: 3.w,
+                                                ),
+                                                Text(
+                                                  "VIP",
+                                                  style: TextStyle(
+                                                      color: Colors.amber),
+                                                )
+                                              ],
+                                            ),
+                                          ),
                                   ),
                                 ),
                               );
@@ -202,7 +204,6 @@ class _SourcesPageState extends State<SourcesPage> {
               ),
             );
           } else
-            // todo, raise error here
             return Scaffold(
               appBar: AppBar(
                 title: Text("Sources"),
@@ -233,5 +234,20 @@ class _SourcesPageState extends State<SourcesPage> {
         },
       ),
     );
+  }
+
+  sourceDisabledDialog() {
+    return showPlatformDialog(
+        context: context,
+        builder: (_) => PlatformAlertDialog(
+              title: Text("Source Disabled"),
+              content: Text("This source has been disabled for maintenance"),
+              actions: [
+                PlatformDialogAction(
+                  child: PlatformText("OK"),
+                  onPressed: () => Navigator.pop(context),
+                )
+              ],
+            ));
   }
 }
