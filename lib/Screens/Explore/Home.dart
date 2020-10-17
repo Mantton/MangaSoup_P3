@@ -11,15 +11,21 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with TickerProviderStateMixin{
   List<Source> sources = [];
-  int segmentedControlGroupValue = 0;
+  int segmentedControlGroupValue = 1;
   final Map<int, Widget> myTabs = const <int, Widget>{
     0: Text("For You"),
     1: Text("Home"),
     2: Text("Latest"),
   };
+  TabController _controller;
 
+  @override
+  void initState() {
+    _controller =  TabController(length: 3, vsync: this, initialIndex: 1);
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context,
@@ -27,11 +33,15 @@ class _HomeState extends State<Home> {
 
     return DefaultTabController(
       length: 3,
+      initialIndex: 1,
+
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(CupertinoIcons.cloud),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, "/sources");
+            },
           ),
           title: Text("Discover"),
           centerTitle: true,
@@ -44,19 +54,29 @@ class _HomeState extends State<Home> {
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(30.h),
             child: PlatformWidget(
-              cupertino: (_, __) => CupertinoSlidingSegmentedControl(
-                  groupValue: segmentedControlGroupValue,
-                  children: myTabs,
-                  onValueChanged: (i) {
-                    setState(() {
-                      segmentedControlGroupValue = i;
-                    });
-                  }),
+              cupertino: (_, __) => Container(
+                width: MediaQuery.of(context).size.width,
+                child: Padding(
+                  padding:  EdgeInsets.all(8.0),
+                  child: CupertinoSlidingSegmentedControl(
+                      groupValue: segmentedControlGroupValue,
+
+                      thumbColor: Colors.purple,
+                      children: myTabs,
+                      onValueChanged: (i) {
+                        setState(() {
+                          segmentedControlGroupValue = i;
+                          _controller.animateTo(i);
+                        });
+                      }),
+                ),
+              ),
               material: (_, __) => TabBar(
                 indicatorColor: Colors.transparent,
                 labelColor: Colors.purple,
                 unselectedLabelColor: Colors.grey,
                 labelStyle: TextStyle(fontSize: 17.sp),
+                controller: _controller,
                 tabs: <Widget>[
                   Tab(
                     text: "For You",
@@ -74,6 +94,7 @@ class _HomeState extends State<Home> {
         ),
         body: TabBarView(
           // physics: NeverScrollableScrollPhysics(),
+          controller: _controller,
           children: [
             Container(
               color: Colors.grey,
