@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Explore/AllComics.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
@@ -68,7 +69,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               cupertino: (_, __) => Container(
                 width: MediaQuery.of(context).size.width,
                 child: Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0.w),
                   child: CupertinoSlidingSegmentedControl(
                       groupValue: segmentedControlGroupValue,
                       thumbColor: Colors.purple,
@@ -105,10 +106,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         body: TabBarView(
           physics: NeverScrollableScrollPhysics(),
           controller: _controller,
+
           children: [
-            Container(
-              color: Colors.grey,
-            ),
             Container(
               color: Colors.blueGrey[800],
               child: Center(
@@ -122,7 +121,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             itemCount: sources.length,
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4),
+                              crossAxisCount: 4,
+                            ),
                             itemBuilder: (context, index) {
                               Source source = sources[index];
                               return GridTile(
@@ -133,6 +133,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       ),
               ),
             ),
+            AllComicsPage(),
             Container(
                 child: CupertinoButton(
               child: Text("RETRIEVE"),

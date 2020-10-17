@@ -7,14 +7,14 @@ import 'package:mangasoup_prototype_3/Models/Source.dart';
 
 class ApiManager {
   //10.0.2.2 /127.0.0.1  http://10.0.2.2:5000/app/sources?server=live
-  static String _devAddress = "http://10.0.2.2:5000";
+  static String _devAddress = "https://mangasoup-4500a.uc.r.appspot.com";
   static String _productionAddress =
       "http://mangasoup-env-1.eba-hd2s2exn.us-east-1.elasticbeanstalk.com";
   static BaseOptions _options = BaseOptions(
     // actual route -->
     baseUrl: _devAddress,
-    connectTimeout: 5000,
-    receiveTimeout: 5000,
+    connectTimeout: 50000,
+    receiveTimeout: 50000,
   );
   final Dio _dio = Dio(_options);
 
@@ -43,6 +43,8 @@ class ApiManager {
   /// Get All
   Future<List<ComicHighlight>> getAll(
       String source, String sortBy, int page, Map additionalInfo) async {
+    debugPrint('Starting');
+
     Map data = {
       "source": source,
       "page": page,
