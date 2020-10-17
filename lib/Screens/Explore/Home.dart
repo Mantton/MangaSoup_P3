@@ -2,16 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/test_preference.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with TickerProviderStateMixin{
+class _HomeState extends State<Home> with TickerProviderStateMixin {
   List<Source> sources = [];
   int segmentedControlGroupValue = 1;
   final Map<int, Widget> myTabs = const <int, Widget>{
@@ -23,9 +26,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
 
   @override
   void initState() {
-    _controller =  TabController(length: 3, vsync: this, initialIndex: 1);
+    _controller = TabController(length: 3, vsync: this, initialIndex: 1);
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context,
@@ -34,13 +38,20 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
     return DefaultTabController(
       length: 3,
       initialIndex: 1,
-
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(CupertinoIcons.cloud),
             onPressed: () {
-              Navigator.pushNamed(context, "/sources");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SourcesPage(
+                    selector:
+                        Provider.of<SourceNotifier>(context).source.selector,
+                  ),
+                ),
+              );
             },
           ),
           title: Text("Discover"),
@@ -57,10 +68,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
               cupertino: (_, __) => Container(
                 width: MediaQuery.of(context).size.width,
                 child: Padding(
-                  padding:  EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0),
                   child: CupertinoSlidingSegmentedControl(
                       groupValue: segmentedControlGroupValue,
-
                       thumbColor: Colors.purple,
                       children: myTabs,
                       onValueChanged: (i) {
@@ -93,7 +103,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
           ),
         ),
         body: TabBarView(
-          // physics: NeverScrollableScrollPhysics(),
+          physics: NeverScrollableScrollPhysics(),
           controller: _controller,
           children: [
             Container(
@@ -127,58 +137,21 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
                 child: CupertinoButton(
               child: Text("RETRIEVE"),
               onPressed: () {
-                debugPrint(MediaQuery.of(context).size.width.toString());
+                debugPrint(Provider.of<SourceNotifier>(context, listen: false)
+                    .source
+                    .name);
               },
             ))
           ],
         ),
       ),
     );
-
-    //   DefaultTabController(
-    //   initialIndex: 1,
-    //   length: 3,
-    //   child: Scaffold(
-    //     appBar: AppBar(
-    //       title: Text("Discover"),
-    //       centerTitle: true,
-    //       actions: [
-    //         IconButton(
-    //           icon: Icon(CupertinoIcons.cloud),
-    //           onPressed: () {
-    //
-    //           },
-    //         ),
-    //         IconButton(
-    //           icon: Icon(Icons.search),
-    //           onPressed: () {
-    //             debugPrint('Go To Search Page');
-    //           },
-    //           color: Colors.white,
-    //         ),
-    //       ],
-    //       bottom: PreferredSize(
-    //         preferredSize: Size.fromHeight(ScreenUtil().setHeight(30)),
-    //         child:
-
-    //       ),
-    //     ),
-    //
-    // );
   }
 
   simulate() async {
-    ApiManager re = ApiManager();
-    // await re.getAll("mangadex", "9", 1, {});
-    // List x = await re.getServerSources("live");
-    // setState(() {
-    //   sources = x;
-    // });
-
     TestPreference _t = TestPreference();
     await _t.init();
     _t.setName("tester");
-
     debugPrint("OK");
   }
 

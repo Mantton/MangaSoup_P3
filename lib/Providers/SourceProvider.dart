@@ -10,7 +10,7 @@ class SourceNotifier extends ChangeNotifier{
     notifyListeners();
   }
 
-  loadSource() async{
-
+  loadSource(Source src) async{
+    source = src;
   }
 }

@@ -3,17 +3,35 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
+import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:collection/collection.dart';
 import 'dart:ui';
 
+import 'package:mangasoup_prototype_3/Services/test_preference.dart';
+import 'package:provider/provider.dart';
+
 class SourcesPage extends StatefulWidget {
+  final String selector;
+
+  const SourcesPage({Key key, this.selector}) : super(key: key);
+
   @override
   _SourcesPageState createState() => _SourcesPageState();
 }
 
 class _SourcesPageState extends State<SourcesPage> {
   ApiManager server = ApiManager();
+  String _currentSelector;
+
+  check() {
+    if (widget.selector != null)
+      _currentSelector = widget.selector;
+    else {
+      _currentSelector = "";
+    }
+    debugPrint(_currentSelector);
+  }
 
   // Retrieve Source from Server
   Future<Map> getSources() async {
@@ -22,6 +40,24 @@ class _SourcesPageState extends State<SourcesPage> {
     Map sorted =
         groupBy(sources, (Source obj) => obj.sourcePack); // Group Source
     return sorted;
+  }
+
+  selectSource(Source src) async {
+    TestPreference _prefs = TestPreference();
+    await _prefs.init();
+    await _prefs.setSource(src);
+    await Provider.of<SourceNotifier>(context, listen: false).loadSource(src);
+
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else
+      Navigator.pushNamed(context, '/');
+  }
+
+  @override
+  void initState() {
+    check();
+    super.initState();
   }
 
   @override
@@ -91,69 +127,70 @@ class _SourcesPageState extends State<SourcesPage> {
                             itemBuilder: (BuildContext context, int i) {
                               Source source = _sources[i];
                               return GestureDetector(
-                                onTap: () {
-                                  debugPrint(source.thumbnail);
+                                onTap: () async {
+                                  selectSource(source);
                                 },
-                                child: Container(
-                                  padding: EdgeInsets.all(5.w),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                        color: (!source.isEnabled)
-                                            ? Colors.red
-                                            : (source.selector !=
-                                                    'mangadex') // todo change to active source
-                                                ? (source.vipProtected)
-                                                    ? Colors.amber
-                                                    : Colors.grey[900]
-                                                : Colors.purple),
-                                  ),
-                                  child: GridTile(
-                                    child: Image.network(source.thumbnail),
+                                child: Consumer<SourceNotifier>(
+                                  builder: (context, item, _) => Container(
+                                    padding: EdgeInsets.all(5.w),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          color: (!source.isEnabled)
+                                              ? Colors.red
+                                              : (source.selector !=
+                                                      _currentSelector) // todo change to active source
+                                                  ? (source.vipProtected)
+                                                      ? Colors.amber
+                                                      : Colors.grey[900]
+                                                  : Colors.purple),
+                                    ),
+                                    child: GridTile(
+                                      child: Image.network(source.thumbnail),
 
-                                    // CachedNetworkImage(
-                                    //   imageUrl: source.thumbnail,
-                                    //   fadeInDuration:
-                                    //       Duration(milliseconds: 200),
-                                    //   placeholder: (context, url) => Center(
-                                    //     child: CupertinoActivityIndicator(),
-                                    //   ),
-                                    // ),
-                                    footer: Center(
-                                      child: FittedBox(
-                                        child: Text(
-                                          source.name,
-                                          style: TextStyle(
-                                            fontSize: 17.sp,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold
+                                      // CachedNetworkImage(
+                                      //   imageUrl: source.thumbnail,
+                                      //   fadeInDuration:
+                                      //       Duration(milliseconds: 200),
+                                      //   placeholder: (context, url) => Center(
+                                      //     child: CupertinoActivityIndicator(),
+                                      //   ),
+                                      // ),
+                                      footer: Center(
+                                        child: FittedBox(
+                                          child: Text(
+                                            source.name,
+                                            style: TextStyle(
+                                                fontSize: 17.sp,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    header: (!source.vipProtected)
-                                        ? Container()
-                                        : Container(
-                                            alignment: Alignment.topRight,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                Icon(
-                                                  Icons.verified_sharp,
-                                                  color: Colors.amber,
-                                                ),
-                                                SizedBox(
-                                                  width: 3.w,
-                                                ),
-                                                Text(
-                                                  "VIP",
-                                                  style: TextStyle(
-                                                      color: Colors.amber),
-                                                )
-                                              ],
+                                      header: (!source.vipProtected)
+                                          ? Container()
+                                          : Container(
+                                              alignment: Alignment.topRight,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Icon(
+                                                    Icons.verified_sharp,
+                                                    color: Colors.amber,
+                                                  ),
+                                                  SizedBox(
+                                                    width: 3.w,
+                                                  ),
+                                                  Text(
+                                                    "VIP",
+                                                    style: TextStyle(
+                                                        color: Colors.amber),
+                                                  )
+                                                ],
+                                              ),
                                             ),
-                                          ),
+                                    ),
                                   ),
                                 ),
                               );
