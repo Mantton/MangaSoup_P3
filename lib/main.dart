@@ -113,6 +113,7 @@ class _AppState extends State<App> {
               maxWidth: 1200,
               minWidth: 450,
               defaultScale: true,
+
               breakpoints: [
                 ResponsiveBreakpoint.resize(450, name: MOBILE),
                 ResponsiveBreakpoint.autoScale(800, name: TABLET),

@@ -121,8 +121,7 @@ class _SourcesPageState extends State<SourcesPage> {
                               crossAxisCount: 3,
                               crossAxisSpacing: ScreenUtil().setWidth(10),
                               mainAxisSpacing: ScreenUtil().setWidth(10),
-                              childAspectRatio: ScreenUtil().setHeight(77) /
-                                  ScreenUtil().setWidth(100), // 77/100
+                              childAspectRatio: .77, // 77/100
                             ),
                             itemCount: _sources.length,
                             itemBuilder: (BuildContext context, int i) {

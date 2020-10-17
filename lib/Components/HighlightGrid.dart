@@ -15,11 +15,12 @@ class _ComicGridState extends State<ComicGrid> {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
+      physics: ScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           crossAxisSpacing: 10.w,
           mainAxisSpacing: 10.w,
-          childAspectRatio: 65.w / 100.h),
+          childAspectRatio: 65 / 100),
       shrinkWrap: true,
       itemCount: widget.comics.length,
       itemBuilder: (BuildContext context, index) => GestureDetector(
@@ -65,7 +66,6 @@ class ComicGridTile extends StatelessWidget {
           ),
           footer: Container(
             color: Colors.black38,
-
             child: Padding(
               padding: EdgeInsets.all(8.0.w),
               child: Text(
