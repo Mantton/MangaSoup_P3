@@ -90,24 +90,24 @@ class _AllComicsPageState extends State<AllComicsPage>
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: test,
-        builder: (BuildContext context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: LoadingIndicator(),
-            );
-          }
-          if (snapshot.hasData) {
-            k = snapshot.data;
-            return SingleChildScrollView(
-              controller: _controller,
-              child: Container(
-                padding: EdgeInsets.all(10),
-                child: Column(
-                  children: [
-                    Consumer<SourceNotifier>(
-                      builder: (context, sourceProvider, _) => Padding(
+    return Consumer<SourceNotifier>(
+      builder: (context, sourceProvider, _) => FutureBuilder(
+          future: test,
+          builder: (BuildContext context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: LoadingIndicator(),
+              );
+            }
+            if (snapshot.hasData) {
+              k = snapshot.data;
+              return SingleChildScrollView(
+                controller: _controller,
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      Padding(
                         padding: EdgeInsets.all(8.0.w),
                         child: Container(
                           child: Row(
@@ -175,39 +175,39 @@ class _AllComicsPageState extends State<AllComicsPage>
                           ),
                         ),
                       ),
-                    ),
-                    ComicGrid(comics: k),
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    (loadingMore) ? LoadingIndicator() : Container(),
-                  ],
+                      ComicGrid(comics: k),
+                      SizedBox(
+                        height: 10.h,
+                      ),
+                      (loadingMore) ? LoadingIndicator() : Container(),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: InkWell(
-                child: Text(
-                  "Retry Fetch",
-                  style: TextStyle(fontSize: 15.sp),
-                  textAlign: TextAlign.center,
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: InkWell(
+                  child: Text(
+                    "Retry Fetch",
+                    style: TextStyle(fontSize: 15.sp),
+                    textAlign: TextAlign.center,
+                  ),
+                  onTap: () {
+                    setState(() {});
+                  },
                 ),
-                onTap: () {
-                  setState(() {});
-                },
-              ),
-            );
-          } else {
-            return Center(
-              child: InkWell(
-                child: LoadingIndicator(),
-                onTap: () {
-                  setState(() {});
-                },
-              ),
-            );
-          }
-        });
+              );
+            } else {
+              return Center(
+                child: InkWell(
+                  child: LoadingIndicator(),
+                  onTap: () {
+                    setState(() {});
+                  },
+                ),
+              );
+            }
+          }),
+    );
   }
 }
