@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
@@ -15,58 +16,44 @@ class AllComicsPage extends StatefulWidget {
   _AllComicsPageState createState() => _AllComicsPageState();
 }
 
-class _AllComicsPageState extends State<AllComicsPage>
-    with AutomaticKeepAliveClientMixin {
-  Map _sort;
-  Future<List<ComicHighlight>> test;
-  List<ComicHighlight> k;
-  int page = 1;
+class _AllComicsPageState extends State<AllComicsPage> {
+  Map _sort = {"Name": "Default", "Selector": "default"};
+  Future<List<ComicHighlight>> _futureComics;
+  List<ComicHighlight> _comics;
+  int _page = 1;
   ScrollController _controller;
-  bool loadingMore = false;
+  bool _loadingMore = false;
 
-  Future<List<ComicHighlight>> tester(
+  Future<List<ComicHighlight>> _loadComics(
       String source, String sortBy, int page, Map info) async {
     ApiManager _manager = ApiManager();
     return await _manager.getAll(source, sortBy, page, info);
   }
 
-  loadComics(String source, String sortBy, int page, Map info) async {
-    ApiManager _manager = ApiManager();
-    _manager.getAll(source, sortBy, page, info).then((value) {
-      setState(() {
-        k = value;
-      });
-    });
-  }
-
   Future<List<ComicHighlight>> paginate() {
-    if (loadingMore == true) return null;
-    page++;
+    if (_loadingMore == true) return null;
+    _page++;
     setState(() {
-      loadingMore = true;
+      _loadingMore = true;
     });
-    return tester(
+    return _loadComics(
         Provider.of<SourceNotifier>(context, listen: false).source.selector,
         _sort['Selector'],
-        page, {});
+        _page, {});
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      Source source =
-          Provider.of<SourceNotifier>(context, listen: false).source;
-
-      _sort = source.sorters[0];
-      test = tester(source.selector, _sort['Selector'], page, {});
-
-      // loadComics(source.selector, _sort['Selector'], page, {});
-    });
-
+    Source _source = Provider.of<SourceNotifier>(context, listen: false).source;
+    _sort = _source.sorters[0];
+    _futureComics = _loadComics(_source.selector, _sort["Selector"], _page, {});
     _controller = ScrollController();
     _controller.addListener(() {
       _scrollListener();
+    });
+    sourcesStream.stream.listen((event) {
+      _futureComics = _loadComics(event, Provider.of<SourceNotifier>(context, listen: false).source.sorters[0]['Selector'], _page, {});
     });
   }
 
@@ -78,29 +65,45 @@ class _AllComicsPageState extends State<AllComicsPage>
       List<ComicHighlight> y = await paginate();
       if (y != null) {
         setState(() {
-          k.addAll(y);
-          loadingMore = false;
+          _comics.addAll(y);
+          _loadingMore = false;
         });
       }
     }
   }
 
   @override
-  bool get wantKeepAlive => true;
-
-  @override
   Widget build(BuildContext context) {
     return Consumer<SourceNotifier>(
       builder: (context, sourceProvider, _) => FutureBuilder(
-          future: test,
+          future: _futureComics,
           builder: (BuildContext context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: LoadingIndicator(),
               );
             }
+            if (snapshot.hasError) {
+              return Center(
+                child: InkWell(
+                  child: Text(
+                    "An error occurred\n Tap to Retry",
+                    style: TextStyle(fontSize: 15.sp),
+                    textAlign: TextAlign.center,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      _futureComics = _loadComics(
+                          sourceProvider.source.selector,
+                          _sort["Selector"],
+                          _page, {});
+                    });
+                  },
+                ),
+              );
+            }
             if (snapshot.hasData) {
-              k = snapshot.data;
+              _comics = snapshot.data;
               return SingleChildScrollView(
                 controller: _controller,
                 child: Container(
@@ -154,7 +157,7 @@ class _AllComicsPageState extends State<AllComicsPage>
                                             setState(() {
                                               _sort = sourceProvider
                                                   .source.sorters[index];
-                                              test = tester(
+                                              _futureComics = _loadComics(
                                                   sourceProvider
                                                       .source.selector,
                                                   _sort['Selector'],
@@ -175,26 +178,13 @@ class _AllComicsPageState extends State<AllComicsPage>
                           ),
                         ),
                       ),
-                      ComicGrid(comics: k),
+                      ComicGrid(comics: _comics),
                       SizedBox(
                         height: 10.h,
                       ),
-                      (loadingMore) ? LoadingIndicator() : Container(),
+                      (_loadingMore) ? LoadingIndicator() : Container(),
                     ],
                   ),
-                ),
-              );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: InkWell(
-                  child: Text(
-                    "Retry Fetch",
-                    style: TextStyle(fontSize: 15.sp),
-                    textAlign: TextAlign.center,
-                  ),
-                  onTap: () {
-                    setState(() {});
-                  },
                 ),
               );
             } else {

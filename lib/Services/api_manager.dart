@@ -42,8 +42,6 @@ class ApiManager {
   /// Get All
   Future<List<ComicHighlight>> getAll(
       String source, String sortBy, int page, Map additionalInfo) async {
-    debugPrint('Starting');
-
     Map data = {
       "source": source,
       "page": page,
@@ -58,7 +56,7 @@ class ApiManager {
     for (int index = 0; index < dataPoints.length; index++) {
       comics.add(ComicHighlight.fromMap(dataPoints[index]));
     }
-    debugPrint("Retrieval Complete : /all @$source");
+    debugPrint("Retrieval Complete : /all @$source s/$sortBy");
     return comics;
   }
 
@@ -71,7 +69,7 @@ class ApiManager {
     for (int index = 0; index < dataPoints.length; index++) {
       comics.add(ComicHighlight.fromMap(dataPoints[index]));
     }
-    debugPrint("Retrieval Complete : /latest");
+    debugPrint("Retrieval Complete : /latest @$source");
     return comics;
   }
 

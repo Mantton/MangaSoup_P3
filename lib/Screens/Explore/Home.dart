@@ -19,7 +19,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with TickerProviderStateMixin {
   List<Source> sources = [];
-  int segmentedControlGroupValue = 1;
+  int _index = 1;
   final Map<int, Widget> myTabs = const <int, Widget>{
     0: Text("For You"),
     1: Text("Home"),
@@ -73,12 +73,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 child: Padding(
                   padding: EdgeInsets.all(8.0.w),
                   child: CupertinoSlidingSegmentedControl(
-                      groupValue: segmentedControlGroupValue,
+                      groupValue: _index,
                       thumbColor: Colors.purple,
                       children: myTabs,
                       onValueChanged: (i) {
                         setState(() {
-                          segmentedControlGroupValue = i;
+                          _index = i;
                           _controller.animateTo(i);
                         });
                       }),
@@ -90,6 +90,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 unselectedLabelColor: Colors.grey,
                 labelStyle: TextStyle(fontSize: 17.sp),
                 controller: _controller,
+                onTap: (value){
+                  setState(() {
+                    _index = value;
+                  });
+                },
                 tabs: <Widget>[
                   Tab(
                     text: "For You",
@@ -105,9 +110,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             ),
           ),
         ),
-        body: TabBarView(
-          physics: NeverScrollableScrollPhysics(),
-          controller: _controller,
+        body: IndexedStack(
+          index: _index,
           children: [
             ForYouPage(),
             AllComicsPage(),

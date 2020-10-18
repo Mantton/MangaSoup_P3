@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
@@ -47,7 +48,7 @@ class _SourcesPageState extends State<SourcesPage> {
     await _prefs.init();
     await _prefs.setSource(src);
     await Provider.of<SourceNotifier>(context, listen: false).loadSource(src);
-
+    sourcesStream.add(src.selector);
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     } else

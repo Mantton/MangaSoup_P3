@@ -1,46 +1,56 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../Globals.dart';
+
 class LatestPage extends StatefulWidget {
   @override
   _LatestPageState createState() => _LatestPageState();
 }
 
-class _LatestPageState extends State<LatestPage>
-    with AutomaticKeepAliveClientMixin {
-  int page = 1;
-  Future<List<ComicHighlight>> test;
-  List<ComicHighlight> k;
+class _LatestPageState extends State<LatestPage> {
+  Future<List<ComicHighlight>> _futureComics;
+  List<ComicHighlight> _comics;
+  int _page = 1;
   ScrollController _controller;
-  bool loadingMore = false;
+  bool _loadingMore = false;
 
-  Future<List<ComicHighlight>> loadComics() async {
+  Future<List<ComicHighlight>> _loadComics(String source, int page) async {
     ApiManager _manager = ApiManager();
-    return await _manager.getLatest(
-        Provider.of<SourceNotifier>(context, listen: false).source.selector,
-        page);
+    return await _manager.getLatest(source, page);
   }
 
-  Future<List<ComicHighlight>> paginate() async {
-    if (loadingMore == true) return null;
-    page++;
-    return await loadComics();
+  Future<List<ComicHighlight>> paginate() {
+    if (_loadingMore == true) return null;
+    _page++;
+    setState(() {
+      _loadingMore = true;
+    });
+    return _loadComics(
+        Provider.of<SourceNotifier>(context, listen: false).source.selector,
+        _page);
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      test = loadComics();
-    });
+    Source _source = Provider.of<SourceNotifier>(context, listen: false).source;
+    _futureComics = _loadComics(_source.selector, _page);
     _controller = ScrollController();
     _controller.addListener(() {
       _scrollListener();
+    });
+    sourcesStream.stream.listen((event) {
+      _futureComics = _loadComics(event, _page);
     });
   }
 
@@ -52,8 +62,8 @@ class _LatestPageState extends State<LatestPage>
       List<ComicHighlight> y = await paginate();
       if (y != null) {
         setState(() {
-          k.addAll(y);
-          loadingMore = false;
+          _comics.addAll(y);
+          _loadingMore = false;
         });
       }
     }
@@ -63,41 +73,45 @@ class _LatestPageState extends State<LatestPage>
   Widget build(BuildContext context) {
     return Consumer<SourceNotifier>(
       builder: (context, sourceProvider, _) => FutureBuilder(
-          future: test,
+          future: _futureComics,
           builder: (BuildContext context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: LoadingIndicator(),
               );
             }
+            if (snapshot.hasError) {
+              return Center(
+                child: InkWell(
+                  child: Text(
+                    "An error occurred\n Tap to Retry",
+                    style: TextStyle(fontSize: 15.sp),
+                    textAlign: TextAlign.center,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      _futureComics =
+                          _loadComics(sourceProvider.source.selector, _page);
+                    });
+                  },
+                ),
+              );
+            }
             if (snapshot.hasData) {
-              k = snapshot.data;
+              _comics = snapshot.data;
               return SingleChildScrollView(
                 controller: _controller,
                 child: Container(
                   padding: EdgeInsets.all(10),
                   child: Column(
                     children: [
-                      ComicGrid(comics: k),
+                      ComicGrid(comics: _comics),
                       SizedBox(
                         height: 10.h,
                       ),
-                      (loadingMore) ? LoadingIndicator() : Container(),
+                      (_loadingMore) ? LoadingIndicator() : Container(),
                     ],
                   ),
-                ),
-              );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: InkWell(
-                  child: Text(
-                    "Retry Fetch",
-                    style: TextStyle(fontSize: 15.sp),
-                    textAlign: TextAlign.center,
-                  ),
-                  onTap: () {
-                    setState(() {});
-                  },
                 ),
               );
             } else {
@@ -113,7 +127,4 @@ class _LatestPageState extends State<LatestPage>
           }),
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }
