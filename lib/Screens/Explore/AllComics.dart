@@ -53,7 +53,12 @@ class _AllComicsPageState extends State<AllComicsPage> {
       _scrollListener();
     });
     sourcesStream.stream.listen((event) {
-      _futureComics = _loadComics(event, Provider.of<SourceNotifier>(context, listen: false).source.sorters[0]['Selector'], _page, {});
+      _futureComics = _loadComics(
+          event,
+          Provider.of<SourceNotifier>(context, listen: false).source.sorters[0]
+              ['Selector'],
+          _page,
+          {});
     });
   }
 
@@ -169,7 +174,41 @@ class _AllComicsPageState extends State<AllComicsPage> {
                                         ),
                                       ),
                                       cupertino: (_, __) =>
-                                          CupertinoActionSheet(),
+                                          CupertinoActionSheet(
+                                        title: Text("Sort by"),
+                                        cancelButton: CupertinoButton(
+                                          child: Text("Cancel"),
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                        ),
+                                        actions: List<
+                                                CupertinoActionSheetAction>.generate(
+                                            sourceProvider
+                                                .source.sorters.length,
+                                            (index) =>
+                                                CupertinoActionSheetAction(
+                                                  onPressed: null,
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      Text(
+                                                        sourceProvider.source
+                                                                .sorters[index]
+                                                            ['Name'],
+                                                      ),
+                                                      Spacer(),
+                                                      Icon(_sort['Selector'] ==
+                                                              sourceProvider
+                                                                          .source
+                                                                          .sorters[
+                                                                      index]
+                                                                  ['Selector']
+                                                          ? CupertinoIcons
+                                                              .check_mark
+                                                          : null)
+                                                    ],
+                                                  ),
+                                                )),
+                                      ),
                                     ),
                                   );
                                 },
