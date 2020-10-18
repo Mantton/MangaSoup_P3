@@ -53,12 +53,11 @@ class _AllComicsPageState extends State<AllComicsPage> {
       _scrollListener();
     });
     sourcesStream.stream.listen((event) {
-      _futureComics = _loadComics(
-          event,
-          Provider.of<SourceNotifier>(context, listen: false).source.sorters[0]
-              ['Selector'],
-          _page,
-          {});
+      Source _source =
+          Provider.of<SourceNotifier>(context, listen: false).source;
+      _sort = _source.sorters[0];
+      _futureComics =
+          _loadComics(_source.selector, _sort["Selector"], _page, {});
     });
   }
 
