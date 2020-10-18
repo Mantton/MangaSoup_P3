@@ -187,7 +187,22 @@ class _AllComicsPageState extends State<AllComicsPage> {
                                                 .source.sorters.length,
                                             (index) =>
                                                 CupertinoActionSheetAction(
-                                                  onPressed: null,
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      _sort = sourceProvider
+                                                          .source
+                                                          .sorters[index];
+                                                      _futureComics =
+                                                          _loadComics(
+                                                              sourceProvider
+                                                                  .source
+                                                                  .selector,
+                                                              _sort['Selector'],
+                                                              1,
+                                                              {});
+                                                      Navigator.pop(context);
+                                                    });
+                                                  },
                                                   child: Row(
                                                     children: <Widget>[
                                                       Text(
