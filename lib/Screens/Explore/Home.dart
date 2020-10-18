@@ -4,6 +4,8 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/AllComics.dart';
+import 'package:mangasoup_prototype_3/Screens/Explore/ForYou.dart';
+import 'package:mangasoup_prototype_3/Screens/Explore/LatestComics.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
@@ -106,60 +108,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         body: TabBarView(
           physics: NeverScrollableScrollPhysics(),
           controller: _controller,
-
           children: [
-            Container(
-              color: Colors.blueGrey[800],
-              child: Center(
-                child: (sources.length == 0)
-                    ? CupertinoButton(
-                        child: Text("TEST"),
-                        onPressed: simulate,
-                      )
-                    : Container(
-                        child: GridView.builder(
-                            itemCount: sources.length,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                            ),
-                            itemBuilder: (context, index) {
-                              Source source = sources[index];
-                              return GridTile(
-                                footer: Text(source.name),
-                                child: Image.network(source.thumbnail),
-                              );
-                            }),
-                      ),
-              ),
-            ),
+            ForYouPage(),
             AllComicsPage(),
-            Container(
-                child: CupertinoButton(
-              child: Text("RETRIEVE"),
-              onPressed: () {
-                debugPrint(Provider.of<SourceNotifier>(context, listen: false)
-                    .source
-                    .name);
-              },
-            ))
+            LatestPage(),
           ],
         ),
       ),
     );
-  }
-
-  simulate() async {
-    TestPreference _t = TestPreference();
-    await _t.init();
-    _t.setName("tester");
-    debugPrint("OK");
-  }
-
-  retrieve() async {
-    TestPreference _t = TestPreference();
-    await _t.init();
-    String y = _t.getName();
-    debugPrint(y);
   }
 }

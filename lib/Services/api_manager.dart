@@ -20,7 +20,6 @@ class ApiManager {
 
   /// ------------- Server Resources
   Future<List<Source>> getServerSources(String server) async {
-    debugPrint('Starting');
     Response response = await _dio.get(
       "/app/sources",
       queryParameters: {
@@ -59,7 +58,7 @@ class ApiManager {
     for (int index = 0; index < dataPoints.length; index++) {
       comics.add(ComicHighlight.fromMap(dataPoints[index]));
     }
-    debugPrint("Retrieval Complete : /all");
+    debugPrint("Retrieval Complete : /all @$source");
     return comics;
   }
 

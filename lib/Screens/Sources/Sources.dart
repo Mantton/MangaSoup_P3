@@ -31,7 +31,6 @@ class _SourcesPageState extends State<SourcesPage> {
     else {
       _currentSelector = "";
     }
-    debugPrint(_currentSelector);
   }
 
   // Retrieve Source from Server
