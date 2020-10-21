@@ -46,7 +46,7 @@ class ApiManager {
       "source": source,
       "page": page,
       "sort_by": sortBy,
-      "additional_params": additionalInfo
+      "additional_params": {'language':"english"}
     };
     Response response = await _dio.post("/api/v1/all", data: jsonEncode(data));
 
@@ -77,6 +77,8 @@ class ApiManager {
   Future<ComicProfile> getProfile(String source, String link) async {
     Response response = await _dio.get('/api/v1/profile',
         queryParameters: {"source": source, "link": link});
+    debugPrint(
+        "Retrieval Complete : /Profile : ${response.data['Title']} @$source");
 
     return ComicProfile.fromMap(response.data);
   }
