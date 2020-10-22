@@ -416,10 +416,9 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
                   ),
                 ),
                 CupertinoActionSheetAction(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(context);
-                    createCollection();
-                    Navigator.pop(context);
+                    await createCollection();
                   },
                   child: Text(
                     "Create New Collection",

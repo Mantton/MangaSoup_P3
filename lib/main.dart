@@ -66,8 +66,8 @@ class _AppState extends State<App> {
     final cupertinoTheme = CupertinoThemeData(
       brightness: brightness, // if null will use the system theme
       primaryColor: CupertinoDynamicColor.withBrightness(
-        color: Colors.black,
-        darkColor: Colors.black,
+        color: Colors.blue,
+        darkColor: Colors.blue,
       ),
       scaffoldBackgroundColor: Colors.black,
     );
