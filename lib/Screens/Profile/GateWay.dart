@@ -23,7 +23,9 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
   Future<ComicProfile> getProfile() async {
     ApiManager _manager = ApiManager();
     return await _manager.getProfile(
-        widget.highlight.selector, widget.highlight.link);
+      widget.highlight.selector,
+      widget.highlight.link,
+    );
   }
 
   @override
@@ -48,14 +50,19 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
           if (snapshot.hasError) {
             return Scaffold(
               body: Center(
-                child: Text("An Error Occurred\n ${snapshot.error.toString()}"),
+                child: InkWell(
+                  child: Text(
+                    "An Error Occurred\n ${snapshot.error.toString()}\n Tap to go back home",
+                    textAlign: TextAlign.center,
+                  ),
+                  onTap: () => Navigator.pop(context),
+                ),
               ),
             );
           }
 
           if (snapshot.hasData) {
             ComicProfile prof = snapshot.data;
-            debugPrint(prof.data.toString());
             if (prof.data == null) {
               Provider.of<ComicHighlightProvider>(context, listen: false)
                   .loadHighlight(widget.highlight);

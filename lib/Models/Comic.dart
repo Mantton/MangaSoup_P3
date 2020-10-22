@@ -13,11 +13,11 @@ class ComicHighlight {
 
   Map<String, String> toMap() {
     return {
-      "name": title,
-      "thumbnail": thumbnail,
-      "link": link,
-      "selector": selector,
-      "source": source,
+      "Title": title,
+      "Thumbnail": thumbnail,
+      "Link": link,
+      "Selector": selector,
+      "Source": source,
     };
   }
 
@@ -60,9 +60,9 @@ class ComicProfile {
   String title;
   String description;
   String thumbnail;
-  List altTitles;
-  String author;
-  String artist;
+  var altTitles;
+  var author;
+  var artist;
   String status;
   List genres;
   int chapterCount;

@@ -53,6 +53,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     selector:
                         Provider.of<SourceNotifier>(context).source.selector,
                   ),
+                  fullscreenDialog: true,
                 ),
               );
             },
@@ -90,7 +91,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 unselectedLabelColor: Colors.grey,
                 labelStyle: TextStyle(fontSize: 17.sp),
                 controller: _controller,
-                onTap: (value){
+                onTap: (value) {
                   setState(() {
                     _index = value;
                   });

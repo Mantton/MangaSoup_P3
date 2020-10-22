@@ -23,7 +23,7 @@ class ProfilePageScreen extends StatefulWidget {
   _ProfilePageScreenState createState() => _ProfilePageScreenState();
 }
 
-class _ProfilePageScreenState extends State<ProfilePageScreen> {
+class _ProfilePageScreenState extends State<ProfilePageScreen> with AutomaticKeepAliveClientMixin{
   ComicProfile profile;
   TextStyle def = TextStyle(
     color: Colors.white,
@@ -336,6 +336,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
   }
 
   Future<Favorite> addToFavorites(String collectionName) async {
+    debugPrint(Provider.of<ComicHighlightProvider>(context, listen: false).highlight.thumbnail);
     Favorite newFav = Favorite(
         null,
         Provider.of<ComicHighlightProvider>(context, listen: false).highlight,
@@ -727,4 +728,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
     else
       return length;
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

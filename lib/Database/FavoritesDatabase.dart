@@ -85,6 +85,18 @@ class FavoritesManager {
     return sorted.keys.toList();
   }
 
+  Future<Map> getSortedFavorites() async{
+    var dbClient = await db;
+    List<Map> queryResult = await dbClient.query(TABLE);
+    List<Favorite> favorites = [];
+    queryResult.forEach((element) {
+      favorites.add(Favorite.fromMap(element));
+    });
+    Map sorted = groupBy(favorites, (Favorite obj) => obj.collection); // Group By Collection
+    debugPrint(sorted.runtimeType.toString());
+    return sorted;
+  }
+
   Future<List<Favorite>> getAll() async {
     var dbClient = await db;
     List<Map> queryResult = await dbClient.query(TABLE);

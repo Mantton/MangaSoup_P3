@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Screens/Favorite/FavouriteHome.dart';
 import 'Screens/Explore/Home.dart';
+import 'Screens/Recent/RecentsHome.dart';
 
 class Landing extends StatefulWidget {
   @override
@@ -25,7 +26,7 @@ class _LandingState extends State<Landing> {
             child: FavouritePage(),
           ),
           Container(
-            color: Colors.blue,
+            child: HistoryPage(),
           ),
           Container(
             color: Colors.grey,

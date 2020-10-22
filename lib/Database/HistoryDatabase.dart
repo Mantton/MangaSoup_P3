@@ -85,6 +85,16 @@ class HistoryManager {
     return history;
   }
 
+  Future<List<ComicHighlight>> getHighlights() async{
+    var dbClient = await db;
+    List<Map> queryResult = await dbClient.query(TABLE);
+    List<ComicHighlight> history = [];
+    queryResult.forEach((element) {
+      history.add(ComicHistory.fromMap(element).highlight);
+    });
+    return history;
+  }
+
   Future<ComicHistory> checkIfInitialized(String link) async {
     var dbClient = await db;
     List<Map> queryResult =

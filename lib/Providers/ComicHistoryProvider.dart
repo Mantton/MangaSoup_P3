@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Database/HistoryDatabase.dart';
+import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 
 class ComicDetailProvider with ChangeNotifier {
@@ -22,24 +23,32 @@ class ComicDetailProvider with ChangeNotifier {
       history.id = null;
       history = await _manager.save(history);
     }
+    historyStream.add("");
     notifyListeners();
   }
 
   addToRead(String link) async {
     history.readChapters.add(link);
     int x = await _manager.updateByID(history);
+    historyStream.add("");
+
     notifyListeners();
   }
 
   removeFromRead(String link) async {
     history.readChapters.remove(link);
     int x = await _manager.updateByID(history);
+    historyStream.add("");
+
     notifyListeners();
   }
 
   addBulk(List<String> links) async {
     history.readChapters += links;
     int x = await _manager.updateByID(history);
+    historyStream.add("");
+
+    notifyListeners();
   }
 
   removeBulk(List<String> links) async {
@@ -47,5 +56,7 @@ class ComicDetailProvider with ChangeNotifier {
       history.readChapters.remove(element);
     });
     int x = await _manager.updateByID(history);
+    historyStream.add("");
+    notifyListeners();
   }
 }
