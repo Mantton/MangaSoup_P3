@@ -22,6 +22,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
+import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
@@ -36,7 +37,8 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SourceNotifier()),
-        ChangeNotifierProvider(create: (_) => ComicHighlightProvider())
+        ChangeNotifierProvider(create: (_) => ComicHighlightProvider()),
+        ChangeNotifierProvider(create: (_) => ComicDetailProvider())
       ],
       child: App(),
     ),

@@ -1,4 +1,6 @@
 // Comic Highlight
+import 'dart:convert';
+
 class ComicHighlight {
   String title;
   String thumbnail;
@@ -25,6 +27,32 @@ class ComicHighlight {
     link = map['Link'];
     selector = map['Selector'];
     source = map['Source'];
+  }
+}
+
+class ComicHistory {
+  int id;
+  ComicHighlight highlight;
+  List<String> readChapters;
+  Map lastStop;
+
+  ComicHistory(this.id, this.highlight, this.readChapters, this.lastStop);
+
+  Map<String, dynamic> toMap() {
+    return {
+      "id": id,
+      "comicHighlight": jsonEncode(highlight.toMap()),
+      "readChapters": jsonEncode(readChapters),
+      "lastStop": jsonEncode(lastStop),
+      "link": highlight.link,
+    };
+  } // Convert to Map
+
+  ComicHistory.fromMap(Map<String, dynamic> map) {
+    highlight = ComicHighlight.fromMap(jsonDecode(map['comicHighlight']));
+    id = map['id'];
+    readChapters = jsonDecode(map['readChapters']);
+    lastStop = jsonDecode(map['lastStop']);
   }
 }
 

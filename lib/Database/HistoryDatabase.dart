@@ -1,16 +1,14 @@
 import 'package:flutter/cupertino.dart';
-import 'package:mangasoup_prototype_3/Models/Favorite.dart';
+import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import "dart:io" as io;
 import 'package:path_provider/path_provider.dart';
-import 'package:collection/collection.dart';
 
-class FavoritesManager {
-  //DB Fields
+class HistoryManager {
   static Database _db;
-  static const String TABLE = 'Favorites';
-  static const String DB_NAME = 'database.db';
+  static const String TABLE = 'History';
+  static const String DB_NAME = 'database2.db';
 
   // Favorites Field
 
@@ -18,11 +16,10 @@ class FavoritesManager {
   static const String ID = 'id';
   static const String LINK = 'link';
   static const String HIGHLIGHT = 'comicHighlight';
-  static const String COLLECTION = "collection";
 
-  // Check for Update Fields
-  static const String CHAPTER_COUNT = 'chapterCount';
-  static const String UPDATE_COUNT = "updateCount";
+  // Specific
+  static const String READ_CHAPTERS = 'readChapters';
+  static const String LAST_STOP = 'lastStop';
 
   Future<Database> get db async {
     if (_db != null) {
@@ -41,14 +38,14 @@ class FavoritesManager {
 
   _onCreate(Database db, int version) async {
     await db.execute(
-        "CREATE TABLE $TABLE ($ID INTEGER PRIMARY KEY AUTOINCREMENT ,$LINK TEXT, $HIGHLIGHT TEXT, $COLLECTION TEXT, $CHAPTER_COUNT INTEGER, $UPDATE_COUNT INTEGER)");
+        "CREATE TABLE $TABLE ($ID INTEGER PRIMARY KEY AUTOINCREMENT ,$LINK TEXT, $HIGHLIGHT TEXT, $READ_CHAPTERS TEXT, $LAST_STOP TEXT)");
   }
 
-  Future<Favorite> save(Favorite fav) async {
+  Future<ComicHistory> save(ComicHistory historyInput) async {
     var dbClient = await db;
-    fav.id = await dbClient.insert(TABLE, fav.toMap());
-    debugPrint("Saved : ${fav.id}");
-    return fav;
+    historyInput.id = await dbClient.insert(TABLE, historyInput.toMap());
+    debugPrint("Saved H : ${historyInput.id}");
+    return historyInput;
   }
 
   Future<int> deleteByID(int id) async {
@@ -61,10 +58,11 @@ class FavoritesManager {
     return await dbClient.delete(TABLE, where: "$LINK = ?", whereArgs: [link]);
   }
 
-  Future<int> updateByID(Favorite fav) async {
+  Future<int> updateByID(ComicHistory comicHistory) async {
     var dbClient = await db;
     return await dbClient
-        .update(TABLE, fav.toMap(), where: '$ID = ?', whereArgs: [fav.id]);
+        .update(TABLE, comicHistory.toMap(), where: '$ID = ?',
+        whereArgs: [comicHistory.id]);
   }
 
   Future clear() async {
@@ -77,31 +75,24 @@ class FavoritesManager {
     dbClient.close();
   }
 
-  Future<List> getCollections() async {
+  Future<List<ComicHistory>> getAll() async {
     var dbClient = await db;
     List<Map> queryResult = await dbClient.query(TABLE);
-    Map sorted =
-        groupBy(queryResult, (obj) => obj['collection']); // Group By Collection
-    return sorted.keys.toList();
-  }
-
-  Future<List<Favorite>> getAll() async {
-    var dbClient = await db;
-    List<Map> queryResult = await dbClient.query(TABLE);
-    List<Favorite> favorites = [];
+    List<ComicHistory> history = [];
     queryResult.forEach((element) {
-      favorites.add(Favorite.fromMap(element));
+      history.add(ComicHistory.fromMap(element));
     });
-    return favorites;
+    return history;
   }
 
-  Future<Favorite> isFavorite(String link) async {
+  Future<ComicHistory> checkIfInitialized(String link) async {
     var dbClient = await db;
     List<Map> queryResult =
-        await dbClient.query(TABLE, where: "$LINK = ?", whereArgs: [link]);
+    await dbClient.query(TABLE, where: "$LINK = ?", whereArgs: [link]);
     if (queryResult == null || queryResult.length == 0)
       return null;
     else
-      return Favorite.fromMap(queryResult[0]);
+      return ComicHistory.fromMap(queryResult[0]);
   }
+
 }

@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/ComicProfile.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/CustomProfile.dart';
@@ -47,7 +48,7 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
           if (snapshot.hasError) {
             return Scaffold(
               body: Center(
-                child: Text("An Error Occurred"),
+                child: Text("An Error Occurred\n ${snapshot.error.toString()}"),
               ),
             );
           }
@@ -56,8 +57,10 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
             ComicProfile prof = snapshot.data;
             debugPrint(prof.data.toString());
             if (prof.data == null) {
-              Provider.of<ComicHighlightProvider>(context)
+              Provider.of<ComicHighlightProvider>(context, listen: false)
                   .loadHighlight(widget.highlight);
+              Provider.of<ComicDetailProvider>(context, listen: false)
+                  .init(widget.highlight);
               return ProfilePage(
                 profile: prof,
               );
@@ -69,7 +72,7 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
           } else {
             return Scaffold(
               body: Center(
-                child: Text("An Error Occurred"),
+                child: Text("Oops you aren't meant to see this :/"),
               ),
             );
           }

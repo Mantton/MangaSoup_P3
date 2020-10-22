@@ -6,8 +6,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Database/FavoritesDatabase.dart';
+import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
+import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:provider/provider.dart';
 
@@ -213,6 +215,8 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
       _isFav = false;
     });
     Navigator.pop(context);
+    favoritesStream.add("");
+
     showMessage(
       "Removed!",
       Icons.check,
@@ -272,6 +276,8 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
     int q = await _favoritesManager.updateByID(favoriteObject);
     setState(() {});
     Navigator.pop(context);
+    favoritesStream.add("");
+
     showMessage(
       "Moved to ${_collections[index]}!",
       Icons.check,
@@ -345,6 +351,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
       _isFav = true;
     });
     Navigator.pop(context);
+    favoritesStream.add("");
     showMessage(
       "Added to ${_collections[index]}!",
       Icons.check,
@@ -465,6 +472,8 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
                     _isFav = true;
                   });
                   Navigator.pop(context);
+                  favoritesStream.add("");
+
                   showMessage(
                     "Added to $newCollectionName}!",
                     Icons.check,
@@ -474,7 +483,6 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
                   );
                 }
               }
-
             },
           )
         ],
@@ -483,22 +491,32 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
   }
 
   Widget comicActions() {
-    return Container(
-      margin: EdgeInsets.only(left: 20.w, right: 20.w),
-      child: Row(
-        children: [
-          actionButton(Icons.play_arrow, "Read", null),
-          Spacer(),
-          actionButton(Icons.list, "Chapters", null),
-          Spacer(),
-          actionButton(
-            _isFav ? Icons.favorite : Icons.favorite_border,
-            _isFav ? "In Library\n${favoriteObject.collection}" : "Favorite",
-            _isFav ? inFavorites : notInFavorites,
-          )
-        ],
-      ),
-    );
+    return Consumer<ComicDetailProvider>(builder: (context, provider, _) {
+      return Container(
+        margin: EdgeInsets.only(left: 20.w, right: 20.w),
+        child: Row(
+          children: [
+            actionButton(
+              Icons.play_arrow,
+              (provider.history.lastStop == null) ? "Read" : "Continue",
+              null,
+            ),
+            Spacer(),
+            actionButton(
+              Icons.list,
+              "Chapters",
+              null,
+            ),
+            Spacer(),
+            actionButton(
+              _isFav ? Icons.favorite : Icons.favorite_border,
+              _isFav ? "In Library\n${favoriteObject.collection}" : "Favorite",
+              _isFav ? inFavorites : notInFavorites,
+            )
+          ],
+        ),
+      );
+    });
   }
 
   Widget profileBody() {
