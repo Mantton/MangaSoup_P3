@@ -24,11 +24,8 @@ class _ComicGridState extends State<ComicGrid> {
           childAspectRatio: 65 / 100),
       shrinkWrap: true,
       itemCount: widget.comics.length,
-      itemBuilder: (BuildContext context, index) => GestureDetector(
-        onTap: () {},
-        child: ComicGridTile(
-          comic: widget.comics[index],
-        ),
+      itemBuilder: (BuildContext context, index) => ComicGridTile(
+        comic: widget.comics[index],
       ),
     );
   }
@@ -72,7 +69,7 @@ class ComicGridTile extends StatelessWidget {
             ),
           ),
           footer: Container(
-            color: Colors.black38,
+            color: Colors.black54,
             child: Padding(
               padding: EdgeInsets.all(8.0.w),
               child: Text(

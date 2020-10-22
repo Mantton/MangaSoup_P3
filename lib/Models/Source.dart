@@ -10,6 +10,7 @@ class Source {
   String selector;
   String url;
   List sorters;
+  List settings;
 
   Map<String, dynamic> toMap() {
     return {
@@ -22,7 +23,8 @@ class Source {
       "source_pack": sourcePack,
       "is_hentai": isHentai,
       "selector": selector,
-      "sorters": sorters
+      "sorters": sorters,
+      "settings":settings
     };
   }
 
@@ -38,5 +40,10 @@ class Source {
     selector = map['selector'];
     url = map['base_url'];
     sorters = map['sorters'];
+    settings = map['settings'];
   }
+}
+
+class SourceSetting{
+
 }

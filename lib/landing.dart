@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Screens/Favorite/FavouriteHome.dart';
+import 'package:mangasoup_prototype_3/Screens/More/Settings.dart';
 import 'Screens/Explore/Home.dart';
 import 'Screens/Recent/RecentsHome.dart';
 
@@ -32,7 +33,7 @@ class _LandingState extends State<Landing> {
             color: Colors.grey,
           ),
           Container(
-            color: Colors.black,
+            child: SettingsPage(),
           )
         ],
       ),
@@ -44,7 +45,6 @@ class _LandingState extends State<Landing> {
             _index = v;
           });
         },
-
         items: [
           BottomNavigationBarItem(
               icon: (_index != 0)
@@ -78,10 +78,7 @@ class _LandingState extends State<Landing> {
           activeColor: Colors.purple,
           inactiveColor: Colors.grey,
           backgroundColor: Colors.black,
-
-
         ),
-
       ),
     );
   }
