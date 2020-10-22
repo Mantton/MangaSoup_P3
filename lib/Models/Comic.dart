@@ -4,15 +4,18 @@ class ComicHighlight {
   String thumbnail;
   String link;
   String selector;
+  String source;
 
-  ComicHighlight(this.title, this.link, this.thumbnail, this.selector);
+  ComicHighlight(
+      this.title, this.link, this.thumbnail, this.selector, this.source);
 
   Map<String, String> toMap() {
     return {
       "name": title,
       "thumbnail": thumbnail,
       "link": link,
-      "selector": selector
+      "selector": selector,
+      "source": source,
     };
   }
 
@@ -21,6 +24,7 @@ class ComicHighlight {
     thumbnail = map['Thumbnail'];
     link = map['Link'];
     selector = map['Selector'];
+    source = map['Source'];
   }
 }
 
@@ -39,6 +43,7 @@ class ComicProfile {
   List data;
   List images;
   int pages;
+  String link;
 
   ComicProfile(
       this.title,
@@ -54,7 +59,8 @@ class ComicProfile {
       this.genres,
       this.status,
       this.artist,
-      this.author);
+      this.author,
+      this.link);
 
   ComicProfile.fromMap(Map<String, dynamic> map) {
     title = map['Title'];
@@ -67,6 +73,8 @@ class ComicProfile {
     genres = map['Genre(s)'];
     chapterCount = map['Number of Chapters'];
     source = map['Source'];
+    chapters = map['Chapters'];
+    link = map['Link'];
 
     // Custom data for hentai sources
     data = map['Data'];
@@ -88,7 +96,9 @@ class ComicProfile {
       "source": source,
       "data": data,
       "images": images,
-      "pages": pages
+      "pages": pages,
+      "chapters": chapters,
+      "link": link
     };
   }
 }

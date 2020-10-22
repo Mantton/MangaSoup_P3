@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
-import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Screens/Profile/ProfileScreens/DiscussionScreen.dart';
+import 'package:mangasoup_prototype_3/Screens/Profile/ProfileScreens/ProfileScreen.dart';
+import 'package:mangasoup_prototype_3/Screens/Profile/ProfileScreens/TrackingScreen.dart';
 
 class ProfilePage extends StatefulWidget {
   final ComicProfile profile;
@@ -23,14 +25,42 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: (_profile != null)
-          ? Center(
-              child: Text(_profile.description),
-            )
-          : Center(
-              child: LoadingIndicator(),
+    return DefaultTabController(
+      initialIndex: 0,
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_profile.title),
+          centerTitle: true,
+          backgroundColor: Colors.black,
+          bottom: TabBar(
+            indicatorColor: Colors.purple,
+            labelColor: Colors.purple,
+            unselectedLabelColor: Colors.grey,
+            tabs: [
+              Tab(
+                text: "Details",
+              ),
+              Tab(
+                text: "Discussion",
+              ),
+              Tab(
+                text: "Tracking",
+              ),
+            ],
+          ),
+        ),
+        backgroundColor: Colors.black,
+        body: TabBarView(
+          children: [
+            ProfilePageScreen(
+              comicProfile: _profile,
             ),
+            DiscussionPage(),
+            TrackingPage(),
+          ],
+        ),
+      ),
     );
   }
 }

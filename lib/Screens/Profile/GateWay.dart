@@ -1,9 +1,11 @@
 import "package:flutter/material.dart";
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/ComicProfile.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/CustomProfile.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:provider/provider.dart';
 
 class ProfileGateWay extends StatefulWidget {
   final ComicHighlight highlight;
@@ -54,6 +56,8 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
             ComicProfile prof = snapshot.data;
             debugPrint(prof.data.toString());
             if (prof.data == null) {
+              Provider.of<ComicHighlightProvider>(context)
+                  .loadHighlight(widget.highlight);
               return ProfilePage(
                 profile: prof,
               );

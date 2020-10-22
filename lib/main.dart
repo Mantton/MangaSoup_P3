@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/cupertino.dart'
     show
         CupertinoActionSheet,
@@ -21,6 +22,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
+import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Services/test_preference.dart';
@@ -34,6 +36,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SourceNotifier()),
+        ChangeNotifierProvider(create: (_) => ComicHighlightProvider())
       ],
       child: App(),
     ),
@@ -85,51 +88,55 @@ class _AppState extends State<App> {
             DefaultCupertinoLocalizations.delegate,
           ],
           title: 'Flutter Platform Widgets',
+          navigatorObservers: [BotToastNavigatorObserver()],
           material: (_, __) {
             return MaterialAppData(
-              theme: materialTheme,
-              darkTheme: materialDarkTheme,
-              themeMode: ThemeMode.dark,
-              builder: (context, widget) => ResponsiveWrapper.builder(
-                BouncingScrollWrapper.builder(context, widget),
-                maxWidth: 1200,
-                minWidth: 450,
-                defaultScale: true,
-                breakpoints: [
-                  ResponsiveBreakpoint.resize(450, name: MOBILE),
-                  ResponsiveBreakpoint.autoScale(800, name: TABLET),
-                  ResponsiveBreakpoint.autoScale(1000, name: TABLET),
-                  ResponsiveBreakpoint.resize(1200, name: DESKTOP),
-                  ResponsiveBreakpoint.autoScale(2460, name: "4K"),
-                ],
-                background: Container(color: Colors.black),
-              ),
-            );
+                theme: materialTheme,
+                darkTheme: materialDarkTheme,
+                themeMode: ThemeMode.dark,
+                builder: (context, widget) {
+                  widget = BotToastInit()(context, widget);
+                  return ResponsiveWrapper.builder(
+                    BouncingScrollWrapper.builder(context, widget),
+                    maxWidth: 1200,
+                    minWidth: 450,
+                    defaultScale: true,
+                    breakpoints: [
+                      ResponsiveBreakpoint.resize(450, name: MOBILE),
+                      ResponsiveBreakpoint.autoScale(800, name: TABLET),
+                      ResponsiveBreakpoint.autoScale(1000, name: TABLET),
+                      ResponsiveBreakpoint.resize(1200, name: DESKTOP),
+                      ResponsiveBreakpoint.autoScale(2460, name: "4K"),
+                    ],
+                    background: Container(color: Colors.black),
+                  );
+                });
           },
           cupertino: (_, __) => CupertinoAppData(
-            theme: cupertinoTheme,
-            builder: (context, widget) => ResponsiveWrapper.builder(
-              BouncingScrollWrapper.builder(context, widget),
-              maxWidth: 1200,
-              minWidth: 450,
-              defaultScale: true,
-
-              breakpoints: [
-                ResponsiveBreakpoint.resize(450, name: MOBILE),
-                ResponsiveBreakpoint.autoScale(800, name: TABLET),
-                ResponsiveBreakpoint.autoScale(1000, name: TABLET),
-                ResponsiveBreakpoint.resize(1200, name: DESKTOP),
-                ResponsiveBreakpoint.autoScale(2460, name: "4K"),
-              ],
-              background: Container(color: Colors.black),
-            ),
-          ),
+              theme: cupertinoTheme,
+              builder: (context, widget) {
+                widget = BotToastInit()(context, widget);
+                return ResponsiveWrapper.builder(
+                  BouncingScrollWrapper.builder(context, widget),
+                  maxWidth: 1200,
+                  minWidth: 450,
+                  defaultScale: true,
+                  breakpoints: [
+                    ResponsiveBreakpoint.resize(450, name: MOBILE),
+                    ResponsiveBreakpoint.autoScale(800, name: TABLET),
+                    ResponsiveBreakpoint.autoScale(1000, name: TABLET),
+                    ResponsiveBreakpoint.resize(1200, name: DESKTOP),
+                    ResponsiveBreakpoint.autoScale(2460, name: "4K"),
+                  ],
+                  background: Container(color: Colors.black),
+                );
+              }),
 
           initialRoute: "handler",
           // (_firstRun) ? "sources" : "landing",
           debugShowCheckedModeBanner: false,
           routes: {
-            "/": (_)=> Landing(),
+            "/": (_) => Landing(),
             "handler": (_) => Handler(),
             "/sources": (_) => SourcesPage(),
             "landing": (_) => Landing(),
@@ -161,6 +168,7 @@ class _HandlerState extends State<Handler> {
   }
 
   Future<bool> firstLaunch;
+
   @override
   void initState() {
     super.initState();
