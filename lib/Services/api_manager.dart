@@ -6,8 +6,10 @@ import 'dart:convert';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 
 class ApiManager {
-  //10.0.2.2 /127.0.0.1  http://10.0.2.2:5000/app/sources?server=live
+  //10.0.2.2 /127.0.0.1  http://10.0.2.2:8080/app/sources?server=live
+
   static String _devAddress = "https://mangasoup-4500a.uc.r.appspot.com";
+  static String _localTesting = "http://10.0.2.2:8080";
   static String _productionAddress =
       "http://mangasoup-env-1.eba-hd2s2exn.us-east-1.elasticbeanstalk.com";
   static BaseOptions _options = BaseOptions(
@@ -20,6 +22,7 @@ class ApiManager {
 
   /// ------------- Server Resources
   Future<List<Source>> getServerSources(String server) async {
+    debugPrint("Startinh");
     Response response = await _dio.get(
       "/app/sources",
       queryParameters: {
@@ -28,7 +31,7 @@ class ApiManager {
       }, // todo change vip field to vip status
     );
 
-    List resData = response.data['Sources'];
+    List resData = response.data['sources'];
 
     List<Source> sources = [];
     for (int index = 0; index < resData.length; index++) {
@@ -46,13 +49,12 @@ class ApiManager {
       "source": source,
       "page": page,
       "sort_by": sortBy,
-      "additional_params": {'language':"english"}
+      "data": {'language': "english"}
     };
-    Response response = await _dio.post("/api/v1/all", data: jsonEncode(data));
-
-    List dataPoints = response.data['Comics'];
+    Response response = await _dio.post("/api/v2/all", data: jsonEncode(data));
+    debugPrint(response.request.data.toString());
+    List dataPoints = response.data['comics'];
     List<ComicHighlight> comics = [];
-
     for (int index = 0; index < dataPoints.length; index++) {
       comics.add(ComicHighlight.fromMap(dataPoints[index]));
     }
@@ -62,9 +64,13 @@ class ApiManager {
 
   /// Get Latest
   Future<List<ComicHighlight>> getLatest(String source, int page) async {
-    Response response = await _dio.get('/api/v1/latest',
-        queryParameters: {"source": source, "page": page});
-    List dataPoints = response.data['Comics'];
+    Map data = {
+      "source": source,
+      "page": page,
+      "data": {'language': "english"}
+    };
+    Response response = await _dio.post('/api/v2/latest', data: data);
+    List dataPoints = response.data['comics'];
     List<ComicHighlight> comics = [];
     for (int index = 0; index < dataPoints.length; index++) {
       comics.add(ComicHighlight.fromMap(dataPoints[index]));
@@ -75,19 +81,24 @@ class ApiManager {
 
   /// Get Profile
   Future<ComicProfile> getProfile(String source, String link) async {
-    Response response = await _dio.get('/api/v1/profile',
-        queryParameters: {"source": source, "link": link});
+    Map data = {
+      "source": source,
+      "link": link,
+      "data": {'language': "english"}
+    };
+    Response response = await _dio.post('/api/v2/profile',
+        data: data);
     debugPrint(
-        "Retrieval Complete : /Profile : ${response.data['Title']} @$source");
+        "Retrieval Complete : /Profile : ${response.data['title']} @$source");
 
     return ComicProfile.fromMap(response.data);
   }
 
   /// Get Images
   Future<List> getImages(String source, String link) async {
-    Response response = await _dio.get('/api/v1/images',
+    Response response = await _dio.get('/api/v2/images',
         queryParameters: {"source": source, "link": link});
 
-    return response.data['Images'];
+    return response.data['images'];
   }
 }

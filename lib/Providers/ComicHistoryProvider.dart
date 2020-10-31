@@ -25,34 +25,35 @@ class ComicDetailProvider with ChangeNotifier {
     }
     historyStream.add("");
     notifyListeners();
+
   }
 
-  addToRead(String link) async {
-    history.readChapters.add(link);
+  addToRead(Map chapter) async {
+    history.readChapters.add(chapter);
     int x = await _manager.updateByID(history);
     historyStream.add("");
 
     notifyListeners();
   }
 
-  removeFromRead(String link) async {
-    history.readChapters.remove(link);
+  removeFromRead(Map chapter) async {
+    history.readChapters.remove(chapter);
     int x = await _manager.updateByID(history);
     historyStream.add("");
 
     notifyListeners();
   }
 
-  addBulk(List<String> links) async {
-    history.readChapters += links;
+  addBulk(List<Map> chapters) async {
+    history.readChapters += chapters;
     int x = await _manager.updateByID(history);
     historyStream.add("");
 
     notifyListeners();
   }
 
-  removeBulk(List<String> links) async {
-    links.forEach((element) {
+  removeBulk(List<Map> chapters) async {
+    chapters.forEach((element) {
       history.readChapters.remove(element);
     });
     int x = await _manager.updateByID(history);

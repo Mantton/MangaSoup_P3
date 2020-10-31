@@ -13,27 +13,27 @@ class ComicHighlight {
 
   Map<String, String> toMap() {
     return {
-      "Title": title,
-      "Thumbnail": thumbnail,
-      "Link": link,
-      "Selector": selector,
-      "Source": source,
+      "title": title,
+      "thumbnail": thumbnail,
+      "link": link,
+      "selector": selector,
+      "source": source,
     };
   }
 
   ComicHighlight.fromMap(Map<String, dynamic> map) {
-    title = map['Title'];
-    thumbnail = map['Thumbnail'];
-    link = map['Link'];
-    selector = map['Selector'];
-    source = map['Source'];
+    title = map['title'];
+    thumbnail = map['thumbnail'];
+    link = map['link'];
+    selector = map['selector'];
+    source = map['source'];
   }
 }
 
 class ComicHistory {
   int id;
   ComicHighlight highlight;
-  List<String> readChapters;
+  List<Map> readChapters;
   Map lastStop;
 
   ComicHistory(this.id, this.highlight, this.readChapters, this.lastStop);
@@ -68,10 +68,15 @@ class ComicProfile {
   int chapterCount;
   List chapters;
   String source;
-  List data;
+  List properties;
   List images;
-  int pages;
+  int pageCount;
   String link;
+  String uploadDate;
+  String galleryId;
+  bool containsBooks;
+  int bookCount;
+  List books;
 
   ComicProfile(
       this.title,
@@ -80,53 +85,70 @@ class ComicProfile {
       this.source,
       this.chapters,
       this.chapterCount,
-      this.pages,
+      this.pageCount,
       this.images,
       this.altTitles,
-      this.data,
+      this.properties,
       this.genres,
       this.status,
       this.artist,
       this.author,
-      this.link);
+      this.link,
+      this.uploadDate,
+      this.galleryId,
+      this.containsBooks,
+      this.bookCount,
+      this.books);
 
   ComicProfile.fromMap(Map<String, dynamic> map) {
-    title = map['Title'];
-    description = map['Description'];
-    thumbnail = map['Thumbnail'];
-    altTitles = map['Alternative Titles'];
-    author = map['Author(s)'];
-    artist = map['Artist(s)'];
-    status = map['Status'];
-    genres = map['Genre(s)'];
-    chapterCount = map['Number of Chapters'];
-    source = map['Source'];
-    chapters = map['Chapters'];
-    link = map['Link'];
+    title = map['title'];
+    description = map['summary'];
+    thumbnail = map['thumbnail'];
+    altTitles = map['alt_title'];
+    author = map['author'];
+    artist = map['artist'];
+    status = map['status'];
+    genres = map['tags'];
+    chapterCount = map['chapter_count'];
+    source = map['source'];
+    chapters = map['chapters'];
+    link = map['link'];
 
     // Custom data for hentai sources
-    data = map['Data'];
-    images = map['Images'];
-    pages = map['Pages'];
+    properties = map['properties'];
+    images = map['images'];
+    pageCount = map['page_count'];
+    galleryId = map['gallery_id'];
+    uploadDate = map['upload_date'];
+
+    // Custom data for sources with books
+    bookCount = map['book_count'];
+    books = map['books'];
+    containsBooks = map['contains_books'];
   }
 
   Map<String, dynamic> toMap() {
     return {
       "name": title,
       "thumbnail": thumbnail,
-      "description": description,
+      "summary": description,
       "author": author,
       "artist": artist,
       "status": status,
       "genres": genres,
-      "altTitles": altTitles,
-      "chapterCount": chapterCount,
+      "alt_title": altTitles,
+      "chapter_count": chapterCount,
       "source": source,
-      "data": data,
+      "properties": properties,
       "images": images,
-      "pages": pages,
+      "pages": pageCount,
       "chapters": chapters,
-      "link": link
+      "link": link,
+      "upload_date": uploadDate,
+      "gallery_id": galleryId,
+      "book_count": bookCount,
+      "books": books,
+      "contains_books": containsBooks,
     };
   }
 }

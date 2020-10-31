@@ -215,7 +215,7 @@ class _SourcesPageState extends State<SourcesPage> {
                   child: Center(
                     child: InkWell(
                       child: Text(
-                        "An Error Occurred \n Tap to Retry",
+                        "An Error Occurred\n ${snapshot.error}\nTap to Retry",
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

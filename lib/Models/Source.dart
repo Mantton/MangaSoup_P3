@@ -11,7 +11,7 @@ class Source {
   String url;
   List sorters;
   List settings;
-
+  List filters;
   Map<String, dynamic> toMap() {
     return {
       "name": name,
@@ -24,14 +24,15 @@ class Source {
       "is_hentai": isHentai,
       "selector": selector,
       "sorters": sorters,
-      "settings":settings
+      "settings":settings,
+      "filters":filters,
     };
   }
 
   Source.fromMap(Map<String, dynamic> map) {
     name = map['name'];
     isEnabled = map['enabled'];
-    server = map['server'];
+    server = map['server_selector'];
     language = map['language'];
     thumbnail = map['thumbnail'];
     vipProtected = map['vip_protected'];
@@ -41,9 +42,7 @@ class Source {
     url = map['base_url'];
     sorters = map['sorters'];
     settings = map['settings'];
+    filters = map["filters"];
   }
 }
 
-class SourceSetting{
-
-}

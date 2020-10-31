@@ -63,7 +63,7 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
 
           if (snapshot.hasData) {
             ComicProfile prof = snapshot.data;
-            if (prof.data == null) {
+            if (prof.properties == null) {
               Provider.of<ComicHighlightProvider>(context, listen: false)
                   .loadHighlight(widget.highlight);
               Provider.of<ComicDetailProvider>(context, listen: false)

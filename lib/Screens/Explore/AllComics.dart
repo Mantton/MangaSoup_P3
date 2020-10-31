@@ -38,7 +38,7 @@ class _AllComicsPageState extends State<AllComicsPage> {
     });
     return _loadComics(
         Provider.of<SourceNotifier>(context, listen: false).source.selector,
-        _sort['Selector'],
+        _sort['selector'],
         _page, {});
   }
 
@@ -47,17 +47,18 @@ class _AllComicsPageState extends State<AllComicsPage> {
     super.initState();
     Source _source = Provider.of<SourceNotifier>(context, listen: false).source;
     _sort = _source.sorters[0];
-    _futureComics = _loadComics(_source.selector, _sort["Selector"], _page, {});
+    _futureComics = _loadComics(_source.selector, _sort["selector"], _page, {});
     _controller = ScrollController();
     _controller.addListener(() {
       _scrollListener();
     });
     sourcesStream.stream.listen((event) {
+      _page = 1;
       Source _source =
           Provider.of<SourceNotifier>(context, listen: false).source;
       _sort = _source.sorters[0];
       _futureComics =
-          _loadComics(_source.selector, _sort["Selector"], _page, {});
+          _loadComics(_source.selector, _sort["selector"], _page, {});
     });
   }
 
@@ -91,7 +92,7 @@ class _AllComicsPageState extends State<AllComicsPage> {
               return Center(
                 child: InkWell(
                   child: Text(
-                    "An error occurred\n Tap to Retry",
+                    "An error occurred\n ${snapshot.error}\nTap to Retry",
                     style: TextStyle(fontSize: 15.sp),
                     textAlign: TextAlign.center,
                   ),
@@ -99,7 +100,7 @@ class _AllComicsPageState extends State<AllComicsPage> {
                     setState(() {
                       _futureComics = _loadComics(
                           sourceProvider.source.selector,
-                          _sort["Selector"],
+                          _sort["selector"],
                           _page, {});
                     });
                   },
@@ -130,7 +131,7 @@ class _AllComicsPageState extends State<AllComicsPage> {
                               InkWell(
                                 child: Text(
                                   // _sort['Name']
-                                  _sort['Name'],
+                                  _sort['name'],
                                   style: TextStyle(
                                       color: Colors.purple, fontSize: 20.sp),
                                 ),
@@ -146,14 +147,14 @@ class _AllComicsPageState extends State<AllComicsPage> {
                                                 ListTile(
                                           title: Text(
                                             sourceProvider.source.sorters[index]
-                                                ['Name'],
+                                                ['name'],
                                           ),
                                           leading: Icon(
                                             Icons.check,
-                                            color: (_sort['Selector'] ==
+                                            color: (_sort['selector'] ==
                                                     sourceProvider.source
                                                             .sorters[index]
-                                                        ['Selector'])
+                                                        ['selector'])
                                                 ? Colors.purple
                                                 : Colors.transparent,
                                           ),
@@ -164,7 +165,7 @@ class _AllComicsPageState extends State<AllComicsPage> {
                                               _futureComics = _loadComics(
                                                   sourceProvider
                                                       .source.selector,
-                                                  _sort['Selector'],
+                                                  _sort['selector'],
                                                   1,
                                                   {});
                                               Navigator.pop(context);
@@ -196,7 +197,7 @@ class _AllComicsPageState extends State<AllComicsPage> {
                                                               sourceProvider
                                                                   .source
                                                                   .selector,
-                                                              _sort['Selector'],
+                                                              _sort['selector'],
                                                               1,
                                                               {});
                                                       Navigator.pop(context);
@@ -207,15 +208,15 @@ class _AllComicsPageState extends State<AllComicsPage> {
                                                       Text(
                                                         sourceProvider.source
                                                                 .sorters[index]
-                                                            ['Name'],
+                                                            ['name'],
                                                       ),
                                                       Spacer(),
-                                                      Icon(_sort['Selector'] ==
+                                                      Icon(_sort['selector'] ==
                                                               sourceProvider
                                                                           .source
                                                                           .sorters[
                                                                       index]
-                                                                  ['Selector']
+                                                                  ['selector']
                                                           ? CupertinoIcons
                                                               .check_mark
                                                           : null)

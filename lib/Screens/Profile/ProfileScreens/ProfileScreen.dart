@@ -9,8 +9,10 @@ import 'package:mangasoup_prototype_3/Database/FavoritesDatabase.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
+import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Profile/AllChapters.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePageScreen extends StatefulWidget {
@@ -23,7 +25,8 @@ class ProfilePageScreen extends StatefulWidget {
   _ProfilePageScreenState createState() => _ProfilePageScreenState();
 }
 
-class _ProfilePageScreenState extends State<ProfilePageScreen> with AutomaticKeepAliveClientMixin{
+class _ProfilePageScreenState extends State<ProfilePageScreen>
+    with AutomaticKeepAliveClientMixin {
   ComicProfile profile;
   TextStyle def = TextStyle(
     color: Colors.white,
@@ -38,6 +41,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> with AutomaticKee
 
   Future<bool> initializeProfile() async {
     profile = widget.comicProfile;
+    debugPrint(profile.thumbnail);
     favoriteObject = await _favoritesManager.isFavorite(profile.link);
 
     // Check if Favorite
@@ -100,7 +104,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> with AutomaticKee
                   ),
                   comicActions(),
                   profileBody(),
-                  chapterPreview(),
+                  contentPreview()
                 ],
               ),
             )
@@ -336,7 +340,9 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> with AutomaticKee
   }
 
   Future<Favorite> addToFavorites(String collectionName) async {
-    debugPrint(Provider.of<ComicHighlightProvider>(context, listen: false).highlight.thumbnail);
+    debugPrint(Provider.of<ComicHighlightProvider>(context, listen: false)
+        .highlight
+        .thumbnail);
     Favorite newFav = Favorite(
         null,
         Provider.of<ComicHighlightProvider>(context, listen: false).highlight,
@@ -600,7 +606,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> with AutomaticKee
                           child: Padding(
                             padding: EdgeInsets.all(3.w),
                             child: AutoSizeText(
-                              profile.genres[index]['Genre'].toString(),
+                              profile.genres[index]['tag'].toString(),
                               maxLines: 2,
                               softWrap: true,
                               wrapWords: false,
@@ -626,7 +632,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> with AutomaticKee
     );
   }
 
-  Widget chapterPreview() {
+  Widget contentPreview() {
     return Container(
       child: Column(
         children: [
@@ -637,7 +643,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> with AutomaticKee
             child: Row(
               children: [
                 Text(
-                  "Chapters",
+                  (!profile.containsBooks) ? "Chapters" : "Chapter Collections",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 25.sp,
@@ -645,9 +651,11 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> with AutomaticKee
                 ),
                 Spacer(),
                 IconButton(
-                  onPressed: () {
-                    // todo push to downloads page
-                  },
+                  onPressed: (!profile.containsBooks)
+                      ? () {
+                          // todo push to downloads page
+                        }
+                      : null,
                   icon: Icon(
                     Icons.download_rounded,
                     size: 30.w,
@@ -656,69 +664,126 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> with AutomaticKee
               ],
             ),
           ),
-          Column(
-            children: [
-              Container(
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: displayChapters(profile.chapterCount),
-                    itemBuilder: (BuildContext context, int index) {
-                      return GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          height: 50.h,
-                          child: ListTile(
-                            title: Text(
-                              profile.chapters[index]['Chapter'],
-                            ),
-                            trailing: Text(
-                              profile.chapters[index]['Date'] ?? "",
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-              ),
-              GestureDetector(
-                onTap: () {
-                  // todo, push to all chapters page
-                },
-                child: profile.chapterCount != 0
-                    ? Container(
-                        margin: EdgeInsets.all(15.w),
-                        decoration: BoxDecoration(
-                            color: Colors.grey[900],
-                            borderRadius: BorderRadius.circular(10)),
-                        height: 45.h,
-                        child: Center(
-                          child: Text(
-                            'View all Chapters',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: Colors.purple, fontSize: 20.sp),
-                          ),
-                        ),
-                      )
-                    : Container(
-                        margin: EdgeInsets.all(15.w),
-                        color: Colors.grey[800],
-                        child: ListTile(
-                          title: Text(
-                            'No available chapters',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.redAccent,
-                              fontSize: 20.sp,
-                            ),
-                          ),
-                        ),
-                      ),
-              ),
-            ],
-          )
+          (!profile.containsBooks) ? containsChapters() : containsBooks()
         ],
       ),
+    );
+  }
+
+  Widget containsChapters() {
+    return Column(
+      children: [
+        Container(
+          child: ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: displayChapters(profile.chapterCount),
+              itemBuilder: (BuildContext context, int index) {
+                Chapter chapter = Chapter.fromMap(profile.chapters[index]);
+
+                return GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    height: 50.h,
+                    child: ListTile(
+                      title: Text(
+                        chapter.name,
+                      ),
+                      trailing: Text(
+                        chapter.date ?? "",
+                        style:
+                            TextStyle(color: Colors.grey[700], fontSize: 15.sp),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ChapterList(
+                  chapterList: profile.chapters,
+                ),
+              ),
+            );
+          },
+          child: profile.chapterCount != 0
+              ? Container(
+                  margin: EdgeInsets.all(15.w),
+                  decoration: BoxDecoration(
+                      color: Colors.grey[900],
+                      borderRadius: BorderRadius.circular(10)),
+                  height: 45.h,
+                  child: Center(
+                    child: Text(
+                      'View all Chapters',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.purple, fontSize: 20.sp),
+                    ),
+                  ),
+                )
+              : Container(
+                  margin: EdgeInsets.all(15.w),
+                  color: Colors.grey[800],
+                  child: ListTile(
+                    title: Text(
+                      'No available chapters',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 20.sp,
+                      ),
+                    ),
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget containsBooks() {
+    return Column(
+      children: [
+        Container(
+          child: ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: displayChapters(profile.bookCount),
+              itemBuilder: (BuildContext context, int index) {
+                Book book = Book.fromMap(profile.books[index]);
+
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ChapterList(
+                          chapterList: book.chapters,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 50.h,
+                    child: ListTile(
+                      title: Text(
+                        book.name,
+                        style: TextStyle(fontSize: 17.sp),
+                      ),
+                      trailing: Text(
+                        book.range ?? "",
+                        style:
+                            TextStyle(color: Colors.grey[700], fontSize: 15.sp),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+        ),
+      ],
     );
   }
 
