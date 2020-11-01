@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
@@ -17,4 +18,15 @@ class _LoadingIndicatorState extends State<LoadingIndicator> {
           valueColor: AlwaysStoppedAnimation<Color>(Colors.purple)),
     );
   }
+}
+
+showLoadingDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => CupertinoAlertDialog(
+      content: Container(
+          height: 50, width: 50, child: LoadingIndicator()),
+    ),
+  );
 }

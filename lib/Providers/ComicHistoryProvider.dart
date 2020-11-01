@@ -16,6 +16,8 @@ class ComicDetailProvider with ChangeNotifier {
     if (history == null) {
       // if null add to front of stack
       history = ComicHistory(null, highlight, null, null);
+      history.readChapters = [];
+
       history = await _manager.save(history);
     } else {
       //remove from stack and add in front
@@ -44,7 +46,7 @@ class ComicDetailProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  addBulk(List<Map> chapters) async {
+  addBulk(List chapters) async {
     history.readChapters += chapters;
     int x = await _manager.updateByID(history);
     historyStream.add("");
@@ -52,7 +54,7 @@ class ComicDetailProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  removeBulk(List<Map> chapters) async {
+  removeBulk(List chapters) async {
     chapters.forEach((element) {
       history.readChapters.remove(element);
     });

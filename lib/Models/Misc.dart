@@ -10,7 +10,7 @@ class Chapter {
     name = map['name'];
     link = map['link'];
     date = map['date'];
-    maker = map['maker'];
+    maker = map['maker'] ?? "";
   }
 
   Map<String, dynamic> toMap() {

@@ -33,7 +33,7 @@ class ComicHighlight {
 class ComicHistory {
   int id;
   ComicHighlight highlight;
-  List<Map> readChapters;
+  List readChapters;
   Map lastStop;
 
   ComicHistory(this.id, this.highlight, this.readChapters, this.lastStop);

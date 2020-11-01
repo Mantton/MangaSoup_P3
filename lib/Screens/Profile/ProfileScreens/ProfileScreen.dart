@@ -673,32 +673,52 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   Widget containsChapters() {
     return Column(
       children: [
-        Container(
-          child: ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: displayChapters(profile.chapterCount),
-              itemBuilder: (BuildContext context, int index) {
-                Chapter chapter = Chapter.fromMap(profile.chapters[index]);
-
-                return GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    height: 50.h,
-                    child: ListTile(
-                      title: Text(
-                        chapter.name,
-                      ),
-                      trailing: Text(
-                        chapter.date ?? "",
-                        style:
-                            TextStyle(color: Colors.grey[700], fontSize: 15.sp),
+        Consumer<ComicDetailProvider>(builder: (context, provider, _) {
+          List readChapterNames = [];
+          List readChapterLinks = [];
+          if (provider.history.readChapters != null) {
+            readChapterNames =
+                provider.history.readChapters.map((m) => m['name']).toList() ??
+                    [];
+            readChapterLinks =
+                provider.history.readChapters.map((m) => m['link']).toList() ??
+                    [];
+          }
+          return Container(
+            child: ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: displayChapters(profile.chapterCount),
+                itemBuilder: (BuildContext context, int index) {
+                  Chapter chapter = Chapter.fromMap(profile.chapters[index]);
+                  bool read = (readChapterNames.contains(chapter.name) ||
+                      readChapterLinks.contains(chapter.link));
+                  return GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      height: 50.h,
+                      child: ListTile(
+                        title: Text(
+                          chapter.name,
+                          style: TextStyle(
+                            fontSize: 20.sp,
+                            color:
+                            (read)? Colors.grey[700]
+                                : Colors.white,
+                          ),
+                        ),
+                        subtitle: Text(chapter.maker),
+                        trailing: Text(
+                          chapter.date ?? "",
+                          style: TextStyle(
+                              color: Colors.grey[700], fontSize: 15.sp),
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }),
-        ),
+                  );
+                }),
+          );
+        }),
         GestureDetector(
           onTap: () {
             Navigator.push(
