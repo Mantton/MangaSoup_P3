@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Database/FavoritesDatabase.dart';
@@ -121,7 +122,9 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
           margin: EdgeInsets.only(top: 10.h),
           width: 130.h,
           height: 190.h,
-          child: Image.network(profile.thumbnail),
+          child: SoupImage(
+            url: profile.thumbnail,
+          ),
         ),
         SizedBox(
           width: 10.w,

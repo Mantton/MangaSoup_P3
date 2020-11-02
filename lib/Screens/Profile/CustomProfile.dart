@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -68,7 +69,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
           margin: EdgeInsets.only(top: 10.h),
           width: 150.h,
           height: 250.h,
-          child: Image.network(widget.profile.thumbnail),
+          child: SoupImage(url: widget.profile.thumbnail),
         ),
         SizedBox(
           width: 10.w,
@@ -235,8 +236,8 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
           child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                crossAxisSpacing: 10.w,
-                mainAxisSpacing: 10.h,
+                crossAxisSpacing: 20.w,
+                mainAxisSpacing: 20.h,
                 childAspectRatio: .75,
               ),
               itemCount: (widget.profile.images.length > 6)
@@ -246,17 +247,25 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
               physics: NeverScrollableScrollPhysics(),
               itemBuilder: (BuildContext context, int index) {
                 return GestureDetector(
-                  onTap: null,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => GalleryViewer(
+                        images: (widget.profile.images.length > 9)
+                            ? widget.profile.images.sublist(1, 9)
+                            : widget.profile.images,
+                      ),
+                    ),
+                  ),
                   child: GridTile(
                     child: ClipRRect(
                       borderRadius: BorderRadius.all(
                         Radius.circular(10.0.w),
                       ),
                       child: Container(
-                        child: Image.network(
-                          widget.profile.images[index],
-                        ),
-                      ),
+                          child: SoupImage(
+                        url: widget.profile.images[index],
+                      )),
                     ),
                   ),
                 );

@@ -3,6 +3,8 @@ import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/GateWay.dart';
 
+import 'Images.dart';
+
 class ComicGrid extends StatefulWidget {
   final List<ComicHighlight> comics;
   final int crossAxisCount;
@@ -57,18 +59,16 @@ class ComicGridTile extends StatelessWidget {
               Radius.circular(10.0),
             ),
             child: Container(
-              width: 400.w,
-              height: 500.h,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10.0),
+                width: 400.w,
+                height: 500.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
                 ),
-              ),
-              child: Image.network(
-                comic.thumbnail,
-                fit: BoxFit.fill,
-              ),
-            ),
+                child: SoupImage(
+                  url: comic.thumbnail,
+                )),
           ),
           footer: Container(
             color: Colors.black54,
@@ -83,13 +83,15 @@ class ComicGridTile extends StatelessWidget {
                     fontSize: 16.sp,
                     shadows: <Shadow>[
                       Shadow(
-                          offset: Offset(1.0, 1.0),
-                          blurRadius: 7.0,
-                          color: Colors.black),
+                        offset: Offset(1.0, 1.0),
+                        blurRadius: 7.0,
+                        color: Colors.black,
+                      ),
                       Shadow(
-                          offset: Offset(2.0, 2.0),
-                          blurRadius: 3.0,
-                          color: Colors.black)
+                        offset: Offset(2.0, 2.0),
+                        blurRadius: 3.0,
+                        color: Colors.black,
+                      )
                     ]),
                 textAlign: TextAlign.left,
                 overflow: TextOverflow.ellipsis,
