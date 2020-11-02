@@ -5,8 +5,10 @@ import 'package:mangasoup_prototype_3/Screens/Profile/GateWay.dart';
 
 class ComicGrid extends StatefulWidget {
   final List<ComicHighlight> comics;
+  final int crossAxisCount;
 
-  const ComicGrid({Key key, @required this.comics}) : super(key: key);
+  const ComicGrid({Key key, @required this.comics, this.crossAxisCount})
+      : super(key: key);
 
   @override
   _ComicGridState createState() => _ComicGridState();
@@ -18,7 +20,7 @@ class _ComicGridState extends State<ComicGrid> {
     return GridView.builder(
       physics: ScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
+          crossAxisCount: widget.crossAxisCount ?? 3,
           crossAxisSpacing: 10.w,
           mainAxisSpacing: 10.w,
           childAspectRatio: 65 / 100),
@@ -41,7 +43,7 @@ class ComicGridTile extends StatelessWidget {
     return Container(
       child: GestureDetector(
         onTap: () {
-          debugPrint(comic.title);
+          debugPrint("${comic.title} @ ${comic.link} /f ${comic.source}");
           Navigator.push(
             context,
             MaterialPageRoute(

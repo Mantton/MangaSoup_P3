@@ -696,18 +696,20 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                   return GestureDetector(
                     onTap: () {},
                     child: Container(
-                      height: 50.h,
+                      height: 70.h,
                       child: ListTile(
                         title: Text(
                           chapter.name,
                           style: TextStyle(
-                            fontSize: 20.sp,
-                            color:
-                            (read)? Colors.grey[700]
-                                : Colors.white,
+                            fontSize: 18.sp,
+                            color: (read) ? Colors.grey[700] : Colors.white,
                           ),
                         ),
-                        subtitle: Text(chapter.maker),
+                        subtitle: Text(
+                          chapter.maker,
+                          style:
+                              TextStyle(fontSize: 15, color: Colors.grey[700]),
+                        ),
                         trailing: Text(
                           chapter.date ?? "",
                           style: TextStyle(

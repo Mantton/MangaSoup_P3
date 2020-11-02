@@ -36,6 +36,9 @@ dependencies:
   path:
   auto_size_text: ^2.1.0
   bot_toast: ^3.0.1
+  html:
+  intl: ^0.16.1
+
 
 
 

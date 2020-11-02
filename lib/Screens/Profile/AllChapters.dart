@@ -250,7 +250,7 @@ class _ChapterListState extends State<ChapterList> {
                 title: Text(
                   chapter.name,
                   style: TextStyle(
-                    fontSize: 20.sp,
+                    fontSize: 17.sp,
                     color: (readChapterNames.contains(chapter.name) ||
                             readChapterLinks.contains(chapter.link))
                         ? Colors.grey[700]

@@ -131,7 +131,7 @@ class _AllComicsPageState extends State<AllComicsPage> {
                               InkWell(
                                 child: Text(
                                   // _sort['Name']
-                                  _sort['name'],
+                                  _sort['name'] ?? "",
                                   style: TextStyle(
                                       color: Colors.purple, fontSize: 20.sp),
                                 ),
