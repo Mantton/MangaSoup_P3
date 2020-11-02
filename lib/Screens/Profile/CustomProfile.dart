@@ -1,6 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -95,7 +97,11 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                 ),
                 FittedBox(
                   child: InkWell(
-                    onTap: null,
+                    onTap: () {
+                      Clipboard.setData(
+                          ClipboardData(text: widget.profile.galleryId));
+                      showSnackBarMessage("Copied sauce to clipboard!");
+                    },
                     child: Text(
                       "#${widget.profile.galleryId ?? ""}",
                       style: TextStyle(

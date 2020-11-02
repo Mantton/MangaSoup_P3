@@ -48,3 +48,15 @@ showMessage(String info, IconData img, Duration duration) {
     duration: duration,
   );
 }
+
+showSnackBarMessage(String msg){
+  BotToast.showText(
+      duration: Duration(milliseconds: 1500),
+      text: msg,
+      textStyle: TextStyle(color: Colors.black),
+      contentColor: Colors.white,
+
+  );
+
+
+}
