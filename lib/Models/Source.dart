@@ -12,6 +12,9 @@ class Source {
   List sorters;
   List settings;
   List filters;
+  bool loginProtected;
+  bool cloudFareProtected;
+
   Map<String, dynamic> toMap() {
     return {
       "name": name,
@@ -24,8 +27,10 @@ class Source {
       "is_hentai": isHentai,
       "selector": selector,
       "sorters": sorters,
-      "settings":settings,
-      "filters":filters,
+      "settings": settings,
+      "filters": filters,
+      "login": loginProtected,
+      "cloudfare": cloudFareProtected,
     };
   }
 
@@ -43,6 +48,7 @@ class Source {
     sorters = map['sorters'];
     settings = map['settings'];
     filters = map["filters"];
+    cloudFareProtected = map['cloudfare'];
+    loginProtected = map['login'];
   }
 }
-

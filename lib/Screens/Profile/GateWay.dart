@@ -33,7 +33,10 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
     super.initState();
     _profile = getProfile();
   }
-
+  @override
+  void dispose() {
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -41,6 +44,7 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(
+              appBar: AppBar(),
               body: Center(
                 child: LoadingIndicator(),
               ),

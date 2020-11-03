@@ -209,6 +209,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
         Text(
           actionText,
           textAlign: TextAlign.center,
+          style: def,
         )
       ],
     );
@@ -450,11 +451,12 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
         title: Text("Create New Collection"),
         content: Column(
           children: [
-            Text("Name this Collection"),
-            PlatformTextField(
-              maxLength: 20,
-              cursorColor: Colors.purple,
-              onChanged: (val) => newCollectionName = val,
+            Container(
+              child: PlatformTextField(
+                maxLength: 20,
+                cursorColor: Colors.purple,
+                onChanged: (val) => newCollectionName = val,
+              ),
             )
           ],
         ),
@@ -484,7 +486,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                   favoritesStream.add("");
 
                   showMessage(
-                    "Added to $newCollectionName}!",
+                    "Added to $newCollectionName!",
                     Icons.check,
                     Duration(
                       milliseconds: 1000,
@@ -560,7 +562,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                     profile.description,
                     softWrap: true,
                     overflow: TextOverflow.fade,
-                    style: TextStyle(color: Colors.grey, fontSize: 15),
+                    style: TextStyle(color: Colors.grey, fontSize: 15.sp),
                   )),
               isExpanded
                   ? Container()
@@ -608,13 +610,13 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                         child: Center(
                           child: Padding(
                             padding: EdgeInsets.all(3.w),
-                            child: AutoSizeText(
+                            child: Text(
                               profile.genres[index]['tag'].toString(),
                               maxLines: 2,
                               softWrap: true,
-                              wrapWords: false,
-                              minFontSize: 5.sp,
-                              maxFontSize: 100.sp,
+                              // wrapWords: false,
+                              // minFontSize: 5.sp,
+                              // maxFontSize: 100.sp,
                               style: TextStyle(
                                   color: Colors.white70,
                                   fontWeight: FontWeight.bold),
@@ -711,7 +713,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                         subtitle: Text(
                           chapter.maker,
                           style:
-                              TextStyle(fontSize: 15, color: Colors.grey[700]),
+                              TextStyle(fontSize: 15.sp, color: Colors.grey[700]),
                         ),
                         trailing: Text(
                           chapter.date ?? "",

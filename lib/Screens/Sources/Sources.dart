@@ -44,6 +44,7 @@ class _SourcesPageState extends State<SourcesPage> {
   }
 
   selectSource(Source src) async {
+    // todo add check for login and cloudfare protection
     TestPreference _prefs = TestPreference();
     await _prefs.init();
     await _prefs.setSource(src);

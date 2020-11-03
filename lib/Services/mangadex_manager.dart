@@ -133,7 +133,7 @@ class DexHub {
   Future<ComicProfile> profile(String link) async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
     List userLanguages = _prefs.getStringList("dex_userLanguages") ?? [];
-
+    print(link);
     var cookies = {};
     if (link.contains("http")) {
       var strings = link.split('/');
@@ -166,7 +166,7 @@ class DexHub {
     List genres = manga['genres'];
     List tags = [];
     for (int tag in genres) {
-      tags.add({"tag": tagsDict[tag], "link": "", "selector": selector});
+      tags.add({"tag": tagsDict[tag] ??tag, "link": "", "selector": selector});
     }
     int statusValue = manga['status'];
     String status;
@@ -192,7 +192,7 @@ class DexHub {
       String groupName = chapter['group_name'];
       String lang = chapter['lang_code'];
       var finalTitle =
-          "${(volume.isNotEmpty) ? "Vol. $volume" : ""} Ch. $chapterName ${(chapterTitle.isNotEmpty) ? " - $chapterTitle" : ""}";
+          "${(volume.isNotEmpty) ? "Vol. $volume" : ""} Ch. $chapterName";
       var date =
           DateTime.fromMillisecondsSinceEpoch(chapter['timestamp'] * 1000);
       var formattedDate = DateFormat.yMMMd().format(date);
@@ -201,7 +201,7 @@ class DexHub {
           "name": finalTitle,
           "link": "https://mangadex.org/chapter/$k",
           "date": formattedDate,
-          "maker": "$lang:$groupName"
+          "maker": "${_emoji(lang)} - $groupName"
         });
       }
     }
@@ -226,12 +226,12 @@ class DexHub {
   }
 
   String _emoji(String country) {
+    country = country.toUpperCase();
     int flagOffset = 0x1F1E6;
     int asciiOffset = 0x41;
 
     int firstChar = country.codeUnitAt(0) - asciiOffset + flagOffset;
     int secondChar = country.codeUnitAt(1) - asciiOffset + flagOffset;
-
     String emoji =
         String.fromCharCode(firstChar) + String.fromCharCode(secondChar);
     return emoji;

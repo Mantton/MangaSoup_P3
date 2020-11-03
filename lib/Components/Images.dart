@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
+import '../Globals.dart';
+
 class SoupImage extends StatelessWidget {
   final String url;
 
@@ -15,6 +17,7 @@ class SoupImage extends StatelessWidget {
     return Container(
       child: CachedNetworkImage(
         imageUrl: url,
+        httpHeaders: imageHeaders(url),
         placeholder: (context, url) => Center(
           child: CupertinoActivityIndicator(
             radius: 10.w,
