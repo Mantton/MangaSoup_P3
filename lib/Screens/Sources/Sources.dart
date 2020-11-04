@@ -13,6 +13,8 @@ import 'dart:ui';
 import 'package:mangasoup_prototype_3/Services/test_preference.dart';
 import 'package:provider/provider.dart';
 
+import '../../Providers/SourceProvider.dart';
+
 class SourcesPage extends StatefulWidget {
   final String selector;
 
@@ -45,11 +47,13 @@ class _SourcesPageState extends State<SourcesPage> {
 
   selectSource(Source src) async {
     // todo add check for login and cloudfare protection
+    
+    Source full = await server.initSource(src.selector);
     TestPreference _prefs = TestPreference();
     await _prefs.init();
     await _prefs.setSource(src);
-    await Provider.of<SourceNotifier>(context, listen: false).loadSource(src);
-    sourcesStream.add(src.selector);
+    await Provider.of<SourceNotifier>(context, listen: false).loadSource(full);
+    sourcesStream.add(full.selector);
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     } else
@@ -142,7 +146,7 @@ class _SourcesPageState extends State<SourcesPage> {
                                         color: (!source.isEnabled)
                                             ? Colors.red
                                             : (source.selector !=
-                                                    _currentSelector)
+                                                    _currentSelector || source.selector != Provider.of<SourceNotifier>(context).source.selector ?? "")
                                                 ? (source.vipProtected)
                                                     ? Colors.amber
                                                     : Colors.grey[900]

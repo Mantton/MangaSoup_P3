@@ -59,16 +59,17 @@ class ComicGridTile extends StatelessWidget {
               Radius.circular(10.0),
             ),
             child: Container(
-                width: 400.w,
-                height: 500.h,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10.0),
-                  ),
+              width: 400.w,
+              height: 500.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10.0),
                 ),
-                child: SoupImage(
-                  url: comic.thumbnail,
-                )),
+              ),
+              child: SoupImage(
+                url: comic.thumbnail,
+              ),
+            ),
           ),
           footer: Container(
             color: Colors.black54,

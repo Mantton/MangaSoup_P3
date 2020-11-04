@@ -15,6 +15,7 @@ class Source {
   bool loginProtected;
   bool cloudFareProtected;
 
+
   Map<String, dynamic> toMap() {
     return {
       "name": name,

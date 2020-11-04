@@ -25,8 +25,8 @@ showLoadingDialog(BuildContext context) {
     context: context,
     barrierDismissible: false,
     builder: (_) => CupertinoAlertDialog(
-      content: Container(
-          height: 50, width: 50, child: LoadingIndicator()),
+      content:
+          Container(height: 50, width: 50, child: CupertinoActivityIndicator()),
     ),
   );
 }

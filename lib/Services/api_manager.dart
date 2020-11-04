@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiManager {
   //10.0.2.2 /127.0.0.1  http://10.0.2.2:8080/app/sources?server=live
@@ -31,13 +32,14 @@ class ApiManager {
       Map test = initial[index];
       pages.add(HomePage.fromMap(test));
     }
+    debugPrint("HomePage Loaded");
     return pages;
   }
 
   /// ------------- Server Resources
   Future<List<Source>> getServerSources(String server) async {
     Response response = await _dio.get(
-      "/app/sources",
+      "/app/sources/previews",
       queryParameters: {
         "server": server,
         "vip": "1"
@@ -52,6 +54,32 @@ class ApiManager {
     }
     debugPrint("Sources Loaded");
     return sources;
+  }
+
+  Future<Source> initSource(String selector) async {
+    Response response = await _dio
+        .get("/app/sources/details", queryParameters: {"selector": selector});
+    Source src = Source.fromMap(response.data['source']);
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+
+    if (src.settings != null) {
+      String encodedSettings =
+          preferences.getString("${src.selector}_settings");
+      if (encodedSettings == null) {
+        debugPrint("Settings for ${src.name} are not initialized, starting...");
+        Map defaultSourceSettings = {};
+        src.settings.forEach((element) {
+          defaultSourceSettings[element['selector']] = element['default'];
+        });
+
+        await preferences.setString(
+            "${src.selector}_settings", jsonEncode(defaultSourceSettings));
+        debugPrint("Default Settings have been initialized");
+
+      }
+    } else
+      debugPrint("Source has no settings");
+    return src;
   }
 
   /// ------------------- COMIC RESOURCES  ---------------------------- ///
