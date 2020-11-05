@@ -95,14 +95,17 @@ class DexHub {
       cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
 
   Future<List<ComicHighlight>> get(
-      String sort, int page, Map settings, Map dexCookies) async {
-    Map cookies = {};
-    cookies.addAll(settings); // Hentai Toggle and Supported Languages
-    cookies.addAll(dexCookies);
-    String url = baseURL + '/titles/9/${page}/?s=${sort}#listing';
+      String sort, int page, Map additionalInfo) async {
+    Map cookies = additionalInfo['cookies'] ?? {};
+    Map data = Map();
+    data.addAll(cookies);
+    data['mangadex_h_toggle'] = additionalInfo['nsfw'];
+    print(data);
+
+    String url = baseURL + '/titles/9/$page/?s=$sort#listing';
 
     http.Response response =
-        await http.get(url, headers: {'Cookie': stringifyCookies(cookies)});
+        await http.get(url, headers: {'Cookie': stringifyCookies(data)});
 
     var document = parse(response.body);
     var comics = document
@@ -132,7 +135,14 @@ class DexHub {
 
   Future<ComicProfile> profile(String link) async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
-    List userLanguages = _prefs.getStringList("dex_userLanguages") ?? [];
+    String encodedSettings = _prefs.getString("mangadex_settings");
+    Map settings = Map();
+    if (encodedSettings != null) {
+      settings = jsonDecode(encodedSettings);
+    } else
+      settings = {};
+
+    List userLanguages = settings['mangadex_languages'] ?? [];
     print(link);
     var cookies = {};
     if (link.contains("http")) {
@@ -166,7 +176,7 @@ class DexHub {
     List genres = manga['genres'];
     List tags = [];
     for (int tag in genres) {
-      tags.add({"tag": tagsDict[tag] ??tag, "link": "", "selector": selector});
+      tags.add({"tag": tagsDict[tag] ?? tag, "link": "", "selector": selector});
     }
     int statusValue = manga['status'];
     String status;

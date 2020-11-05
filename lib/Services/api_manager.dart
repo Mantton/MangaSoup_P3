@@ -113,9 +113,10 @@ class ApiManager {
   /// Get All
   Future<List<ComicHighlight>> getAll(
       String source, String sortBy, int page) async {
-    if (source == "mangadex") return dex.get(sortBy, page, {}, {});
     Map additionalParams = await prepareAdditionalInfo(source);
     print(additionalParams);
+    if (source == "mangadex") return dex.get(sortBy, page,additionalParams);
+
     Map data = {
       "source": source,
       "page": page,
@@ -135,9 +136,10 @@ class ApiManager {
 
   /// Get Latest
   Future<List<ComicHighlight>> getLatest(String source, int page) async {
-    if (source == "mangadex") return dex.get("0", page, {}, {});
     Map additionalParams = await prepareAdditionalInfo(source);
     print(additionalParams);
+    if (source == "mangadex") return dex.get("0", page, additionalParams);
+
     Map data = {
       "source": source,
       "page": page,

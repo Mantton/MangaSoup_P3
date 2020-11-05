@@ -36,7 +36,6 @@ class _MorePageState extends State<MorePage> {
     SettingsPage(),
   ];
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,38 +59,41 @@ class _MorePageState extends State<MorePage> {
                     builder: (_) => pages[index],
                   ),
                 ),
-                child: GridTile(
-                  child: Container(
-                    color: Colors.blue[(index + 1) * 100],
-                  ),
-                  footer: Container(
-                    color: Colors.black54,
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0.w),
-                      child: Center(
-                        child: Text(
-                          titles[index],
-                          style: TextStyle(
-                              fontFamily: "Roboto",
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.sp,
-                              shadows: <Shadow>[
-                                Shadow(
-                                  offset: Offset(1.0, 1.0),
-                                  blurRadius: 7.0,
-                                  color: Colors.black,
-                                ),
-                                Shadow(
-                                  offset: Offset(2.0, 2.0),
-                                  blurRadius: 3.0,
-                                  color: Colors.black,
-                                )
-                              ]),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                          maxLines: 3,
+                child: Padding(
+                  padding: EdgeInsets.all(10.w),
+                  child: GridTile(
+                    child: Container(
+                      color: Colors.blue[(index + 1) * 100],
+                    ),
+                    footer: Container(
+                      color: Colors.black54,
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0.w),
+                        child: Center(
+                          child: Text(
+                            titles[index],
+                            style: TextStyle(
+                                fontFamily: "Roboto",
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20.sp,
+                                shadows: <Shadow>[
+                                  Shadow(
+                                    offset: Offset(1.0, 1.0),
+                                    blurRadius: 7.0,
+                                    color: Colors.black,
+                                  ),
+                                  Shadow(
+                                    offset: Offset(2.0, 2.0),
+                                    blurRadius: 3.0,
+                                    color: Colors.black,
+                                  )
+                                ]),
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            maxLines: 3,
+                          ),
                         ),
                       ),
                     ),
