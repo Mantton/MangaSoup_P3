@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
@@ -47,13 +48,15 @@ class _SourcesPageState extends State<SourcesPage> {
 
   selectSource(Source src) async {
     // todo add check for login and cloudfare protection
-    
+    showLoadingDialog(context);
     Source full = await server.initSource(src.selector);
     TestPreference _prefs = TestPreference();
     await _prefs.init();
     await _prefs.setSource(src);
     await Provider.of<SourceNotifier>(context, listen: false).loadSource(full);
     sourcesStream.add(full.selector);
+    Navigator.pop(context);
+    debugPrint("Done");
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     } else
@@ -146,7 +149,13 @@ class _SourcesPageState extends State<SourcesPage> {
                                         color: (!source.isEnabled)
                                             ? Colors.red
                                             : (source.selector !=
-                                                    _currentSelector || source.selector != Provider.of<SourceNotifier>(context).source.selector ?? "")
+                                                            _currentSelector ||
+                                                        source.selector !=
+                                                            Provider.of<SourceNotifier>(
+                                                                    context)
+                                                                .source
+                                                                .selector ??
+                                                    "")
                                                 ? (source.vipProtected)
                                                     ? Colors.amber
                                                     : Colors.grey[900]
