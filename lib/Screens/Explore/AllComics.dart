@@ -45,9 +45,14 @@ class _AllComicsPageState extends State<AllComicsPage> {
   @override
   void initState() {
     super.initState();
+    print("Starting");
     Source _source = Provider.of<SourceNotifier>(context, listen: false).source;
+    print(_source.toMap());
     _sort = _source.sorters[0];
+
     _futureComics = _loadComics(_source.selector, _sort["selector"], _page, {});
+    print("passed 2");
+
     _controller = ScrollController();
     _controller.addListener(() {
       _scrollListener();

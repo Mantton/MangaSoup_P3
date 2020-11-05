@@ -115,12 +115,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           index: _index,
           children: [
             ForYouPage(),
-            // AllComicsPage(),
-            Container(
-              child: Center(
-                child: Text(Provider.of<SourceNotifier>(context).source.settings.toString()),
-              ),
-            ),
+            AllComicsPage(),
+            // Container(
+            //   child: Center(
+            //     child: Text(Provider.of<SourceNotifier>(context).source.settings.toString()),
+            //   ),
+            // ),
             LatestPage(),
           ],
         ),
