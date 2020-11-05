@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Setting.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:provider/provider.dart';
@@ -120,6 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
             SharedPreferences manager = await SharedPreferences.getInstance();
             await manager.setString(
                 "${selector}_settings", jsonEncode(userSourceSettings));
+            sourcesStream.add(selector);
             print("Success");
             setState(() {});
           },
@@ -151,6 +153,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           await SharedPreferences.getInstance();
                       await manager.setString("${selector}_settings",
                           jsonEncode(userSourceSettings));
+                      sourcesStream.add(selector);
+
                       print("Success");
                       setState(() {});
                     }),

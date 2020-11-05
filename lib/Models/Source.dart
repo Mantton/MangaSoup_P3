@@ -3,6 +3,7 @@ class Source {
   bool isEnabled;
   String server;
   String language;
+
   String thumbnail;
   bool vipProtected;
   String sourcePack;
@@ -20,7 +21,7 @@ class Source {
   Map<String, dynamic> toMap() {
     return {
       "name": name,
-      "is_enabled": isEnabled,
+      "enabled": isEnabled,
       "server": server,
       "language": language,
       "thumbnail": thumbnail,
@@ -39,8 +40,8 @@ class Source {
   Source.fromMap(Map<String, dynamic> map) {
     name = map['name'];
     isEnabled = map['enabled'];
-    server = map['server_selector'];
-    language = map['language'];
+    server = map['server'];
+    language = map['base_language'];
     thumbnail = map['thumbnail'];
     vipProtected = map['vip_protected'];
     sourcePack = map['source_pack'];

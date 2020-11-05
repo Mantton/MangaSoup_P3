@@ -26,6 +26,7 @@ class _AllComicsPageState extends State<AllComicsPage> {
 
   Future<List<ComicHighlight>> _loadComics(
       String source, String sortBy, int page, Map info) async {
+    print("Load comics starting");
     ApiManager _manager = ApiManager();
     return await _manager.getAll(source, sortBy, page);
   }

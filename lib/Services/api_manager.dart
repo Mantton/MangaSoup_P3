@@ -81,7 +81,7 @@ class ApiManager {
     return src;
   }
 
-  Future<Map> data(String source) async {
+  Future<Map> prepareAdditionalInfo(String source) async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
     String sourceSettings = _prefs.get("${source}_settings");
     String sourceCookies = _prefs.getString("${source}_cookies");
@@ -94,7 +94,6 @@ class ApiManager {
       settings.forEach((key, value) {
         generated[key] = value['selector'];
       });
-      print(generated);
       return generated;
     } else if (sourceCookies != null && sourceSettings == null) {
       return jsonDecode(sourceCookies);
@@ -115,11 +114,13 @@ class ApiManager {
   Future<List<ComicHighlight>> getAll(
       String source, String sortBy, int page) async {
     if (source == "mangadex") return dex.get(sortBy, page, {}, {});
+    Map additionalParams = await prepareAdditionalInfo(source);
+    print(additionalParams);
     Map data = {
       "source": source,
       "page": page,
       "sort_by": sortBy,
-      "data": {'language': "english"}
+      "data": additionalParams
     };
     Response response = await _dio.post("/api/v2/all", data: jsonEncode(data));
     debugPrint(response.request.data.toString());
@@ -135,11 +136,12 @@ class ApiManager {
   /// Get Latest
   Future<List<ComicHighlight>> getLatest(String source, int page) async {
     if (source == "mangadex") return dex.get("0", page, {}, {});
-
+    Map additionalParams = await prepareAdditionalInfo(source);
+    print(additionalParams);
     Map data = {
       "source": source,
       "page": page,
-      "data": {'language': "english"}
+      "data": additionalParams,
     };
     Response response = await _dio.post('/api/v2/latest', data: data);
     List dataPoints = response.data['comics'];
@@ -154,11 +156,12 @@ class ApiManager {
   /// Get Profile
   Future<ComicProfile> getProfile(String source, String link) async {
     if (source == "mangadex") return dex.profile(link);
-
+    Map additionalParams = await prepareAdditionalInfo(source);
+    print(additionalParams);
     Map data = {
       "source": source,
       "link": link,
-      "data": {'language': "english"}
+      "data": additionalParams
     };
     Response response = await _dio.post('/api/v2/profile', data: data);
     debugPrint(
