@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Screens/Testing.dart';
 import 'package:provider/provider.dart';
 
 import '../../Providers/SourceProvider.dart';
@@ -15,6 +16,7 @@ class _MorePageState extends State<MorePage> {
   List titles = [
     "All Tags",
     "Settings",
+    "Testing",
     "MangaSoup Discussions",
     "ID Search",
     "Image Search",
@@ -26,6 +28,7 @@ class _MorePageState extends State<MorePage> {
   List pages = [
     SettingsPage(),
     SettingsPage(),
+    Testing(),
     SettingsPage(),
     SettingsPage(),
     SettingsPage(),

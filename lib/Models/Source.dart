@@ -11,6 +11,7 @@ class Source {
   String url;
   List sorters;
   List settings;
+  Map userLocalSettings;
   List filters;
   bool loginProtected;
   bool cloudFareProtected;

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:mangasoup_prototype_3/Models/Setting.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,7 @@ class _SettingsPageState extends State<SettingsPage> {
         userSourceSettings = jsonDecode(encodedSettings);
       });
       debugPrint(userSourceSettings.toString());
+      print("User Settings initiated");
     } else {
       debugPrint("No User Settings");
     }
@@ -45,8 +47,7 @@ class _SettingsPageState extends State<SettingsPage> {
       body: Container(
           child: Column(
         children: [
-          (userSourceSettings != null)?
-          sourceSettings():Container(),
+          (userSourceSettings != null) ? sourceSettings() : Container(),
         ],
       )),
     );
@@ -54,79 +55,110 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget sourceSettings() {
     List settings = Provider.of<SourceNotifier>(context).source.settings;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.all(8.0.w),
-          child: Text("Source Settings", style: TextStyle(fontSize: 20.sp)),
-        ),
-        Divider(
-          color: Colors.grey,
-        ),
-        Column(
-          children: List<Widget>.generate(settings.length, (index) {
-            Map setting = settings[index];
-            return Padding(
-              padding: EdgeInsets.fromLTRB(20.w, 5.h, 20.w, 5.h),
-              child: Row(
-                children: [
-                  Text(
-                    setting['name'],
-                    style: TextStyle(fontSize: 17.sp),
-                  ),
-                  Spacer(),
-                  optionType(setting['type'], setting['selector'], userSourceSettings[setting['value']], buildDropDownMenuItems(setting['options']))
-                ],
-              ),
-            );
-          }),
-        )
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(8.0.w),
+            child: Text("Source Settings", style: TextStyle(fontSize: 20.sp)),
+          ),
+          Divider(
+            color: Colors.grey,
+          ),
+          Column(
+            children: List<Widget>.generate(settings.length, (index) {
+              SourceSetting ss = SourceSetting.fromMap(settings[index]);
+              return Padding(
+                padding: EdgeInsets.fromLTRB(20.w, 5.h, 20.w, 5.h),
+                child: Row(
+                  children: [
+                    Text(
+                      ss.name,
+                      style: TextStyle(fontSize: 17.sp),
+                    ),
+                    Spacer(),
+                    optionType(ss)
+                  ],
+                ),
+              );
+            }),
+          )
+        ],
+      ),
     );
   }
-  List<DropdownMenuItem<Map>> buildDropDownMenuItems(List options) {
-    List<DropdownMenuItem<Map>> items = List();
-    for (Map listItem in options) {
+
+  List<DropdownMenuItem<SettingOption>> buildDropDownMenuItems(
+      List<SettingOption> options) {
+    List<DropdownMenuItem<SettingOption>> items = List();
+    for (SettingOption opt in options) {
       items.add(
-        DropdownMenuItem(
-          child: Text(listItem['name']),
-          value: listItem,
+        DropdownMenuItem<SettingOption>(
+          child: Text(opt.name),
+          value: opt,
         ),
       );
     }
     return items;
   }
-  Widget optionType(int type, String optionSelector, var currentValue, List options) {
-    switch (type) {
+
+  Widget optionType(SourceSetting setting) {
+    String selector =
+        Provider.of<SourceNotifier>(context, listen: false).source.selector;
+    switch (setting.type) {
       case 1:
-        return PlatformWidget(
-          material: (_, __)=>Padding(
-            padding: const EdgeInsets.all(8.0),
+        return PlatformSwitch(
+          value:
+              SettingOption.fromMap(userSourceSettings[setting.selector]).value,
+          onChanged: (value) async {
+            userSourceSettings[setting.selector] = setting.options
+                .singleWhere((element) => element.value == value)
+                .toMap();
+
+            print(userSourceSettings);
+            SharedPreferences manager = await SharedPreferences.getInstance();
+            await manager.setString(
+                "${selector}_settings", jsonEncode(userSourceSettings));
+            print("Success");
+            setState(() {});
+          },
+        );
+      case 2:
+        var v = buildDropDownMenuItems(setting.options);
+        SettingOption t =
+            SettingOption.fromMap(userSourceSettings[setting.selector]);
+        return Container(
+          child: Padding(
+            padding: EdgeInsets.all(8.0.w),
             child: Container(
-              padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+              padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.0),
-                  color: Colors.cyan,
+                  color: Colors.grey[900],
                   border: Border.all()),
               child: DropdownButtonHideUnderline(
-                child: DropdownButton(
-                    value: currentValue,
-                    items: options,
-                    onChanged: (value) {
-                      // setState(() {
-                      //   _selectedItem = value;
-                      // });
+                child: DropdownButton<SettingOption>(
+                    value: setting.options.singleWhere(
+                        (element) => t.selector == element.selector),
+                    items: v,
+                    dropdownColor: Colors.grey[900],
+                    style: TextStyle(fontSize: 20.sp),
+                    onChanged: (value) async {
+                      userSourceSettings[setting.selector] = value.toMap();
+                      print(userSourceSettings);
+                      SharedPreferences manager =
+                          await SharedPreferences.getInstance();
+                      await manager.setString("${selector}_settings",
+                          jsonEncode(userSourceSettings));
+                      print("Success");
+                      setState(() {});
                     }),
               ),
             ),
           ),
         );
-      case 2:
-        return PlatformWidget(
 
-            /// https://yashodgayashan.medium.com/flutter-dropdown-button-widget-469794c886d0 for the widget
-            );
       case 3:
         return Icon(Icons.add);
       default:

@@ -52,7 +52,7 @@ class _SourcesPageState extends State<SourcesPage> {
     Source full = await server.initSource(src.selector);
     TestPreference _prefs = TestPreference();
     await _prefs.init();
-    await _prefs.setSource(src);
+    await _prefs.setSource(full);
     await Provider.of<SourceNotifier>(context, listen: false).loadSource(full);
     sourcesStream.add(full.selector);
     Navigator.pop(context);

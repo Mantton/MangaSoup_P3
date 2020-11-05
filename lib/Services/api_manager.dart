@@ -75,18 +75,45 @@ class ApiManager {
         await preferences.setString(
             "${src.selector}_settings", jsonEncode(defaultSourceSettings));
         debugPrint("Default Settings have been initialized");
-
       }
     } else
       debugPrint("Source has no settings");
     return src;
   }
 
+  Future<Map> data(String source) async {
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    String sourceSettings = _prefs.get("${source}_settings");
+    String sourceCookies = _prefs.getString("${source}_cookies");
+
+    if (sourceCookies == null && sourceSettings == null) {
+      return {};
+    } else if (sourceSettings != null && sourceCookies == null) {
+      Map settings = jsonDecode(sourceSettings);
+      Map generated = Map();
+      settings.forEach((key, value) {
+        generated[key] = value['selector'];
+      });
+      print(generated);
+      return generated;
+    } else if (sourceCookies != null && sourceSettings == null) {
+      return jsonDecode(sourceCookies);
+    } else {
+      Map settings = jsonDecode(sourceSettings);
+      Map generated = Map();
+      settings.forEach((key, value) {
+        generated[key] = value['selector'];
+      });
+      generated['cookies'] = jsonDecode(sourceCookies);
+      return generated;
+    }
+  }
+
   /// ------------------- COMIC RESOURCES  ---------------------------- ///
   ///
   /// Get All
   Future<List<ComicHighlight>> getAll(
-      String source, String sortBy, int page, Map additionalInfo) async {
+      String source, String sortBy, int page) async {
     if (source == "mangadex") return dex.get(sortBy, page, {}, {});
     Map data = {
       "source": source,
