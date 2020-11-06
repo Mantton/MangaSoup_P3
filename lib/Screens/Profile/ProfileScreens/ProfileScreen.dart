@@ -14,6 +14,7 @@ import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/AllChapters.dart';
+import 'package:mangasoup_prototype_3/Screens/Tags/TagComics.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePageScreen extends StatefulWidget {
@@ -250,7 +251,6 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                     title: Text("Move to different Collection"),
                     onTap: () {
                       moveToDifferentCollection();
-                      //todo, move to different collection
                     },
                   )
                 ],
@@ -284,7 +284,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
     int q = await _favoritesManager.updateByID(favoriteObject);
     setState(() {});
     Navigator.pop(context);
-    favoritesStream.add("");
+    favoritesStream.add("$q");
 
     showMessage(
       "Moved to ${_collections[index]}!",
@@ -598,8 +598,13 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
 //                                debugPrint(data['Genre(s)'][index]['Genre']);
                   return GestureDetector(
                     onTap: () {
-                      //todo, push to tag page
-                      debugPrint("Push to tag page");
+                      // push to tag page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TagComicsPage(tag:Tag.fromMap(profile.genres[index])),
+                        ),
+                      );
                     },
                     child: Padding(
                       padding: EdgeInsets.all(4.0.w),
@@ -712,8 +717,8 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                         ),
                         subtitle: Text(
                           chapter.maker,
-                          style:
-                              TextStyle(fontSize: 15.sp, color: Colors.grey[700]),
+                          style: TextStyle(
+                              fontSize: 15.sp, color: Colors.grey[700]),
                         ),
                         trailing: Text(
                           chapter.date ?? "",

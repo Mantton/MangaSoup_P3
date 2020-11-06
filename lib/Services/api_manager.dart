@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'dart:convert';
 
 import 'package:mangasoup_prototype_3/Models/Source.dart';
@@ -23,6 +24,7 @@ class ApiManager {
   final Dio _dio = Dio(_options);
   final DexHub dex = DexHub();
 
+  /// Get Home Page
   Future<List<HomePage>> getHomePage() async {
     Response response = await _dio.get('/app/homepage');
     List initial = response.data['content'];
@@ -56,6 +58,7 @@ class ApiManager {
     return sources;
   }
 
+  /// Initialize Source
   Future<Source> initSource(String selector) async {
     Response response = await _dio
         .get("/app/sources/details", queryParameters: {"selector": selector});
@@ -81,6 +84,7 @@ class ApiManager {
     return src;
   }
 
+  /// Prepare Data Variable
   Future<Map> prepareAdditionalInfo(String source) async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
     String sourceSettings = _prefs.get("${source}_settings");
@@ -115,7 +119,7 @@ class ApiManager {
       String source, String sortBy, int page) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     print(additionalParams);
-    if (source == "mangadex") return dex.get(sortBy, page,additionalParams);
+    if (source == "mangadex") return dex.get(sortBy, page, additionalParams);
 
     Map data = {
       "source": source,
@@ -160,11 +164,7 @@ class ApiManager {
     if (source == "mangadex") return dex.profile(link);
     Map additionalParams = await prepareAdditionalInfo(source);
     print(additionalParams);
-    Map data = {
-      "source": source,
-      "link": link,
-      "data": additionalParams
-    };
+    Map data = {"source": source, "link": link, "data": additionalParams};
     Response response = await _dio.post('/api/v2/profile', data: data);
     debugPrint(
         "Retrieval Complete : /Profile : ${response.data['title']} @$source");
@@ -178,5 +178,47 @@ class ApiManager {
         queryParameters: {"source": source, "link": link});
 
     return response.data['images'];
+  }
+
+  /// Get Tags
+  Future<List<Tag>> getTags(String source) async {
+    Map additionalParams = await prepareAdditionalInfo(source);
+    print(additionalParams);
+
+    print(additionalParams);
+    Map data = {"source": source, "data": additionalParams};
+    Response response = await _dio.post('/api/v2/tags', data: data);
+    List dataPoints = response.data['genres'] ?? response.data;
+    print(dataPoints);
+    List<Tag> tags = [];
+    for (int index = 0; index < dataPoints.length; index++) {
+      tags.add(Tag.fromMap(dataPoints[index]));
+    }
+    debugPrint("Retrieval Complete : /Tags @$source");
+    return tags;
+  }
+
+  /// Get Latest
+  Future<List<ComicHighlight>> getTagComics(
+      String source, int page, String link, String sort) async {
+    Map additionalParams = await prepareAdditionalInfo(source);
+    print(additionalParams);
+    // if (source == "mangadex") return dex.get("0", page, additionalParams);
+
+    Map data = {
+      "source": source,
+      "page": page,
+      "link": link,
+      "sort_by": sort,
+      "data": additionalParams,
+    };
+    Response response = await _dio.post('/api/v2/tagComics', data: data);
+    List dataPoints = response.data['comics'];
+    List<ComicHighlight> comics = [];
+    for (int index = 0; index < dataPoints.length; index++) {
+      comics.add(ComicHighlight.fromMap(dataPoints[index]));
+    }
+    debugPrint("Retrieval Complete : /tagComics @$source");
+    return comics;
   }
 }

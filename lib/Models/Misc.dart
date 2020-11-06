@@ -50,3 +50,20 @@ class Book {
     generatedLength = map['generated_length'];
   }
 }
+
+
+class Tag{
+  String name;
+  var link;
+  String selector;
+
+  Tag(this.name, this.link, this.selector);
+
+
+  Tag.fromMap(Map<String, dynamic> map) {
+    name = map['tag'] ?? map['genre'] ?? map['name'];
+    link = map['link'];
+    selector = map['selector'];
+  }
+
+}

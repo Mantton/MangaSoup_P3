@@ -35,10 +35,19 @@ class _ForYouPageState extends State<ForYouPage> {
             );
           }
           if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                "An Error Occured\n ${snapshot.error}\n Tap to Retry",
-                textAlign: TextAlign.center,
+            return Container(
+              child: Center(
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      pages = getPages();
+                    });
+                  },
+                  child: Text(
+                    "An Error Occured\n ${snapshot.error}\n Tap to Retry",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             );
           }
