@@ -24,6 +24,8 @@ class ApiManager {
   final Dio _dio = Dio(_options);
   final DexHub dex = DexHub();
 
+
+
   /// Get Home Page
   Future<List<HomePage>> getHomePage() async {
     Response response = await _dio.get('/app/homepage');
@@ -198,7 +200,7 @@ class ApiManager {
     return tags;
   }
 
-  /// Get Latest
+  /// Get Tag Comics
   Future<List<ComicHighlight>> getTagComics(
       String source, int page, String link, String sort) async {
     Map additionalParams = await prepareAdditionalInfo(source);
@@ -221,4 +223,27 @@ class ApiManager {
     debugPrint("Retrieval Complete : /tagComics @$source");
     return comics;
   }
+
+  /// Search
+  Future<List<ComicHighlight>> search(String source, String query) async {
+    Map additionalParams = await prepareAdditionalInfo(source);
+    print(additionalParams);
+    if (source == "mangadex") return dex.search(query, additionalParams);
+
+    Map data = {
+      "source": source,
+      "query": query,
+      "data": additionalParams,
+    };
+    Response response = await _dio.post('/api/v2/search', data: data);
+    List dataPoints = response.data['comics'];
+    List<ComicHighlight> comics = [];
+    for (int index = 0; index < dataPoints.length; index++) {
+      comics.add(ComicHighlight.fromMap(dataPoints[index]));
+    }
+    debugPrint("Retrieval Complete : /search @$source");
+    return comics;
+  }
+
+
 }

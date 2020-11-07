@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Screens/MangaDex/DexLogin.dart';
 import 'package:mangasoup_prototype_3/Screens/Tags/AllTags.dart';
 import 'package:mangasoup_prototype_3/Screens/Testing.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +31,7 @@ class _MorePageState extends State<MorePage> {
     AllTagsPage(),
     SettingsPage(),
     Testing(),
-    SettingsPage(),
+    MangadexLoginPage(),
     SettingsPage(),
     SettingsPage(),
     SettingsPage(),

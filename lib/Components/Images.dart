@@ -16,7 +16,7 @@ class SoupImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: CachedNetworkImage(
-        imageUrl: url,
+        imageUrl: (!url.contains("https:https:"))?url:url.replaceFirst("https:", ""),
         httpHeaders: imageHeaders(url),
         placeholder: (context, url) => Center(
           child: CupertinoActivityIndicator(

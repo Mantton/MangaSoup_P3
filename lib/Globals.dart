@@ -12,3 +12,11 @@ Map<String, String> imageHeaders(String link) {
   else
     return null;
 }
+
+final RegExp emailValidatorRegExp =
+RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+const String kEmailNullError = "Please Enter your Email";
+const String kInvalidEmailError = "Please Enter a Valid Email Address";
+const String kPassNullError = "Please Enter your password";
+const String kShortPassError = "Password is too short";
+const String kMatchPassError = "Passwords don't match";

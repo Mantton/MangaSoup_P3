@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Browse/Broswe.dart';
+import 'package:mangasoup_prototype_3/Screens/Browse/Search.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/AllComics.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/ForYou.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/LatestComics.dart';
@@ -62,8 +64,22 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           centerTitle: true,
           actions: [
             IconButton(
+              icon: Icon(CupertinoIcons.collections),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BrowsePage(),
+                ),
+              ),
+            ),
+            IconButton(
               icon: Icon(CupertinoIcons.search),
-              onPressed: () {},
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SearchPage(),
+                ),
+              ),
             ),
           ],
           bottom: PreferredSize(
@@ -116,11 +132,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           children: [
             ForYouPage(),
             AllComicsPage(),
-            // Container(
-            //   child: Center(
-            //     child: Text(Provider.of<SourceNotifier>(context).source.settings.toString()),
-            //   ),
-            // ),
             LatestPage(),
           ],
         ),
