@@ -145,12 +145,12 @@ class DexHub {
               .querySelector('div.rounded.large_logo.mr-2 > a> img')
               .attributes['src'];
       var title = comic.querySelector('a.ml-1.manga_title.text-truncate').text;
-      var link = comic
+      var link = baseURL + comic
           .querySelector('a.ml-1.manga_title.text-truncate')
           .attributes['href'];
       highlights.add(ComicHighlight.fromMap({
         'title': title,
-        'link': baseURL + link,
+        'link': link,
         'thumbnail': thumbnail,
         'source': source,
         'selector': selector
@@ -233,13 +233,15 @@ class DexHub {
 
     List userLanguages = settings['mangadex_languages'] ?? [];
     print(link);
+
+    String comicLink = link;
     if (link.contains("http")) {
       var strings = link.split('/');
       link = strings[4];
     }
 
     var profileURL = apiURL + '/manga/$link';
-    print(profileURL);
+    print("API LINK: $profileURL");
     //, headers: {'Cookie': stringifyCookies(cookies)}
     var response = await http.get(profileURL);
 
@@ -320,7 +322,7 @@ class DexHub {
       "chapters": chapterList,
       "source": source,
       "selector": selector,
-      "link": link,
+      "link": comicLink,
       "contains_books": false,
     };
     return ComicProfile.fromMap(x);

@@ -29,5 +29,6 @@ class Favorite {
     collection = map["collection"];
     chapterCount = map["chapterCount"];
     updateCount = map["updateCount"];
+
   }
 }

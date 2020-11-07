@@ -43,9 +43,8 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
 
   Future<bool> initializeProfile() async {
     profile = widget.comicProfile;
-    debugPrint(profile.thumbnail);
+    debugPrint("LINK : ${(profile.link)}");
     favoriteObject = await _favoritesManager.isFavorite(profile.link);
-
     // Check if Favorite
     if (favoriteObject == null) {
       _isFav = false;
@@ -354,9 +353,8 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   }
 
   Future<Favorite> addToFavorites(String collectionName) async {
-    debugPrint(Provider.of<ComicHighlightProvider>(context, listen: false)
-        .highlight
-        .thumbnail);
+    print(
+        "Saving : ${Provider.of<ComicHighlightProvider>(context, listen: false).highlight.link}");
     Favorite newFav = Favorite(
         null,
         Provider.of<ComicHighlightProvider>(context, listen: false).highlight,

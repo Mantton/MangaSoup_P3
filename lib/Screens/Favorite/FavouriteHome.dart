@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mangasoup_prototype_3/Components/FavoriteGrid.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Database/FavoritesDatabase.dart';
@@ -108,14 +109,14 @@ class _FavouritePageState extends State<FavouritePage> {
             collectionComics.forEach((element) {
               highlights.add(element.highlight);
             });
-            return page(highlights);
+            return page(collectionComics);
           }),
         ),
       ),
     );
   }
 
-  Widget page(List<ComicHighlight> comics) {
+  Widget page(List<Favorite> comics) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -143,7 +144,8 @@ class _FavouritePageState extends State<FavouritePage> {
               ),
             ),
           ),
-          ComicGrid(comics: comics)
+          // ComicGrid(comics: comics)
+          FavoritesGrid(favorites:comics )
         ],
       ),
     );
