@@ -5,7 +5,6 @@ import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:html/parser.dart';
-import 'package:html/dom.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -234,7 +233,6 @@ class DexHub {
 
     List userLanguages = settings['mangadex_languages'] ?? [];
     print(link);
-    var cookies = {};
     if (link.contains("http")) {
       var strings = link.split('/');
       link = strings[4];
@@ -250,6 +248,8 @@ class DexHub {
     try {
       c = jsonDecode(document);
     } on FormatException catch (e) {
+      print("$e");
+
       throw 'MangaDex failed to respond with the appropriate data';
     }
 
@@ -289,7 +289,7 @@ class DexHub {
       var chapter = chapters[k];
       String volume = chapter['volume'];
       String chapterName = chapter['chapter'];
-      String chapterTitle = chapter['title'];
+      // String chapterTitle = chapter['title'];
       String groupName = chapter['group_name'];
       String lang = chapter['lang_code'];
       var finalTitle =
