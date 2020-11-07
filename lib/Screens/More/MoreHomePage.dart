@@ -49,10 +49,11 @@ class _MorePageState extends State<MorePage> {
         child: GridView.builder(
             itemCount: titles.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 30.h,
-                crossAxisSpacing: 20.w,
-                childAspectRatio: .85),
+              crossAxisCount: 2,
+              mainAxisSpacing: 15.h,
+              crossAxisSpacing: 15.w,
+              childAspectRatio: .80,
+            ),
             itemBuilder: (BuildContext context, int index) {
               return GestureDetector(
                 onTap: () => Navigator.push(

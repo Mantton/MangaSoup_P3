@@ -59,13 +59,7 @@ class _TagComicsPageState extends State<TagComicsPage> {
     _controller.addListener(() {
       _scrollListener();
     });
-    sourcesStream.stream.listen((event) {
-      _page = 1;
-      Source _source =
-          Provider.of<SourceNotifier>(context, listen: false).source;
-      _sort = _source.sorters[0];
-      _futureComics = _loadComics(_sort["selector"], _page);
-    });
+
   }
 
   _scrollListener() async {

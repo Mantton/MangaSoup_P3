@@ -76,7 +76,6 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
         ),
         Expanded(
           child: Container(
-            height: 220.h,
             padding: EdgeInsets.all(10.w),
             margin: EdgeInsets.only(top: 10.h),
 //                                          color: Colors.white12,
@@ -84,9 +83,13 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                AutoSizeText(
+                Text(
                   widget.profile.title,
-                  style: TextStyle(color: Colors.white, fontFamily: 'Lato'),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Lato',
+                    fontSize: 20.sp,
+                  ),
                   // maxLines: 2,
                 ),
                 Divider(

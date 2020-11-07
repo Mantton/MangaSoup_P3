@@ -32,7 +32,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   ComicProfile profile;
   TextStyle def = TextStyle(
     color: Colors.white,
-    fontSize: 15.sp,
+    fontSize: 18.sp,
   );
   bool isExpanded = false;
   FavoritesManager _favoritesManager = FavoritesManager();
@@ -120,9 +120,9 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
     return Row(
       children: [
         Container(
-          margin: EdgeInsets.only(top: 10.h),
-          width: 130.h,
-          height: 190.h,
+          margin: EdgeInsets.only(top: 10.h, left: 10.w),
+          width: 180.h,
+          height: 250.h,
           child: SoupImage(
             url: profile.thumbnail,
           ),
@@ -132,7 +132,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
         ),
         Expanded(
           child: Container(
-            height: 220.h,
+            // height: 220.h,
             padding: EdgeInsets.all(10.w),
             margin: EdgeInsets.only(top: 10.h),
 //                                          color: Colors.white12,
@@ -140,11 +140,14 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                AutoSizeText(
+                SelectableText(
                   profile.title,
                   style: TextStyle(
-                      color: Colors.white, fontSize: 27.sp, fontFamily: 'Lato'),
-                  maxLines: 2,
+                    color: Colors.white,
+                    fontSize: 25.sp,
+                    fontFamily: 'Lato',
+                  ),
+                  // maxLines: 3,
                 ),
                 Divider(
                   height: 20.h,
@@ -164,7 +167,14 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                 FittedBox(
                   child: Text(
                     profile.status,
-                    style: def,
+                    style: TextStyle(
+                      color: (profile.status.toLowerCase().contains("complete"))
+                          ? Colors.green
+                          : (profile.status.toLowerCase().contains("on"))
+                              ? Colors.blue
+                              : Colors.redAccent,
+                      fontSize: 18.sp,
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -566,13 +576,20 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                   )),
               isExpanded
                   ? Container()
-                  : InkWell(
-                      child: Text(
-                        'more',
-                        style: TextStyle(
-                            color: Colors.purpleAccent, fontSize: 15.sp),
+                  : Center(
+                      child: InkWell(
+                        child: Text(
+                          'More',
+                          style: TextStyle(
+                            color: Colors.purpleAccent,
+                            fontSize: 15.sp,
+                          ),
+                        ),
+                        onTap: () => setState(
+                          () => isExpanded = true,
+                        ),
                       ),
-                      onTap: () => setState(() => isExpanded = true))
+                    )
             ]),
             SizedBox(
               height: 5.h,
@@ -602,7 +619,8 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => TagComicsPage(tag:Tag.fromMap(profile.genres[index])),
+                          builder: (_) => TagComicsPage(
+                              tag: Tag.fromMap(profile.genres[index])),
                         ),
                       );
                     },
@@ -803,12 +821,16 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                     child: ListTile(
                       title: Text(
                         book.name,
-                        style: TextStyle(fontSize: 17.sp),
+                        style: TextStyle(
+                          fontSize: 17.sp,
+                        ),
                       ),
                       trailing: Text(
                         book.range ?? "",
-                        style:
-                            TextStyle(color: Colors.grey[700], fontSize: 15.sp),
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 15.sp,
+                        ),
                       ),
                     ),
                   ),
