@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Screens/Favorite/FavouriteHome.dart';
 import 'package:mangasoup_prototype_3/Screens/More/MoreHomePage.dart';
-import 'file:///C:/Users/Mantton/AndroidStudioProjects/MangaSoup_P3/lib/Screens/More/SubPages/Settings.dart';
 import 'Screens/Explore/Home.dart';
 import 'Screens/Recent/RecentsHome.dart';
 
