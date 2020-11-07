@@ -19,17 +19,20 @@ class ComicGrid extends StatefulWidget {
 class _ComicGridState extends State<ComicGrid> {
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      physics: ScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: widget.crossAxisCount ?? 3,
-          crossAxisSpacing: 10.w,
-          mainAxisSpacing: 10.w,
-          childAspectRatio: 65 / 100),
-      shrinkWrap: true,
-      itemCount: widget.comics.length,
-      itemBuilder: (BuildContext context, index) => ComicGridTile(
-        comic: widget.comics[index],
+    return Padding(
+      padding:  EdgeInsets.all(8.0.w),
+      child: GridView.builder(
+        physics: ScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: widget.crossAxisCount ?? 3,
+            crossAxisSpacing: 10.w,
+            mainAxisSpacing: 10.w,
+            childAspectRatio: 65 / 100),
+        shrinkWrap: true,
+        itemCount: widget.comics.length,
+        itemBuilder: (BuildContext context, index) => ComicGridTile(
+          comic: widget.comics[index],
+        ),
       ),
     );
   }

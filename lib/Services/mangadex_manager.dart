@@ -135,7 +135,6 @@ class DexHub {
     );
 
     var document = parse(response.data);
-    print(response.headers);
     var comics = document
         .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
 
