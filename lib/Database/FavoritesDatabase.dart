@@ -51,6 +51,20 @@ class FavoritesManager {
     return fav;
   }
 
+  Future<bool> updateBulk(List<Favorite> favorites) async {
+    for (Favorite fav in favorites) {
+      await updateByID(fav);
+    }
+    return true;
+  }
+
+  Future<bool> removeBulk(List<Favorite> favorites) async {
+    for (Favorite fav in favorites) {
+      await deleteByID(fav.id);
+    }
+    return true;
+  }
+
   Future<int> deleteByID(int id) async {
     var dbClient = await db;
     return await dbClient.delete(TABLE, where: "$ID = ?", whereArgs: [id]);
@@ -85,14 +99,15 @@ class FavoritesManager {
     return sorted.keys.toList();
   }
 
-  Future<Map> getSortedFavorites() async{
+  Future<Map> getSortedFavorites() async {
     var dbClient = await db;
     List<Map> queryResult = await dbClient.query(TABLE);
     List<Favorite> favorites = [];
     queryResult.forEach((element) {
       favorites.add(Favorite.fromMap(element));
     });
-    Map sorted = groupBy(favorites, (Favorite obj) => obj.collection); // Group By Collection
+    Map sorted = groupBy(
+        favorites, (Favorite obj) => obj.collection); // Group By Collection
     return sorted;
   }
 

@@ -8,6 +8,8 @@ import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Screens/Favorite/FavoriteEdit.dart';
+import 'package:mangasoup_prototype_3/Screens/Favorite/FavoruteSearch.dart';
 
 class FavouritePage extends StatefulWidget {
   @override
@@ -87,7 +89,19 @@ class _FavouritePageState extends State<FavouritePage> {
           actions: [
             IconButton(
               icon: Icon(CupertinoIcons.search),
-              onPressed: () {},
+              onPressed: () async {
+                showLoadingDialog(context);
+                List<Favorite> favorites = await _manager.getAll();
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => FavoriteSearch(
+                      favorites: favorites,
+                    ),
+                  ),
+                );
+              },
             ),
           ],
           leading: IconButton(
@@ -97,6 +111,8 @@ class _FavouritePageState extends State<FavouritePage> {
           bottom: TabBar(
             indicatorColor: Colors.purpleAccent,
             isScrollable: true,
+            unselectedLabelStyle: TextStyle(fontSize: 19.sp),
+            labelStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
             tabs: List<Widget>.generate(collections.length, (index) {
               return Tab(
                 text: collections[index],
@@ -112,14 +128,14 @@ class _FavouritePageState extends State<FavouritePage> {
             collectionComics.forEach((element) {
               highlights.add(element.highlight);
             });
-            return page(collectionComics);
+            return page(collectionComics, collections[index]);
           }),
         ),
       ),
     );
   }
 
-  Widget page(List<Favorite> comics) {
+  Widget page(List<Favorite> comics, String currentCollection) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -129,10 +145,28 @@ class _FavouritePageState extends State<FavouritePage> {
               padding: EdgeInsets.all(10.0.w),
               child: Row(
                 children: [
+                  Text(
+                    '${comics.length} Manga',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 18.sp,
+                    ),
+                  ),
                   Spacer(),
                   IconButton(
                     icon: Icon(Icons.edit),
-                    onPressed: () {},
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        fullscreenDialog: true,
+                        builder: (_) => FavoriteCollectionEdit(
+                          favorites: comics,
+                          currentCollectionName: currentCollection,
+                          collections: collections,
+
+                        ),
+                      ),
+                    ),
                     color: Colors.purple,
                   ),
                   SizedBox(
@@ -148,7 +182,7 @@ class _FavouritePageState extends State<FavouritePage> {
             ),
           ),
           // ComicGrid(comics: comics)
-          FavoritesGrid(favorites:comics )
+          FavoritesGrid(favorites: comics)
         ],
       ),
     );
