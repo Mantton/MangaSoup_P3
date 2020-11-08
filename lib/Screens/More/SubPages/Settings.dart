@@ -112,7 +112,7 @@ class _SettingsPageState extends State<SettingsPage> {
       case 1:
         return PlatformSwitch(
           value:
-              SettingOption.fromMap(userSourceSettings[setting.selector]).value,
+              SettingOption.fromMap(userSourceSettings[setting.selector]).value ?? setting.options[0],
           onChanged: (value) async {
             userSourceSettings[setting.selector] = setting.options
                 .singleWhere((element) => element.value == value)
@@ -143,7 +143,7 @@ class _SettingsPageState extends State<SettingsPage> {
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<SettingOption>(
                     value: setting.options.singleWhere(
-                        (element) => t.selector == element.selector),
+                        (element) => t.selector == element.selector) ?? v[0],
                     items: v,
                     dropdownColor: Colors.grey[900],
                     style: TextStyle(fontSize: 20.sp),

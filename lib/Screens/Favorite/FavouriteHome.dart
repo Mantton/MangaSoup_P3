@@ -31,7 +31,10 @@ class _FavouritePageState extends State<FavouritePage> {
     super.initState();
     initializer = getFavorites();
     favoritesStream.stream.listen((event) {
-      initializer = getFavorites();
+      setState(() {
+        initializer = getFavorites();
+        debugPrint("Favorites Rebuilt!");
+      });
     });
   }
 

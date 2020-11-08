@@ -100,7 +100,7 @@ class ApiManager {
       });
       return generated;
     } else if (sourceCookies != null && sourceSettings == null) {
-      return jsonDecode(sourceCookies);
+      return {"cookies": jsonDecode(sourceCookies)};
     } else {
       Map settings = jsonDecode(sourceSettings);
       Map generated = Map();
@@ -165,11 +165,15 @@ class ApiManager {
     Map additionalParams = await prepareAdditionalInfo(source);
     print(additionalParams);
     Map data = {"source": source, "link": link, "data": additionalParams};
-    Response response = await _dio.post('/api/v2/profile', data: data);
-    debugPrint(
-        "Retrieval Complete : /Profile : ${response.data['title']} @$source");
+    try {
+      Response response = await _dio.post('/api/v2/profile', data: data);
+      debugPrint(
+          "Retrieval Complete : /Profile : ${response.data['title']} @$source");
 
-    return ComicProfile.fromMap(response.data);
+      return ComicProfile.fromMap(response.data);
+    } on DioError catch (e) {
+      throw e.response.data['msg'];
+    }
   }
 
   /// Get Images

@@ -93,7 +93,6 @@ class FavoritesManager {
       favorites.add(Favorite.fromMap(element));
     });
     Map sorted = groupBy(favorites, (Favorite obj) => obj.collection); // Group By Collection
-    debugPrint(sorted.runtimeType.toString());
     return sorted;
   }
 

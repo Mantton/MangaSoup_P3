@@ -233,7 +233,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
       _isFav = false;
     });
     Navigator.pop(context);
-    favoritesStream.add("");
+    favoritesStream.add(" ");
 
     showMessage(
       "Removed!",
@@ -249,15 +249,22 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
         context: context,
         builder: (_) => PlatformWidget(
               material: (_, __) => ListView(
+                shrinkWrap: true,
                 children: [
                   ListTile(
-                    title: Text("Remove from Library"),
+                    title: Text(
+                      "Remove from Library",
+                      style: def,
+                    ),
                     onTap: () async {
-                      removeFromLibrary();
+                      await removeFromLibrary();
                     },
                   ),
                   ListTile(
-                    title: Text("Move to different Collection"),
+                    title: Text(
+                      "Move to different Collection",
+                      style: def,
+                    ),
                     onTap: () {
                       moveToDifferentCollection();
                     },
@@ -273,7 +280,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                 actions: [
                   CupertinoActionSheetAction(
                     onPressed: () async {
-                      removeFromLibrary();
+                      await removeFromLibrary();
                     },
                     child: Text("Remove from Library"),
                   ),
@@ -310,17 +317,41 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
       context: context,
       builder: (_) => PlatformWidget(
         material: (_, __) => Container(
-          child: Column(
-            children: List<Widget>.generate(
-              _collections.length,
-              (index) => ListTile(
-                title: Text(_collections[index]),
-                onTap: () async {
-                  await move(index);
-                },
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              padding: EdgeInsets.all(10.w),
+              child: Center(
+                child: Text(
+                  "Move",
+                  style: def,
+                ),
               ),
             ),
-          ),
+            Column(
+              children: List<Widget>.generate(
+                _collections.length,
+                (index) => ListTile(
+                  title: Text(
+                    _collections[index],
+                    style: def,
+                  ),
+                  onTap: () async {
+                    await move(index);
+                  },
+                ),
+              ),
+            ),
+            ListTile(
+              title: Text(
+                "Create New Collection",
+                style: def,
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                await createCollection();
+              },
+            )
+          ]),
         ),
         cupertino: (_, __) => CupertinoActionSheet(
           title: Text(
@@ -334,17 +365,28 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
           ),
           actions: [
             Column(
-              children: List<CupertinoActionSheetAction>.generate(
-                _collections.length,
-                (index) => CupertinoActionSheetAction(
-                  onPressed: () async {
-                    await move(index);
-                  },
-                  child: Text(
-                    _collections[index],
+              children: [
+                Column(
+                  children: List<CupertinoActionSheetAction>.generate(
+                    _collections.length,
+                    (index) => CupertinoActionSheetAction(
+                      onPressed: () async {
+                        await move(index);
+                      },
+                      child: Text(
+                        _collections[index],
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                CupertinoActionSheetAction(
+                  child: Text("Create New Collection"),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await createCollection();
+                  },
+                )
+              ],
             )
           ],
         ),
@@ -361,7 +403,14 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
         collectionName,
         profile.chapterCount,
         0);
-    return await _favoritesManager.save(newFav);
+
+    if (favoriteObject == null)
+      return await _favoritesManager.save(newFav);
+    else {
+      favoriteObject.collection = collectionName;
+      await _favoritesManager.updateByID(favoriteObject);
+      return favoriteObject;
+    }
   }
 
   add(int index) async {
@@ -386,12 +435,16 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
       builder: (_) => PlatformWidget(
         material: (_, __) => Container(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Column(
                 children: List<Widget>.generate(
                   _collections.length,
                   (index) => ListTile(
-                    title: Text(_collections[index]),
+                    title: Text(
+                      _collections[index],
+                      style: def,
+                    ),
                     onTap: () async {
                       await add(index);
                     },
@@ -399,7 +452,10 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                 ),
               ),
               ListTile(
-                title: Text("Create New Collection"),
+                title: Text(
+                  "Create New Collection",
+                  style: def,
+                ),
                 onTap: () async {
                   Navigator.pop(context);
                   await createCollection();
@@ -457,16 +513,12 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
       context: context,
       builder: (_) => PlatformAlertDialog(
         title: Text("Create New Collection"),
-        content: Column(
-          children: [
-            Container(
-              child: PlatformTextField(
-                maxLength: 20,
-                cursorColor: Colors.purple,
-                onChanged: (val) => newCollectionName = val,
-              ),
-            )
-          ],
+        content: Container(
+          child: PlatformTextField(
+            maxLength: 20,
+            cursorColor: Colors.purple,
+            onChanged: (val) => newCollectionName = val,
+          ),
         ),
         actions: [
           PlatformDialogAction(
