@@ -85,6 +85,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
             ],
           ),
           SizedBox(
+
             height: 15.h,
           ),
           Center(
