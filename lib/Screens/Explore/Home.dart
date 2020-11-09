@@ -1,17 +1,39 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Browse/Broswe.dart';
+import 'package:mangasoup_prototype_3/Screens/Browse/Search.dart';
+import 'package:mangasoup_prototype_3/Screens/Explore/AllComics.dart';
+import 'package:mangasoup_prototype_3/Screens/Explore/ForYou.dart';
+import 'package:mangasoup_prototype_3/Screens/Explore/LatestComics.dart';
+import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/test_preference.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with TickerProviderStateMixin {
   List<Source> sources = [];
+  int _index = 1;
+  final Map<int, Widget> myTabs = const <int, Widget>{
+    0: Text("For You"),
+    1: Text("Home"),
+    2: Text("Latest"),
+  };
+  TabController _controller;
+
+  @override
+  void initState() {
+    _controller = TabController(length: 3, vsync: this, initialIndex: 1);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,113 +41,101 @@ class _HomeState extends State<Home> {
         designSize: Size(450, 747.5), allowFontScaling: true);
 
     return DefaultTabController(
-      initialIndex: 1,
       length: 3,
+      initialIndex: 1,
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(CupertinoIcons.cloud),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SourcesPage(
+                    selector:
+                        Provider.of<SourceNotifier>(context).source.selector,
+                  ),
+                  fullscreenDialog: true,
+                ),
+              );
+            },
+          ),
           title: Text("Discover"),
           centerTitle: true,
           actions: [
             IconButton(
-              icon: Icon(CupertinoIcons.cloud),
-              onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  '/sources',
-                );
-              },
+              icon: Icon(CupertinoIcons.collections),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BrowsePage(),
+                ),
+              ),
             ),
             IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {
-                debugPrint('Go To Search Page');
-              },
-              color: Colors.white,
+              icon: Icon(CupertinoIcons.search),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SearchPage(),
+                ),
+              ),
             ),
           ],
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(ScreenUtil().setHeight(30)),
-            child: TabBar(
-              indicatorColor: Colors.transparent,
-              labelColor: Colors.purple,
-              unselectedLabelColor: Colors.grey,
-              labelStyle: TextStyle(fontSize: 17.sp),
-              tabs: <Widget>[
-                Tab(
-                  text: "For You",
+            preferredSize: Size.fromHeight(30.h),
+            child: PlatformWidget(
+              cupertino: (_, __) => Container(
+                width: MediaQuery.of(context).size.width,
+                child: Padding(
+                  padding: EdgeInsets.all(8.0.w),
+                  child: CupertinoSlidingSegmentedControl(
+                      groupValue: _index,
+                      thumbColor: Colors.purple,
+                      children: myTabs,
+                      onValueChanged: (i) {
+                        setState(() {
+                          _index = i;
+                          _controller.animateTo(i);
+                        });
+                      }),
                 ),
-                Tab(
-                  text: "All Comics",
-                ),
-                Tab(
-                  text: "Latest",
-                )
-              ],
+              ),
+              material: (_, __) => TabBar(
+                indicatorColor: Colors.transparent,
+                labelColor: Colors.purple,
+                unselectedLabelColor: Colors.grey,
+                labelStyle: TextStyle(fontSize: 17.sp),
+                controller: _controller,
+                onTap: (value) {
+                  setState(() {
+                    _index = value;
+                  });
+                },
+                tabs: <Widget>[
+                  Tab(
+                    text: "For You",
+                  ),
+                  Tab(
+                    text: "Home",
+                  ),
+                  Tab(
+                    text: "Latest",
+                  )
+                ],
+              ),
             ),
           ),
         ),
-        body: TabBarView(
-          physics: NeverScrollableScrollPhysics(),
+        body: IndexedStack(
+          index: _index,
           children: [
-            Container(
-              color: Colors.grey,
-            ),
-            Container(
-              color: Colors.blueGrey[800],
-              child: Center(
-                child: (sources.length == 0)
-                    ? CupertinoButton(
-                        child: Text("TEST"),
-                        onPressed: simulate,
-                      )
-                    : Container(
-                        child: GridView.builder(
-                            itemCount: sources.length,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4),
-                            itemBuilder: (context, index) {
-                              Source source = sources[index];
-                              return GridTile(
-                                footer: Text(source.name),
-                                child: Image.network(source.thumbnail),
-                              );
-                            }),
-                      ),
-              ),
-            ),
-            Container(
-                child: CupertinoButton(
-              child: Text("RETRIEVE"),
-              onPressed: () {
-                debugPrint(MediaQuery.of(context).size.width.toString());
-              },
-            ))
+            ForYouPage(),
+            AllComicsPage(),
+            LatestPage(),
           ],
         ),
       ),
     );
-  }
-
-  simulate() async {
-    ApiManager re = ApiManager();
-    // await re.getAll("mangadex", "9", 1, {});
-    // List x = await re.getServerSources("live");
-    // setState(() {
-    //   sources = x;
-    // });
-
-    TestPreference _t = TestPreference();
-    await _t.init();
-    _t.setName("tester");
-
-    debugPrint("OK");
-  }
-
-  retrieve() async {
-    TestPreference _t = TestPreference();
-    await _t.init();
-    String y = _t.getName();
-    debugPrint(y);
   }
 }

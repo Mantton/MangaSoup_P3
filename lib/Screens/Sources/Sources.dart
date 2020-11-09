@@ -1,19 +1,41 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
+import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:collection/collection.dart';
 import 'dart:ui';
 
+import 'package:mangasoup_prototype_3/Services/test_preference.dart';
+import 'package:provider/provider.dart';
+
+import '../../Providers/SourceProvider.dart';
+
 class SourcesPage extends StatefulWidget {
+  final String selector;
+
+  const SourcesPage({Key key, this.selector}) : super(key: key);
+
   @override
   _SourcesPageState createState() => _SourcesPageState();
 }
 
 class _SourcesPageState extends State<SourcesPage> {
   ApiManager server = ApiManager();
+  String _currentSelector;
+
+  check() {
+    if (widget.selector != null)
+      _currentSelector = widget.selector;
+    else {
+      _currentSelector = "";
+    }
+  }
 
   // Retrieve Source from Server
   Future<Map> getSources() async {
@@ -22,6 +44,29 @@ class _SourcesPageState extends State<SourcesPage> {
     Map sorted =
         groupBy(sources, (Source obj) => obj.sourcePack); // Group Source
     return sorted;
+  }
+
+  selectSource(Source src) async {
+    // todo add check for login and cloudfare protection
+    showLoadingDialog(context);
+    Source full = await server.initSource(src.selector);
+    TestPreference _prefs = TestPreference();
+    await _prefs.init();
+    await _prefs.setSource(full);
+    await Provider.of<SourceNotifier>(context, listen: false).loadSource(full);
+    sourcesStream.add(full.selector);
+    Navigator.pop(context);
+    debugPrint("Done");
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else
+      Navigator.pushReplacementNamed(context, 'landing');
+  }
+
+  @override
+  void initState() {
+    check();
+    super.initState();
   }
 
   @override
@@ -84,15 +129,17 @@ class _SourcesPageState extends State<SourcesPage> {
                               crossAxisCount: 3,
                               crossAxisSpacing: ScreenUtil().setWidth(10),
                               mainAxisSpacing: ScreenUtil().setWidth(10),
-                              childAspectRatio: ScreenUtil().setHeight(77) /
-                                  ScreenUtil().setWidth(100), // 77/100
+                              childAspectRatio: .77, // 77/100
                             ),
                             itemCount: _sources.length,
                             itemBuilder: (BuildContext context, int i) {
                               Source source = _sources[i];
                               return GestureDetector(
-                                onTap: () {
-                                  debugPrint(source.thumbnail);
+                                onTap: () async {
+                                  if (!source.isEnabled)
+                                    sourceDisabledDialog();
+                                  else
+                                    selectSource(source);
                                 },
                                 child: Container(
                                   padding: EdgeInsets.all(5.w),
@@ -102,7 +149,13 @@ class _SourcesPageState extends State<SourcesPage> {
                                         color: (!source.isEnabled)
                                             ? Colors.red
                                             : (source.selector !=
-                                                    'mangadex') // todo change to active source
+                                                            _currentSelector ||
+                                                        source.selector !=
+                                                            Provider.of<SourceNotifier>(
+                                                                    context)
+                                                                .source
+                                                                .selector ??
+                                                    "")
                                                 ? (source.vipProtected)
                                                     ? Colors.amber
                                                     : Colors.grey[900]
@@ -124,10 +177,9 @@ class _SourcesPageState extends State<SourcesPage> {
                                         child: Text(
                                           source.name,
                                           style: TextStyle(
-                                            fontSize: 17.sp,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold
-                                          ),
+                                              fontSize: 17.sp,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ),
@@ -165,7 +217,6 @@ class _SourcesPageState extends State<SourcesPage> {
               ),
             );
           } else
-            // todo, raise error here
             return Scaffold(
               appBar: AppBar(
                 title: Text("Sources"),
@@ -178,7 +229,7 @@ class _SourcesPageState extends State<SourcesPage> {
                   child: Center(
                     child: InkWell(
                       child: Text(
-                        "An Error Occurred \n Tap to Retry",
+                        "An Error Occurred\n ${snapshot.error}\nTap to Retry",
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -196,5 +247,20 @@ class _SourcesPageState extends State<SourcesPage> {
         },
       ),
     );
+  }
+
+  sourceDisabledDialog() {
+    return showPlatformDialog(
+        context: context,
+        builder: (_) => PlatformAlertDialog(
+              title: Text("Source Disabled"),
+              content: Text("This source has been disabled for maintenance"),
+              actions: [
+                PlatformDialogAction(
+                  child: PlatformText("OK"),
+                  onPressed: () => Navigator.pop(context),
+                )
+              ],
+            ));
   }
 }

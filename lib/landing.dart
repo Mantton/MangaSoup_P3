@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Screens/Favorite/FavouriteHome.dart';
+import 'package:mangasoup_prototype_3/Screens/More/MoreHomePage.dart';
 import 'Screens/Explore/Home.dart';
+import 'Screens/Recent/RecentsHome.dart';
 
 class Landing extends StatefulWidget {
   @override
@@ -12,7 +15,8 @@ class _LandingState extends State<Landing> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PlatformScaffold(
+      iosContentPadding: true,
       body: IndexedStack(
         index: _index,
         children: [
@@ -23,25 +27,20 @@ class _LandingState extends State<Landing> {
             child: FavouritePage(),
           ),
           Container(
-            color: Colors.blue,
+            child: HistoryPage(),
           ),
           Container(
-            color: Colors.grey,
+            color: Colors.grey[900],
           ),
           Container(
-            color: Colors.black,
+            child: MorePage(),
           )
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavBar: PlatformNavBar(
         currentIndex: _index,
         backgroundColor: Colors.black,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        selectedItemColor: Colors.purple,
-        unselectedItemColor: Colors.grey[700],
-        type: BottomNavigationBarType.fixed,
-        onTap: (v) {
+        itemChanged: (v) {
           setState(() {
             _index = v;
           });
@@ -68,6 +67,18 @@ class _LandingState extends State<Landing> {
               label: "Downloads"),
           BottomNavigationBarItem(icon: Icon(Icons.dehaze), label: "More"),
         ],
+        material: (_, __) => MaterialNavBarData(
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          selectedItemColor: Colors.purple,
+          unselectedItemColor: Colors.grey[700],
+          type: BottomNavigationBarType.fixed,
+        ),
+        cupertino: (_, __) => CupertinoTabBarData(
+          activeColor: Colors.purple,
+          inactiveColor: Colors.grey,
+          backgroundColor: Colors.black,
+        ),
       ),
     );
   }

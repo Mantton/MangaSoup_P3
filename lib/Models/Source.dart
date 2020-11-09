@@ -3,6 +3,7 @@ class Source {
   bool isEnabled;
   String server;
   String language;
+
   String thumbnail;
   bool vipProtected;
   String sourcePack;
@@ -10,11 +11,17 @@ class Source {
   String selector;
   String url;
   List sorters;
+  List settings;
+  Map userLocalSettings;
+  List filters;
+  bool loginProtected;
+  bool cloudFareProtected;
+
 
   Map<String, dynamic> toMap() {
     return {
       "name": name,
-      "is_enabled": isEnabled,
+      "enabled": isEnabled,
       "server": server,
       "language": language,
       "thumbnail": thumbnail,
@@ -22,7 +29,11 @@ class Source {
       "source_pack": sourcePack,
       "is_hentai": isHentai,
       "selector": selector,
-      "sorters": sorters
+      "sorters": sorters,
+      "settings": settings,
+      "filters": filters,
+      "login": loginProtected,
+      "cloudfare": cloudFareProtected,
     };
   }
 
@@ -30,7 +41,7 @@ class Source {
     name = map['name'];
     isEnabled = map['enabled'];
     server = map['server'];
-    language = map['language'];
+    language = map['base_language'];
     thumbnail = map['thumbnail'];
     vipProtected = map['vip_protected'];
     sourcePack = map['source_pack'];
@@ -38,5 +49,9 @@ class Source {
     selector = map['selector'];
     url = map['base_url'];
     sorters = map['sorters'];
+    settings = map['settings'];
+    filters = map["filters"];
+    cloudFareProtected = map['cloudfare'];
+    loginProtected = map['login'];
   }
 }

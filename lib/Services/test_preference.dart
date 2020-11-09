@@ -20,14 +20,18 @@ class TestPreference {
     return _preferences.getString("test");
   }
 
-    /// Source
+  /// Source
   setSource(Source source) {
     Map encoded = source.toMap();
     _preferences.setString("source", jsonEncode(encoded));
   }
 
   loadSource() {
-    Map y = jsonDecode(_preferences.getString('source'));
+    var x = _preferences.getString('source');
+    if (x == null) {
+      return null;
+    }
+    Map y = jsonDecode(x);
     return Source.fromMap(y);
   }
 }
