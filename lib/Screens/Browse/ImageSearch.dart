@@ -93,6 +93,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                 onPressed: _image == null
                     ? null
                     : () async {
+
                         setState(() {
                           results = _manager.imageSearch(_image);
 
