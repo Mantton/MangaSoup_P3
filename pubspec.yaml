@@ -42,6 +42,11 @@ dependencies:
   html:
   intl: ^0.16.1
   photo_view: ^0.10.2
+  flutter_local_notifications: ^3.0.1+2
+  workmanager: ^0.2.0
+  connectivity: ^2.0.1
+
+
 
 
 

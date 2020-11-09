@@ -1,6 +1,7 @@
-import 'dart:ffi';
+import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart'
     show
         CupertinoActionSheet,
@@ -20,6 +21,7 @@ import 'package:flutter/material.dart'
         ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
@@ -27,12 +29,105 @@ import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Services/test_preference.dart';
+import 'package:mangasoup_prototype_3/Services/update_manager.dart';
 import 'package:mangasoup_prototype_3/landing.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:workmanager/workmanager.dart';
 
-void main() {
+const simplePeriodicTask = "simplePeriodicTask";
+
+void callbackDispatcher() {
+//  UpdateManager test = UpdateManager();
+  Workmanager.executeTask((task, inputData) async {
+    /// initialize notifications settings
+    FlutterLocalNotificationsPlugin flp = FlutterLocalNotificationsPlugin();
+    var android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    var iOS = IOSInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    var initSettings = InitializationSettings(android: android, iOS: iOS);
+    flp.initialize(initSettings, onSelectNotification: selectNotification);
+
+    /// Update Manager
+    UpdateManager _updateManger = UpdateManager();
+    int updateCount = 0;
+
+    /// Task Manager
+    switch (task) {
+      case simplePeriodicTask:
+        print("Android BG Task Triggered");
+        updateCount = await _updateManger.checkForUpdate();
+        stderr.writeln("Check Complete");
+        showNotification("$updateCount new update in your library", flp);
+
+        if (updateCount > 0) {
+          if (updateCount == 1)
+            showNotification("$updateCount new update in your library", flp);
+          else
+            showNotification("$updateCount new updates in your library", flp);
+        }
+        break;
+      case Workmanager.iOSBackgroundTask:
+        stderr.writeln("The iOS background fetch was triggered");
+        var connectivityResult = await (Connectivity()
+            .checkConnectivity()); //Check if user is connected
+        if (connectivityResult == ConnectivityResult.mobile ||
+            connectivityResult == ConnectivityResult.wifi) {
+          // Only Check for updates with the user connected to a valid network
+          updateCount = await _updateManger.checkForUpdate();
+        }
+        if (updateCount > 0) {
+          if (updateCount == 1)
+            showNotification("$updateCount new update in your library", flp);
+          else
+            showNotification("$updateCount new updates in your library", flp);
+        }
+        stderr.writeln("Done");
+        break;
+    }
+    return Future.value(true);
+  });
+}
+
+Future selectNotification(String payload) async {
+  if (payload != null) {
+    debugPrint('notification payload: $payload');
+  }
+  debugPrint("Notification was clicked!");
+}
+
+void showNotification(v, flp) async {
+  var android = AndroidNotificationDetails(
+      'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
+      priority: Priority.high, importance: Importance.max);
+  var iOS = IOSNotificationDetails();
+  var platform = NotificationDetails(android: android, iOS: iOS);
+  await flp.show(0, 'Collections', '$v', platform, payload: 'VIS : $v');
+}
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Workmanager.initialize(
+      callbackDispatcher, // The top level function, aka callbackDispatcher
+      isInDebugMode: false);
+
+  if (Platform.isAndroid) {
+    await Workmanager.registerPeriodicTask(
+      "1",
+      simplePeriodicTask,
+      existingWorkPolicy: ExistingWorkPolicy.replace,
+      frequency: Duration(hours: 2),
+      initialDelay: Duration(hours: 1), // start task 1 hour after app launch
+      constraints: Constraints(
+        networkType: NetworkType.connected,
+        // requiresCharging: true, // this is tentative
+      ),
+    );
+  }
+
   runApp(
     MultiProvider(
       providers: [

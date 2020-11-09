@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import "dart:io" as io;
 import 'package:path_provider/path_provider.dart';
@@ -109,6 +110,28 @@ class FavoritesManager {
     Map sorted = groupBy(
         favorites, (Favorite obj) => obj.collection); // Group By Collection
     return sorted;
+  }
+
+  /// FOR UPDATES CHECKING
+  Future<List<Favorite>> getUpdateEnabledFavorites() async {
+    var dbClient = await db;
+    SharedPreferences _pref = await SharedPreferences.getInstance();
+    List updateEnabledCollections =
+        _pref.getStringList("uec") ?? []; // UEC --> Update Enabled Collections
+    List<Map> queryResult = await dbClient.query(TABLE);
+    List<Favorite> favorites = [];
+
+    Map sorted = groupBy(
+      queryResult,
+      (obj) => updateEnabledCollections.contains(obj['collection']),
+    );
+
+    // print(sorted);
+    List<Map> favMaps = sorted[true] ?? [];
+    favMaps.forEach((element) {
+      favorites.add(Favorite.fromMap(element));
+    });
+    return favorites;
   }
 
   Future<List<Favorite>> getAll() async {

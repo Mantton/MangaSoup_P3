@@ -232,7 +232,6 @@ class DexHub {
       settings = {};
 
     List userLanguages = settings['mangadex_languages'] ?? [];
-    print(link);
 
     String comicLink = link;
     if (link.contains("http")) {
@@ -284,7 +283,6 @@ class DexHub {
 
     String summary = manga['description'];
     summary = summary.split('\n')[0];
-    print(chapters.keys.toList().length);
     var keys = chapters.keys.toList();
     List chapterList = [];
     for (var k in keys) {

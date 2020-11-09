@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/FavoriteGrid.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Database/FavoritesDatabase.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
@@ -10,6 +11,8 @@ import 'package:mangasoup_prototype_3/Models/Favorite.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Screens/Favorite/FavoriteEdit.dart';
 import 'package:mangasoup_prototype_3/Screens/Favorite/FavoruteSearch.dart';
+import 'package:mangasoup_prototype_3/Services/update_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FavouritePage extends StatefulWidget {
   @override
@@ -18,13 +21,17 @@ class FavouritePage extends StatefulWidget {
 
 class _FavouritePageState extends State<FavouritePage> {
   FavoritesManager _manager = FavoritesManager();
+  UpdateManager _updateManager = UpdateManager();
   List collections;
-
+  List<String> updateEnabledCollections;
   Future<Map> initializer;
 
   Future<Map> getFavorites() async {
     Map holder = await _manager.getSortedFavorites();
     collections = holder.keys.toList();
+
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    updateEnabledCollections = _prefs.getStringList("uec") ?? [];
     return holder;
   }
 
@@ -106,7 +113,22 @@ class _FavouritePageState extends State<FavouritePage> {
           ],
           leading: IconButton(
             icon: Icon(CupertinoIcons.refresh),
-            onPressed: () {},
+            onPressed: () async {
+              showLoadingDialog(context);
+              int updateCount = await _updateManager.checkForUpdate();
+              Navigator.pop(context);
+              if (updateCount > 0) {
+                showMessage(
+                  "$updateCount new update(s)",
+                  CupertinoIcons.book_fill,
+                  Duration(
+                    milliseconds: 1500,
+                  ),
+                );
+              } else {
+                showSnackBarMessage("No new updates in you collections!");
+              }
+            },
           ),
           bottom: TabBar(
             indicatorColor: Colors.purpleAccent,
@@ -149,7 +171,7 @@ class _FavouritePageState extends State<FavouritePage> {
                     '${comics.length} Manga',
                     style: TextStyle(
                       color: Colors.white70,
-                      fontSize: 18.sp,
+                      fontSize: 20.sp,
                     ),
                   ),
                   Spacer(),
@@ -163,19 +185,29 @@ class _FavouritePageState extends State<FavouritePage> {
                           favorites: comics,
                           currentCollectionName: currentCollection,
                           collections: collections,
-
                         ),
                       ),
                     ),
-                    color: Colors.purple,
+                    color: Colors.amber[700],
+                    iconSize: 32.w,
                   ),
                   SizedBox(
                     width: 10.w,
                   ),
                   IconButton(
-                    icon: Icon(Icons.notifications),
-                    onPressed: () {},
-                    color: Colors.purple,
+                    icon: (updateEnabledCollections.contains(currentCollection))
+                        ? Icon(Icons.notifications_active)
+                        : Icon(
+                            Icons.notifications_off_outlined,
+                          ),
+                    onPressed: () async {
+                      await toggleUpdate(currentCollection);
+                    },
+                    color:
+                        (updateEnabledCollections.contains(currentCollection))
+                            ? Colors.purple
+                            : Colors.redAccent,
+                    iconSize: 32.w,
                   ),
                 ],
               ),
@@ -186,5 +218,38 @@ class _FavouritePageState extends State<FavouritePage> {
         ],
       ),
     );
+  }
+
+  toggleUpdate(String collectionName) async {
+    showLoadingDialog(context);
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+
+    if (updateEnabledCollections.contains(collectionName)) {
+      // Disable Updates
+
+      updateEnabledCollections.remove(collectionName);
+      await _prefs.setStringList("uec", updateEnabledCollections);
+      setState(() {});
+      Navigator.pop(context);
+      showMessage(
+        "Notifications Disabled!",
+        Icons.notifications_off_outlined,
+        Duration(
+          seconds: 1,
+        ),
+      );
+    } else {
+      updateEnabledCollections.add(collectionName);
+      await _prefs.setStringList("uec", updateEnabledCollections);
+      setState(() {});
+      Navigator.pop(context);
+      showMessage(
+        "Notificaations Enabled!",
+        Icons.notifications_active_outlined,
+        Duration(
+          seconds: 1,
+        ),
+      );
+    }
   }
 }
