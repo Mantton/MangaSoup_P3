@@ -93,6 +93,8 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
               child: CupertinoButton.filled(
                 onPressed: _image == null
                     ? null
+
+
                     : () async {
 
                         setState(() {
