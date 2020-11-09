@@ -61,7 +61,6 @@ void callbackDispatcher() {
         print("Android BG Task Triggered");
         updateCount = await _updateManger.checkForUpdate();
         stderr.writeln("Check Complete");
-        showNotification("$updateCount new update in your library", flp);
 
         if (updateCount > 0) {
           if (updateCount == 1)

@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,6 +23,8 @@ class ApiManager {
   );
   final Dio _dio = Dio(_options);
   final DexHub dex = DexHub();
+  final String imgSrcUrl =
+      'https://saucenao.com/search.php?db=37&output_type=2&numres=10&api_key=b1e601ed339f1c909df951a2ebfe597671592d90'; // Image Search Link
 
   /// Get Home Page
   Future<List<HomePage>> getHomePage() async {
@@ -245,5 +247,23 @@ class ApiManager {
     }
     debugPrint("Retrieval Complete : /search @$source");
     return comics;
+  }
+
+  Future<List<ImageSearchResult>> imageSearch(File image) async {
+    debugPrint("${image.path}");
+    FormData _data = FormData.fromMap({
+      "file": await MultipartFile.fromFile(image.path,
+          filename: image.path.split('/').last)
+    });
+
+    Response response = await _dio.post(imgSrcUrl, data: _data);
+
+    List results = response.data['results'];
+    List<ImageSearchResult> isrResults = List();
+    results.forEach((element) {
+      isrResults.add(ImageSearchResult.fromMap(element));
+    });
+
+    return isrResults;
   }
 }

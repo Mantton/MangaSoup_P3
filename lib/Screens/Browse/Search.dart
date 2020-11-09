@@ -7,6 +7,7 @@ import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Browse/ImageSearch.dart';
 import 'package:mangasoup_prototype_3/Screens/MangaDex/DexLogin.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
@@ -143,8 +144,9 @@ class _SearchPageState extends State<SearchPage> {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => MangadexLoginPage(),
-                            fullscreenDialog: true,),
+                          builder: (_) => MangadexLoginPage(),
+                          fullscreenDialog: true,
+                        ),
                       );
 
                       showSnackBarMessage(result);
@@ -191,7 +193,12 @@ class _SearchPageState extends State<SearchPage> {
                           "Image Search",
                           style: TextStyle(fontSize: 23),
                         ),
-                        onPressed: () {},
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ImageSearchPage(),
+                          ),
+                        ),
                       ),
                     ],
                   ),
