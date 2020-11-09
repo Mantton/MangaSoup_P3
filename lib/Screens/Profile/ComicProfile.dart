@@ -7,8 +7,9 @@ import 'package:mangasoup_prototype_3/Screens/Profile/ProfileScreens/TrackingScr
 
 class ProfilePage extends StatefulWidget {
   final ComicProfile profile;
+  final ComicHighlight highlight;
 
-  const ProfilePage({Key key, @required this.profile}) : super(key: key);
+  const ProfilePage({Key key, @required this.profile,@required this.highlight}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -55,6 +56,7 @@ class _ProfilePageState extends State<ProfilePage>with AutomaticKeepAliveClientM
           children: [
             ProfilePageScreen(
               comicProfile: _profile,
+              highlight: widget.highlight,
             ),
             DiscussionPage(),
             TrackingPage(),

@@ -19,8 +19,8 @@ import 'package:provider/provider.dart';
 
 class ProfilePageScreen extends StatefulWidget {
   final ComicProfile comicProfile;
-
-  const ProfilePageScreen({Key key, @required this.comicProfile})
+  final ComicHighlight highlight;
+  const ProfilePageScreen({Key key, @required this.comicProfile,@required this.highlight})
       : super(key: key);
 
   @override
@@ -42,19 +42,47 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   Future<bool> init;
 
   Future<bool> initializeProfile() async {
+
+    ComicHighlight updatedHighLight = widget.highlight;
+    updatedHighLight.thumbnail = widget.comicProfile.thumbnail;
+    await Provider.of<ComicHighlightProvider>(context, listen: false)
+        .loadHighlight(updatedHighLight);
+    await Provider.of<ComicDetailProvider>(context, listen: false)
+        .init(updatedHighLight);
+
+
     profile = widget.comicProfile;
     debugPrint("LINK : ${(profile.link)}");
     favoriteObject = await _favoritesManager.isFavorite(profile.link);
     // Check if Favorite
     if (favoriteObject == null) {
       _isFav = false;
-    } else
+    } else {
       _isFav = true;
+      // Update Chapter Count
+      if (!widget.comicProfile.containsBooks)
+        favoriteObject.chapterCount = widget.comicProfile.chapterCount;
+      else {
+        int chapterCount = 0;
+        for (Map bk in widget.comicProfile.books) {
+          Book book = Book.fromMap(bk);
+          chapterCount += book.generatedLength;
+        }
+        favoriteObject.chapterCount = chapterCount;
+      }
+      favoriteObject.updateCount = 0; // Reset Update Count
+      favoriteObject.highlight.thumbnail = widget.comicProfile.thumbnail; // Update Favorites Thumbnails
+      await _favoritesManager.updateByID(favoriteObject);
+      favoritesStream.add("");
+    }
+
     // Get Active Collections
 
     _collections = await _favoritesManager.getCollections();
     debugPrint(_collections.toString());
     return true;
+
+    // todo, update thumbnail;
   }
 
   @override
