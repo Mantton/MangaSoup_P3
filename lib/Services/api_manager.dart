@@ -266,4 +266,44 @@ class ApiManager {
 
     return isrResults;
   }
+
+  Future<List> getImgurAlbum(String info) async {
+    String albumID;
+
+    // Link
+    if (info.contains("http")) {
+      if (info.endsWith("/")) info = info.substring(0, info.length - 1);
+      print(info);
+      // get id
+      albumID = info.split("/").last;
+      print(albumID);
+    } else {
+      albumID = info;
+    }
+
+    // Use Imgur API
+    albumID = albumID.trim();
+    try {
+      Response response = await _dio.get(
+        "https://api.imgur.com/3/album/$albumID/images",
+        options: Options(
+          headers: {"Authorization": "Client-ID d50a5c2ba38acd4"},
+        ),
+      );
+      print((response.data).toString());
+
+      // Process data
+
+      List _imgAttr = response.data['data'];
+      List images = [];
+      for (int i = 0; i < _imgAttr.length; i++) {
+        images.add(_imgAttr[i]["link"]);
+      }
+      return images;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+
+  }
 }

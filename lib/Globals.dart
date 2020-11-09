@@ -17,9 +17,39 @@ Map<String, String> imageHeaders(String link) {
 }
 
 final RegExp emailValidatorRegExp =
-    RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
 const String kEmailNullError = "Please Enter your Email";
 const String kInvalidEmailError = "Please Enter a Valid Email Address";
 const String kPassNullError = "Please Enter your password";
 const String kShortPassError = "Password is too short";
 const String kMatchPassError = "Passwords don't match";
+
+final InputDecoration msTextField = InputDecoration(
+  contentPadding: EdgeInsets.symmetric(horizontal: 35, vertical: 20),
+  floatingLabelBehavior: FloatingLabelBehavior.always,
+  enabledBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(20),
+    borderSide: BorderSide(color: Colors.grey[800]),
+    gapPadding: 5,
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(20),
+    borderSide: BorderSide(color: Colors.grey[600]),
+    gapPadding: 5,
+  ),
+  errorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(20),
+    borderSide: BorderSide(color: Colors.red),
+    gapPadding: 5,
+  ),
+  focusedErrorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(20),
+    borderSide: BorderSide(color: Colors.redAccent),
+    gapPadding: 5,
+  ),
+  suffixIcon: Icon(
+    Icons.search,
+    color: Colors.purple,
+  ),
+);
+
