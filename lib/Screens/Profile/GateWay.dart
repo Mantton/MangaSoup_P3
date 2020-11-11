@@ -29,6 +29,7 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
       widget.highlight.selector,
       widget.highlight.link,
     );
+
     /// Initialize Providers
     await Provider.of<ComicHighlightProvider>(context, listen: false)
         .loadHighlight(widget.highlight); // Load Current Highlight to Provider
@@ -37,9 +38,10 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
 
     /// Save to View History
     // todo, get setting to check whether to save hentai sources comics to history
-
-    await Provider.of<ViewHistoryProvider>(context, listen: false)
-        .addToHistory(widget.highlight); // Add to View History
+    if (!widget.highlight.isHentai) {
+      await Provider.of<ViewHistoryProvider>(context, listen: false)
+          .addToHistory(widget.highlight); // Add to View History
+    }
 
     return profile;
   }
