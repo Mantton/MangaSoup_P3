@@ -267,8 +267,14 @@ class DexHub {
       settings = jsonDecode(encodedSettings);
     } else
       settings = {};
-
-    List userLanguages = settings['mangadex_languages'] ?? [];
+    var t = settings['mangadex_languages'];
+    print(t);
+    List userLanguages = [];
+    try {
+      userLanguages = t;
+    } catch (e) {
+      print("Invalid Languages Data");
+    }
     // m/title/id
     String comicLink = link;
     if (link.contains("http")) {
@@ -517,8 +523,8 @@ class DexHub {
     int mangaID = response.data['data']['mangaId'];
     ComicProfile _profile =
         await profile("https://mangadex.org/title/$mangaID");
-    ComicHighlight newHighlight = ComicHighlight(
-        _profile.title, _profile.link, _profile.thumbnail, selector, source, false, baseURL);
+    ComicHighlight newHighlight = ComicHighlight(_profile.title, _profile.link,
+        _profile.thumbnail, selector, source, false, baseURL);
     return newHighlight;
   }
 }

@@ -96,9 +96,16 @@ class ApiManager {
       return {};
     } else if (sourceSettings != null && sourceCookies == null) {
       Map settings = jsonDecode(sourceSettings);
+      print(settings);
       Map generated = Map();
       settings.forEach((key, value) {
-        generated[key] = value['selector'];
+        if (value is! List) {
+          // is not List
+          print(value.runtimeType);
+          generated[key] = value['selector'];
+        } else {
+          generated[key] = value.map((e) => e['selector']).toList();
+        }
       });
       return generated;
     } else if (sourceCookies != null && sourceSettings == null) {
@@ -304,6 +311,5 @@ class ApiManager {
       print(e);
       return null;
     }
-
   }
 }
