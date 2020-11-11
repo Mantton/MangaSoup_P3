@@ -42,7 +42,8 @@ class _LandingState extends State<Landing> {
         backgroundColor: Colors.black,
         itemChanged: (v) {
           setState(() {
-            _index = v;
+            if (v != _index)
+              _index = v;
           });
         },
         items: [

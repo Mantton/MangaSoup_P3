@@ -21,7 +21,6 @@ class ViewHistoryManager {
   static const String TIME_VIEWED = 'time_viewed';
 
   Future<Database> get db async {
-    print("starting");
     if (_db != null) {
       return _db;
     }
@@ -30,8 +29,6 @@ class ViewHistoryManager {
   }
 
   initDB() async {
-    print("Creating");
-
     io.Directory documentDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentDirectory.path, DB_NAME);
     var db = await openDatabase(path, version: 1, onCreate: _onCreate);
@@ -46,7 +43,6 @@ class ViewHistoryManager {
   Future<ViewHistory> save(ViewHistory historyInput) async {
     var dbClient = await db;
     historyInput.id = await dbClient.insert(TABLE, historyInput.toMap());
-    debugPrint("Saved H : ${historyInput.id}");
     return historyInput;
   }
 

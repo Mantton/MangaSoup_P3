@@ -51,7 +51,6 @@ class HistoryManager {
     print("Adding to History");
     var dbClient = await db;
     historyInput.id = await dbClient.insert(TABLE, historyInput.toMap());
-    debugPrint("Saved H : ${historyInput.id}");
     return historyInput;
   }
 
@@ -104,8 +103,6 @@ class HistoryManager {
   Future<ComicHistory> checkIfInitialized(String link) async {
 
     var dbClient = await db;
-    print("CIF");
-
     List<Map> queryResult =
         await dbClient.query(TABLE, where: "$LINK = ?", whereArgs: [link]);
     if (queryResult == null || queryResult.length == 0)
