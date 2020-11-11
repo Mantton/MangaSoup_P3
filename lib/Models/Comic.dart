@@ -9,17 +9,21 @@ class ComicHighlight {
   String link;
   String selector;
   String source;
+  bool isHentai;
+  String imageReferer;
 
   ComicHighlight(
-      this.title, this.link, this.thumbnail, this.selector, this.source);
+      this.title, this.link, this.thumbnail, this.selector, this.source, this.isHentai, this.imageReferer);
 
-  Map<String, String> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       "title": title,
       "thumbnail": thumbnail,
       "link": link,
       "selector": selector,
       "source": source,
+      "is_hentai":isHentai,
+      "image_referer":imageReferer
     };
   }
 
@@ -29,6 +33,8 @@ class ComicHighlight {
     link = map['link'];
     selector = map['selector'];
     source = map['source'];
+    isHentai = map['is_hentai'];
+    imageReferer = map['image_referer'];
   }
 }
 

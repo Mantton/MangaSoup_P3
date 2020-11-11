@@ -6,7 +6,6 @@ class ViewHistoryProvider with ChangeNotifier {
   List<ViewHistory> history = List();
   List links = List();
   ViewHistoryManager _manager = ViewHistoryManager();
-
   Future<bool> init() async {
     history = await _manager.getAll();
     history.forEach((element) {
@@ -18,18 +17,17 @@ class ViewHistoryProvider with ChangeNotifier {
   }
 
   bool viewed(ComicHighlight comic) {
-    if (links.contains(comic.link)) return true; // The item is in the db
-    return false;
+
+    return history.any((element) => element.highlight.link == comic.link);
+
   }
 
   addToHistory(ComicHighlight comic) async {
     DateTime logTime = DateTime.now().toLocal();
     if (viewed(comic)) {
       // Update Check Date
-
       int index =
           history.indexWhere((element) => element.highlight.link == comic.link);
-
       history[index].timeViewed = logTime; // Update Time viewed
       await _manager.updateByID(history[index]); // Update Object in DB
     } else {

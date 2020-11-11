@@ -7,6 +7,7 @@ import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
 import 'package:provider/provider.dart';
 
 import '../../Globals.dart';
+import 'RecentsHighlightViews.dart';
 
 class HistoryPage extends StatefulWidget {
   @override
@@ -61,17 +62,16 @@ class _HistoryPageState extends State<HistoryPage> {
 
   Widget mainBody() {
     return Consumer<ViewHistoryProvider>(builder: (context, provider, _) {
-      List<ViewHistory> comics = provider.history;
-      return (comics.isNotEmpty)?ListView.builder(
-        itemCount: comics.length,
-        itemBuilder: (_, int index) => ListTile(
-          title: Text(comics[index].highlight.title),
-        ),
-      ):Container(
-        child: Center(
-          child: Text("Empty Read History"),
-        ),
-      );
+      return (provider.history.isNotEmpty)
+          ? HistoryView(
+              mode: 1,
+              comics: provider.history.reversed.toList(),
+            ) // Reverse Returns the latest entry first
+          : Container(
+              child: Center(
+                child: Text("Empty Read History"),
+              ),
+            );
     });
   }
 }

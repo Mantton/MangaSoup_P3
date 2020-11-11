@@ -518,7 +518,7 @@ class DexHub {
     ComicProfile _profile =
         await profile("https://mangadex.org/title/$mangaID");
     ComicHighlight newHighlight = ComicHighlight(
-        _profile.title, _profile.link, _profile.thumbnail, selector, source);
+        _profile.title, _profile.link, _profile.thumbnail, selector, source, false, baseURL);
     return newHighlight;
   }
 }
