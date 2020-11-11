@@ -7,12 +7,14 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/WebViews/CloudFare.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:collection/collection.dart';
 import 'dart:ui';
 
 import 'package:mangasoup_prototype_3/Services/test_preference.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Providers/SourceProvider.dart';
 
@@ -55,6 +57,12 @@ class _SourcesPageState extends State<SourcesPage> {
     await _prefs.setSource(full);
     await Provider.of<SourceNotifier>(context, listen: false).loadSource(full);
     sourcesStream.add(full.selector);
+
+    if (full.cloudFareProtected) {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      String srcCookies = pref.getString("${src.selector}_cookies");
+      if (srcCookies == null) await cloudFareProtectedDialog();
+    }
     Navigator.pop(context);
     debugPrint("Done");
     if (Navigator.canPop(context)) {
@@ -262,5 +270,30 @@ class _SourcesPageState extends State<SourcesPage> {
                 )
               ],
             ));
+  }
+
+  cloudFareProtectedDialog() {
+    return showPlatformDialog(
+      context: context,
+      builder: (_) => PlatformAlertDialog(
+        title: Text("CloudFare Protected Source"),
+        content: Text(
+          "The Selected source is CloudFare Protected\n"
+          " A webview session is required to bypass this.",
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          PlatformDialogAction(
+            child: PlatformText("Proceed"),
+            onPressed: () async => await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CloudFareBypass(),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
   }
 }

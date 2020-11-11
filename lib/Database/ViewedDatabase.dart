@@ -5,10 +5,10 @@ import 'package:sqflite/sqflite.dart';
 import "dart:io" as io;
 import 'package:path_provider/path_provider.dart';
 
-class HistoryManager {
+class ViewHistoryManager {
   static Database _db;
-  static const String TABLE = 'history';
-  static const String DB_NAME = 'readHistory.db';
+  static const String  TABLE = 'ViewHistory';
+  static const String  DB_NAME = 'viewHistory.db';
 
   // Favorites Field
 
@@ -18,10 +18,10 @@ class HistoryManager {
   static const String HIGHLIGHT = 'comicHighlight';
 
   // Specific
-  static const String READ_CHAPTERS = 'readChapters';
-  static const String LAST_STOP = 'lastStop';
+  static const String TIME_VIEWED = 'time_viewed';
 
   Future<Database> get db async {
+    print("starting");
     if (_db != null) {
       return _db;
     }
@@ -30,25 +30,20 @@ class HistoryManager {
   }
 
   initDB() async {
+    print("Creating");
+
     io.Directory documentDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentDirectory.path, DB_NAME);
-    print(path);
-    var db =  await openDatabase(path, version: 1, onCreate: _onCreate);
+    var db = await openDatabase(path, version: 1, onCreate: _onCreate);
     return db;
   }
 
   _onCreate(Database db, int version) async {
-    await db.execute('''CREATE TABLE $TABLE (
-        $ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        $LINK TEXT,
-        $HIGHLIGHT TEXT,
-        $READ_CHAPTERS TEXT,
-        $LAST_STOP TEXT);
-        ''');
+    await db.execute(
+        "CREATE TABLE $TABLE ($ID INTEGER PRIMARY KEY AUTOINCREMENT ,$LINK TEXT, $HIGHLIGHT TEXT, $TIME_VIEWED TEXT);");
   }
 
-  Future<ComicHistory> save(ComicHistory historyInput) async {
-    print("Adding to History");
+  Future<ViewHistory> save(ViewHistory historyInput) async {
     var dbClient = await db;
     historyInput.id = await dbClient.insert(TABLE, historyInput.toMap());
     debugPrint("Saved H : ${historyInput.id}");
@@ -65,7 +60,7 @@ class HistoryManager {
     return await dbClient.delete(TABLE, where: "$LINK = ?", whereArgs: [link]);
   }
 
-  Future<int> updateByID(ComicHistory comicHistory) async {
+  Future<int> updateByID(ViewHistory comicHistory) async {
     var dbClient = await db;
     return await dbClient.update(TABLE, comicHistory.toMap(),
         where: '$ID = ?', whereArgs: [comicHistory.id]);
@@ -81,12 +76,12 @@ class HistoryManager {
     dbClient.close();
   }
 
-  Future<List<ComicHistory>> getAll() async {
+  Future<List<ViewHistory>> getAll() async {
     var dbClient = await db;
     List<Map> queryResult = await dbClient.query(TABLE);
-    List<ComicHistory> history = [];
+    List<ViewHistory> history = [];
     queryResult.forEach((element) {
-      history.add(ComicHistory.fromMap(element));
+      history.add(ViewHistory.fromMap(element));
     });
     return history;
   }
@@ -101,16 +96,13 @@ class HistoryManager {
     return history;
   }
 
-  Future<ComicHistory> checkIfInitialized(String link) async {
-
+  Future<ViewHistory> checkIfInitialized(String link) async {
     var dbClient = await db;
-    print("CIF");
-
     List<Map> queryResult =
         await dbClient.query(TABLE, where: "$LINK = ?", whereArgs: [link]);
     if (queryResult == null || queryResult.length == 0)
       return null;
     else
-      return ComicHistory.fromMap(queryResult[0]);
+      return ViewHistory.fromMap(queryResult[0]);
   }
 }

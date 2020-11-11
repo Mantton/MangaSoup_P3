@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Database/HistoryDatabase.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/Models/Misc.dart';
 
 class ComicDetailProvider with ChangeNotifier {
   ComicHighlight highlight;
@@ -10,24 +11,17 @@ class ComicDetailProvider with ChangeNotifier {
   HistoryManager _manager = HistoryManager();
   ComicHistory history;
 
+  // todo, implement mangadex mark as read
+
   init(ComicHighlight h) async {
     highlight = h;
     history = await _manager.checkIfInitialized(highlight.link);
     if (history == null) {
-      // if null add to front of stack
-      history = ComicHistory(null, highlight, null, null);
-      history.readChapters = [];
-
-      history = await _manager.save(history);
-    } else {
-      //remove from stack and add in front
-      int x = await _manager.deleteByID(history.id);
-      history.id = null;
+      // if null add to save
+      history = ComicHistory(null, highlight, [], null);
       history = await _manager.save(history);
     }
-    historyStream.add("");
     notifyListeners();
-
   }
 
   addToRead(Map chapter) async {
@@ -62,4 +56,10 @@ class ComicDetailProvider with ChangeNotifier {
     historyStream.add("");
     notifyListeners();
   }
+
+  // markStop(Chapter chapter, int page) async {
+  //   history.lastStop = LastStop(chapter, page);
+  //   await _manager.updateByID(history);
+  //   notifyListeners();
+  // }
 }

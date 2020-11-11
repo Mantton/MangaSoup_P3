@@ -3,6 +3,7 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
+import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/ComicProfile.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/CustomProfile.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
@@ -22,10 +23,25 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
 
   Future<ComicProfile> getProfile() async {
     ApiManager _manager = ApiManager();
-    return await _manager.getProfile(
+
+    /// Get Profile
+    ComicProfile profile = await _manager.getProfile(
       widget.highlight.selector,
       widget.highlight.link,
     );
+    /// Initialize Providers
+    await Provider.of<ComicHighlightProvider>(context, listen: false)
+        .loadHighlight(widget.highlight); // Load Current Highlight to Provider
+    await Provider.of<ComicDetailProvider>(context, listen: false)
+        .init(widget.highlight); // Initialize Read Chapter History
+
+    /// Save to View History
+    // todo, get setting to check whether to save hentai sources comics to history
+
+    await Provider.of<ViewHistoryProvider>(context, listen: false)
+        .addToHistory(widget.highlight); // Add to View History
+
+    return profile;
   }
 
   @override
@@ -33,10 +49,12 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
     super.initState();
     _profile = getProfile();
   }
+
   @override
   void dispose() {
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -68,7 +86,6 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
           if (snapshot.hasData) {
             ComicProfile prof = snapshot.data;
             if (prof.properties == null) {
-
               return ProfilePage(
                 profile: prof,
                 highlight: widget.highlight,

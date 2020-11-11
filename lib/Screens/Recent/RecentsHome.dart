@@ -3,6 +3,8 @@ import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Database/HistoryDatabase.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
+import 'package:provider/provider.dart';
 
 import '../../Globals.dart';
 
@@ -12,21 +14,20 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-  HistoryManager _manager = HistoryManager();
+  Future<bool> initializer;
 
-  Future<List<ComicHighlight>> initializer;
-
-  Future<List<ComicHighlight>> getHisotry() async {
-    return await _manager.getHighlights();
+  Future<bool> getHistory() async {
+    return await Provider.of<ViewHistoryProvider>(context, listen: false)
+        .init();
   }
 
   @override
   void initState() {
     super.initState();
-    initializer = getHisotry();
-    historyStream.stream.listen((event) {
-      initializer = getHisotry();
-    });
+    initializer = getHistory();
+    // historyStream.stream.listen((event) {
+    //   initializer = getHisotry();
+    // });
   }
 
   @override
@@ -50,7 +51,7 @@ class _HistoryPageState extends State<HistoryPage> {
               );
             }
             if (snapshot.hasData)
-              return mainBody(snapshot.data);
+              return mainBody();
             else {
               return Text("No Favorites");
             }
@@ -58,19 +59,19 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  Widget mainBody(List<ComicHighlight> comics) {
-    return Container(
-      child: (comics.length != 0)
-          ? SingleChildScrollView(
-              child: ComicGrid(
-                comics: comics.reversed.toList(),
-              ),
-            )
-          : Center(
-              child: Container(
-                child: Text("Your History is Empty"),
-              ),
-            ),
-    );
+  Widget mainBody() {
+    return Consumer<ViewHistoryProvider>(builder: (context, provider, _) {
+      List<ViewHistory> comics = provider.history;
+      return (comics.isNotEmpty)?ListView.builder(
+        itemCount: comics.length,
+        itemBuilder: (_, int index) => ListTile(
+          title: Text(comics[index].highlight.title),
+        ),
+      ):Container(
+        child: Center(
+          child: Text("Empty Read History"),
+        ),
+      );
+    });
   }
 }
