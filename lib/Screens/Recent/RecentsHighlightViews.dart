@@ -1,9 +1,10 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
-import 'package:collection/collection.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Screens/Profile/GateWay.dart';
+
 hGrid(List<ViewHistory> comics) {
   List<ComicHighlight> highlights = comics.map((e) => e.highlight).toList();
 
@@ -116,34 +117,28 @@ class _HistoryViewState extends State<HistoryView> {
   Widget build(BuildContext context) {
     return view(widget.mode, groupDates(widget.comics));
   }
+
   TextStyle dateFont = TextStyle(
-    color: Colors.grey,
-    fontSize: 30.h,
-    fontWeight: FontWeight.bold,
-    fontFamily: "Lato"
-  );
+      color: Colors.grey,
+      fontSize: 30.h,
+      fontWeight: FontWeight.bold,
+      fontFamily: "Lato");
+
   Widget view(int mode, Map<dynamic, List<ViewHistory>> sortedComics) {
     return SingleChildScrollView(
       child: Container(
-        padding: EdgeInsets.all(10.w),
-        child: (mode == 1)
-            ? highlightGrid(sortedComics) // Highlight Grid
-            // : (mode == 2)
-            //     ? tList(comics) // List View
-            : Container(
-                color: Colors.lime,
-              ),
-      ),
+          padding: EdgeInsets.all(10.w),
+          child: layout(sortedComics, widget.mode)),
     );
   }
 
   Map<dynamic, List<ViewHistory>> groupDates(List<ViewHistory> comics) {
     Map sorted =
-        groupBy(comics, (ViewHistory comic) => formatDate(comic.timeViewed));
+    groupBy(comics, (ViewHistory comic) => formatDate(comic.timeViewed));
     return sorted;
   }
 
-  Widget highlightGrid(Map<dynamic, List<ViewHistory>> sorted) {
+  Widget layout(Map<dynamic, List<ViewHistory>> sorted, int mode) {
     return Container(
       child: Column(
         children: List.generate(sorted.length, (index) {
@@ -151,16 +146,69 @@ class _HistoryViewState extends State<HistoryView> {
           List<ViewHistory> comics = sorted[title]; // Init Comics
           comics.sort((a, b) =>
               b.timeViewed.compareTo(a.timeViewed)); // Sort by Time Viewed
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-
-            children: [
-              Text(sorted.keys.toList()[index], style: dateFont,),
-              ComicGrid(comics: comics.map((e) => e.highlight).toList())
-            ],
+          return Container(
+            margin: EdgeInsets.only(
+              bottom: 20.h,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  sorted.keys.toList()[index],
+                  style: dateFont,
+                ),
+                (mode == 1)
+                    ? ComicGrid(comics: comics.map((e) => e.highlight).toList())
+                    : (mode == 2)
+                        ? lTile(comics.map((e) => e.highlight).toList())
+                        : Container(
+                            child: Text("Invalid Layout Selection"),
+                          )
+              ],
+            ),
           );
         }),
       ),
     );
+  }
+
+  Widget lTile(List<ComicHighlight> highlights) {
+    return ListView.builder(
+        itemCount: highlights.length,
+        physics: NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemBuilder: (_, int index) {
+          ComicHighlight comic = highlights[index];
+          return Container(
+            margin: EdgeInsets.only(bottom: 5.h),
+            child: ListTile(
+              title: Text(
+                comic.title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.sp,
+                ),
+              ),
+              subtitle: Text(
+                comic.source ?? "",
+                style: TextStyle(
+                  fontSize: 15.sp,
+                ),
+              ),
+              leading: Image.network(
+                highlights[index].thumbnail,
+              ),
+              onTap: () {
+                debugPrint("${comic.title} @ ${comic.link} /f ${comic.source}");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProfileGateWay(comic),
+                  ),
+                );
+              },
+            ),
+          );
+        });
   }
 }

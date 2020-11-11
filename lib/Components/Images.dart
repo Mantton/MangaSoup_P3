@@ -9,15 +9,18 @@ import '../Globals.dart';
 
 class SoupImage extends StatelessWidget {
   final String url;
+  final String referer;
 
-  const SoupImage({Key key, this.url}) : super(key: key);
+  const SoupImage({Key key, this.url, this.referer}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: CachedNetworkImage(
-        imageUrl: (!url.contains("https:https:"))?url:url.replaceFirst("https:", ""),
-        httpHeaders: imageHeaders(url),
+        imageUrl: (!url.contains("https:https:"))
+            ? url
+            : url.replaceFirst("https:", ""),
+        httpHeaders: {"referer": referer ?? imageHeaders(url)},
         placeholder: (context, url) => Center(
           child: CupertinoActivityIndicator(
             radius: 10.w,

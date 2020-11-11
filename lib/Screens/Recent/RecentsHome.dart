@@ -1,12 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
-import 'package:mangasoup_prototype_3/Database/HistoryDatabase.dart';
-import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
 import 'package:provider/provider.dart';
 
-import '../../Globals.dart';
 import 'RecentsHighlightViews.dart';
 
 class HistoryPage extends StatefulWidget {
@@ -16,6 +14,7 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   Future<bool> initializer;
+  int mode = 1;
 
   Future<bool> getHistory() async {
     return await Provider.of<ViewHistoryProvider>(context, listen: false)
@@ -26,9 +25,6 @@ class _HistoryPageState extends State<HistoryPage> {
   void initState() {
     super.initState();
     initializer = getHistory();
-    // historyStream.stream.listen((event) {
-    //   initializer = getHisotry();
-    // });
   }
 
   @override
@@ -37,6 +33,20 @@ class _HistoryPageState extends State<HistoryPage> {
       appBar: AppBar(
         centerTitle: true,
         title: Text("History"),
+        actions: [
+          IconButton(
+              icon: Icon((mode != 1)
+                  ? CupertinoIcons.square_grid_3x2_fill
+                  : CupertinoIcons.list_dash),
+              onPressed: () {
+                setState(() {
+                  if (mode == 1)
+                    mode = 2;
+                  else
+                    mode = 1;
+                });
+              })
+        ],
       ),
       body: FutureBuilder(
           future: initializer,
@@ -64,12 +74,15 @@ class _HistoryPageState extends State<HistoryPage> {
     return Consumer<ViewHistoryProvider>(builder: (context, provider, _) {
       return (provider.history.isNotEmpty)
           ? HistoryView(
-              mode: 1,
+              mode: mode,
               comics: provider.history.reversed.toList(),
             ) // Reverse Returns the latest entry first
           : Container(
               child: Center(
-                child: Text("Empty Read History"),
+                child: Text(
+                  "Empty Read History",
+                  style: TextStyle(fontSize: 30.h),
+                ),
               ),
             );
     });
