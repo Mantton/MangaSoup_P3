@@ -46,6 +46,8 @@ dependencies:
   workmanager: ^0.2.0
   connectivity: ^2.0.1
   image_picker: ^0.6.7+12
+  sticky_headers: ^0.1.8+1
+  draggable_scrollbar: ^0.0.4
 
 
 

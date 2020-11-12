@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -142,6 +142,7 @@ class _AllComicsPageState extends State<AllComicsPage> {
                                     context: context,
                                     builder: (_) => PlatformWidget(
                                       material: (_, __) => ListView.builder(
+                                        shrinkWrap: true,
                                         itemCount: sourceProvider
                                             .source.sorters.length,
                                         itemBuilder:
@@ -177,54 +178,55 @@ class _AllComicsPageState extends State<AllComicsPage> {
                                       ),
                                       cupertino: (_, __) =>
                                           CupertinoActionSheet(
-                                        title: Text("Sort by"),
-                                        cancelButton: CupertinoButton(
-                                          child: Text("Cancel"),
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                        ),
-                                        actions: List<
+                                            title: Text("Sort by"),
+                                            cancelButton: CupertinoButton(
+                                              child: Text("Cancel"),
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                            ),
+                                            actions: List<
                                                 CupertinoActionSheetAction>.generate(
-                                            sourceProvider
-                                                .source.sorters.length,
-                                            (index) =>
-                                                CupertinoActionSheetAction(
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      _sort = sourceProvider
-                                                          .source
-                                                          .sorters[index];
-                                                      _futureComics =
-                                                          _loadComics(
+                                              sourceProvider.source.sorters
+                                                  .length,
+                                                  (index) =>
+                                                  CupertinoActionSheetAction(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        _sort = sourceProvider
+                                                            .source
+                                                            .sorters[index];
+                                                        _futureComics =
+                                                            _loadComics(
+                                                                sourceProvider
+                                                                    .source
+                                                                    .selector,
+                                                                _sort['selector'],
+                                                                1,
+                                                                {});
+                                                        Navigator.pop(context);
+                                                      });
+                                                    },
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Text(
+                                                          sourceProvider.source
+                                                              .sorters[index]['name'],
+                                                        ),
+                                                        Spacer(),
+                                                        Icon(
+                                                          _sort['selector'] ==
                                                               sourceProvider
                                                                   .source
-                                                                  .selector,
-                                                              _sort['selector'],
-                                                              1,
-                                                              {});
-                                                      Navigator.pop(context);
-                                                    });
-                                                  },
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      Text(
-                                                        sourceProvider.source
-                                                                .sorters[index]
-                                                            ['name'],
-                                                      ),
-                                                      Spacer(),
-                                                      Icon(_sort['selector'] ==
-                                                              sourceProvider
-                                                                          .source
-                                                                          .sorters[
-                                                                      index]
-                                                                  ['selector']
-                                                          ? CupertinoIcons
+                                                                  .sorters[
+                                                              index]['selector']
+                                                              ? CupertinoIcons
                                                               .check_mark
-                                                          : null)
-                                                    ],
+                                                              : null,
+                                                        )
+                                                      ],
+                                                    ),
                                                   ),
-                                                )),
+                                            ),
                                       ),
                                     ),
                                   );

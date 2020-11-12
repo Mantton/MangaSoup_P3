@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/GateWay.dart';
+import 'package:sticky_headers/sticky_headers/widget.dart';
 
 hGrid(List<ViewHistory> comics) {
   List<ComicHighlight> highlights = comics.map((e) => e.highlight).toList();
@@ -73,11 +74,12 @@ String formatDate(DateTime tm) {
   }
 
   Duration difference = today.difference(tm);
-
-  if (difference.compareTo(oneDay) < 1) {
+  if (difference.inHours < today.hour) {
     return "Today";
-  } else if (difference.compareTo(twoDay) < 1) {
+  } else if (difference.inHours < 24 + today.hour) {
     return "Yesterday";
+  } else if (difference.compareTo(twoDay) < 1) {
+    return "Earlier This Week";
   } else if (difference.compareTo(oneWeek) < 1) {
     switch (tm.weekday) {
       case 1:
@@ -150,21 +152,15 @@ class _HistoryViewState extends State<HistoryView> {
             margin: EdgeInsets.only(
               bottom: 20.h,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  sorted.keys.toList()[index],
-                  style: dateFont,
-                ),
-                (mode == 1)
-                    ? ComicGrid(comics: comics.map((e) => e.highlight).toList())
-                    : (mode == 2)
-                        ? lTile(comics.map((e) => e.highlight).toList())
-                        : Container(
-                            child: Text("Invalid Layout Selection"),
-                          )
-              ],
+            child: stickyHeader(
+              (mode == 1)
+                  ? ComicGrid(comics: comics.map((e) => e.highlight).toList())
+                  : (mode == 2)
+                      ? lTile(comics.map((e) => e.highlight).toList())
+                      : Container(
+                          child: Text("Invalid Layout Selection"),
+                        ),
+              "$title",
             ),
           );
         }),
@@ -210,5 +206,21 @@ class _HistoryViewState extends State<HistoryView> {
             ),
           );
         });
+  }
+
+  Widget stickyHeader(Widget content, String header) {
+    return StickyHeader(
+      header: Container(
+        height: 50.0,
+        color: Colors.grey[900],
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        alignment: Alignment.centerLeft,
+        child: Text(
+          '$header',
+          style: dateFont,
+        ),
+      ),
+      content: content,
+    );
   }
 }

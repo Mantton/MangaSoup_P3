@@ -1,17 +1,18 @@
+import "dart:io" as io;
+
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
-import "dart:io" as io;
-import 'package:path_provider/path_provider.dart';
-import 'package:collection/collection.dart';
 
 class FavoritesManager {
   //DB Fields
   static Database _db;
   static const String TABLE = 'Favorites';
-  static const String DB_NAME = 'database.db';
+  static const String DB_NAME = 'userFavorites.db';
 
   // Favorites Field
 
@@ -42,7 +43,7 @@ class FavoritesManager {
 
   _onCreate(Database db, int version) async {
     await db.execute(
-        "CREATE TABLE $TABLE ($ID INTEGER PRIMARY KEY AUTOINCREMENT ,$LINK TEXT, $HIGHLIGHT TEXT, $COLLECTION TEXT, $CHAPTER_COUNT INTEGER, $UPDATE_COUNT INTEGER)");
+        "CREATE TABLE $TABLE ($ID INTEGER PRIMARY KEY AUTOINCREMENT ,$LINK TEXT, $HIGHLIGHT TEXT, $COLLECTION TEXT, $CHAPTER_COUNT INTEGER, $UPDATE_COUNT INTEGER);");
   }
 
   Future<Favorite> save(Favorite fav) async {
@@ -123,7 +124,7 @@ class FavoritesManager {
 
     Map sorted = groupBy(
       queryResult,
-      (obj) => updateEnabledCollections.contains(obj['collection']),
+          (obj) => updateEnabledCollections.contains(obj['collection']),
     );
 
     // print(sorted);
@@ -147,7 +148,7 @@ class FavoritesManager {
   Future<Favorite> isFavorite(String link) async {
     var dbClient = await db;
     List<Map> queryResult =
-        await dbClient.query(TABLE, where: "$LINK = ?", whereArgs: [link]);
+    await dbClient.query(TABLE, where: "$LINK = ?", whereArgs: [link]);
     if (queryResult == null || queryResult.length == 0)
       return null;
     else
