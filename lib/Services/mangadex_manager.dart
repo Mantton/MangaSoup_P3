@@ -1,10 +1,11 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:html/parser.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:html/parser.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -121,7 +122,7 @@ class DexHub {
       "authority": "mangadex.org",
       'user-agent': 'MangaSoup-DexHub-Client/1.0.0',
       "accept":
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
       "pragma": "no-cache",
       'referer': 'https://mangadex.org/',
       "Access-Control-Allow-Origin": "*",
@@ -137,8 +138,7 @@ class DexHub {
   String stringifyCookies(Map cookies) =>
       cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
 
-  Future<List<ComicHighlight>> get(
-      String sort, int page, Map additionalInfo) async {
+  Future<List<ComicHighlight>> get(String sort, int page, Map additionalInfo) async {
     Map cookies = additionalInfo['cookies'] ?? {};
     Map data = Map();
     data.addAll(cookies);
@@ -155,7 +155,7 @@ class DexHub {
       'user-agent': 'MangaSoup-DexHub-Client/1.0.0',
       'accept-language': 'en-US,en;q=0.9,tr-TR;q=0.8,tr;q=0.7',
       "accept":
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
       "pragma": "no-cache",
       'referer': 'https://mangadex.org/',
       "Access-Control-Allow-Origin": "*",
@@ -197,8 +197,7 @@ class DexHub {
     return highlights;
   }
 
-  Future<List<ComicHighlight>> getTagComics(
-      String sort, int page, var link, Map additionalInfo) async {
+  Future<List<ComicHighlight>> getTagComics(String sort, int page, var link, Map additionalInfo) async {
     Map cookies = additionalInfo['cookies'] ?? {};
     Map data = Map();
     data.addAll(cookies);
@@ -218,7 +217,7 @@ class DexHub {
       'user-agent': 'MangaSoup-DexHub-Client/1.0.0',
       'accept-language': 'en-US,en;q=0.9,tr-TR;q=0.8,tr;q=0.7',
       "accept":
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
       "pragma": "no-cache",
       'referer': 'https://mangadex.org/',
       "Access-Control-Allow-Origin": "*",
@@ -341,7 +340,7 @@ class DexHub {
       var finalTitle =
           "${(volume.isNotEmpty) ? "Vol. $volume" : ""} Ch. $chapterName";
       var date =
-          DateTime.fromMillisecondsSinceEpoch(chapter['timestamp'] * 1000);
+      DateTime.fromMillisecondsSinceEpoch(chapter['timestamp'] * 1000);
       var formattedDate = DateFormat.yMMMd().format(date);
       if (userLanguages.contains(lang) || userLanguages.length == 0) {
         chapterList.add({
@@ -386,16 +385,20 @@ class DexHub {
 
   Future<List<ComicHighlight>> browse(Map userQuery, Map additionalInfo) async {
     //https://mangadex.org/search?artist=a&author=e&lang_id=1&tag_mode_exc=any&tag_mode_inc=any&tags=-1,-77,9&title=doctor
+    List inc = userQuery['included_tags'] ?? [];
+    List exc = userQuery['excluded_tags'] ?? [];
+    String included = inc.map((e) => "$e").join(",");
+    String excluded = exc.map((e) => "-$e").join(",");
     Map<String, dynamic> params = {
       "title": userQuery['title'],
       "artist": userQuery['artist'],
       "author": userQuery['author'],
-      "lang_id": userQuery['langs'],
       "tag_mode_exc": "any",
       "tag_mode_inc": "any",
+      "tags": included + excluded
       // todo, excluded tags have a - in front
     };
-
+    print(params);
     String url = baseURL + '/search';
     Dio _dio = Dio();
 
@@ -468,7 +471,6 @@ class DexHub {
             contentType: Headers.formUrlEncodedContentType));
 
     var x = response.headers['set-cookie'];
-    print(x.length);
     String session;
     String rememberMeToken;
 
@@ -476,12 +478,12 @@ class DexHub {
       session =
           x.singleWhere((element) => element.contains("mangadex_session"));
       rememberMeToken = x.singleWhere(
-          (element) => element.contains("mangadex_rememberme_token"));
+              (element) => element.contains("mangadex_rememberme_token"));
 
       // Splits
       session = session.split("mangadex_session=")[1].split(";")[0];
       rememberMeToken =
-          rememberMeToken.split("mangadex_rememberme_token=")[1].split(";")[0];
+      rememberMeToken.split("mangadex_rememberme_token=")[1].split(";")[0];
     } catch (Exception) {
       print("no found element");
       return false;
@@ -518,11 +520,11 @@ class DexHub {
   Future<ComicHighlight> imageSearchViewComic(int id) async {
     Dio _dio = Dio();
     Response response =
-        await _dio.get("https://mangadex.org/api/v2/chapter/$id");
+    await _dio.get("https://mangadex.org/api/v2/chapter/$id");
 
     int mangaID = response.data['data']['mangaId'];
     ComicProfile _profile =
-        await profile("https://mangadex.org/title/$mangaID");
+    await profile("https://mangadex.org/title/$mangaID");
     ComicHighlight newHighlight = ComicHighlight(_profile.title, _profile.link,
         _profile.thumbnail, selector, source, false, baseURL);
     return newHighlight;

@@ -76,7 +76,7 @@ class TesterFilter extends StatelessWidget {
           ],
         );
       case 3:
-        return (!filter.name.contains("Genre"))
+        return (filter.name.contains("Tag"))
             ? buildIncludeExclude(context, filter.options)
             : tags(context, filter.options, filter.name, filter.selector);
 
@@ -107,7 +107,7 @@ class TesterFilter extends StatelessWidget {
         ),
         Spacer(),
         Flexible(
-          flex: 3,
+          flex: 1,
           child: InkWell(
             onTap: () => Navigator.push(
               context,
@@ -170,9 +170,26 @@ class _MultiSelectState extends State<MultiSelect> {
           InkWell(
             child: Center(
                 child: Text(
-              "Done",
-              style: isEmptyFont,
-            )),
+                  "Clear",
+                  style: isEmptyFont,
+                )),
+            onTap: () {
+              setState(() {
+                selectedItems.clear();
+                Provider.of<BrowseProvider>(context, listen: false)
+                    .save(widget.selector, 3, selectedItems);
+              });
+            },
+          ),
+          SizedBox(
+            width: 10.w,
+          ),
+          InkWell(
+            child: Center(
+                child: Text(
+                  "Done",
+                  style: isEmptyFont,
+                )),
             onTap: () => Navigator.pop(context),
           )
         ],

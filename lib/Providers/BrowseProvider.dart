@@ -14,7 +14,7 @@ class BrowseProvider with ChangeNotifier {
       if (setting.type == 2) {
         data['${setting.selector}'] = setting.options[0];
       } else if (setting.type == 3) {
-        if (setting.name.contains("Genre"))
+        if (!setting.name.contains("Tag"))
           data["${setting.selector}"] = [];
         else {
           data['included_tags'] = [];

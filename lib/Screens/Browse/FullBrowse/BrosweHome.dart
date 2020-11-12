@@ -1,13 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Setting.dart';
 import 'package:mangasoup_prototype_3/Providers/BrowseProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/MangaDex/DexLogin.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:provider/provider.dart';
 
 import 'FilterWidgets.dart';
@@ -71,14 +75,14 @@ class _BrowsePageState extends State<BrowsePage> {
                 builder: (context, provider, _) => Container(
                   child: (provider.source.filters != null)
                       ? Container(
-                          child: skeleton(provider.source.filters),
-                        )
+                    child: skeleton(provider.source.filters),
+                  )
                       : Container(
-                          child: Center(
-                            child: Text(
-                                "This Source does not support the browse feature"),
-                          ),
-                        ),
+                    child: Center(
+                      child: Text(
+                          "This Source does not support the browse feature"),
+                    ),
+                  ),
                 ),
               );
             }
@@ -153,8 +157,10 @@ class _BrowsePageState extends State<BrowsePage> {
               ),
               color: Colors.grey[900],
             ),
-            child: SingleChildScrollView(
-              child: Center(child: buildFilters(sourceFilters)),
+            child: Center(
+              child: SingleChildScrollView(
+                child: buildFilters(sourceFilters),
+              ),
             ),
           ),
         )
@@ -181,33 +187,50 @@ class _BrowsePageState extends State<BrowsePage> {
             );
           }
           if (snapshot.hasError) {
-            return Container(
-              child: Center(
+            if (snapshot.error == MissingMangaDexSession) {
+              return Center(
+                child: CupertinoButton(
+                    child: Text(
+                      "You are not Logged in to MangaDex\n Tap to login",
+                      textAlign: TextAlign.center,
+                    ),
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MangadexLoginPage(),
+                          fullscreenDialog: true,
+                        ),
+                      );
+
+                      showSnackBarMessage(result);
+                      setState(() {
+                        results = getResults();
+                      });
+                    }),
+              );
+            } else {
+              return Center(
                 child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      results = getResults();
-                    });
-                  },
                   child: Text(
-                    "An Error Occurred \n ${snapshot.error} \n Tap to Retry",
+                    "An Error Occurred \n ${snapshot.error ?? ""} \n Tap to retry",
                     textAlign: TextAlign.center,
                   ),
                 ),
-              ),
-            );
+              );
+            }
           }
           if (snapshot.hasData) {
             return (snapshot.data.length != 0)
                 ? ComicGrid(comics: snapshot.data)
                 : Container(
-                    child: Center(
-                      child: Text(
-                        "No Results",
-                        style: isEmptyFont,
-                      ),
-                    ),
-                  );
+              child: Center(
+                child: Text(
+                  "No Results",
+                  style: isEmptyFont,
+                ),
+              ),
+            );
           } else {
             return Container(
               child: Center(
@@ -252,34 +275,40 @@ class _BrowsePageState extends State<BrowsePage> {
             height: 20.h,
           ),
           Column(
-            children: List.generate(
-              list.length,
-              (index) => TesterFilter(
-                filter: SourceSetting.fromMap(list[index]),
+            children: [
+              Column(
+                children: List.generate(
+                  list.length,
+                      (index) =>
+                      TesterFilter(
+                        filter: SourceSetting.fromMap(list[index]),
+                      ),
+                ),
               ),
-            ),
-          ),
-          MaterialButton(
-            height: 50,
-            minWidth: 70,
-            onPressed: () {
-              queryMap = Provider.of<BrowseProvider>(context, listen: false)
-                  .encodedData;
-              print(queryMap);
-              // API SEARCH
-              setState(() {
-                results = getResults();
-                filters = false;
-              });
-            },
-            child: Text(
-              "Browse",
-              style: isEmptyFont,
-            ),
-            color: Colors.deepPurpleAccent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
+              MaterialButton(
+                height: 50,
+                minWidth: 70,
+                onPressed: () {
+                  queryMap = Provider
+                      .of<BrowseProvider>(context, listen: false)
+                      .encodedData;
+                  print(queryMap);
+                  // API SEARCH
+                  setState(() {
+                    results = getResults();
+                    filters = false;
+                  });
+                },
+                child: Text(
+                  "Browse",
+                  style: isEmptyFont,
+                ),
+                color: Colors.deepPurpleAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ],
           )
         ],
       ),
