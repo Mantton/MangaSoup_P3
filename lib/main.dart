@@ -25,6 +25,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
+import 'package:mangasoup_prototype_3/Providers/BrowseProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
@@ -140,6 +141,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ComicDetailProvider()),
         // View History
         ChangeNotifierProvider(create: (_) => ViewHistoryProvider()),
+        ChangeNotifierProvider(create: (_) => BrowseProvider()),
         //
       ],
       child: App(),

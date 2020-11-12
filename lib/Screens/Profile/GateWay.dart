@@ -38,7 +38,8 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
 
     /// Save to View History
     // todo, get setting to check whether to save hentai sources comics to history
-    if (!widget.highlight.isHentai) {
+    bool hentai = widget.highlight.isHentai ?? false;
+    if (!hentai) {
       await Provider.of<ViewHistoryProvider>(context, listen: false)
           .addToHistory(widget.highlight); // Add to View History
     }

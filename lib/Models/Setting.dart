@@ -10,7 +10,7 @@ class SourceSetting {
     name = map['name'];
     type = map['type'];
     selector = map['selector'];
-    options = generateOptions(map['options']);
+    options = generateOptions(map['options'] ?? []);
   }
 
   generateOptions(List options) {
@@ -31,14 +31,13 @@ class SettingOption {
 
   SettingOption.fromMap(Map map) {
     name = map['name'];
-    selector = map['selector'];
+    selector = map['selector'] ?? map['link'];
     value = map['value'];
   }
 
   Map toMap() {
     return {
       "name": name,
-
       "selector": selector,
       "value": value,
     };
