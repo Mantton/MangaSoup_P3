@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -14,6 +13,7 @@ import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/AllChapters.dart';
+import 'package:mangasoup_prototype_3/Screens/Profile/DownloadChapters.dart';
 import 'package:mangasoup_prototype_3/Screens/Tags/TagComics.dart';
 import 'package:provider/provider.dart';
 
@@ -596,10 +596,30 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
               null,
             ),
             Spacer(),
-            actionButton(
-              Icons.list,
-              "Chapters",
-              null,
+            Column(
+              children: [
+                IconButton(
+                    icon: Icon(
+                      Icons.dehaze,
+                      color: Colors.purpleAccent,
+                    ),
+                    iconSize: 30.w,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChapterList(
+                            chapterList: profile.chapters,
+                          ),
+                        ),
+                      );
+                    }),
+                Text(
+                  "Chapters",
+                  textAlign: TextAlign.center,
+                  style: def,
+                )
+              ],
             ),
             Spacer(),
             actionButton(
@@ -615,10 +635,6 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
 
   Widget profileBody() {
     return Container(
-      decoration: BoxDecoration(
-//                              color: Colors.grey[900],
-//                        borderRadius: BorderRadius.circular(30)
-          ),
       width: MediaQuery.of(context).size.width,
       child: Padding(
         padding: EdgeInsets.all(8.0.w),
@@ -754,8 +770,16 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                 IconButton(
                   onPressed: (!profile.containsBooks)
                       ? () {
-                          // todo push to downloads page
-                        }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            DownloadChaptersPage(
+                              chapterList: profile.chapters,
+                            ),
+                      ),
+                    );
+                  }
                       : null,
                   icon: Icon(
                     Icons.download_rounded,

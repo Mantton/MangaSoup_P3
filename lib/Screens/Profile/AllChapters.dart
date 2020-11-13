@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
-import 'package:mangasoup_prototype_3/Models/Comic.dart';
-import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:provider/provider.dart';
 
@@ -49,7 +48,7 @@ class _ChapterListState extends State<ChapterList> {
     return AnimatedPositioned(
       duration: Duration(milliseconds: 200),
       curve: Curves.easeIn,
-      bottom: (editMode) ? 0 : -100,
+      bottom: (editMode) ? 0 : -100.h,
       child: Container(
         height: 100,
         width: MediaQuery.of(context).size.width,
@@ -133,20 +132,21 @@ class _ChapterListState extends State<ChapterList> {
       context: (context),
       builder: (_) => PlatformWidget(
           material: (_, __) => ListView(
-                children: [
-                  ListTile(
-                    title: Text("Select All"),
-                    onTap: selectAll,
-                  ),
-                  ListTile(
-                    title: Text("Deselect All"),
-                    onTap: deselectAll,
-                  ),
-                  ListTile(
-                    title: Text("Fill Range (Select Between)"),
-                    onTap: fill,
-                  )
-                ],
+            shrinkWrap: true,
+            children: [
+              ListTile(
+                title: Text("Select All"),
+                onTap: selectAll,
+              ),
+              ListTile(
+                title: Text("Deselect All"),
+                onTap: deselectAll,
+              ),
+              ListTile(
+                title: Text("Fill Range (Select Between)"),
+                onTap: fill,
+              )
+            ],
               ),
           cupertino: (_, __) => CupertinoActionSheet(
                 title: Text("Select"),
@@ -188,16 +188,17 @@ class _ChapterListState extends State<ChapterList> {
       context: (context),
       builder: (_) => PlatformWidget(
           material: (_, __) => ListView(
-                children: [
-                  ListTile(
-                    title: Text("Mark as Read"),
-                    onTap: markAsRead,
-                  ),
-                  ListTile(
-                    title: Text("Mark as Unread"),
-                    onTap: markAsUnread,
-                  ),
-                ],
+            shrinkWrap: true,
+            children: [
+              ListTile(
+                title: Text("Mark as Read"),
+                onTap: markAsRead,
+              ),
+              ListTile(
+                title: Text("Mark as Unread"),
+                onTap: markAsUnread,
+              ),
+            ],
               ),
           cupertino: (_, __) => CupertinoActionSheet(
                 title: Text("Mark As"),
