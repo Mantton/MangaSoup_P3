@@ -19,60 +19,63 @@ class _DownloadLibraryPageState extends State<DownloadLibraryPage> {
       List<ChapterDownloadObject> objs = provider.downloads
           .where((element) => element.status.contains("Done"))
           .toList();
-      Map grouped =
-      groupBy(objs, (ChapterDownloadObject chapter) => chapter.highlight);
+      Map grouped = groupBy(
+          objs,
+          (ChapterDownloadObject chapter) =>
+              "${chapter.highlight.title}-${chapter.highlight.source}");
 
       return Container(
         child: objs.isNotEmpty
             ? ListView(
-          children: grouped.entries.map((e) {
-            ComicHighlight highlight = e.key;
-            List<ChapterDownloadObject> chapters = e.value;
+                children: grouped.entries.map((e) {
+                  ComicHighlight highlight = e.value[0].highlight;
+                  List<ChapterDownloadObject> chapters = e.value;
 
-            return ExpansionTile(
-
-              title: Text(
-                "${highlight.title}",
-                style: TextStyle(
-                  fontSize: 20.sp,
+                  return ExpansionTile(
+                    title: Text(
+                      "${highlight.title}",
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                      ),
+                    ),
+                    leading: SoupImage(
+                      url: highlight.thumbnail,
+                      referer: highlight.imageReferer,
+                    ),
+                    subtitle: Text(
+                      "${highlight.source}",
+                      style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[700]),
+                    ),
+                    children: chapters.map((e) {
+                      ChapterDownloadObject chapter = e;
+                      return ListTile(
+                        title: Text("${chapter.chapter.name}"),
+                        subtitle: chapter.chapter.maker.isNotEmpty
+                            ? Text(
+                                "${chapter.chapter.maker}",
+                                style: TextStyle(
+                                    color: Colors.grey[800], fontSize: 17.sp),
+                              )
+                            : null,
+                        trailing: Text(
+                          "${chapter.chapter.date}",
+                          style: TextStyle(
+                              color: Colors.grey[800], fontSize: 17.sp),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                }).toList(),
+              )
+            : Center(
+                child: Text(
+                  "Your Downloads are empty",
+                  style: isEmptyFont,
                 ),
               ),
-              leading: SoupImage(
-                url: highlight.thumbnail,
-                referer: highlight.imageReferer,
-              ),
-              subtitle: Text(
-                "${highlight.source}",
-                style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700]),
-              ),
-              children: chapters.map((e) {
-                ChapterDownloadObject chapter = e;
-                return ListTile(
-                  title: Text("${chapter.chapter.name}"),
-                  subtitle: chapter.chapter.maker.isNotEmpty ? Text(
-                    "${chapter.chapter.maker}",
-                    style: TextStyle(
-                        color: Colors.grey[800], fontSize: 17.sp),
-                  ) : null,
-                  trailing: Text(
-                    "${chapter.chapter.date}",
-                    style: TextStyle(
-                        color: Colors.grey[800], fontSize: 17.sp),
-                  ),
-                );
-              }).toList(),
-            );
-          }).toList(),
-        )
-            : Center(
-          child: Text(
-            "Your Downloads are empty",
-            style: isEmptyFont,
-          ),
-        ),
       );
     });
   }

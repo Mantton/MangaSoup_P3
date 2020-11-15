@@ -25,7 +25,7 @@ class _QueuePageState extends State<QueuePage> {
       return Container(
         child: objs.isNotEmpty
             ? ListView(
-          shrinkWrap: true,
+                shrinkWrap: true,
                 children: grouped.entries.map((e) {
                   ComicHighlight highlight = e.key;
                   List<ChapterDownloadObject> chapters = e.value;
@@ -37,46 +37,48 @@ class _QueuePageState extends State<QueuePage> {
                         fontSize: 20.sp,
                       ),
                     ),
-              leading: SoupImage(
-                url: highlight.thumbnail,
-                referer: highlight.imageReferer,
-              ),
-              subtitle: Text(
-                "${highlight.source}",
-                style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700]),
-              ),
-              children: chapters.map((e) {
-                ChapterDownloadObject chapter = e;
-                return ListTile(
-                  title: Text("${chapter.chapter.name}"),
-                  subtitle: LinearProgressIndicator(
-                    value: chapter.progress / 100,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.purpleAccent,
+                    leading: SoupImage(
+                      url: highlight.thumbnail,
+                      referer: highlight.imageReferer,
                     ),
-                    backgroundColor: Colors.black,
-                  ),
-                  trailing: Column(
-                    children: [
-                      Container(
-                        child: Text(
-                          "${(chapter.progress)}%",
-                          style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[700]),
+                    subtitle: Text(
+                      "${highlight.source}",
+                      style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[700]),
+                    ),
+                    children: chapters.map((e) {
+                      ChapterDownloadObject chapter = e;
+                      return ListTile(
+                        title: Text("${chapter.chapter.name}"),
+                        subtitle: LinearProgressIndicator(
+                          value: chapter.progress / 100,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            chapter.status.contains("Paused")
+                                ? Colors.grey
+                                : Colors.purpleAccent,
+                          ),
+                          backgroundColor: Colors.grey[800],
                         ),
-                      ),
-                      Text("${chapter.status}")
-                    ],
-                  ),
-                );
-              }).toList(),
-            );
-          }).toList(),
+                        trailing: Column(
+                          children: [
+                            Container(
+                              child: Text(
+                                "${(chapter.progress)}%",
+                                style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[700]),
+                              ),
+                            ),
+                            Text("${chapter.status}")
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  );
+                }).toList(),
               )
             : Center(
                 child: Text(

@@ -20,7 +20,6 @@ class DownloadProvider with ChangeNotifier {
     IsolateNameServer.registerPortWithName(
         _port.sendPort, 'downloader_send_port');
     _port.listen((dynamic data) {
-      print("listening...");
       String id = data[0];
       DownloadTaskStatus status = data[1];
       int progress = data[2];
@@ -40,14 +39,15 @@ class DownloadProvider with ChangeNotifier {
           for (DownloadInfo t in chapterPointer.tasks) {
             p += t.progress;
           }
-          int fP = (p / (chapterPointer.tasks.length)).round();
-          chapterPointer.progress = fP;
+          double fP = p / (chapterPointer.tasks.length);
+          chapterPointer.progress = fP.round();
 
           if (chapterPointer.progress == 0) {
             chapterPointer.status = "Queued";
           } else if (chapterPointer.progress < 100) {
             chapterPointer.status = "Downloading";
-          } else if (chapterPointer.progress == 100) {
+          } else if (fP == 100.0) {
+            // If progress is exactly 100
             chapterPointer.status = "Done";
             // todo, save to downloads db directory
             // todo, create downloads db
@@ -61,8 +61,12 @@ class DownloadProvider with ChangeNotifier {
     FlutterDownloader.registerCallback(downloadCallback);
   }
 
-  debugClear() {
+  debugClear() async {
     downloads.clear();
+    var tasks = await FlutterDownloader.loadTasks();
+    for (var task in tasks) {
+      FlutterDownloader.remove(taskId: task.taskId, shouldDeleteContent: true);
+    }
     notifyListeners();
   }
 
@@ -78,9 +82,63 @@ class DownloadProvider with ChangeNotifier {
     await download(highlight, chapters);
   }
 
+  /// LoadAll
+  load() async {
+    final tasks = await FlutterDownloader.loadTasks();
+
+    for (var task in tasks) {
+      print(task.status);
+    }
+  }
+
+  /// Pause
+  pauseAll() {
+    List<ChapterDownloadObject> chapters = downloads
+        .where((element) => element.status.contains("Download"))
+        .toList();
+    for (ChapterDownloadObject chapter in chapters) {
+      pauseDownload(chapter);
+    }
+  }
+
+  pauseDownload(ChapterDownloadObject chapter) {
+    for (DownloadInfo task in chapter.tasks) {
+      FlutterDownloader.pause(taskId: task.taskId);
+    }
+    chapter.status = "Paused";
+    notifyListeners();
+  }
+
+  /// Resume
+  resumeAll() {
+    List<ChapterDownloadObject> chapters =
+        downloads.where((element) => element.status.contains("Pause")).toList();
+
+    for (ChapterDownloadObject chapter in chapters) {
+      resumeDownload(chapter);
+    }
+  }
+
+  resumeDownload(ChapterDownloadObject chapter) async {
+    for (DownloadInfo task in chapter.tasks) {
+      String newID = await FlutterDownloader.resume(taskId: task.taskId);
+
+      /// Update Task ID's
+      chapter
+          .tasks[chapter.tasks
+              .indexWhere((element) => element.taskId == task.taskId)]
+          .taskId = newID;
+    }
+    chapter.status = "Downloading";
+    notifyListeners();
+  }
+
+  /// Download
   download(ComicHighlight highlight, List chapters) async {
     for (Map map in chapters) {
       Chapter chapter = Chapter.fromMap(map);
+
+      /// Fetch Image to ImageChapter object
       ImageChapter imageChapter =
           await _manager.getImages(highlight.selector, chapter.link);
       var dir = await getApplicationDocumentsDirectory();
@@ -100,20 +158,26 @@ class DownloadProvider with ChangeNotifier {
       List<DownloadInfo> jet = List();
       for (String image in imageChapter.images) {
         String fileName =
-            "${imageChapter.images.indexOf(image)}.${image.split(".").last}";
-        // print(123.toString().padLeft(10, '0'));
+            "${imageChapter.images.indexOf(image)}.${image
+            .split(".")
+            .last}";
         final taskId = await FlutterDownloader.enqueue(
-            url: image,
-            savedDir: newD.path,
-            headers: {"referer": imageChapter.referer},
-            fileName: fileName);
+          url: image,
+          savedDir: newD.path,
+          headers: {"referer": imageChapter.referer},
+          fileName: fileName,
+          showNotification: false,
+          openFileFromNotification: false,
+          requiresStorageNotLow: true,
+        );
 
-        // Needed Lists
+        /// Needed Lists
         imagesPaths.add(image);
         tasks.add(taskId);
         jet.add(DownloadInfo(taskId: taskId, filePath: fileName));
       }
 
+      /// Create ChapterDownload Object.
       ChapterDownloadObject chapterDownload = ChapterDownloadObject(
         highlight: highlight,
         chapter: chapter,
@@ -121,8 +185,8 @@ class DownloadProvider with ChangeNotifier {
         images: imagesPaths,
         tasks: jet,
       );
-      // Save downloadObject
-      // Add to List
+
+      /// Add object to list and notify listeners
       downloads.add(chapterDownload);
       notifyListeners();
     }
@@ -173,6 +237,11 @@ class ChapterDownloadObject {
   int progress = 0;
   String status = "Waiting";
 
-  ChapterDownloadObject(
-      {this.highlight, this.chapter, this.taskIDs, this.images, this.tasks});
+  ChapterDownloadObject({
+    this.highlight,
+    this.chapter,
+    this.taskIDs,
+    this.images,
+    this.tasks,
+  });
 }

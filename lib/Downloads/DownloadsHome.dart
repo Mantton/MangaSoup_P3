@@ -60,6 +60,13 @@ class _DownloadsPageState extends State<DownloadsPage> {
         appBar: AppBar(
           leading: PlatformIconButton(
             onPressed: () {
+              // if (!allPaused) {
+              //   Provider.of<DownloadProvider>(context, listen: false)
+              //       .pauseAll();
+              // } else {
+              //   Provider.of<DownloadProvider>(context, listen: false)
+              //       .resumeAll();
+              // }
               setState(() {
                 allPaused = !allPaused;
                 showMessage(
@@ -80,7 +87,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
           centerTitle: true,
           actions: [
             PlatformIconButton(
-              onPressed: () {
+              onPressed: () async {
                 Provider.of<DownloadProvider>(context, listen: false)
                     .debugClear();
               },
