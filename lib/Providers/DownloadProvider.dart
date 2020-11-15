@@ -172,7 +172,7 @@ class DownloadProvider with ChangeNotifier {
         );
 
         /// Needed Lists
-        imagesPaths.add(image);
+        imagesPaths.add("${newD.path}/$fileName");
         tasks.add(taskId);
         jet.add(DownloadInfo(taskId: taskId, filePath: fileName));
       }

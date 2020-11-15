@@ -5,6 +5,7 @@ import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Reader/DebugReader.dart';
 import 'package:provider/provider.dart';
 
 class DownloadLibraryPage extends StatefulWidget {
@@ -52,6 +53,18 @@ class _DownloadLibraryPageState extends State<DownloadLibraryPage> {
                     children: chapters.map((e) {
                       ChapterDownloadObject chapter = e;
                       return ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DebugReader(
+                                selector: chapter.highlight.selector,
+                                downloaded: true,
+                                cdo: chapter,
+                              ),
+                            ),
+                          );
+                        },
                         title: Text("${chapter.chapter.name}"),
                         subtitle: chapter.chapter.maker.isNotEmpty
                             ? Text(

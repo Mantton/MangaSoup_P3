@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
+import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Reader/DebugReader.dart';
 import 'package:provider/provider.dart';
 
 class ChapterList extends StatefulWidget {
@@ -132,21 +134,21 @@ class _ChapterListState extends State<ChapterList> {
       context: (context),
       builder: (_) => PlatformWidget(
           material: (_, __) => ListView(
-            shrinkWrap: true,
-            children: [
-              ListTile(
-                title: Text("Select All"),
-                onTap: selectAll,
-              ),
-              ListTile(
-                title: Text("Deselect All"),
-                onTap: deselectAll,
-              ),
-              ListTile(
-                title: Text("Fill Range (Select Between)"),
-                onTap: fill,
-              )
-            ],
+                shrinkWrap: true,
+                children: [
+                  ListTile(
+                    title: Text("Select All"),
+                    onTap: selectAll,
+                  ),
+                  ListTile(
+                    title: Text("Deselect All"),
+                    onTap: deselectAll,
+                  ),
+                  ListTile(
+                    title: Text("Fill Range (Select Between)"),
+                    onTap: fill,
+                  )
+                ],
               ),
           cupertino: (_, __) => CupertinoActionSheet(
                 title: Text("Select"),
@@ -199,7 +201,7 @@ class _ChapterListState extends State<ChapterList> {
                 onTap: markAsUnread,
               ),
             ],
-              ),
+          ),
           cupertino: (_, __) => CupertinoActionSheet(
                 title: Text("Mark As"),
                 cancelButton: CupertinoButton(
@@ -228,7 +230,7 @@ class _ChapterListState extends State<ChapterList> {
       }
       List chapterList = widget.chapterList;
       return Padding(
-        padding:  EdgeInsets.all(8.0.w),
+        padding: EdgeInsets.all(8.0.w),
         child: Container(
           child: ListView.builder(
               itemCount: chapterList.length,
@@ -237,10 +239,25 @@ class _ChapterListState extends State<ChapterList> {
                 return Container(
                   height: 70.h,
                   child: ListTile(
-
                     onTap: () {
                       if (!editMode) {
-                        // todo push to reader
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                DebugReader(
+                                  chapters: chapterList
+                                      .map((e) => Chapter.fromMap(e))
+                                      .toList(),
+                                  selectedChapter: chapter,
+                                  selector:
+                                  Provider
+                                      .of<ComicHighlightProvider>(context)
+                                      .highlight
+                                      .selector,
+                                ),
+                          ),
+                        );
                       } else {
                         if (!selectedChapters.contains(chapterList[index])) {
                           setState(() {
@@ -280,12 +297,13 @@ class _ChapterListState extends State<ChapterList> {
                     leading: (!editMode)
                         ? null
                         : Icon(
-                            (selectedChapters.contains(chapterList[index]))
-                                ? Icons.check
-                                : Icons.radio_button_unchecked,
-                            color: (selectedChapters.contains(chapterList[index]))
-                                ? Colors.purple
-                                : Colors.grey,
+                      (selectedChapters.contains(chapterList[index]))
+                          ? Icons.check
+                          : Icons.radio_button_unchecked,
+                      color:
+                      (selectedChapters.contains(chapterList[index]))
+                          ? Colors.purple
+                          : Colors.grey,
                           ),
                   ),
                 );

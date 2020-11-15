@@ -4,6 +4,8 @@ class ImageChapter {
   String source;
   int count;
 
+  ImageChapter({this.images, this.referer, this.source, this.count});
+
   Map<String, dynamic> toMap() {
     return {
       "images": images,
