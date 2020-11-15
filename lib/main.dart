@@ -21,12 +21,14 @@ import 'package:flutter/material.dart'
         ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/BrowseProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
+import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
@@ -115,6 +117,7 @@ Future<void> main() async {
   Workmanager.initialize(
       callbackDispatcher, // The top level function, aka callbackDispatcher
       isInDebugMode: false);
+  await FlutterDownloader.initialize(debug: false);
 
   if (Platform.isAndroid) {
     await Workmanager.registerPeriodicTask(
@@ -142,6 +145,7 @@ Future<void> main() async {
         // View History
         ChangeNotifierProvider(create: (_) => ViewHistoryProvider()),
         ChangeNotifierProvider(create: (_) => BrowseProvider()),
+        ChangeNotifierProvider(create: (_) => DownloadProvider()),
         //
       ],
       child: App(),
@@ -269,6 +273,7 @@ class _HandlerState extends State<Handler> {
     } else {
       await Provider.of<SourceNotifier>(context, listen: false)
           .loadSource(source);
+
       return false;
     }
   }
@@ -288,13 +293,7 @@ class _HandlerState extends State<Handler> {
         builder: (BuildContext cxt, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
-              child: Column(
-                children: [
-                  Image.asset("Assets/More/loading.gif"),
-                  SizedBox(height: 10),
-                  LoadingIndicator(),
-                ],
-              ),
+              child: LoadingIndicator(),
             );
 
           if (snapshot.hasData) {

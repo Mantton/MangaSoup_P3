@@ -520,13 +520,25 @@ class DexHub {
   Future<ComicHighlight> imageSearchViewComic(int id) async {
     Dio _dio = Dio();
     Response response =
-    await _dio.get("https://mangadex.org/api/v2/chapter/$id");
+        await _dio.get("https://mangadex.org/api/v2/chapter/$id");
 
     int mangaID = response.data['data']['mangaId'];
     ComicProfile _profile =
-    await profile("https://mangadex.org/title/$mangaID");
+        await profile("https://mangadex.org/title/$mangaID");
     ComicHighlight newHighlight = ComicHighlight(_profile.title, _profile.link,
         _profile.thumbnail, selector, source, false, baseURL);
     return newHighlight;
+  }
+
+  Future<List> images(String chapterLink, Map info) async {
+    Dio _dio = Dio();
+
+    /// https://mangadex.org/api/v2//chapter/1100871?saver=1
+    // Response response = await _dio.get(
+    //
+    //   // queryParameters: params,
+    //   // //
+    //   // options: Options(headers: prepareHeaders(additionalInfo)),
+    // );
   }
 }
