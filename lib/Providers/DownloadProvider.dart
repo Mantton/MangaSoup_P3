@@ -49,6 +49,9 @@ class DownloadProvider with ChangeNotifier {
             chapterPointer.status = "Downloading";
           } else if (chapterPointer.progress == 100) {
             chapterPointer.status = "Done";
+            // todo, save to downloads db directory
+            // todo, create downloads db
+            // todo, pause all and check for fail feature
           }
           notifyListeners();
         }
