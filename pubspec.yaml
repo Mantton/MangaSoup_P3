@@ -49,6 +49,7 @@ dependencies:
   sticky_headers: ^0.1.8+1
   draggable_scrollbar: ^0.0.4
   flutter_downloader: ^1.5.2
+  preload_page_view: ^0.1.4
 
 
 

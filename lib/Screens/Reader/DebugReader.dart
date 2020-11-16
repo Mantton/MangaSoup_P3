@@ -1,8 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:mangasoup_prototype_3/Components/ReaderComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
@@ -52,7 +50,7 @@ class _DebugReaderState extends State<DebugReader> {
 
   Future<bool> initializer;
   List<ImageChapter> loadedChapters = List();
-  bool vertical = true;
+  bool vertical = false;
 
   @override
   void initState() {
@@ -99,41 +97,95 @@ class _DebugReaderState extends State<DebugReader> {
   }
 
   Widget home() {
-    return Container(
-      child: ListView(
-        scrollDirection: vertical ? Axis.vertical : Axis.horizontal,
-        shrinkWrap: true,
-        children: loadedChapters
-            .map(
-              (chapter) => ListView(
-                physics: NeverScrollableScrollPhysics(),
-                scrollDirection: vertical ? Axis.vertical : Axis.horizontal,
-                shrinkWrap: true,
-                children: chapter.images
-                    .map(
-                      (image) => Container(
-                        // padding: EdgeInsets.all(10),
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: (!widget.downloaded)
-                            ? SoupImage(
-                                url: image,
+    return Container(child: pageView());
+  }
+
+  Widget testOne() {
+    return ListView(
+      scrollDirection: vertical ? Axis.vertical : Axis.horizontal,
+      shrinkWrap: true,
+      children: loadedChapters
+          .map(
+            (chapter) =>
+            ListView(
+              physics: NeverScrollableScrollPhysics(),
+              scrollDirection: vertical ? Axis.vertical : Axis.horizontal,
+              shrinkWrap: true,
+              children: chapter.images
+                  .map(
+                    (image) =>
+                    Center(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              // padding: EdgeInsets.all(10),
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width,
+                              child: ReaderImage(
+                                link: image,
                                 referer: chapter.referer,
-                                fit: BoxFit.fill,
-                              )
-                            : Image.file(
-                                File(
-                                  image,
-                                ),
-                                fit: BoxFit.fill,
+                                fit: BoxFit.fitWidth,
                               ),
+                            ),
+                          ],
+                        ),
                       ),
-                    )
-                    .toList(),
-              ),
-            )
-            .toList(),
-      ),
+                    ),
+              )
+                  .toList(),
+            ),
+      )
+          .toList(),
     );
+  }
+
+  Widget pageView() {
+    return PageView(
+      children: loadedChapters
+          .map(
+            (chapter) =>
+            PageView(
+              scrollDirection: vertical ? Axis.vertical : Axis.horizontal,
+
+              // shrinkWrap: true,
+              children: chapter.images
+                  .map(
+                    (image) =>
+                    Center(
+                      child: SingleChildScrollView(
+
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              // padding: EdgeInsets.all(10),
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width,
+                              child: ReaderImage(
+                                link: image,
+                                referer: chapter.referer,
+                                fit: BoxFit.fitWidth,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+              )
+                  .toList(),
+            ),
+      )
+          .toList(),
+    );
+  }
+
+  Widget testTwoo() {
+    return Container();
   }
 }
