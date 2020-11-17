@@ -1,23 +1,29 @@
 // Comic Highlight
 import 'dart:convert';
 
+import 'package:mangasoup_prototype_3/Models/Misc.dart';
+
 class ComicHighlight {
   String title;
   String thumbnail;
   String link;
   String selector;
   String source;
+  bool isHentai;
+  String imageReferer;
 
   ComicHighlight(
-      this.title, this.link, this.thumbnail, this.selector, this.source);
+      this.title, this.link, this.thumbnail, this.selector, this.source, this.isHentai, this.imageReferer);
 
-  Map<String, String> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       "title": title,
       "thumbnail": thumbnail,
       "link": link,
       "selector": selector,
       "source": source,
+      "is_hentai":isHentai,
+      "image_referer":imageReferer
     };
   }
 
@@ -27,6 +33,27 @@ class ComicHighlight {
     link = map['link'];
     selector = map['selector'];
     source = map['source'];
+    isHentai = map['is_hentai'];
+    imageReferer = map['image_referer'];
+  }
+}
+
+class LastStop {
+  Chapter chapter;
+  int page;
+
+  LastStop(this.chapter, this.page);
+
+  Map<String, dynamic> toMap() {
+    return {
+      "chapter": jsonEncode(chapter.toMap()),
+      "page": page,
+    };
+  } // Convert to Map
+
+  LastStop.fromMap(Map<String, dynamic> map) {
+    chapter = Chapter.fromMap(jsonDecode(map['chapter']));
+    page = map['page'];
   }
 }
 
@@ -53,6 +80,29 @@ class ComicHistory {
     id = map['id'];
     readChapters = jsonDecode(map['readChapters']);
     lastStop = jsonDecode(map['lastStop']);
+  }
+}
+
+class ViewHistory {
+  int id;
+  ComicHighlight highlight;
+  DateTime timeViewed;
+
+  ViewHistory(this.id, this.highlight, this.timeViewed);
+
+  Map<String, dynamic> toMap() {
+    return {
+      "id": id,
+      "comicHighlight": jsonEncode(highlight.toMap()),
+      "time_viewed": timeViewed.toIso8601String(),
+      "link": highlight.link,
+    };
+  } // Convert to Map
+
+  ViewHistory.fromMap(Map<String, dynamic> map) {
+    highlight = ComicHighlight.fromMap(jsonDecode(map['comicHighlight']));
+    id = map['id'];
+    timeViewed = DateTime.parse(map['time_viewed']);
   }
 }
 

@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -14,13 +13,16 @@ import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/AllChapters.dart';
+import 'package:mangasoup_prototype_3/Screens/Profile/DownloadChapters.dart';
 import 'package:mangasoup_prototype_3/Screens/Tags/TagComics.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePageScreen extends StatefulWidget {
   final ComicProfile comicProfile;
   final ComicHighlight highlight;
-  const ProfilePageScreen({Key key, @required this.comicProfile,@required this.highlight})
+
+  const ProfilePageScreen(
+      {Key key, @required this.comicProfile, @required this.highlight})
       : super(key: key);
 
   @override
@@ -42,24 +44,17 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   Future<bool> init;
 
   Future<bool> initializeProfile() async {
-
-    ComicHighlight updatedHighLight = widget.highlight;
-    updatedHighLight.thumbnail = widget.comicProfile.thumbnail;
-    await Provider.of<ComicHighlightProvider>(context, listen: false)
-        .loadHighlight(updatedHighLight);
-    await Provider.of<ComicDetailProvider>(context, listen: false)
-        .init(updatedHighLight);
-
-
     profile = widget.comicProfile;
     debugPrint("LINK : ${(profile.link)}");
     favoriteObject = await _favoritesManager.isFavorite(profile.link);
-    // Check if Favorite
+
+    /// Check if Favorite
     if (favoriteObject == null) {
       _isFav = false;
     } else {
       _isFav = true;
-      // Update Chapter Count
+
+      /// Update Chapter Count
       if (!widget.comicProfile.containsBooks)
         favoriteObject.chapterCount = widget.comicProfile.chapterCount;
       else {
@@ -70,19 +65,19 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
         }
         favoriteObject.chapterCount = chapterCount;
       }
-      favoriteObject.updateCount = 0; // Reset Update Count
-      favoriteObject.highlight.thumbnail = widget.comicProfile.thumbnail; // Update Favorites Thumbnails
+
+      /// Reset Update Count
+      favoriteObject.updateCount = 0;
+      favoriteObject.highlight.thumbnail =
+          widget.comicProfile.thumbnail; // Update Favorites Thumbnails
       await _favoritesManager.updateByID(favoriteObject);
       favoritesStream.add("");
     }
 
-    // Get Active Collections
-
+    /// Get Active Collections
     _collections = await _favoritesManager.getCollections();
     debugPrint(_collections.toString());
     return true;
-
-    // todo, update thumbnail;
   }
 
   @override
@@ -601,10 +596,30 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
               null,
             ),
             Spacer(),
-            actionButton(
-              Icons.list,
-              "Chapters",
-              null,
+            Column(
+              children: [
+                IconButton(
+                    icon: Icon(
+                      Icons.dehaze,
+                      color: Colors.purpleAccent,
+                    ),
+                    iconSize: 30.w,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChapterList(
+                            chapterList: profile.chapters,
+                          ),
+                        ),
+                      );
+                    }),
+                Text(
+                  "Chapters",
+                  textAlign: TextAlign.center,
+                  style: def,
+                )
+              ],
             ),
             Spacer(),
             actionButton(
@@ -620,10 +635,6 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
 
   Widget profileBody() {
     return Container(
-      decoration: BoxDecoration(
-//                              color: Colors.grey[900],
-//                        borderRadius: BorderRadius.circular(30)
-          ),
       width: MediaQuery.of(context).size.width,
       child: Padding(
         padding: EdgeInsets.all(8.0.w),
@@ -759,8 +770,16 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                 IconButton(
                   onPressed: (!profile.containsBooks)
                       ? () {
-                          // todo push to downloads page
-                        }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            DownloadChaptersPage(
+                              chapterList: profile.chapters,
+                            ),
+                      ),
+                    );
+                  }
                       : null,
                   icon: Icon(
                     Icons.download_rounded,

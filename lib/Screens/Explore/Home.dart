@@ -2,16 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
-import 'package:mangasoup_prototype_3/Screens/Browse/Broswe.dart';
+import 'package:mangasoup_prototype_3/Screens/Browse/FullBrowse/BrosweHome.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/Search.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/AllComics.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/ForYou.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/LatestComics.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
-import 'package:mangasoup_prototype_3/Services/api_manager.dart';
-import 'package:mangasoup_prototype_3/Models/Source.dart';
-import 'package:mangasoup_prototype_3/Services/test_preference.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {

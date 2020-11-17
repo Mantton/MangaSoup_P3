@@ -23,10 +23,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
+import 'package:mangasoup_prototype_3/Providers/BrowseProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Services/test_preference.dart';
 import 'package:mangasoup_prototype_3/Services/update_manager.dart';
@@ -130,9 +133,16 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        // Source
         ChangeNotifierProvider(create: (_) => SourceNotifier()),
+        // Highlight
         ChangeNotifierProvider(create: (_) => ComicHighlightProvider()),
-        ChangeNotifierProvider(create: (_) => ComicDetailProvider())
+        // Read History
+        ChangeNotifierProvider(create: (_) => ComicDetailProvider()),
+        // View History
+        ChangeNotifierProvider(create: (_) => ViewHistoryProvider()),
+        ChangeNotifierProvider(create: (_) => BrowseProvider()),
+        //
       ],
       child: App(),
     ),
@@ -278,7 +288,13 @@ class _HandlerState extends State<Handler> {
         builder: (BuildContext cxt, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
-              child: CupertinoActivityIndicator(),
+              child: Column(
+                children: [
+                  Image.asset("Assets/More/loading.gif"),
+                  SizedBox(height: 10),
+                  LoadingIndicator(),
+                ],
+              ),
             );
 
           if (snapshot.hasData) {

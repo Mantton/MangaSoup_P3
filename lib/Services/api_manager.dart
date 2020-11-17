@@ -1,9 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
-import 'dart:convert';
-import 'dart:io';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,7 +70,7 @@ class ApiManager {
 
     if (src.settings != null) {
       String encodedSettings =
-          preferences.getString("${src.selector}_settings");
+      preferences.getString("${src.selector}_settings");
       if (encodedSettings == null) {
         debugPrint("Settings for ${src.name} are not initialized, starting...");
         Map defaultSourceSettings = {};
@@ -96,9 +97,16 @@ class ApiManager {
       return {};
     } else if (sourceSettings != null && sourceCookies == null) {
       Map settings = jsonDecode(sourceSettings);
+      print(settings);
       Map generated = Map();
       settings.forEach((key, value) {
-        generated[key] = value['selector'];
+        if (value is! List) {
+          // is not List
+          print(value.runtimeType);
+          generated[key] = value['selector'];
+        } else {
+          generated[key] = value.map((e) => e['selector']).toList();
+        }
       });
       return generated;
     } else if (sourceCookies != null && sourceSettings == null) {
@@ -117,8 +125,7 @@ class ApiManager {
   /// ------------------- COMIC RESOURCES  ---------------------------- ///
   ///
   /// Get All
-  Future<List<ComicHighlight>> getAll(
-      String source, String sortBy, int page) async {
+  Future<List<ComicHighlight>> getAll(String source, String sortBy, int page) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     print(additionalParams);
     if (source == "mangadex") return dex.get(sortBy, page, additionalParams);
@@ -204,8 +211,7 @@ class ApiManager {
   }
 
   /// Get Tag Comics
-  Future<List<ComicHighlight>> getTagComics(
-      String source, int page, String link, String sort) async {
+  Future<List<ComicHighlight>> getTagComics(String source, int page, String link, String sort) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     print(additionalParams);
     if (source == "mangadex")
@@ -249,6 +255,25 @@ class ApiManager {
     return comics;
   }
 
+  Future<List<ComicHighlight>> browse(String source, Map query) async {
+    Map additionalParams = await prepareAdditionalInfo(source);
+    print(additionalParams);
+    if (source == "mangadex") return dex.browse(query, additionalParams);
+    additionalParams.addAll(query);
+    Map data = {
+      "source": source,
+      "data": additionalParams,
+    };
+    Response response = await _dio.post('/api/v2/browse', data: data);
+    List dataPoints = response.data['comics'];
+    List<ComicHighlight> comics = [];
+    for (int index = 0; index < dataPoints.length; index++) {
+      comics.add(ComicHighlight.fromMap(dataPoints[index]));
+    }
+    debugPrint("Retrieval Complete : /browse @$source");
+    return comics;
+  }
+
   Future<List<ImageSearchResult>> imageSearch(File image) async {
     debugPrint("${image.path}");
     FormData _data = FormData.fromMap({
@@ -265,5 +290,44 @@ class ApiManager {
     });
 
     return isrResults;
+  }
+
+  Future<List> getImgurAlbum(String info) async {
+    String albumID;
+
+    // Link
+    if (info.contains("http")) {
+      if (info.endsWith("/")) info = info.substring(0, info.length - 1);
+      print(info);
+      // get id
+      albumID = info.split("/").last;
+      print(albumID);
+    } else {
+      albumID = info;
+    }
+
+    // Use Imgur API
+    albumID = albumID.trim();
+    try {
+      Response response = await _dio.get(
+        "https://api.imgur.com/3/album/$albumID/images",
+        options: Options(
+          headers: {"Authorization": "Client-ID d50a5c2ba38acd4"},
+        ),
+      );
+      print((response.data).toString());
+
+      // Process data
+
+      List _imgAttr = response.data['data'];
+      List images = [];
+      for (int i = 0; i < _imgAttr.length; i++) {
+        images.add(_imgAttr[i]["link"]);
+      }
+      return images;
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 }

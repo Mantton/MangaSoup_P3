@@ -1,10 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
-import 'package:mangasoup_prototype_3/Database/HistoryDatabase.dart';
-import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
+import 'package:provider/provider.dart';
 
-import '../../Globals.dart';
+import 'RecentsHighlightViews.dart';
 
 class HistoryPage extends StatefulWidget {
   @override
@@ -12,21 +13,18 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-  HistoryManager _manager = HistoryManager();
+  Future<bool> initializer;
+  int mode = 1;
 
-  Future<List<ComicHighlight>> initializer;
-
-  Future<List<ComicHighlight>> getHisotry() async {
-    return await _manager.getHighlights();
+  Future<bool> getHistory() async {
+    return await Provider.of<ViewHistoryProvider>(context, listen: false)
+        .init();
   }
 
   @override
   void initState() {
     super.initState();
-    initializer = getHisotry();
-    historyStream.stream.listen((event) {
-      initializer = getHisotry();
-    });
+    initializer = getHistory();
   }
 
   @override
@@ -35,6 +33,20 @@ class _HistoryPageState extends State<HistoryPage> {
       appBar: AppBar(
         centerTitle: true,
         title: Text("History"),
+        actions: [
+          IconButton(
+              icon: Icon((mode != 1)
+                  ? CupertinoIcons.square_grid_3x2_fill
+                  : CupertinoIcons.list_dash),
+              onPressed: () {
+                setState(() {
+                  if (mode == 1)
+                    mode = 2;
+                  else
+                    mode = 1;
+                });
+              })
+        ],
       ),
       body: FutureBuilder(
           future: initializer,
@@ -50,7 +62,7 @@ class _HistoryPageState extends State<HistoryPage> {
               );
             }
             if (snapshot.hasData)
-              return mainBody(snapshot.data);
+              return mainBody();
             else {
               return Text("No Favorites");
             }
@@ -58,19 +70,21 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  Widget mainBody(List<ComicHighlight> comics) {
-    return Container(
-      child: (comics.length != 0)
-          ? SingleChildScrollView(
-              child: ComicGrid(
-                comics: comics.reversed.toList(),
+  Widget mainBody() {
+    return Consumer<ViewHistoryProvider>(builder: (context, provider, _) {
+      return (provider.history.isNotEmpty)
+          ? HistoryView(
+              mode: mode,
+              comics: provider.history.reversed.toList(),
+            ) // Reverse Returns the latest entry first
+          : Container(
+              child: Center(
+                child: Text(
+                  "Empty Read History",
+                  style: TextStyle(fontSize: 30.h),
+                ),
               ),
-            )
-          : Center(
-              child: Container(
-                child: Text("Your History is Empty"),
-              ),
-            ),
-    );
+            );
+    });
   }
 }

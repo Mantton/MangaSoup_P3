@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Screens/Favorite/FavouriteHome.dart';
 import 'package:mangasoup_prototype_3/Screens/More/MoreHomePage.dart';
+
+import 'Downloads/DownloadsHome.dart';
 import 'Screens/Explore/Home.dart';
 import 'Screens/Recent/RecentsHome.dart';
 
@@ -30,7 +32,7 @@ class _LandingState extends State<Landing> {
             child: HistoryPage(),
           ),
           Container(
-            color: Colors.grey[900],
+            child: DownloadsPage(),
           ),
           Container(
             child: MorePage(),
@@ -42,7 +44,8 @@ class _LandingState extends State<Landing> {
         backgroundColor: Colors.black,
         itemChanged: (v) {
           setState(() {
-            _index = v;
+            if (v != _index)
+              _index = v;
           });
         },
         items: [

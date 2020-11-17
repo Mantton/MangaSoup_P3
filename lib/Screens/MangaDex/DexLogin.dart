@@ -86,8 +86,11 @@ class _MangadexLoginPageState extends State<MangadexLoginPage> {
                         showLoadingDialog(context);
                         bool success = await _dex.login(_username, _password);
                         Navigator.pop(context);
-                        if (success)
+                        if (success){
                           Navigator.pop(context, "MangaDex Login Successful!");
+                          sourcesStream.add(""); // Rebuild Pages with new cookies
+                        }
+
                         else
                           _showErrorDialog();
                       },
