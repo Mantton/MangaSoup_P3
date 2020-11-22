@@ -5,8 +5,9 @@ import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
-import 'package:mangasoup_prototype_3/Screens/Reader/DebugReader.dart';
 import 'package:provider/provider.dart';
+
+import 'file:///C:/Users/Mantton/AndroidStudioProjects/MangaSoup_P3/lib/Screens/Reader/DebugReaders/DebugReader.dart';
 
 class DownloadLibraryPage extends StatefulWidget {
   @override

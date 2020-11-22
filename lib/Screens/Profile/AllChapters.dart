@@ -6,7 +6,7 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
-import 'package:mangasoup_prototype_3/Screens/Reader/DebugReader.dart';
+import 'package:mangasoup_prototype_3/Screens/Reader/DebugReaders/DebugReader2.dart';
 import 'package:provider/provider.dart';
 
 class ChapterList extends StatefulWidget {
@@ -245,17 +245,16 @@ class _ChapterListState extends State<ChapterList> {
                           context,
                           MaterialPageRoute(
                             builder: (_) =>
-                                DebugReader(
-                                  chapters: chapterList
-                                      .map((e) => Chapter.fromMap(e))
-                                      .toList(),
-                                  selectedChapter: chapter,
-                                  selector:
-                                  Provider
-                                      .of<ComicHighlightProvider>(context)
+                                DebugReader2(
+                              chapters: chapterList
+                                  .map((e) => Chapter.fromMap(e))
+                                  .toList(),
+                              selectedChapter: chapter,
+                              selector:
+                                  Provider.of<ComicHighlightProvider>(context)
                                       .highlight
                                       .selector,
-                                ),
+                            ),
                           ),
                         );
                       } else {
