@@ -2,8 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mangasoup_prototype_3/Components/ReaderComponents.dart';
-import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
+import 'package:mangasoup_prototype_3/Providers/ReaderProvider.dart';
 import 'package:preload_page_view/preload_page_view.dart';
+import 'package:provider/provider.dart';
 
 class VerticalReader extends StatefulWidget {
   @override
@@ -82,7 +83,6 @@ class _VerticalReaderState extends State<VerticalReader> {
   }
 
   int _page = 0;
-  List<ImageChapter> loadedChapters = List();
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +105,8 @@ class _VerticalReaderState extends State<VerticalReader> {
           child: PageView(
             scrollDirection: Axis.vertical,
             physics: NeverScrollableScrollPhysics(),
-            children: loadedChapters
+            children: Provider.of<ReaderProvider>(context)
+                .loadedChapters
                 .map(
                   (chapter) => PreloadPageView(
                     controller: _pageController,

@@ -38,14 +38,28 @@ class _ReaderImageState extends State<ReaderImage> {
               ),
               loadingBuilder: (_, Widget child, ImageChunkEvent progress) {
                 if (progress == null) return child;
-                return Center(
-                  child: CircularProgressIndicator(
-                    value: progress.expectedTotalBytes != null
-                        ? progress.cumulativeBytesLoaded /
-                            progress.expectedTotalBytes
-                        : null,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
-                    strokeWidth: 5,
+                return Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(
+                          value: progress.expectedTotalBytes != null
+                              ? progress.cumulativeBytesLoaded /
+                                  progress.expectedTotalBytes
+                              : null,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.purple),
+                          strokeWidth: 5,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text("Loading...")
+                      ],
+                    ),
                   ),
                 );
               },

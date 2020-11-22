@@ -7,6 +7,9 @@ import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/ReaderProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Reader/Readers.dart';
+import 'package:mangasoup_prototype_3/Screens/Reader/Readers/MangaReader.dart';
+import 'package:mangasoup_prototype_3/Screens/Reader/Readers/WebtoonReader.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -34,17 +37,20 @@ class _DebugReader2State extends State<DebugReader2> {
   ApiManager _manager = ApiManager();
 
   Future<bool> init(Chapter chapter) async {
+    ImageChapter initialChapter;
     if (widget.downloaded) {
-      ImageChapter c = ImageChapter(
+      initialChapter = ImageChapter(
         images: widget.cdo.images,
         source: widget.cdo.highlight.source,
         referer: widget.cdo.highlight.imageReferer,
         count: widget.cdo.images.length,
       );
-      loadedChapters.add(c);
     } else
-      loadedChapters
-          .add(await _manager.getImages(widget.selector, chapter.link));
+      initialChapter = await _manager.getImages(widget.selector, chapter.link);
+    Provider.of<ReaderProvider>(context, listen: false)
+        .initChapter(initialChapter);
+    print("Initialized");
+    print(initialChapter.images);
     return true;
   }
 
@@ -67,50 +73,84 @@ class _DebugReader2State extends State<DebugReader2> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: FutureBuilder(
-            future: initializer,
-            builder: (_, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
-                  child: LoadingIndicator(),
-                );
-              }
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text("Internal Error"),
-                );
-              }
-              if (snapshot.hasData)
-                return body();
-              else {
-                return Center(child: Text("Critical Error,"));
-              }
-            }),
-      ),
-    );
+    return FutureBuilder(
+        future: initializer,
+        builder: (_, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: Center(
+                child: LoadingIndicator(),
+              ),
+            );
+          }
+          if (snapshot.hasError) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: Center(
+                child: Text(
+                  "Internal Error \n ${snapshot.error}",
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
+          if (snapshot.hasData) {
+            return Scaffold(
+              body: SafeArea(
+                child: body(),
+              ),
+            );
+          } else {
+            return Scaffold(
+              appBar: AppBar(),
+              body: Center(
+                child: Text("Critical Error,"),
+              ),
+            );
+          }
+        });
   }
 
   Widget body() {
     return Stack(
       children: [
-        Container(),
         GestureDetector(
           onTap: () {
             setState(() {
               _showControls = !_showControls;
             });
           },
-          child: Container(
-            color: Colors.grey,
-          ),
+          child: Container(),
+        ),
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _showControls = !_showControls;
+            });
+          },
+          child: Container(child: Consumer<ReaderProvider>(
+            builder: (BuildContext context, provider, _) {
+              int mode = provider.readerMode;
+              if (mode == 0)
+                return MangaReader();
+              else if (mode == 1)
+                return WebtoonReader();
+              else if (mode == 2)
+                return VerticalReader();
+              else
+                return MangaReader();
+            },
+          )
+              // WebtoonReader(),
+              ),
         ),
         header(),
         footer(),
       ],
     );
   }
+
 
   Widget header() {
     return AnimatedPositioned(
@@ -287,9 +327,10 @@ class _DebugReader2State extends State<DebugReader2> {
         .readerModeOptions
         .entries
         .firstWhere((element) =>
-    element.key == Provider
-        .of<ReaderProvider>(context, listen: false)
-        .readerMode);
+    element.key ==
+        Provider
+            .of<ReaderProvider>(context, listen: false)
+            .readerMode);
     showPlatformDialog(
       context: context,
       builder: (context) =>
@@ -338,12 +379,7 @@ class _DebugReader2State extends State<DebugReader2> {
                           )
                               .toList(),
                           dropdownColor: Colors.grey[900],
-                          value: Provider
-                              .of<ReaderProvider>(context)
-                              .readerModeOptions
-                              .entries
-                              .map((e) => e)
-                              .toList()[0],
+                          // todo, value property
                           onChanged: (value) {
                             Provider.of<ReaderProvider>(context, listen: false)
                                 .setReaderMode(value.key);

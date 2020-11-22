@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/ReaderComponents.dart';
-import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
+import 'package:mangasoup_prototype_3/Providers/ReaderProvider.dart';
+import 'package:provider/provider.dart';
 
 class WebtoonReader extends StatefulWidget {
+  final int initialPage;
+
+  const WebtoonReader({Key key, this.initialPage}) : super(key: key);
+
   @override
   _WebtoonReaderState createState() => _WebtoonReaderState();
 }
 
 class _WebtoonReaderState extends State<WebtoonReader> {
-  List<ImageChapter> loadedChapters = List();
-
   @override
   Widget build(BuildContext context) {
     return ListView(
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
-      children: loadedChapters
+      children: Provider
+          .of<ReaderProvider>(context)
+          .loadedChapters
           .map(
-            (chapter) => ListView(
+            (chapter) =>
+            ListView(
               physics: NeverScrollableScrollPhysics(),
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               children: chapter.images
                   .map(
-                    (image) => Center(
+                    (image) =>
+                    Center(
                       child: SingleChildScrollView(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
