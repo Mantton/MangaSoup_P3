@@ -18,7 +18,7 @@ class _VerticalReaderState extends State<VerticalReader> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _pageController = PageController(initialPage: widget.page - 1);
     _listScrollController = ScrollController();
   }
 

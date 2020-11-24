@@ -33,7 +33,6 @@ class _WebtoonReaderState extends State<WebtoonReader> {
                     (image) =>
                     Center(
                       child: Container(
-                        // padding: EdgeInsets.all(10),
                         width: MediaQuery
                             .of(context)
                             .size

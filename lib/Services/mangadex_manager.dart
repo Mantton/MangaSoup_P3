@@ -546,7 +546,8 @@ class DexHub {
     chapterLink = chapterLink.split("/").last;
     Dio _dio = Dio();
     int saverMode = info['saver'];
-    String imageAPI = "https://mangadex.org/api/v2//chapter/";
+    String imageAPI = "https://mangadex.org/api/v2/chapter/";
+    print(imageAPI + chapterLink);
 
     /// https://mangadex.org/api/v2//chapter/1100871?saver=1
     Response response = await _dio.get(

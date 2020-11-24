@@ -50,7 +50,6 @@ class _DebugReader2State extends State<DebugReader2> {
     Provider.of<ReaderProvider>(context, listen: false)
         .initChapter(initialChapter);
     print("Initialized");
-    print(initialChapter.images);
     return true;
   }
 

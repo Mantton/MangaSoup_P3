@@ -27,6 +27,7 @@ class _ReaderImageState extends State<ReaderImage> {
               url: widget.link,
               referer: widget.referer,
               fit: widget.fit,
+              context: context,
             )
           : Image.file(
               File(widget.link),
@@ -35,27 +36,46 @@ class _ReaderImageState extends State<ReaderImage> {
   }
 }
 
-Widget cImage({String url, BoxFit fit, String referer}) {
+Widget cImage({String url, BoxFit fit, String referer, BuildContext context}) {
   return CachedNetworkImage(
+
     imageUrl: url,
     progressIndicatorBuilder: (_, url, var progress) =>
-        progress.progress != null
-            ? Container(
-                child: Center(
-                  child: Text(
-                    "${(progress.progress * 100).toInt()}%",
-                    style: TextStyle(
-                      color: Colors.blueGrey,
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "Lato",
-                    ),
-                  ),
-                ),
-              )
-            : Center(
-                child: Text("Loading..."),
-              ),
+    progress.progress != null
+        ? Container(
+      height: MediaQuery
+          .of(context)
+          .size
+          .height,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
+      child: Center(
+        child: Text(
+          "${(progress.progress * 100).toInt()}%",
+          style: TextStyle(
+            color: Colors.blueGrey,
+            fontSize: 20.sp,
+            fontWeight: FontWeight.bold,
+            fontFamily: "Lato",
+          ),
+        ),
+      ),
+    )
+        : Container(
+      height: MediaQuery
+          .of(context)
+          .size
+          .height,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
+      child: Center(
+        child: Text("Loading..."),
+      ),
+    ),
     httpHeaders: {"referer": referer ?? imageHeaders(url)},
     errorWidget: (context, url, error) => Icon(
       Icons.error,

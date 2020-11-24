@@ -18,7 +18,7 @@ class _MangaReaderState extends State<MangaReader> {
 
   @override
   void initState() {
-    _controller = PreloadPageController(initialPage: widget.page);
+    _controller = PreloadPageController(initialPage: widget.page - 1);
     super.initState();
   }
 
@@ -37,13 +37,12 @@ class _MangaReaderState extends State<MangaReader> {
               scrollDirection: Axis.horizontal,
               controller: _controller,
               onPageChanged: (p) {
-                Provider.of<ReaderProvider>(context, listen: false).setPage(
-                    p + 1);
+                Provider.of<ReaderProvider>(context, listen: false)
+                    .setPage(p + 1);
               },
               children: chapter.images
                   .map(
-                    (image) =>
-                    Center(
+                    (image) => Center(
                       child: SingleChildScrollView(
                         physics: NeverScrollableScrollPhysics(),
                         child: Column(
