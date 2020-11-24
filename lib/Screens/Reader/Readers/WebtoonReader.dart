@@ -16,6 +16,7 @@ class _WebtoonReaderState extends State<WebtoonReader> {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      // physics: NeverScrollableScrollPhysics(),
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
       children: Provider
@@ -31,20 +32,16 @@ class _WebtoonReaderState extends State<WebtoonReader> {
                   .map(
                     (image) =>
                     Center(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              // padding: EdgeInsets.all(10),
-                              width: MediaQuery.of(context).size.width,
-                              child: ReaderImage(
-                                link: image,
-                                referer: chapter.referer,
-                                fit: BoxFit.fitWidth,
-                              ),
-                            ),
-                          ],
+                      child: Container(
+                        // padding: EdgeInsets.all(10),
+                        width: MediaQuery
+                            .of(context)
+                            .size
+                            .width,
+                        child: ReaderImage(
+                          link: image,
+                          referer: chapter.referer,
+                          fit: BoxFit.fitWidth,
                         ),
                       ),
                     ),

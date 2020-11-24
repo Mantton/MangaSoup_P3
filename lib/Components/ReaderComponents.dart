@@ -1,6 +1,10 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../Globals.dart';
 
 class ReaderImage extends StatefulWidget {
   final String link;
@@ -19,7 +23,49 @@ class _ReaderImageState extends State<ReaderImage> {
   Widget build(BuildContext context) {
     return Container(
       child: (!widget.link.toLowerCase().contains("mangasoup"))
-          ? Image.network(
+          ? cImage(
+              url: widget.link,
+              referer: widget.referer,
+              fit: widget.fit,
+            )
+          : Image.file(
+              File(widget.link),
+            ),
+    );
+  }
+}
+
+Widget cImage({String url, BoxFit fit, String referer}) {
+  return CachedNetworkImage(
+    imageUrl: url,
+    progressIndicatorBuilder: (_, url, var progress) =>
+        progress.progress != null
+            ? Container(
+                child: Center(
+                  child: Text(
+                    "${(progress.progress * 100).toInt()}%",
+                    style: TextStyle(
+                      color: Colors.blueGrey,
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Lato",
+                    ),
+                  ),
+                ),
+              )
+            : Center(
+                child: Text("Loading..."),
+              ),
+    httpHeaders: {"referer": referer ?? imageHeaders(url)},
+    errorWidget: (context, url, error) => Icon(
+      Icons.error,
+      color: Colors.purple,
+    ),
+    fit: fit,
+  );
+}
+/*
+* Image.network(
               widget.link,
               headers: {"referer": "${widget.referer}"},
               errorBuilder: (_, var error, var stacktrace) => Container(
@@ -64,9 +110,4 @@ class _ReaderImageState extends State<ReaderImage> {
                 );
               },
             )
-          : Image.file(
-              File(widget.link),
-            ),
-    );
-  }
-}
+* */

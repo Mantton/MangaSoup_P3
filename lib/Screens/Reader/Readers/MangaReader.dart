@@ -5,11 +5,23 @@ import 'package:preload_page_view/preload_page_view.dart';
 import 'package:provider/provider.dart';
 
 class MangaReader extends StatefulWidget {
+  final int page;
+
+  const MangaReader({Key key, this.page}) : super(key: key);
+
   @override
   _MangaReaderState createState() => _MangaReaderState();
 }
 
 class _MangaReaderState extends State<MangaReader> {
+  PreloadPageController _controller;
+
+  @override
+  void initState() {
+    _controller = PreloadPageController(initialPage: widget.page);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return PageView(
@@ -20,14 +32,18 @@ class _MangaReaderState extends State<MangaReader> {
           .map(
             (chapter) => PreloadPageView(
               // physics: NeverScrollableScrollPhysics(),
+
               preloadPagesCount: 2,
               scrollDirection: Axis.horizontal,
+              controller: _controller,
               onPageChanged: (p) {
-                // Provider.of<ReaderProvider>(context).page = p;
+                Provider.of<ReaderProvider>(context, listen: false).setPage(
+                    p + 1);
               },
               children: chapter.images
                   .map(
-                    (image) => Center(
+                    (image) =>
+                    Center(
                       child: SingleChildScrollView(
                         physics: NeverScrollableScrollPhysics(),
                         child: Column(
@@ -45,10 +61,10 @@ class _MangaReaderState extends State<MangaReader> {
                         ),
                       ),
                     ),
-                  )
+              )
                   .toList(),
             ),
-          )
+      )
           .toList(),
     );
   }

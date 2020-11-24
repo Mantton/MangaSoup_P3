@@ -7,8 +7,8 @@ import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/ReaderProvider.dart';
-import 'package:mangasoup_prototype_3/Screens/Reader/Readers.dart';
 import 'package:mangasoup_prototype_3/Screens/Reader/Readers/MangaReader.dart';
+import 'package:mangasoup_prototype_3/Screens/Reader/Readers/VerticalReader.dart';
 import 'package:mangasoup_prototype_3/Screens/Reader/Readers/WebtoonReader.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:provider/provider.dart';
@@ -133,11 +133,15 @@ class _DebugReader2State extends State<DebugReader2> {
             builder: (BuildContext context, provider, _) {
               int mode = provider.readerMode;
               if (mode == 0)
-                return MangaReader();
+                return MangaReader(
+                  page: Provider.of<ReaderProvider>(context).page,
+                );
               else if (mode == 1)
                 return WebtoonReader();
               else if (mode == 2)
-                return VerticalReader();
+                return VerticalReader(
+                  page: Provider.of<ReaderProvider>(context).page,
+                );
               else
                 return MangaReader();
             },
@@ -150,7 +154,6 @@ class _DebugReader2State extends State<DebugReader2> {
       ],
     );
   }
-
 
   Widget header() {
     return AnimatedPositioned(
@@ -287,7 +290,7 @@ class _DebugReader2State extends State<DebugReader2> {
                 },
                 icon: Icon(
                   Icons.arrow_back_ios,
-                  color: Colors.white70,
+                  color: Colors.grey,
                 ),
               ),
               Spacer(),
@@ -300,7 +303,7 @@ class _DebugReader2State extends State<DebugReader2> {
                     fontWeight: FontWeight.bold,
                     fontSize: 20.sp,
                     fontFamily: 'Lato',
-                    color: Colors.white70,
+                    color: Colors.grey,
                   ),
                 ),
               ),
@@ -311,7 +314,7 @@ class _DebugReader2State extends State<DebugReader2> {
                 },
                 icon: Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.white70,
+                  color: Colors.grey,
                 ),
               )
             ],

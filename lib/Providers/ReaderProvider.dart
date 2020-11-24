@@ -3,7 +3,7 @@ import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 
 class ReaderProvider with ChangeNotifier {
-  int page = 0;
+  int page = 1;
   Chapter selectedChapter;
   int readerMode = 1;
   List<ImageChapter> loadedChapters = List();
@@ -15,7 +15,6 @@ class ReaderProvider with ChangeNotifier {
   };
 
   setReaderMode(int mode) {
-    print("Changing reader mode");
     readerMode = mode;
     notifyListeners();
   }
@@ -23,11 +22,17 @@ class ReaderProvider with ChangeNotifier {
   initChapter(ImageChapter chapter) {
     loadedChapters.clear();
     loadedChapters.add(chapter);
+    page = 1;
     notifyListeners();
   }
 
   addChapter(ImageChapter chapter) {
     loadedChapters.add(chapter);
+    notifyListeners();
+  }
+
+  setPage(int p) {
+    page = p;
     notifyListeners();
   }
 }

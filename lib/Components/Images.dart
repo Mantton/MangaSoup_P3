@@ -28,6 +28,9 @@ class SoupImage extends StatelessWidget {
             radius: 10.w,
           ),
         ),
+        fadeInDuration: Duration(
+          microseconds: 100,
+        ),
         errorWidget: (context, url, error) => Icon(
           Icons.error,
           color: Colors.purple,
