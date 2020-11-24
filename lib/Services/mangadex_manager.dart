@@ -543,11 +543,9 @@ class DexHub {
   Future<ImageChapter> images(String chapterLink, Map info) async {
     print(chapterLink);
 
-    chapterLink = chapterLink
-        .split("/")
-        .last;
+    chapterLink = chapterLink.split("/").last;
     Dio _dio = Dio();
-    String saverMode = info['data_saver'];
+    int saverMode = info['saver'];
     String imageAPI = "https://mangadex.org/api/v2//chapter/";
 
     /// https://mangadex.org/api/v2//chapter/1100871?saver=1
