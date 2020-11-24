@@ -770,16 +770,15 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                 IconButton(
                   onPressed: (!profile.containsBooks)
                       ? () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            DownloadChaptersPage(
-                              chapterList: profile.chapters,
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DownloadChaptersPage(
+                                chapterList: profile.chapters,
+                              ),
                             ),
-                      ),
-                    );
-                  }
+                          );
+                        }
                       : null,
                   icon: Icon(
                     Icons.download_rounded,
@@ -830,11 +829,13 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                             color: (read) ? Colors.grey[700] : Colors.white,
                           ),
                         ),
-                        subtitle: Text(
+                        subtitle: chapter.maker.isNotEmpty
+                            ? Text(
                           chapter.maker,
                           style: TextStyle(
                               fontSize: 15.sp, color: Colors.grey[700]),
-                        ),
+                        )
+                            : null,
                         trailing: Text(
                           chapter.date ?? "",
                           style: TextStyle(

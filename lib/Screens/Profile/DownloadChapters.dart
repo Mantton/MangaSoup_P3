@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
+import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
+import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:provider/provider.dart';
 
 class DownloadChaptersPage extends StatefulWidget {
@@ -89,7 +91,17 @@ class _DownloadChaptersPageState extends State<DownloadChaptersPage> {
                       style: TextStyle(
                           fontSize: 17.sp, fontWeight: FontWeight.bold),
                     ),
-                    onPressed: () {})
+                    onPressed: () {
+                      Provider.of<DownloadProvider>(context, listen: false)
+                          .testDownload(
+                        Provider.of<ComicHighlightProvider>(context,
+                                listen: false)
+                            .highlight,
+                        selectedChapters,
+                      );
+
+                      Navigator.pop(context);
+                    })
               ],
             ),
           ),
