@@ -10,8 +10,10 @@ import '../Globals.dart';
 class SoupImage extends StatelessWidget {
   final String url;
   final String referer;
+  final BoxFit fit;
 
-  const SoupImage({Key key, this.url, this.referer}) : super(key: key);
+  const SoupImage({Key key, this.url, this.referer, this.fit = BoxFit.cover})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class SoupImage extends StatelessWidget {
           Icons.error,
           color: Colors.purple,
         ),
-        fit: BoxFit.cover,
+        fit: fit,
       ),
     );
   }

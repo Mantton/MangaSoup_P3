@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
@@ -70,7 +71,7 @@ class ApiManager {
 
     if (src.settings != null) {
       String encodedSettings =
-      preferences.getString("${src.selector}_settings");
+          preferences.getString("${src.selector}_settings");
       if (encodedSettings == null) {
         debugPrint("Settings for ${src.name} are not initialized, starting...");
         Map defaultSourceSettings = {};
@@ -125,7 +126,8 @@ class ApiManager {
   /// ------------------- COMIC RESOURCES  ---------------------------- ///
   ///
   /// Get All
-  Future<List<ComicHighlight>> getAll(String source, String sortBy, int page) async {
+  Future<List<ComicHighlight>> getAll(String source, String sortBy,
+      int page) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     print(additionalParams);
     if (source == "mangadex") return dex.get(sortBy, page, additionalParams);
@@ -186,11 +188,19 @@ class ApiManager {
   }
 
   /// Get Images
-  Future<List> getImages(String source, String link) async {
-    Response response = await _dio.get('/api/v2/images',
-        queryParameters: {"source": source, "link": link});
+  Future<ImageChapter> getImages(String source, String link) async {
+    Map additionalParams = await prepareAdditionalInfo(source);
+    print(additionalParams);
+    // if (source == "mangadex") return dex.images(link, additionalParams);
 
-    return response.data['images'];
+    Map data = {
+      "source": source,
+      "link": link,
+      "data": additionalParams,
+    };
+    Response response = await _dio.post('/api/v2/images', data: data);
+    ImageChapter chapter = ImageChapter.fromMap(response.data);
+    return chapter;
   }
 
   /// Get Tags
@@ -211,7 +221,8 @@ class ApiManager {
   }
 
   /// Get Tag Comics
-  Future<List<ComicHighlight>> getTagComics(String source, int page, String link, String sort) async {
+  Future<List<ComicHighlight>> getTagComics(String source, int page,
+      String link, String sort) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     print(additionalParams);
     if (source == "mangadex")
