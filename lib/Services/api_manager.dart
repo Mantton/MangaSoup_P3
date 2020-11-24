@@ -191,7 +191,7 @@ class ApiManager {
   Future<ImageChapter> getImages(String source, String link) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     print(additionalParams);
-    // if (source == "mangadex") return dex.images(link, additionalParams);
+    if (source == "mangadex") return dex.images(link, additionalParams);
 
     Map data = {
       "source": source,

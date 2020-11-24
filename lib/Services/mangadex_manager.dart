@@ -6,6 +6,7 @@ import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -122,7 +123,7 @@ class DexHub {
       "authority": "mangadex.org",
       'user-agent': 'MangaSoup-DexHub-Client/1.0.0',
       "accept":
-      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
       "pragma": "no-cache",
       'referer': 'https://mangadex.org/',
       "Access-Control-Allow-Origin": "*",
@@ -138,7 +139,8 @@ class DexHub {
   String stringifyCookies(Map cookies) =>
       cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
 
-  Future<List<ComicHighlight>> get(String sort, int page, Map additionalInfo) async {
+  Future<List<ComicHighlight>> get(
+      String sort, int page, Map additionalInfo) async {
     Map cookies = additionalInfo['cookies'] ?? {};
     Map data = Map();
     data.addAll(cookies);
@@ -197,7 +199,8 @@ class DexHub {
     return highlights;
   }
 
-  Future<List<ComicHighlight>> getTagComics(String sort, int page, var link, Map additionalInfo) async {
+  Future<List<ComicHighlight>> getTagComics(String sort, int page, var link,
+      Map additionalInfo) async {
     Map cookies = additionalInfo['cookies'] ?? {};
     Map data = Map();
     data.addAll(cookies);
@@ -205,7 +208,8 @@ class DexHub {
     print(data);
 
     String url = baseURL +
-        '/genre/$link/${tagsDict[link].toString().replaceAll(" ", "-")}/$sort/$page';
+        '/genre/$link/${tagsDict[link].toString().replaceAll(
+            " ", "-")}/$sort/$page';
 
     print(url);
     Dio _dio = Dio();
@@ -270,7 +274,7 @@ class DexHub {
     print(t);
     List userLanguages = [];
     try {
-      userLanguages = t;
+      userLanguages = t ?? [];
     } catch (e) {
       print("Invalid Languages Data");
     }
@@ -520,25 +524,59 @@ class DexHub {
   Future<ComicHighlight> imageSearchViewComic(int id) async {
     Dio _dio = Dio();
     Response response =
-        await _dio.get("https://mangadex.org/api/v2/chapter/$id");
+    await _dio.get("https://mangadex.org/api/v2/chapter/$id");
 
     int mangaID = response.data['data']['mangaId'];
     ComicProfile _profile =
-        await profile("https://mangadex.org/title/$mangaID");
-    ComicHighlight newHighlight = ComicHighlight(_profile.title, _profile.link,
-        _profile.thumbnail, selector, source, false, baseURL);
+    await profile("https://mangadex.org/title/$mangaID");
+    ComicHighlight newHighlight = ComicHighlight(
+        _profile.title,
+        _profile.link,
+        _profile.thumbnail,
+        selector,
+        source,
+        false,
+        baseURL);
     return newHighlight;
   }
 
-  Future<List> images(String chapterLink, Map info) async {
+  Future<ImageChapter> images(String chapterLink, Map info) async {
+    print(chapterLink);
+
+    chapterLink = chapterLink
+        .split("/")
+        .last;
     Dio _dio = Dio();
+    String saverMode = info['data_saver'];
+    String imageAPI = "https://mangadex.org/api/v2//chapter/";
 
     /// https://mangadex.org/api/v2//chapter/1100871?saver=1
-    // Response response = await _dio.get(
+    Response response = await _dio.get(
+      imageAPI + chapterLink,
+      queryParameters: {"saver": saverMode},
+    );
+
+    // Variables
+    List<String> images = List();
+    List links = response.data['data']['pages'];
+    String hash =
+        response.data['data']['server'] + response.data['data']['hash'] + "/";
+
+    for (String link in links) {
+      String l = hash + link;
+      images.add(l);
+    }
+
+    ImageChapter result = ImageChapter(
+      images: images,
+      referer: baseURL,
+      source: source,
+      count: images.length,
+    );
+
+    return result;
+    // queryParameters: params,
     //
-    //   // queryParameters: params,
-    //   // //
-    //   // options: Options(headers: prepareHeaders(additionalInfo)),
-    // );
+    // options: Options(headers: prepareHeaders(additionalInfo)),
   }
 }
