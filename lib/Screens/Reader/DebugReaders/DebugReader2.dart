@@ -223,8 +223,7 @@ class _DebugReader2State extends State<DebugReader2> {
                     fit: FlexFit.tight,
                     child: Container(
                       child: Text(
-                        Provider
-                            .of<ComicHighlightProvider>(context)
+                        Provider.of<ComicHighlightProvider>(context)
                             .highlight
                             .title,
                         style: TextStyle(color: Colors.grey, fontSize: 18.sp),
@@ -324,15 +323,6 @@ class _DebugReader2State extends State<DebugReader2> {
   }
 
   settingsDialog() {
-    MapEntry v = Provider
-        .of<ReaderProvider>(context, listen: false)
-        .readerModeOptions
-        .entries
-        .firstWhere((element) =>
-    element.key ==
-        Provider
-            .of<ReaderProvider>(context, listen: false)
-            .readerMode);
     showPlatformDialog(
       context: context,
       builder: (context) =>
@@ -346,7 +336,13 @@ class _DebugReader2State extends State<DebugReader2> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("Settings"),
+                  Text(
+                    "Settings",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 22,
+                    ),
+                  ),
                   Divider(
                     thickness: 3,
                     color: Colors.grey[900],
@@ -354,21 +350,169 @@ class _DebugReader2State extends State<DebugReader2> {
                     endIndent: 10,
                   ),
                   // Reading Mode
-                  Row(
-                    children: [
-                      Text(
-                        "Reading Mode",
-                        style: TextStyle(
-                          fontSize: 17.sp,
+                  /// Options
+                  ///
+                  readerModeSetting(),
+
+                  (Provider
+                      .of<ReaderProvider>(context)
+                      .readerMode == 0)
+                      ? mangaModeOptions()
+                      : Container(),
+                ],
+              ),
+            ),
+          ),
+    );
+  }
+
+  Widget readerModeSetting() {
+    return Row(
+      children: [
+        Text("Reader Mode"),
+        SizedBox(
+          width: 10.h,
+        ),
+        Spacer(),
+        Consumer<ReaderProvider>(builder: (context, provider, _) {
+          Map options = provider.readerModeOptions;
+          List<MapEntry> rOptions = options.entries.toList();
+
+          return Container(
+            padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              color: Colors.grey[900],
+              border: Border.all(),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton(
+                items: rOptions
+                    .map(
+                      (e) =>
+                      DropdownMenuItem(
+                        child: Text(
+                          e.value,
+                          style: TextStyle(fontSize: 17.sp),
                         ),
+                        value: e,
                       ),
-                      Spacer(),
-                      DropdownButtonHideUnderline(
+                )
+                    .toList(),
+                dropdownColor: Colors.grey[900],
+                value:
+                rOptions[Provider
+                    .of<ReaderProvider>(context)
+                    .readerMode],
+                onChanged: (value) {
+                  Provider.of<ReaderProvider>(context, listen: false)
+                      .setReaderMode(value.key);
+                },
+              ),
+            ),
+          );
+        })
+      ],
+    );
+  }
+
+  Widget mangaModeOptions() {
+    return Container(
+      margin: EdgeInsets.only(top: 15.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Manga Mode Settings",
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 19,
+            ),
+          ),
+          Divider(
+            thickness: 3,
+            color: Colors.grey[900],
+            indent: 10,
+            endIndent: 10,
+          ),
+
+          /// Orientation
+          Row(
+            children: [
+              Text("Orientation"),
+              SizedBox(
+                width: 25.h,
+              ),
+              Spacer(),
+              Consumer<ReaderProvider>(builder: (context, provider, _) {
+                Map options = provider.orientationOptions;
+                List<MapEntry> rOptions = options.entries.toList();
+
+                return Container(
+                  padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: Colors.grey[900],
+                      border: Border.all()),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton(
+                      items: rOptions
+                          .map(
+                            (e) =>
+                            DropdownMenuItem(
+                              child: Text(
+                                e.value,
+                                style: TextStyle(fontSize: 17.sp),
+                              ),
+                              value: e,
+                            ),
+                      )
+                          .toList(),
+                      dropdownColor: Colors.grey[900],
+                      value: rOptions[
+                      Provider
+                          .of<ReaderProvider>(context)
+                          .orientationMode],
+                      onChanged: (value) {
+                        Provider.of<ReaderProvider>(context, listen: false)
+                            .setOrientationMode(value.key);
+                      },
+                    ),
+                  ),
+                );
+              })
+            ],
+          ),
+          SizedBox(
+            height: 5.h,
+          ),
+
+          /// Scroll Direction
+          Column(
+            children: [
+              Row(
+                children: [
+                  Text("Scroll Direction"),
+                  SizedBox(
+                    width: 9.h,
+                  ),
+                  Spacer(),
+                  Consumer<ReaderProvider>(builder: (context, provider, _) {
+                    Map options = provider.orientationMode == 0
+                        ? provider.scrollDirectionOptionsHorizontal
+                        : provider.scrollDirectionOptionsVertical;
+                    List<MapEntry> rOptions = options.entries.toList();
+
+                    return Container(
+                      padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: Colors.grey[900],
+                        border: Border.all(),
+                      ),
+                      child: DropdownButtonHideUnderline(
                         child: DropdownButton(
-                          items: Provider
-                              .of<ReaderProvider>(context)
-                              .readerModeOptions
-                              .entries
+                          items: rOptions
                               .map(
                                 (e) =>
                                 DropdownMenuItem(
@@ -381,38 +525,23 @@ class _DebugReader2State extends State<DebugReader2> {
                           )
                               .toList(),
                           dropdownColor: Colors.grey[900],
-                          // todo, value property
+                          value: rOptions[Provider
+                              .of<ReaderProvider>(context)
+                              .scrollDirectionMode],
                           onChanged: (value) {
                             Provider.of<ReaderProvider>(context, listen: false)
-                                .setReaderMode(value.key);
+                                .setScrollDirectionMode(value.key);
                           },
                         ),
-                      )
-                    ],
-                  ),
-                  mangaMode(),
+                      ),
+                    );
+                  })
                 ],
               ),
-            ),
+            ],
           ),
-    );
-  }
-
-  Widget mangaMode() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Provider
-            .of<ReaderProvider>(context)
-            .readerMode == 0
-            ? Row(
-          children: [
-            Text("Orientation"),
-            Spacer(),
-          ],
-        )
-            : Container(),
-      ],
+        ],
+      ),
     );
   }
 }

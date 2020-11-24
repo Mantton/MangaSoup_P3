@@ -30,38 +30,50 @@ class _MangaReaderState extends State<MangaReader> {
       children: Provider.of<ReaderProvider>(context)
           .loadedChapters
           .map(
-            (chapter) => PreloadPageView(
-              // physics: NeverScrollableScrollPhysics(),
+            (chapter) => Container(
+              child: PreloadPageView(
+                // physics: NeverScrollableScrollPhysics(),
 
-              preloadPagesCount: 2,
-              scrollDirection: Axis.horizontal,
-              controller: _controller,
-              onPageChanged: (p) {
-                Provider.of<ReaderProvider>(context, listen: false)
-                    .setPage(p + 1);
-              },
-              children: chapter.images
-                  .map(
-                    (image) => Center(
-                      child: SingleChildScrollView(
-                        physics: NeverScrollableScrollPhysics(),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: MediaQuery.of(context).size.width,
-                              child: ReaderImage(
-                                link: image,
-                                referer: chapter.referer,
-                                fit: BoxFit.fitWidth,
+                preloadPagesCount: 2,
+                scrollDirection:
+                    Provider.of<ReaderProvider>(context).orientationMode == 0
+                        ? Axis.horizontal
+                        : Axis.vertical,
+                reverse:
+                    Provider.of<ReaderProvider>(context).scrollDirectionMode ==
+                            0
+                        ? true
+                        : false,
+                controller: _controller,
+                onPageChanged: (p) {
+                  Provider.of<ReaderProvider>(context, listen: false)
+                      .setPage(p + 1);
+                },
+                children: chapter.images
+                    .map(
+                      (image) => Center(
+                        child: SingleChildScrollView(
+                          physics: NeverScrollableScrollPhysics(),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                // padding: EdgeInsets.all(20),
+
+                                width: MediaQuery.of(context).size.width,
+                                child: ReaderImage(
+                                  link: image,
+                                  referer: chapter.referer,
+                                  fit: BoxFit.fitWidth,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-              )
-                  .toList(),
+                    )
+                    .toList(),
+              ),
             ),
       )
           .toList(),
