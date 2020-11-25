@@ -38,6 +38,7 @@ class ViewHistoryProvider with ChangeNotifier {
       history.add(toAdd); // Add to Provider History Object
     }
     notifyListeners(); // Notify consumers of changes and rebuild
+    /// Testing Sign Off
   }
 
   removeFromHistory(ViewHistory comic) async {
