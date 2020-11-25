@@ -75,7 +75,7 @@ class _HistoryPageState extends State<HistoryPage> {
       return (provider.history.isNotEmpty)
           ? HistoryView(
               mode: mode,
-              comics: provider.history.reversed.toList(),
+              comics: provider.history,
             ) // Reverse Returns the latest entry first
           : Container(
               child: Center(

@@ -6,6 +6,7 @@ class ViewHistoryProvider with ChangeNotifier {
   List<ViewHistory> history = List();
   List links = List();
   ViewHistoryManager _manager = ViewHistoryManager();
+
   Future<bool> init() async {
     history = await _manager.getAll();
     history.forEach((element) {
@@ -17,9 +18,7 @@ class ViewHistoryProvider with ChangeNotifier {
   }
 
   bool viewed(ComicHighlight comic) {
-
     return history.any((element) => element.highlight.link == comic.link);
-
   }
 
   addToHistory(ComicHighlight comic) async {
@@ -28,8 +27,10 @@ class ViewHistoryProvider with ChangeNotifier {
       // Update Check Date
       int index =
           history.indexWhere((element) => element.highlight.link == comic.link);
-      history[index].timeViewed = logTime; // Update Time viewed
-      await _manager.updateByID(history[index]); // Update Object in DB
+      await _manager.deleteByID(history[index].id); // delete from db
+      history.removeAt(index); // remove from history
+      await addToHistory(
+          comic); // Recursion here, now comic does not exist in history
     } else {
       // Add to History
       ViewHistory toAdd = ViewHistory(null, comic, logTime);

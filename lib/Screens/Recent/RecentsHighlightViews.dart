@@ -87,8 +87,8 @@ class _HistoryViewState extends State<HistoryView> {
   }
 
   Map<dynamic, List<ViewHistory>> groupDates(List<ViewHistory> comics) {
-    Map sorted =
-        groupBy(comics, (ViewHistory comic) => formatDate(comic.timeViewed));
+    Map sorted = groupBy(comics.reversed.toList(),
+        (ViewHistory comic) => formatDate(comic.timeViewed));
     return sorted;
   }
 
