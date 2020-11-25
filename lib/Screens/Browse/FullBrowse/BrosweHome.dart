@@ -64,7 +64,7 @@ class _BrowsePageState extends State<BrowsePage> {
           title: Text("Browse"),
           centerTitle: true,
           actions: [
-            IconButton(icon: Icon(Icons.filter_alt), onPressed: toggleFilters)
+            IconButton(icon: Icon(Icons.filter_alt), onPressed: showFilters)
           ],
         ),
         body: FutureBuilder(
@@ -75,14 +75,14 @@ class _BrowsePageState extends State<BrowsePage> {
                 builder: (context, provider, _) => Container(
                   child: (provider.source.filters != null)
                       ? Container(
-                    child: skeleton(provider.source.filters),
-                  )
+                          child: skeleton(provider.source.filters),
+                        )
                       : Container(
-                    child: Center(
-                      child: Text(
-                          "This Source does not support the browse feature"),
-                    ),
-                  ),
+                          child: Center(
+                            child: Text(
+                                "This Source does not support the browse feature"),
+                          ),
+                        ),
                 ),
               );
             }
@@ -129,41 +129,41 @@ class _BrowsePageState extends State<BrowsePage> {
         ));
   }
 
+  showFilters() {
+    showGeneralDialog(
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: Duration(milliseconds: 200),
+      context: context,
+      pageBuilder: (_, __, ___) => buildFilters(),
+      transitionBuilder: (_, anim, __, child) {
+        return SlideTransition(
+          position: Tween(begin: Offset(0, 1), end: Offset(0, 0)).animate(anim),
+          child: child,
+        );
+      },
+    );
+  }
+
   Widget skeleton(List sourceFilters) {
     return Stack(
       children: [
         Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
+          height: MediaQuery
+              .of(context)
+              .size
+              .height,
+          width: MediaQuery
+              .of(context)
+              .size
+              .width,
         ),
         Positioned(
           child: Container(
             child: resultBody(),
           ),
         ),
-        AnimatedPositioned(
-          // top: 0,
-          duration: Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          left: 0,
-          right: 0,
-          bottom: (filters) ? 0 : -600.h,
-          child: Container(
-            height: 600.h,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(50),
-                topLeft: Radius.circular(50),
-              ),
-              color: Colors.grey[900],
-            ),
-            child: Center(
-              child: SingleChildScrollView(
-                child: buildFilters(sourceFilters),
-              ),
-            ),
-          ),
-        )
       ],
     );
   }
@@ -246,72 +246,90 @@ class _BrowsePageState extends State<BrowsePage> {
     );
   }
 
-  Widget buildFilters(List list) {
-    return Padding(
-      padding: EdgeInsets.all(17.0.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text(
-                  "Filters",
-                  style: TextStyle(fontFamily: "Roboto", fontSize: 30.sp),
-                ),
-                Spacer(),
-                IconButton(
-                    icon: Icon(
-                      Icons.cancel_outlined,
-                      size: 30.w,
-                      color: Colors.red,
-                    ),
-                    onPressed: toggleFilters)
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 20.h,
-          ),
-          Column(
+  buildFilters() =>
+      Dialog(
+        backgroundColor: Colors.blueGrey[900],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(17.0.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
-                children: List.generate(
-                  list.length,
-                      (index) =>
-                      TesterFilter(
-                        filter: SourceSetting.fromMap(list[index]),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Text(
+                      "Filters",
+                      style: TextStyle(fontFamily: "Roboto", fontSize: 30.sp),
+                    ),
+                    Spacer(),
+                    IconButton(
+                      icon: Icon(
+                        Icons.cancel_outlined,
+                        size: 30.w,
+                        color: Colors.red,
                       ),
+                      onPressed: () => Navigator.pop(context),
+                    )
+                  ],
                 ),
               ),
-              MaterialButton(
-                height: 50,
-                minWidth: 70,
-                onPressed: () {
-                  queryMap = Provider
-                      .of<BrowseProvider>(context, listen: false)
-                      .encodedData;
-                  print(queryMap);
-                  // API SEARCH
-                  setState(() {
-                    results = getResults();
-                    filters = false;
-                  });
-                },
-                child: Text(
-                  "Browse",
-                  style: isEmptyFont,
-                ),
-                color: Colors.deepPurpleAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+              SizedBox(
+                height: 20.h,
               ),
+              Column(
+                children: [
+                  Column(
+                    children: List.generate(
+                      Provider
+                          .of<SourceNotifier>(context)
+                          .source
+                          .filters
+                          .length,
+                          (index) =>
+                          TesterFilter(
+                            filter: SourceSetting.fromMap(
+                                Provider
+                                    .of<SourceNotifier>(context)
+                                    .source
+                                    .filters[index]),
+                          ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15.h,
+                  ),
+                  MaterialButton(
+                    height: 50.h,
+                    minWidth: 100.w,
+                    onPressed: () {
+                      queryMap =
+                          Provider
+                              .of<BrowseProvider>(context, listen: false)
+                              .encodedData;
+                      print(queryMap);
+                      // API SEARCH
+                      setState(() {
+                        results = getResults();
+                        filters = false;
+                      });
+                    },
+                    child: Text(
+                      "Browse",
+                      style: isEmptyFont,
+                    ),
+                    color: Colors.deepPurpleAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ],
+              )
             ],
-          )
-        ],
-      ),
-    );
-  }
+          ),
+        ),
+      );
 }
