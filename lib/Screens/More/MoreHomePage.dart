@@ -4,11 +4,8 @@ import 'package:mangasoup_prototype_3/Screens/Browse/ImageSearch.dart';
 import 'package:mangasoup_prototype_3/Screens/MangaDex/DexLogin.dart';
 import 'package:mangasoup_prototype_3/Screens/Tags/AllTags.dart';
 import 'package:mangasoup_prototype_3/Screens/Testing.dart';
-import 'package:provider/provider.dart';
 
-import '../../Providers/SourceProvider.dart';
-import '../Sources/Sources.dart';
-import 'SubPages/Settings.dart';
+import '../Settings/Settings.dart';
 
 class MorePage extends StatefulWidget {
   @override

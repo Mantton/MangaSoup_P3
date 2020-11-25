@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import "dart:io" as io;
+
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
-import "dart:io" as io;
 import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 class HistoryManager {
   static Database _db;
@@ -32,7 +32,6 @@ class HistoryManager {
   initDB() async {
     io.Directory documentDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentDirectory.path, DB_NAME);
-    print(path);
     var db =  await openDatabase(path, version: 1, onCreate: _onCreate);
     return db;
   }
@@ -48,7 +47,6 @@ class HistoryManager {
   }
 
   Future<ComicHistory> save(ComicHistory historyInput) async {
-    print("Adding to History");
     var dbClient = await db;
     historyInput.id = await dbClient.insert(TABLE, historyInput.toMap());
     return historyInput;

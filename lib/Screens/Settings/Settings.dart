@@ -1,11 +1,14 @@
 import 'dart:convert';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
+import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Setting.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Settings/MultipleSelect.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -110,22 +113,26 @@ class _SettingsPageState extends State<SettingsPage> {
         Provider.of<SourceNotifier>(context, listen: false).source.selector;
     switch (setting.type) {
       case 1:
-        return PlatformSwitch(
-          value:
-              SettingOption.fromMap(userSourceSettings[setting.selector]).value ?? setting.options[0],
-          onChanged: (value) async {
-            userSourceSettings[setting.selector] = setting.options
-                .singleWhere((element) => element.value == value)
-                .toMap();
+        return Padding(
+          padding: EdgeInsets.all(8.0.w),
+          child: PlatformSwitch(
+            value: SettingOption.fromMap(userSourceSettings[setting.selector])
+                    .value ??
+                setting.options[0],
+            onChanged: (value) async {
+              userSourceSettings[setting.selector] = setting.options
+                  .singleWhere((element) => element.value == value)
+                  .toMap();
 
-            print(userSourceSettings);
-            SharedPreferences manager = await SharedPreferences.getInstance();
-            await manager.setString(
-                "${selector}_settings", jsonEncode(userSourceSettings));
-            sourcesStream.add(selector);
-            print("Success");
-            setState(() {});
-          },
+              print(userSourceSettings);
+              SharedPreferences manager = await SharedPreferences.getInstance();
+              await manager.setString(
+                  "${selector}_settings", jsonEncode(userSourceSettings));
+              sourcesStream.add(selector);
+              print("Success");
+              setState(() {});
+            },
+          ),
         );
       case 2:
         var v = buildDropDownMenuItems(setting.options);
@@ -143,7 +150,8 @@ class _SettingsPageState extends State<SettingsPage> {
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<SettingOption>(
                     value: setting.options.singleWhere(
-                        (element) => t.selector == element.selector) ?? v[0],
+                            (element) => t.selector == element.selector) ??
+                        v[0],
                     items: v,
                     dropdownColor: Colors.grey[900],
                     style: TextStyle(fontSize: 20.sp),
@@ -151,7 +159,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       userSourceSettings[setting.selector] = value.toMap();
                       print(userSourceSettings);
                       SharedPreferences manager =
-                          await SharedPreferences.getInstance();
+                      await SharedPreferences.getInstance();
                       await manager.setString("${selector}_settings",
                           jsonEncode(userSourceSettings));
                       sourcesStream.add(selector);
@@ -166,7 +174,50 @@ class _SettingsPageState extends State<SettingsPage> {
         );
 
       case 3:
-        return Icon(Icons.add);
+        return Padding(
+          padding: EdgeInsets.all(8.0.w),
+          child: InkWell(
+            onTap: () {
+              List<SettingOption> newList = List();
+
+              for (Map map in userSourceSettings[setting.selector]) {
+                newList.add(SettingOption.fromMap(map));
+              }
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) =>
+                      MultiSelectDialog(items: newList, setting: setting))
+                  .then((value) async {
+                print(value);
+                if (value != null) {
+                  // If not null update
+                  userSourceSettings[setting.selector] = value;
+
+                  print(userSourceSettings);
+                  showLoadingDialog(context);
+                  SharedPreferences manager =
+                  await SharedPreferences.getInstance();
+                  await manager.setString(
+                      "${selector}_settings", jsonEncode(userSourceSettings));
+                  sourcesStream.add(selector);
+                  Navigator.pop(context); // Pop Loading Dialog
+                  showSnackBarMessage("Updated ${setting.name}!");
+                  print("Success");
+
+                  setState(() {});
+                }
+              });
+            },
+            child: Text(
+              "${userSourceSettings[setting.selector].isNotEmpty
+                  ? (userSourceSettings[setting.selector] as List).map((
+                  obj) => obj['name']).join(", ")
+                  : "Not Set"}",
+              style: isEmptyFont,
+              softWrap: true,
+            ),
+          ),
+        );
       default:
         return Icon(Icons.favorite);
     }
