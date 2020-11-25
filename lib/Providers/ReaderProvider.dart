@@ -4,8 +4,15 @@ import 'package:mangasoup_prototype_3/Models/Misc.dart';
 
 class ReaderProvider with ChangeNotifier {
   /// Chapter
-  Chapter selectedChapter;
+  Chapter currentChapter;
+  Chapter previousChapter;
+  Chapter nextChapter;
+
+  /// Images
   List<ImageChapter> loadedChapters = List();
+  ImageChapter currentImageChapter;
+  ImageChapter previousImageChapter;
+  ImageChapter nextImageChapter;
 
   initChapter(ImageChapter chapter) {
     loadedChapters.clear();

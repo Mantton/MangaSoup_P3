@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
+import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/ReaderProvider.dart';
@@ -12,6 +12,8 @@ import 'package:mangasoup_prototype_3/Screens/Reader/Readers/VerticalReader.dart
 import 'package:mangasoup_prototype_3/Screens/Reader/Readers/WebtoonReader.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:provider/provider.dart';
+
+import '../../../Globals.dart';
 
 class DebugReader2 extends StatefulWidget {
   final List<Chapter> chapters;
@@ -65,7 +67,7 @@ class _DebugReader2State extends State<DebugReader2> {
   @override
   void initState() {
     initializer = init(widget.selectedChapter);
-    Provider.of<ReaderProvider>(context, listen: false).selectedChapter =
+    Provider.of<ReaderProvider>(context, listen: false).currentChapter =
         widget.selectedChapter;
     super.initState();
   }
@@ -198,10 +200,11 @@ class _DebugReader2State extends State<DebugReader2> {
                           color: Colors.grey,
                           size: 30.sp,
                         ),
-                        onPressed: () async {
-                          await settingsDialog();
-                          // todo: show settings menu
-                        },
+                        onPressed: () =>
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    settingsDialog()),
                       ),
                     )
                   ],
@@ -241,13 +244,15 @@ class _DebugReader2State extends State<DebugReader2> {
                     fit: FlexFit.tight,
                     child: Container(
                       child: GestureDetector(
-                        onTap: () {
-                          // todo: show chapters
-                        },
+                        onTap: () =>
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    chapterDialog()),
                         child: Text(
                           '${Provider
                               .of<ReaderProvider>(context)
-                              .selectedChapter
+                              .currentChapter
                               .name} ▼',
                           style: TextStyle(
                             color: Colors.grey,
@@ -322,54 +327,182 @@ class _DebugReader2State extends State<DebugReader2> {
     );
   }
 
-  settingsDialog() {
-    showPlatformDialog(
-      context: context,
-      builder: (context) =>
-          PlatformAlertDialog(
-            material: (_, __) =>
-                MaterialAlertDialogData(
-                  backgroundColor: Colors.black,
+  settingsDialog() =>
+      Dialog(
+        backgroundColor: Colors.black87,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Container(
+          margin: EdgeInsets.all(10.w),
+          padding: EdgeInsets.all(7.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Settings",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 22,
                 ),
-            content: Container(
-              padding: EdgeInsets.all(7.w),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Settings",
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 22,
-                    ),
-                  ),
-                  Divider(
-                    thickness: 3,
-                    color: Colors.grey[900],
-                    indent: 10,
-                    endIndent: 10,
-                  ),
-                  // Reading Mode
-                  /// Options
-                  ///
-                  readerModeSetting(),
-
-                  (Provider
-                      .of<ReaderProvider>(context)
-                      .readerMode == 0)
-                      ? mangaModeOptions()
-                      : Container(),
-                ],
               ),
-            ),
+              Divider(
+                thickness: 3,
+                color: Colors.grey[900],
+                indent: 10,
+                endIndent: 10,
+              ),
+              // Reading Mode
+              /// Options
+              ///
+              readerModeSetting(),
+
+              (Provider
+                  .of<ReaderProvider>(context)
+                  .readerMode == 0)
+                  ? mangaModeOptions()
+                  : Container(),
+              SizedBox(
+                height: 8.h,
+              ),
+              MaterialButton(
+                height: 50.h,
+                minWidth: 100.w,
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Close",
+                  style: isEmptyFont,
+                ),
+                color: Colors.grey[900],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ],
           ),
-    );
-  }
+        ),
+      );
+
+  Widget chapterDialog() =>
+      Dialog(
+        backgroundColor: Colors.black87,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Container(
+          height: 570.h,
+          padding: EdgeInsets.all(10.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Chapters",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 22.sp,
+                ),
+              ),
+              Divider(
+                thickness: 3,
+                color: Colors.grey[900],
+                indent: 10.h,
+                endIndent: 10.h,
+              ),
+              Consumer<ComicDetailProvider>(builder: (context, provider, _) {
+                List readChapterNames = [];
+                List readChapterLinks = [];
+                if (provider.history.readChapters != null) {
+                  readChapterNames = provider.history.readChapters
+                      .map((m) => m['name'])
+                      .toList() ??
+                      [];
+                  readChapterLinks = provider.history.readChapters
+                      .map((m) => m['link'])
+                      .toList() ??
+                      [];
+                }
+                return Container(
+                  height: 450.h,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width - 100.w,
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: widget.chapters
+                        .map((chapter) =>
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.grey[900],
+                              ),
+                            ),
+                          ),
+                          height: 80,
+                          child: ListTile(
+                            // tileColor: Colors.grey,
+                            title: Text(
+                              "${chapter.name}",
+                              style: TextStyle(
+                                fontSize: 17.sp,
+                                color: (readChapterNames
+                                    .contains(chapter.name) ||
+                                    readChapterLinks
+                                        .contains(chapter.link))
+                                    ? Colors.grey[700]
+                                    : Colors.white,
+                              ),
+                            ),
+
+                            subtitle: Text(
+                              chapter.maker ?? "...",
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 15.sp,
+                              ),
+                            ),
+                            leading: widget.selectedChapter.link ==
+                                chapter.link
+                                ? Icon(Icons.check, color: Colors.purple)
+                                : null,
+                          ),
+                        ))
+                        .toList(),
+                  ),
+                );
+              }),
+              SizedBox(
+                height: 8.h,
+              ),
+              MaterialButton(
+                height: 50.h,
+                minWidth: 100.w,
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Close",
+                  style: isEmptyFont,
+                ),
+                color: Colors.grey[900],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
 
   Widget readerModeSetting() {
     return Row(
       children: [
-        Text("Reader Mode"),
+        Text(
+          "Reader Mode",
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 20.sp,
+          ),
+        ),
         SizedBox(
           width: 10.h,
         ),
@@ -439,7 +572,13 @@ class _DebugReader2State extends State<DebugReader2> {
           /// Orientation
           Row(
             children: [
-              Text("Orientation"),
+              Text(
+                "Orientation",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 20.sp,
+                ),
+              ),
               SizedBox(
                 width: 25.h,
               ),
@@ -492,7 +631,13 @@ class _DebugReader2State extends State<DebugReader2> {
             children: [
               Row(
                 children: [
-                  Text("Scroll Direction"),
+                  Text(
+                    "Scroll Direction",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 20.sp,
+                    ),
+                  ),
                   SizedBox(
                     width: 9.h,
                   ),
