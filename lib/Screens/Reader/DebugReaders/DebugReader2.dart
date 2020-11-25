@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
@@ -200,11 +201,10 @@ class _DebugReader2State extends State<DebugReader2> {
                           color: Colors.grey,
                           size: 30.sp,
                         ),
-                        onPressed: () =>
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    settingsDialog()),
+                        onPressed: () => showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                settingsDialog()),
                       ),
                     )
                   ],
@@ -356,12 +356,11 @@ class _DebugReader2State extends State<DebugReader2> {
               /// Options
               ///
               readerModeSetting(),
+              Consumer<ReaderProvider>(
+                builder: (BuildContext context, provider, _) =>
+                provider.readerMode == 0 ? mangaModeOptions() : Container(),
+              ),
 
-              (Provider
-                  .of<ReaderProvider>(context)
-                  .readerMode == 0)
-                  ? mangaModeOptions()
-                  : Container(),
               SizedBox(
                 height: 8.h,
               ),
@@ -533,13 +532,9 @@ class _DebugReader2State extends State<DebugReader2> {
                 )
                     .toList(),
                 dropdownColor: Colors.grey[900],
-                value:
-                rOptions[Provider
-                    .of<ReaderProvider>(context)
-                    .readerMode],
+                value: rOptions[provider.readerMode],
                 onChanged: (value) {
-                  Provider.of<ReaderProvider>(context, listen: false)
-                      .setReaderMode(value.key);
+                  provider.setReaderMode(value.key);
                 },
               ),
             ),
@@ -608,13 +603,9 @@ class _DebugReader2State extends State<DebugReader2> {
                       )
                           .toList(),
                       dropdownColor: Colors.grey[900],
-                      value: rOptions[
-                      Provider
-                          .of<ReaderProvider>(context)
-                          .orientationMode],
+                      value: rOptions[provider.orientationMode],
                       onChanged: (value) {
-                        Provider.of<ReaderProvider>(context, listen: false)
-                            .setOrientationMode(value.key);
+                        provider.setOrientationMode(value.key);
                       },
                     ),
                   ),
@@ -670,14 +661,48 @@ class _DebugReader2State extends State<DebugReader2> {
                           )
                               .toList(),
                           dropdownColor: Colors.grey[900],
-                          value: rOptions[Provider
-                              .of<ReaderProvider>(context)
-                              .scrollDirectionMode],
+                          value: rOptions[provider.scrollDirectionMode],
                           onChanged: (value) {
-                            Provider.of<ReaderProvider>(context, listen: false)
-                                .setScrollDirectionMode(value.key);
+                            provider.setScrollDirectionMode(value.key);
                           },
                         ),
+                      ),
+                    );
+                  })
+                ],
+              ),
+            ],
+          ),
+
+          SizedBox(
+            height: 5.h,
+          ),
+
+          /// Page Snapping
+          Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    "Page Snapping",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 20.sp,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 9.h,
+                  ),
+                  Spacer(),
+                  Consumer<ReaderProvider>(builder: (context, provider, _) {
+                    Map options = provider.snappingModeOptions;
+                    List<MapEntry> rOptions = options.entries.toList();
+
+                    return Container(
+                      padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+                      child: PlatformSwitch(
+                        value: rOptions[provider.snappingMode].value,
+                        onChanged: (v) => provider.setSnappingMode(v ? 0 : 1),
                       ),
                     );
                   })

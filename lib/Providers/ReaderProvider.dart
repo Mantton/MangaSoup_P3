@@ -27,12 +27,11 @@ class ReaderProvider with ChangeNotifier {
   }
 
   /// Reader Mode
-  int readerMode = 1;
+  int readerMode = 0;
   Map readerModeOptions = {
     0: "Manga",
     1: "Webtoon",
     2: "Paged Vertical",
-    3: "Continuous Vertical"
   };
 
   setReaderMode(int mode) {
@@ -65,6 +64,18 @@ class ReaderProvider with ChangeNotifier {
 
   setScrollDirectionMode(int mode) {
     scrollDirectionMode = mode;
+    notifyListeners();
+  }
+
+  /// Snapping
+  int snappingMode = 0;
+  Map snappingModeOptions = {
+    0: true,
+    1: false,
+  };
+
+  setSnappingMode(int mode) {
+    snappingMode = mode;
     notifyListeners();
   }
 

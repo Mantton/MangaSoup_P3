@@ -33,7 +33,10 @@ class _MangaReaderState extends State<MangaReader> {
             (chapter) => Container(
               child: PreloadPageView(
                 // physics: NeverScrollableScrollPhysics(),
-
+                pageSnapping:
+                    Provider.of<ReaderProvider>(context).snappingMode == 0
+                        ? true
+                        : false,
                 preloadPagesCount: 2,
                 scrollDirection:
                     Provider.of<ReaderProvider>(context).orientationMode == 0
