@@ -88,7 +88,9 @@ class _DownloadChaptersPageState extends State<DownloadChaptersPage> {
                       Text(
                         "${selectedChapters.length} Chapter(s) selected",
                         style: TextStyle(
-                            fontSize: 17.sp, fontWeight: FontWeight.bold),
+                          fontSize: 17.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       )
                     ],
                   ),
@@ -98,7 +100,9 @@ class _DownloadChaptersPageState extends State<DownloadChaptersPage> {
                     child: Text(
                       "Download",
                       style: TextStyle(
-                          fontSize: 17.sp, fontWeight: FontWeight.bold),
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     onPressed: () {
                       Provider.of<DownloadProvider>(context, listen: false)
@@ -110,7 +114,7 @@ class _DownloadChaptersPageState extends State<DownloadChaptersPage> {
                       );
 
                       Navigator.pop(context);
-                    })
+                    }),
               ],
             ),
           ),

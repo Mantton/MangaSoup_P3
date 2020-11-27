@@ -82,11 +82,8 @@ class ReaderProvider with ChangeNotifier {
   /// Padding
   int paddingMode = 0;
   Map paddingModeOptions = {
-    0: 0,
-    1: 4,
-    2: 6,
-    3: 8,
-    4: 10,
+    0: true,
+    1: false,
   };
 
   setPaddingMode(int mode) {

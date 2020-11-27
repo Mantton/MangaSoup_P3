@@ -61,8 +61,13 @@ class _MangaReaderState extends State<MangaReader> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
-                                // padding: EdgeInsets.all(20),
-
+                                padding: EdgeInsets.all(
+                                  Provider.of<ReaderProvider>(context)
+                                              .paddingMode ==
+                                          0
+                                      ? 10
+                                      : 0,
+                                ),
                                 width: MediaQuery.of(context).size.width,
                                 child: ReaderImage(
                                   link: image,

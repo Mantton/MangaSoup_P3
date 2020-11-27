@@ -710,6 +710,39 @@ class _DebugReader2State extends State<DebugReader2> {
               ),
             ],
           ),
+
+          /// Page Snapping
+          Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    "Page Padding",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 20.sp,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 9.h,
+                  ),
+                  Spacer(),
+                  Consumer<ReaderProvider>(builder: (context, provider, _) {
+                    Map options = provider.paddingModeOptions;
+                    List<MapEntry> rOptions = options.entries.toList();
+
+                    return Container(
+                      padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+                      child: PlatformSwitch(
+                        value: rOptions[provider.paddingMode].value,
+                        onChanged: (v) => provider.setPaddingMode(v ? 0 : 1),
+                      ),
+                    );
+                  })
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );
