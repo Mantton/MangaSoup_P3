@@ -780,8 +780,9 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                         }
                       : null,
                   icon: Icon(
-                    Icons.download_rounded,
+                    CupertinoIcons.cloud_download,
                     size: 30.w,
+                    color: Colors.purple,
                   ),
                 )
               ],

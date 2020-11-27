@@ -8,6 +8,8 @@ import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:provider/provider.dart';
 
+import '../../Globals.dart';
+
 class DownloadChaptersPage extends StatefulWidget {
   final List chapterList;
 
@@ -28,14 +30,21 @@ class _DownloadChaptersPageState extends State<DownloadChaptersPage> {
         title: Text("Download Chapters"),
         centerTitle: true,
       ),
-      body: Container(
-        child: Stack(
-          children: [
-            body(),
-            downloadSelector(),
-          ],
-        ),
-      ),
+      body: widget.chapterList.length != 0
+          ? Container(
+              child: Stack(
+                children: [
+                  body(),
+                  downloadSelector(),
+                ],
+              ),
+            )
+          : Center(
+              child: Text(
+                "No Chapters Available for Download",
+                style: isEmptyFont,
+              ),
+            ),
     );
   }
 
