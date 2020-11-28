@@ -92,15 +92,16 @@ class _VerticalReaderState extends State<VerticalReader> {
         RawGestureDetector(
           gestures: <Type, GestureRecognizerFactory>{
             VerticalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-                    VerticalDragGestureRecognizer>(
-                () => VerticalDragGestureRecognizer(),
-                (VerticalDragGestureRecognizer instance) {
-              instance
-                ..onStart = _handleDragStart
-                ..onUpdate = _handleDragUpdate
-                ..onEnd = _handleDragEnd
-                ..onCancel = _handleDragCancel;
-            }),
+                VerticalDragGestureRecognizer>(
+              () => VerticalDragGestureRecognizer(),
+              (VerticalDragGestureRecognizer instance) {
+                instance
+                  ..onStart = _handleDragStart
+                  ..onUpdate = _handleDragUpdate
+                  ..onEnd = _handleDragEnd
+                  ..onCancel = _handleDragCancel;
+              },
+            ),
           },
           behavior: HitTestBehavior.opaque,
           child: PageView(

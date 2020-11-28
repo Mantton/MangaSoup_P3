@@ -50,9 +50,18 @@ class _DebugReader2State extends State<DebugReader2> {
       );
     } else
       initialChapter = await _manager.getImages(widget.selector, chapter.link);
-    Provider.of<ReaderProvider>(context, listen: false)
-        .initChapter(initialChapter);
+    Provider.of<ReaderProvider>(context, listen: false).init(
+      imageChapter: initialChapter,
+      selectedChapter:
+          widget.downloaded ? widget.cdo.chapter : widget.selectedChapter,
+      isDownloaded: widget.downloaded,
+      chapterListObject: widget.chapters,
+      chapterSource: Provider.of<ComicHighlightProvider>(context, listen: false)
+          .highlight
+          .selector,
+    );
     print("Initialized");
+
     return true;
   }
 
@@ -301,7 +310,9 @@ class _DebugReader2State extends State<DebugReader2> {
                 child: Text(
                   'Page ${Provider
                       .of<ReaderProvider>(context)
-                      .page}',
+                      .page} / ${Provider
+                      .of<ReaderProvider>(context)
+                      .chapterLength}',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20.sp,

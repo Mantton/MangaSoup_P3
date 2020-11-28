@@ -1,12 +1,29 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
+import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 
 class ReaderProvider with ChangeNotifier {
+  ApiManager _apiManager = ApiManager();
+
+  ///
+  bool downloaded;
+  bool loadingMore = false;
+  String source;
+  int chapterLength;
+
+  bool lastChapter;
+  bool firstChapter;
+  bool onlyChapter;
+
   /// Chapter
   Chapter currentChapter;
   Chapter previousChapter;
   Chapter nextChapter;
+  Chapter lastLoaded;
+  List<Chapter> chapterList;
+  int chapterIndex;
 
   /// Images
   List<ImageChapter> loadedChapters = List();
@@ -14,16 +31,72 @@ class ReaderProvider with ChangeNotifier {
   ImageChapter previousImageChapter;
   ImageChapter nextImageChapter;
 
-  initChapter(ImageChapter chapter) {
-    loadedChapters.clear();
-    loadedChapters.add(chapter);
+  init({
+    @required ImageChapter imageChapter,
+    @required Chapter selectedChapter,
+    @required bool isDownloaded,
+    @required List<Chapter> chapterListObject,
+    @required String chapterSource,
+  }) {
+    clear();
+    loadedChapters.add(imageChapter);
+
+    // Testing new
+    currentChapter = selectedChapter;
+    downloaded = isDownloaded;
+    currentImageChapter = imageChapter;
+    print(imageChapter.link);
+    chapterList = chapterListObject;
     page = 1;
+    source = chapterSource;
+    lastLoaded = currentChapter;
+    chapterLength = currentImageChapter.count;
+
+    if (chapterList.isNotEmpty) {
+      chapterIndex = chapterList
+          .indexWhere((element) => element.link == currentChapter.link);
+      print(chapterIndex);
+    }
+
     notifyListeners();
   }
 
-  addChapter(ImageChapter chapter) {
-    loadedChapters.add(chapter);
+  setImageChapter(int chapter) {
+    currentImageChapter = loadedChapters[chapter];
+    chapterLength = currentImageChapter.count;
+    if (chapterList.isNotEmpty) {
+      currentChapter = chapterList
+          .firstWhere((element) => element.link == currentImageChapter.link);
+    }
     notifyListeners();
+  }
+
+  clear() {
+    currentChapter =
+        previousChapter = nextChapter = chapterList = chapterIndex = null;
+    currentImageChapter = previousImageChapter = nextImageChapter = null;
+    loadedChapters.clear();
+  }
+
+  Future<ImageChapter> loadChapter(Chapter chapter, String source) async {
+    return await _apiManager.getImages(source, chapter.link);
+  }
+
+  addChapter() async {
+    if (currentImageChapter == loadedChapters.last) {
+      print("Loading Next");
+
+      loadingMore = true;
+
+      ImageChapter c = await loadChapter(chapterList[chapterIndex + 1], source);
+      showSnackBarMessage("Next Chapter Loaded!");
+      loadedChapters.add(c);
+
+      chapterIndex += 1;
+      loadingMore = false;
+      print("Append Complete");
+      notifyListeners();
+    }
   }
 
   /// Reader Mode
@@ -95,7 +168,7 @@ class ReaderProvider with ChangeNotifier {
   int page = 1;
 
   setPage(int p) {
-    page = p;
+    page = p + 1;
     notifyListeners();
   }
 }
