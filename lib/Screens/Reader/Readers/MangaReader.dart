@@ -40,7 +40,8 @@ class _MangaReaderState extends State<MangaReader>
 
     if (maxScroll - currentScroll < delta &&
         Provider.of<ReaderProvider>(context, listen: false).loadingMore ==
-            false) {
+            false &&
+        !Provider.of<ReaderProvider>(context, listen: false).custom) {
       await Provider.of<ReaderProvider>(context, listen: false).addChapter();
     }
   }

@@ -1,11 +1,14 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
+import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Reader/DebugReaders/DebugReader2.dart';
+import 'package:provider/provider.dart';
 
 class CustomProfilePage extends StatefulWidget {
   final ComicProfile profile;
@@ -282,22 +285,46 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
     );
   }
 
-  Widget readButton() => GestureDetector(
-        onTap: null,
-        child: Container(
-          margin: EdgeInsets.all(15),
-          decoration: BoxDecoration(
-            color: Colors.grey[900],
-            borderRadius: BorderRadius.circular(10),
-          ),
-          height: 45,
-          child: Center(
-            child: Text(
-              'Read',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.purple, fontSize: 20),
+  Widget readButton() =>
+      Consumer<ComicHighlightProvider>(builder: (context, provider, _) {
+        return GestureDetector(
+          onTap: () {
+            ComicHighlight highlight = provider.highlight;
+            ImageChapter chapter = ImageChapter(
+              images: (widget.profile.images)
+                  ?.map((item) => item as String)
+                  ?.toList(),
+              referer: highlight.imageReferer,
+              link: widget.profile.link,
+              source: highlight.selector,
+              count: widget.profile.images.length,
+            );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DebugReader2(
+                  selector: highlight.selector,
+                  custom: true,
+                  chapter: chapter,
+                ),
+              ),
+            );
+          },
+          child: Container(
+            margin: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.grey[900],
+              borderRadius: BorderRadius.circular(10),
+            ),
+            height: 45,
+            child: Center(
+              child: Text(
+                'Read',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.purple, fontSize: 20),
+              ),
             ),
           ),
-        ),
-      );
+        );
+      });
 }

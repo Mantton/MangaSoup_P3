@@ -22,14 +22,18 @@ class DebugReader2 extends StatefulWidget {
   final Chapter selectedChapter;
   final String selector;
   final ChapterDownloadObject cdo;
+  final bool custom;
+  final ImageChapter chapter;
 
   const DebugReader2({
     Key key,
     this.chapters,
     this.downloaded = false,
+    this.custom = false,
     this.selectedChapter,
     @required this.selector,
     this.cdo,
+    this.chapter,
   }) : super(key: key);
 
   @override
@@ -48,6 +52,8 @@ class _DebugReader2State extends State<DebugReader2> {
         referer: widget.cdo.highlight.imageReferer,
         count: widget.cdo.images.length,
       );
+    } else if (widget.custom) {
+      initialChapter = widget.chapter;
     } else
       initialChapter = await _manager.getImages(widget.selector, chapter.link);
     Provider.of<ReaderProvider>(context, listen: false).init(
@@ -59,6 +65,7 @@ class _DebugReader2State extends State<DebugReader2> {
       chapterSource: Provider.of<ComicHighlightProvider>(context, listen: false)
           .highlight
           .selector,
+      isCustom: widget.custom,
     );
     print("Initialized");
 
@@ -248,7 +255,8 @@ class _DebugReader2State extends State<DebugReader2> {
                     indent: 15,
                     endIndent: 15,
                   ),
-                  Flexible(
+                  !widget.custom
+                      ? Flexible(
                     flex: 3,
                     fit: FlexFit.tight,
                     child: Container(
@@ -273,7 +281,8 @@ class _DebugReader2State extends State<DebugReader2> {
                         ),
                       ),
                     ),
-                  ),
+                  )
+                      : Container(),
                 ],
               ),
             )
@@ -294,45 +303,51 @@ class _DebugReader2State extends State<DebugReader2> {
         color: Colors.black,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: <Widget>[
-              IconButton(
-                onPressed: () async {
-                  // todo, move to previous chapter
-                },
-                icon: Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.grey,
-                ),
-              ),
-              Spacer(),
-              Container(
-                child: Text(
-                  'Page ${Provider
-                      .of<ReaderProvider>(context)
-                      .page} / ${Provider
-                      .of<ReaderProvider>(context)
-                      .chapterLength}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20.sp,
-                    fontFamily: 'Lato',
+          child: Consumer<ReaderProvider>(builder: (context, provider, _) {
+            return Row(
+              children: <Widget>[
+                !provider.custom
+                    ? IconButton(
+                  onPressed: () async {
+                    // todo, move to previous chapter
+                  },
+                  icon: Icon(
+                    Icons.arrow_back_ios,
                     color: Colors.grey,
                   ),
+                )
+                    : Container(),
+                Spacer(),
+                Container(
+                  child: Text(
+                    'Page ${Provider
+                        .of<ReaderProvider>(context)
+                        .page} / ${Provider
+                        .of<ReaderProvider>(context)
+                        .chapterLength}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.sp,
+                      fontFamily: 'Lato',
+                      color: Colors.grey,
+                    ),
+                  ),
                 ),
-              ),
-              Spacer(),
-              IconButton(
-                onPressed: () {
-                  // todo, move to next page
-                },
-                icon: Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.grey,
-                ),
-              )
-            ],
-          ),
+                Spacer(),
+                !provider.custom
+                    ? IconButton(
+                  onPressed: () {
+                    // todo, move to next page
+                  },
+                  icon: Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.grey,
+                  ),
+                )
+                    : Container(),
+              ],
+            );
+          }),
         ),
       ),
     );
@@ -472,7 +487,10 @@ class _DebugReader2State extends State<DebugReader2> {
                                 fontSize: 15.sp,
                               ),
                             ),
-                            leading: widget.selectedChapter.link ==
+                            leading: Provider
+                                .of<ReaderProvider>(context)
+                                .currentChapter
+                                .link ==
                                 chapter.link
                                 ? Icon(Icons.check, color: Colors.purple)
                                 : null,

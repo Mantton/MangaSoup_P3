@@ -9,6 +9,7 @@ class ReaderProvider with ChangeNotifier {
 
   ///
   bool downloaded;
+  bool custom;
   bool loadingMore = false;
   String source;
   int chapterLength;
@@ -35,6 +36,7 @@ class ReaderProvider with ChangeNotifier {
     @required ImageChapter imageChapter,
     @required Chapter selectedChapter,
     @required bool isDownloaded,
+    @required bool isCustom,
     @required List<Chapter> chapterListObject,
     @required String chapterSource,
   }) {
@@ -44,6 +46,7 @@ class ReaderProvider with ChangeNotifier {
     // Testing new
     currentChapter = selectedChapter;
     downloaded = isDownloaded;
+    custom = isCustom;
     currentImageChapter = imageChapter;
     print(imageChapter.link);
     chapterList = chapterListObject;
@@ -51,8 +54,8 @@ class ReaderProvider with ChangeNotifier {
     source = chapterSource;
     lastLoaded = currentChapter;
     chapterLength = currentImageChapter.count;
-
-    if (chapterList.isNotEmpty) {
+    print("right here");
+    if (chapterList != null) {
       chapterIndex = chapterList
           .indexWhere((element) => element.link == currentChapter.link);
       print(chapterIndex);
