@@ -306,9 +306,9 @@ class _BrowsePageState extends State<BrowsePage> {
                     height: 50.h,
                     minWidth: 100.w,
                     onPressed: () {
+                      Navigator.pop(context);
                       queryMap =
-                          Provider
-                              .of<BrowseProvider>(context, listen: false)
+                          Provider.of<BrowseProvider>(context, listen: false)
                               .encodedData;
                       print(queryMap);
                       // API SEARCH

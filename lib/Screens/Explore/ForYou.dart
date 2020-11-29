@@ -1,9 +1,10 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ForYouPage extends StatefulWidget {
   @override
@@ -81,10 +82,32 @@ class _ForYouPageState extends State<ForYouPage> {
                         SizedBox(
                           height: 10.h,
                         ),
-                        ComicGrid(
-                          comics: highlights,
-                          crossAxisCount: 3,
-                        ),
+                        highlights.length <= 6
+                            ? ComicGrid(
+                                comics: highlights,
+                                crossAxisCount: 3,
+                              )
+                            : Container(
+                                child: CarouselSlider(
+                                  options: CarouselOptions(
+                                    aspectRatio: 1,
+                                    height: 250.h,
+                                    viewportFraction: .4,
+                                    pauseAutoPlayOnManualNavigate: true,
+                                    enlargeCenterPage: true,
+                                    // disableCenter: true,
+                                    autoPlayInterval: Duration(
+                                      seconds: 10,
+                                    ),
+
+                                    scrollDirection: Axis.horizontal,
+                                    autoPlay: true,
+                                  ),
+                                  items: highlights
+                                      .map((e) => ComicGridTile(comic: e))
+                                      .toList(),
+                                ),
+                              ),
                       ],
                     ),
                   );
