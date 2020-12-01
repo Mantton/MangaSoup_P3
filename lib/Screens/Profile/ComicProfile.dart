@@ -25,6 +25,8 @@ class _ProfilePageState extends State<ProfilePage>with AutomaticKeepAliveClientM
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return DefaultTabController(
       initialIndex: 0,
       length: 3,
@@ -39,7 +41,7 @@ class _ProfilePageState extends State<ProfilePage>with AutomaticKeepAliveClientM
             unselectedLabelColor: Colors.grey,
             labelStyle: TextStyle(fontSize: 17),
             unselectedLabelStyle:
-                TextStyle(fontSize: 17, color: Colors.grey[900]),
+            TextStyle(fontSize: 17, color: Colors.grey[900]),
             tabs: [
               Tab(
                 text: "Details",

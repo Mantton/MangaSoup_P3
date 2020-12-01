@@ -72,6 +72,8 @@ Widget cImage({String url, BoxFit fit, String referer, BuildContext context}) {
       color: Colors.purple,
     ),
     fit: fit,
+    fadeInDuration: Duration(microseconds: 500),
+    fadeInCurve: Curves.easeIn,
   );
 }
 

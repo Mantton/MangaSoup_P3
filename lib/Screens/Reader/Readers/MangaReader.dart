@@ -36,7 +36,7 @@ class _MangaReaderState extends State<MangaReader>
     double maxScroll = _internalController.position.maxScrollExtent;
     double minScroll = _internalController.position.minScrollExtent;
     double currentScroll = _internalController.position.pixels;
-    double delta = MediaQuery.of(context).size.width * .40;
+    double delta = _internalController.position.maxScrollExtent * .30;
 
     if (maxScroll - currentScroll < delta &&
         Provider.of<ReaderProvider>(context, listen: false).loadingMore ==
@@ -159,10 +159,12 @@ class _MangaReaderState extends State<MangaReader>
               provider.orientationMode == 0 ? Axis.horizontal : Axis.vertical,
           reverse: provider.scrollDirectionMode == 0 ? true : false,
           onPageChanged: (p) {
-            provider.setPage(0);
+            provider.setPage(0, false);
             provider.setImageChapter(p);
             showMessage(
-              "${p > chapterHolder ? "Next Chapter" : "Previous Chapter"} \n ${provider.currentChapter.name}",
+              "${p > chapterHolder
+                  ? "Next Chapter"
+                  : "Previous Chapter"} \n ${provider.currentChapter.name}",
               Icons.menu_book_rounded,
               Duration(seconds: 1),
             );
@@ -175,7 +177,10 @@ class _MangaReaderState extends State<MangaReader>
                 (chapter) => ChapterViewer(
                   chapter: chapter,
                   chapterHolder: chapterHolder,
-                  controller: _internalController,
+                  controller: chapterHolder ==
+                      provider.loadedChapters.indexOf(chapter)
+                      ? _internalController
+                      : null,
                   provider: provider,
                 ),
               )
@@ -262,7 +267,7 @@ class _ChapterViewerState extends State<ChapterViewer>
             ? widget.controller
             : null,
         onPageChanged: (p) {
-          widget.provider.setPage(p);
+          widget.provider.setPage(p, false);
         },
         children: buildChapterImages(
           imageChapter: widget.chapter,

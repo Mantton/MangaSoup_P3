@@ -116,7 +116,7 @@ class _VerticalReaderState extends State<VerticalReader> {
                     scrollDirection: Axis.vertical,
                     onPageChanged: (p) {
                       Provider.of<ReaderProvider>(context, listen: false)
-                          .setPage(p + 1);
+                          .setPage(p, true);
                     },
                     children: chapter.images
                         .map(

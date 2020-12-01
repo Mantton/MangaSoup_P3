@@ -170,8 +170,11 @@ class ReaderProvider with ChangeNotifier {
   /// Page
   int page = 1;
 
-  setPage(int p) {
-    page = p + 1;
+  setPage(int p, bool vertical) {
+    if (vertical)
+      page = p;
+    else
+      page = p + 1;
     notifyListeners();
   }
 }
