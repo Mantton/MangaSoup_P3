@@ -200,16 +200,15 @@ class DexHub {
     return highlights;
   }
 
-  Future<List<ComicHighlight>> getTagComics(String sort, int page, var link,
-      Map additionalInfo) async {
+  Future<List<ComicHighlight>> getTagComics(
+      String sort, int page, var link, Map additionalInfo) async {
     Map cookies = additionalInfo['cookies'] ?? {};
     Map data = Map();
     data.addAll(cookies);
     data['mangadex_h_toggle'] = additionalInfo['nsfw'];
 
     String url = baseURL +
-        '/genre/$link/${tagsDict[link].toString().replaceAll(
-            " ", "-")}/$sort/$page';
+        '/genre/$link/${tagsDict[link].toString().replaceAll(" ", "-")}/$sort/$page';
 
     print(url);
     Dio _dio = Dio();
@@ -221,7 +220,7 @@ class DexHub {
       'user-agent': 'MangaSoup-DexHub-Client/1.0.0',
       'accept-language': 'en-US,en;q=0.9,tr-TR;q=0.8,tr;q=0.7',
       "accept":
-      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
       "pragma": "no-cache",
       'referer': 'https://mangadex.org/',
       "Access-Control-Allow-Origin": "*",
@@ -246,13 +245,17 @@ class DexHub {
           comic
               .querySelector('div.rounded.large_logo.mr-2 > a> img')
               .attributes['src'];
-      var title = comic.querySelector('a.ml-1.manga_title.text-truncate').text;
+      var title = comic
+          .querySelector('a.ml-1.manga_title.text-truncate')
+          .text;
       var link = comic
           .querySelector('a.ml-1.manga_title.text-truncate')
           .attributes['href'];
+      String editedLink =
+      link.split('/').sublist(1, 3).map((e) => e).join("/");
       highlights.add(ComicHighlight.fromMap({
         'title': title,
-        'link': baseURL + link,
+        'link': baseURL + "/" + editedLink,
         'thumbnail': thumbnail,
         'source': source,
         'selector': selector
@@ -266,6 +269,7 @@ class DexHub {
     List userLanguages = info['mangadex_languages'] ?? List();
     print("Languages: $userLanguages");
     String comicLink = link;
+    print("MD LINK: $comicLink");
     if (link.contains("http")) {
       var strings = link.split('/');
       link = strings.last;
@@ -552,12 +556,11 @@ class DexHub {
     }
 
     ImageChapter result = ImageChapter(
-      images: images,
-      referer: baseURL,
-      source: source,
-      count: images.length,
-        link: chapterLink
-    );
+        images: images,
+        referer: baseURL,
+        source: source,
+        count: images.length,
+        link: chapterLink);
 
     return result;
     // queryParameters: params,
