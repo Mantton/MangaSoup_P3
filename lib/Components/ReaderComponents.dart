@@ -57,19 +57,20 @@ Widget cImage({String url, BoxFit fit, String referer, BuildContext context}) {
                   ),
                 ),
               )
-            : Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child: Center(
-                  child: Text("Loading..."),
+            : Center(
+                child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: Text("Loading..."),
+                  ),
                 ),
-        ),
+              ),
     httpHeaders: {"referer": referer ?? imageHeaders(url)},
-    errorWidget: (context, url, error) =>
-        Icon(
-          Icons.error,
-          color: Colors.purple,
-        ),
+    errorWidget: (context, url, error) => Icon(
+      Icons.error,
+      color: Colors.purple,
+    ),
     fit: fit,
   );
 }

@@ -109,42 +109,6 @@ class _MangaReaderState extends State<MangaReader>
     _drag = null;
   }
 
-  List<Widget> buildChapterImages({ImageChapter imageChapter}) {
-    List<Widget> chapter = List();
-    List<Widget> images = imageChapter.images
-        .map(
-          (image) => Center(
-            child: SingleChildScrollView(
-              physics: NeverScrollableScrollPhysics(),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(
-                      Provider.of<ReaderProvider>(context).paddingMode == 0
-                          ? 10
-                          : 0,
-                    ),
-                    width: MediaQuery.of(context).size.width,
-                    child: ReaderImage(
-                      link: image,
-                      referer: imageChapter.referer,
-                      fit: BoxFit.fitWidth,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        )
-        .toList();
-
-    chapter.addAll(images);
-    // chapter.add(TransitionPage());
-
-    return chapter;
-  }
-
   int chapterHolder = 0;
 
   @override
@@ -200,7 +164,7 @@ class _MangaReaderState extends State<MangaReader>
             showMessage(
               "${p > chapterHolder ? "Next Chapter" : "Previous Chapter"} \n ${provider.currentChapter.name}",
               Icons.menu_book_rounded,
-              Duration(milliseconds: 1750),
+              Duration(seconds: 1),
             );
             setState(() {
               chapterHolder = p;
@@ -208,32 +172,103 @@ class _MangaReaderState extends State<MangaReader>
           },
           children: provider.loadedChapters
               .map(
-                (chapter) => Container(
-                  child: PreloadPageView(
-                    physics: NeverScrollableScrollPhysics(),
-                    pageSnapping: provider.snappingMode == 0 ? true : false,
-                    preloadPagesCount: 2,
-                    scrollDirection: provider.orientationMode == 0
-                        ? Axis.horizontal
-                        : Axis.vertical,
-                    reverse: provider.scrollDirectionMode == 0 ? true : false,
-                    controller: chapterHolder ==
-                            provider.loadedChapters.indexOf(chapter)
-                        ? _internalController
-                        : null,
-                    onPageChanged: (p) {
-                      provider.setPage(p);
-                    },
-                    children: buildChapterImages(
-                      imageChapter: chapter,
-                    ),
-                  ),
+                (chapter) => ChapterViewer(
+                  chapter: chapter,
+                  chapterHolder: chapterHolder,
+                  controller: _internalController,
+                  provider: provider,
                 ),
               )
               .toList(),
         ),
       );
     });
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+}
+
+class ChapterViewer extends StatefulWidget {
+  final ImageChapter chapter;
+  final provider;
+  final PreloadPageController controller;
+  final int chapterHolder;
+
+  const ChapterViewer(
+      {Key key,
+      this.chapter,
+      this.provider,
+      this.controller,
+      this.chapterHolder})
+      : super(key: key);
+
+  @override
+  _ChapterViewerState createState() => _ChapterViewerState();
+}
+
+class _ChapterViewerState extends State<ChapterViewer>
+    with AutomaticKeepAliveClientMixin {
+  List<Widget> buildChapterImages({ImageChapter imageChapter}) {
+    List<Widget> chapter = List();
+    List<Widget> images = imageChapter.images
+        .map(
+          (image) => Center(
+            child: SingleChildScrollView(
+              physics: NeverScrollableScrollPhysics(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(
+                      Provider.of<ReaderProvider>(context).paddingMode == 0
+                          ? 10
+                          : 0,
+                    ),
+                    width: MediaQuery.of(context).size.width,
+                    child: ReaderImage(
+                      link: image,
+                      referer: imageChapter.referer,
+                      fit: BoxFit.fitWidth,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        )
+        .toList();
+
+    chapter.addAll(images);
+    // chapter.add(TransitionPage());
+
+    return chapter;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return Container(
+      child: PreloadPageView(
+        physics: NeverScrollableScrollPhysics(),
+        pageSnapping: widget.provider.snappingMode == 0 ? true : false,
+        preloadPagesCount: 2,
+        scrollDirection: widget.provider.orientationMode == 0
+            ? Axis.horizontal
+            : Axis.vertical,
+        reverse: widget.provider.scrollDirectionMode == 0 ? true : false,
+        controller: widget.chapterHolder ==
+                widget.provider.loadedChapters.indexOf(widget.chapter)
+            ? widget.controller
+            : null,
+        onPageChanged: (p) {
+          widget.provider.setPage(p);
+        },
+        children: buildChapterImages(
+          imageChapter: widget.chapter,
+        ),
+      ),
+    );
   }
 
   @override
