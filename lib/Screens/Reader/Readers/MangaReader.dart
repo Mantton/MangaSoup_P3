@@ -17,14 +17,9 @@ class MangaReader extends StatefulWidget {
   _MangaReaderState createState() => _MangaReaderState();
 }
 
-class _MangaReaderState extends State<MangaReader>
-    with AutomaticKeepAliveClientMixin {
-  PreloadPageController _controller;
-
+class _MangaReaderState extends State<MangaReader> {
   @override
   void initState() {
-    _controller = PreloadPageController(initialPage: widget.page - 1);
-
     // _controller.addListener(loadChapter);
     _externalController = PageController(initialPage: widget.page - 1);
     _internalController = PreloadPageController();
@@ -190,8 +185,6 @@ class _MangaReaderState extends State<MangaReader>
     });
   }
 
-  @override
-  bool get wantKeepAlive => true;
 }
 
 class ChapterViewer extends StatefulWidget {
