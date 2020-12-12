@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/GateWay.dart';
 
 import 'Images.dart';
@@ -60,7 +60,7 @@ class FavoritesTile extends StatelessWidget {
           );
         },
         child: GridTile(
-          header: (favorite.updateCount == 0 || favorite.updateCount != null)
+          header: (favorite.updateCount == 0 || favorite.updateCount == null)
               ? Container()
               : Container(
                   padding: EdgeInsets.all(
@@ -71,9 +71,10 @@ class FavoritesTile extends StatelessWidget {
                     child: Text(
                       "${favorite.updateCount}",
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 25.sp),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 25.sp,
+                      ),
                     ),
                     backgroundColor: Colors.red[700],
                   ),
