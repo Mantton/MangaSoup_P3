@@ -33,7 +33,7 @@ String formatDate(DateTime tm) {
 
   Duration difference = today.difference(tm);
   int comicWeekOfYear = ((tm.day - tm.weekday + 10) / 7).floor();
-  int todayWeekOfYear = ((tm.day - tm.weekday + 10) / 7).floor();
+  int todayWeekOfYear = ((today.day - today.weekday + 10) / 7).floor();
   if (difference.inHours < today.hour) {
     return "Today";
   } else if (difference.inHours < 24 + today.hour) {
