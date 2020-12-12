@@ -8,6 +8,8 @@ import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:provider/provider.dart';
 
+import '../../Globals.dart';
+
 class DownloadChaptersPage extends StatefulWidget {
   final List chapterList;
 
@@ -28,14 +30,21 @@ class _DownloadChaptersPageState extends State<DownloadChaptersPage> {
         title: Text("Download Chapters"),
         centerTitle: true,
       ),
-      body: Container(
-        child: Stack(
-          children: [
-            body(),
-            downloadSelector(),
-          ],
-        ),
-      ),
+      body: widget.chapterList.length != 0
+          ? Container(
+              child: Stack(
+                children: [
+                  body(),
+                  downloadSelector(),
+                ],
+              ),
+            )
+          : Center(
+              child: Text(
+                "No Chapters Available for Download",
+                style: isEmptyFont,
+              ),
+            ),
     );
   }
 
@@ -79,7 +88,9 @@ class _DownloadChaptersPageState extends State<DownloadChaptersPage> {
                       Text(
                         "${selectedChapters.length} Chapter(s) selected",
                         style: TextStyle(
-                            fontSize: 17.sp, fontWeight: FontWeight.bold),
+                          fontSize: 17.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       )
                     ],
                   ),
@@ -89,7 +100,9 @@ class _DownloadChaptersPageState extends State<DownloadChaptersPage> {
                     child: Text(
                       "Download",
                       style: TextStyle(
-                          fontSize: 17.sp, fontWeight: FontWeight.bold),
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     onPressed: () {
                       Provider.of<DownloadProvider>(context, listen: false)
@@ -101,7 +114,7 @@ class _DownloadChaptersPageState extends State<DownloadChaptersPage> {
                       );
 
                       Navigator.pop(context);
-                    })
+                    }),
               ],
             ),
           ),

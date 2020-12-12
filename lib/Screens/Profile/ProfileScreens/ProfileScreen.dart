@@ -45,7 +45,6 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
 
   Future<bool> initializeProfile() async {
     profile = widget.comicProfile;
-    debugPrint("LINK : ${(profile.link)}");
     favoriteObject = await _favoritesManager.isFavorite(profile.link);
 
     /// Check if Favorite
@@ -76,7 +75,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
 
     /// Get Active Collections
     _collections = await _favoritesManager.getCollections();
-    debugPrint(_collections.toString());
+    // debugPrint(_collections.toString());
     return true;
   }
 
@@ -781,8 +780,9 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                         }
                       : null,
                   icon: Icon(
-                    Icons.download_rounded,
+                    CupertinoIcons.cloud_download,
                     size: 30.w,
+                    color: Colors.purple,
                   ),
                 )
               ],
@@ -831,10 +831,10 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                         ),
                         subtitle: chapter.maker.isNotEmpty
                             ? Text(
-                          chapter.maker,
-                          style: TextStyle(
-                              fontSize: 15.sp, color: Colors.grey[700]),
-                        )
+                                chapter.maker,
+                                style: TextStyle(
+                                    fontSize: 15.sp, color: Colors.grey[700]),
+                              )
                             : null,
                         trailing: Text(
                           chapter.date ?? "",
@@ -878,7 +878,9 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                   color: Colors.grey[800],
                   child: ListTile(
                     title: Text(
-                      'No available chapters',
+                      widget.highlight.selector != "mangadex"
+                          ? 'No available chapters'
+                          : "No Available Chapters for your specified Content Language(s)",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.redAccent,

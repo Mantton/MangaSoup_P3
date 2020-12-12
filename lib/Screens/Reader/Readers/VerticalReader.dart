@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mangasoup_prototype_3/Components/ReaderComponents.dart';
 import 'package:mangasoup_prototype_3/Providers/ReaderProvider.dart';
-import 'package:preload_page_view/preload_page_view.dart';
 import 'package:provider/provider.dart';
 
 class VerticalReader extends StatefulWidget {
+  final int page;
+
+  const VerticalReader({Key key, this.page}) : super(key: key);
+
   @override
   _VerticalReaderState createState() => _VerticalReaderState();
 }
@@ -15,11 +18,11 @@ class _VerticalReaderState extends State<VerticalReader> {
   @override
   void initState() {
     super.initState();
-    _pageController = PreloadPageController();
+    _pageController = PageController(initialPage: widget.page - 1);
     _listScrollController = ScrollController();
   }
 
-  PreloadPageController _pageController;
+  PageController _pageController;
   ScrollController _listScrollController;
   ScrollController _activeScrollController;
   Drag _drag;
@@ -82,8 +85,6 @@ class _VerticalReaderState extends State<VerticalReader> {
     _drag = null;
   }
 
-  int _page = 0;
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -91,15 +92,16 @@ class _VerticalReaderState extends State<VerticalReader> {
         RawGestureDetector(
           gestures: <Type, GestureRecognizerFactory>{
             VerticalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-                    VerticalDragGestureRecognizer>(
-                () => VerticalDragGestureRecognizer(),
-                (VerticalDragGestureRecognizer instance) {
-              instance
-                ..onStart = _handleDragStart
-                ..onUpdate = _handleDragUpdate
-                ..onEnd = _handleDragEnd
-                ..onCancel = _handleDragCancel;
-            }),
+                VerticalDragGestureRecognizer>(
+              () => VerticalDragGestureRecognizer(),
+              (VerticalDragGestureRecognizer instance) {
+                instance
+                  ..onStart = _handleDragStart
+                  ..onUpdate = _handleDragUpdate
+                  ..onEnd = _handleDragEnd
+                  ..onCancel = _handleDragCancel;
+              },
+            ),
           },
           behavior: HitTestBehavior.opaque,
           child: PageView(
@@ -108,15 +110,13 @@ class _VerticalReaderState extends State<VerticalReader> {
             children: Provider.of<ReaderProvider>(context)
                 .loadedChapters
                 .map(
-                  (chapter) => PreloadPageView(
+                  (chapter) => PageView(
                     controller: _pageController,
                     physics: NeverScrollableScrollPhysics(),
-                    preloadPagesCount: 2,
                     scrollDirection: Axis.vertical,
                     onPageChanged: (p) {
-                      setState(() {
-                        _page = p;
-                      });
+                      Provider.of<ReaderProvider>(context, listen: false)
+                          .setPage(p, true);
                     },
                     children: chapter.images
                         .map(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
@@ -25,25 +26,38 @@ class _ChapterListState extends State<ChapterList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Chapters" + ((editMode) ? " (Edit Mode)" : "")),
-          centerTitle: true,
-          actions: [
-            IconButton(
-                icon: Icon(
-                  Icons.edit,
-                  color: (editMode) ? Colors.amber : Colors.white,
-                ),
-                onPressed: () {
-                  setState(() {
-                    editMode = !editMode;
-                  });
-                })
-          ],
-        ),
-        body: Stack(
-          children: [body(), editManager()],
-        ));
+      appBar: AppBar(
+        title: Text("Chapters" + ((editMode) ? " (Edit Mode)" : "")),
+        centerTitle: true,
+        actions: [
+          IconButton(
+              icon: Icon(
+                Icons.edit,
+                color: (editMode) ? Colors.amber : Colors.white,
+              ),
+              onPressed: () {
+                setState(() {
+                  editMode = !editMode;
+                });
+              })
+        ],
+      ),
+      body: Stack(
+        children: widget.chapterList.length != 0
+            ? [
+                body(),
+                editManager(),
+              ]
+            : [
+                Center(
+                  child: Text(
+                    "No Chapters Available",
+                    style: isEmptyFont,
+                  ),
+                )
+              ],
+      ),
+    );
   }
 
   Widget editManager() {
@@ -189,20 +203,22 @@ class _ChapterListState extends State<ChapterList> {
     return showPlatformModalSheet(
       context: (context),
       builder: (_) => PlatformWidget(
-          material: (_, __) => ListView(
-            shrinkWrap: true,
-            children: [
-              ListTile(
-                title: Text("Mark as Read"),
-                onTap: markAsRead,
+          material: (_, __) =>
+              ListView(
+                shrinkWrap: true,
+                children: [
+                  ListTile(
+                    title: Text("Mark as Read"),
+                    onTap: markAsRead,
+                  ),
+                  ListTile(
+                    title: Text("Mark as Unread"),
+                    onTap: markAsUnread,
+                  ),
+                ],
               ),
-              ListTile(
-                title: Text("Mark as Unread"),
-                onTap: markAsUnread,
-              ),
-            ],
-          ),
-          cupertino: (_, __) => CupertinoActionSheet(
+          cupertino: (_, __) =>
+              CupertinoActionSheet(
                 title: Text("Mark As"),
                 cancelButton: CupertinoButton(
                   child: Text("Cancel"),
@@ -246,15 +262,16 @@ class _ChapterListState extends State<ChapterList> {
                           MaterialPageRoute(
                             builder: (_) =>
                                 DebugReader2(
-                              chapters: chapterList
-                                  .map((e) => Chapter.fromMap(e))
-                                  .toList(),
-                              selectedChapter: chapter,
-                              selector:
-                                  Provider.of<ComicHighlightProvider>(context)
+                                  chapters: chapterList
+                                      .map((e) => Chapter.fromMap(e))
+                                      .toList(),
+                                  selectedChapter: chapter,
+                                  selector:
+                                  Provider
+                                      .of<ComicHighlightProvider>(context)
                                       .highlight
                                       .selector,
-                            ),
+                                ),
                           ),
                         );
                       } else {
@@ -303,7 +320,7 @@ class _ChapterListState extends State<ChapterList> {
                       (selectedChapters.contains(chapterList[index]))
                           ? Colors.purple
                           : Colors.grey,
-                          ),
+                    ),
                   ),
                 );
               }),

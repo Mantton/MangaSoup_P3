@@ -1,6 +1,11 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../Globals.dart';
 
 class ReaderImage extends StatefulWidget {
   final String link;
@@ -19,54 +24,82 @@ class _ReaderImageState extends State<ReaderImage> {
   Widget build(BuildContext context) {
     return Container(
       child: (!widget.link.toLowerCase().contains("mangasoup"))
-          ? Image.network(
-              widget.link,
-              headers: {"referer": "${widget.referer}"},
-              errorBuilder: (_, var error, var stacktrace) => Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child: Center(
-                    child: IconButton(
-                  onPressed: () {
-                    setState(() {});
-                  },
-                  icon: Icon(
-                    Icons.error_outline,
-                    color: Colors.purple,
-                  ),
-                )),
-              ),
-              loadingBuilder: (_, Widget child, ImageChunkEvent progress) {
-                if (progress == null) return child;
-                return Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircularProgressIndicator(
-                          value: progress.expectedTotalBytes != null
-                              ? progress.cumulativeBytesLoaded /
-                                  progress.expectedTotalBytes
-                              : null,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.purple),
-                          strokeWidth: 5,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text("Loading...")
-                      ],
-                    ),
-                  ),
-                );
-              },
+          ? cImage(
+              url: widget.link,
+              referer: widget.referer,
+              fit: widget.fit,
+              context: context,
             )
           : Image.file(
               File(widget.link),
             ),
+    );
+  }
+}
+
+Widget cImage({String url, BoxFit fit, String referer, BuildContext context}) {
+  return CachedNetworkImage(
+    imageUrl: url,
+    progressIndicatorBuilder: (_, url, var progress) =>
+        progress.progress != null
+            ? Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: Center(
+                  child: Text(
+                    "${(progress.progress * 100).toInt()}%",
+                    style: TextStyle(
+                      color: Colors.blueGrey,
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Lato",
+                    ),
+                  ),
+                ),
+              )
+            : Center(
+                child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: Text("Loading..."),
+                  ),
+                ),
+              ),
+    httpHeaders: {"referer": referer ?? imageHeaders(url)},
+    errorWidget: (context, url, error) => Icon(
+      Icons.error,
+      color: Colors.purple,
+    ),
+    fit: fit,
+    fadeInDuration: Duration(microseconds: 500),
+    fadeInCurve: Curves.easeIn,
+  );
+}
+
+class TransitionPage extends StatelessWidget {
+  // final Chapter chapter;
+  //
+  // const TransitionPage({Key key, @required this.chapter}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery
+          .of(context)
+          .size
+          .height,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
+      child: Center(
+        child: Text(
+          "Next Chapter",
+          style: isEmptyFont,
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
   }
 }

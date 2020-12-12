@@ -30,78 +30,26 @@ tList(List<ViewHistory> comics) {
 
 String formatDate(DateTime tm) {
   DateTime today = DateTime.now();
-  Duration oneDay = Duration(days: 1);
-  Duration twoDay = Duration(days: 2);
-  Duration oneWeek = Duration(days: 7);
-  String month;
-  switch (tm.month) {
-    case 1:
-      month = "January";
-      break;
-    case 2:
-      month = "February";
-      break;
-    case 3:
-      month = "March";
-      break;
-    case 4:
-      month = "April";
-      break;
-    case 5:
-      month = "May";
-      break;
-    case 6:
-      month = "June";
-      break;
-    case 7:
-      month = "July";
-      break;
-    case 8:
-      month = "August";
-      break;
-    case 9:
-      month = "September";
-      break;
-    case 10:
-      month = "October";
-      break;
-    case 11:
-      month = "November";
-      break;
-    case 12:
-      month = "December";
-      break;
-  }
 
   Duration difference = today.difference(tm);
+  int comicWeekOfYear = ((tm.day - tm.weekday + 10) / 7).floor();
+  int todayWeekOfYear = ((tm.day - tm.weekday + 10) / 7).floor();
   if (difference.inHours < today.hour) {
     return "Today";
   } else if (difference.inHours < 24 + today.hour) {
     return "Yesterday";
-  } else if (difference.compareTo(twoDay) < 1) {
+  } else if (comicWeekOfYear == todayWeekOfYear) {
     return "Earlier This Week";
-  } else if (difference.compareTo(oneWeek) < 1) {
-    switch (tm.weekday) {
-      case 1:
-        return "Monday";
-      case 2:
-        return "Tuesday";
-      case 3:
-        return "Wednesday";
-      case 4:
-        return "Thursday";
-      case 5:
-        return "Friday";
-      case 6:
-        return "Saturday";
-      case 7:
-        return "Sunday";
-    }
+  } else if ((comicWeekOfYear - todayWeekOfYear) == 1) {
+    return "Last Week";
+  } else if ((comicWeekOfYear - todayWeekOfYear) <= 4) {
+    return "This month";
+  } else if ((comicWeekOfYear - todayWeekOfYear) <= 8) {
+    return "Last month";
   } else if (tm.year == today.year) {
-    return '${tm.day} $month';
-  } else {
-    return '${tm.day} $month ${tm.year}';
-  }
+    return 'This Year';
+  } else
+    return "${tm.year}";
 }
 
 class HistoryView extends StatefulWidget {
@@ -129,14 +77,18 @@ class _HistoryViewState extends State<HistoryView> {
   Widget view(int mode, Map<dynamic, List<ViewHistory>> sortedComics) {
     return SingleChildScrollView(
       child: Container(
-          padding: EdgeInsets.all(10.w),
-          child: layout(sortedComics, widget.mode)),
+        padding: EdgeInsets.all(10.w),
+        child: layout(
+          sortedComics,
+          widget.mode,
+        ),
+      ),
     );
   }
 
   Map<dynamic, List<ViewHistory>> groupDates(List<ViewHistory> comics) {
-    Map sorted =
-    groupBy(comics, (ViewHistory comic) => formatDate(comic.timeViewed));
+    Map sorted = groupBy(comics.reversed.toList(),
+        (ViewHistory comic) => formatDate(comic.timeViewed));
     return sorted;
   }
 

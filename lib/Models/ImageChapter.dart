@@ -3,15 +3,17 @@ class ImageChapter {
   String referer;
   String source;
   int count;
+  String link;
 
-  ImageChapter({this.images, this.referer, this.source, this.count});
+  ImageChapter({this.images, this.referer, this.source, this.count, this.link});
 
   Map<String, dynamic> toMap() {
     return {
       "images": images,
       "referer": referer,
       "source": source,
-      "count": count
+      "count": count,
+      "link": link
     };
   }
 
@@ -20,5 +22,6 @@ class ImageChapter {
     referer = map['referer'];
     source = map['source'];
     count = map['count'];
+    link = map['link'];
   }
 }

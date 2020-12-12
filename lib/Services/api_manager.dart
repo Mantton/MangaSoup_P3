@@ -75,6 +75,8 @@ class ApiManager {
       if (encodedSettings == null) {
         debugPrint("Settings for ${src.name} are not initialized, starting...");
         Map defaultSourceSettings = {};
+
+        /// Initialize Default Settings
         src.settings.forEach((element) {
           defaultSourceSettings[element['selector']] = element['default'];
         });
@@ -88,40 +90,7 @@ class ApiManager {
     return src;
   }
 
-  /// Prepare Data Variable
-  Future<Map> prepareAdditionalInfo(String source) async {
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-    String sourceSettings = _prefs.get("${source}_settings");
-    String sourceCookies = _prefs.getString("${source}_cookies");
 
-    if (sourceCookies == null && sourceSettings == null) {
-      return {};
-    } else if (sourceSettings != null && sourceCookies == null) {
-      Map settings = jsonDecode(sourceSettings);
-      print(settings);
-      Map generated = Map();
-      settings.forEach((key, value) {
-        if (value is! List) {
-          // is not List
-          print(value.runtimeType);
-          generated[key] = value['selector'];
-        } else {
-          generated[key] = value.map((e) => e['selector']).toList();
-        }
-      });
-      return generated;
-    } else if (sourceCookies != null && sourceSettings == null) {
-      return {"cookies": jsonDecode(sourceCookies)};
-    } else {
-      Map settings = jsonDecode(sourceSettings);
-      Map generated = Map();
-      settings.forEach((key, value) {
-        generated[key] = value['selector'];
-      });
-      generated['cookies'] = jsonDecode(sourceCookies);
-      return generated;
-    }
-  }
 
   /// ------------------- COMIC RESOURCES  ---------------------------- ///
   ///
@@ -129,7 +98,6 @@ class ApiManager {
   Future<List<ComicHighlight>> getAll(String source, String sortBy,
       int page) async {
     Map additionalParams = await prepareAdditionalInfo(source);
-    print(additionalParams);
     if (source == "mangadex") return dex.get(sortBy, page, additionalParams);
 
     Map data = {
@@ -152,7 +120,6 @@ class ApiManager {
   /// Get Latest
   Future<List<ComicHighlight>> getLatest(String source, int page) async {
     Map additionalParams = await prepareAdditionalInfo(source);
-    print(additionalParams);
     if (source == "mangadex") return dex.get("0", page, additionalParams);
 
     Map data = {
@@ -172,9 +139,9 @@ class ApiManager {
 
   /// Get Profile
   Future<ComicProfile> getProfile(String source, String link) async {
-    if (source == "mangadex") return dex.profile(link);
     Map additionalParams = await prepareAdditionalInfo(source);
-    print(additionalParams);
+
+    if (source == "mangadex") return dex.profile(link, additionalParams);
     Map data = {"source": source, "link": link, "data": additionalParams};
     try {
       Response response = await _dio.post('/api/v2/profile', data: data);
@@ -190,8 +157,7 @@ class ApiManager {
   /// Get Images
   Future<ImageChapter> getImages(String source, String link) async {
     Map additionalParams = await prepareAdditionalInfo(source);
-    print(additionalParams);
-    // if (source == "mangadex") return dex.images(link, additionalParams);
+    if (source == "mangadex") return dex.images(link, additionalParams);
 
     Map data = {
       "source": source,
@@ -206,7 +172,6 @@ class ApiManager {
   /// Get Tags
   Future<List<Tag>> getTags(String source) async {
     Map additionalParams = await prepareAdditionalInfo(source);
-    print(additionalParams);
     if (source == "mangadex") return dex.getTags();
     Map data = {"source": source, "data": additionalParams};
     Response response = await _dio.post('/api/v2/tags', data: data);
@@ -224,7 +189,6 @@ class ApiManager {
   Future<List<ComicHighlight>> getTagComics(String source, int page,
       String link, String sort) async {
     Map additionalParams = await prepareAdditionalInfo(source);
-    print(additionalParams);
     if (source == "mangadex")
       return dex.getTagComics(sort, page, link, additionalParams);
 
@@ -248,7 +212,7 @@ class ApiManager {
   /// Search
   Future<List<ComicHighlight>> search(String source, String query) async {
     Map additionalParams = await prepareAdditionalInfo(source);
-    print(additionalParams);
+
     if (source == "mangadex") return dex.search(query, additionalParams);
 
     Map data = {
@@ -268,7 +232,6 @@ class ApiManager {
 
   Future<List<ComicHighlight>> browse(String source, Map query) async {
     Map additionalParams = await prepareAdditionalInfo(source);
-    print(additionalParams);
     if (source == "mangadex") return dex.browse(query, additionalParams);
     additionalParams.addAll(query);
     Map data = {
@@ -340,5 +303,40 @@ class ApiManager {
       print(e);
       return null;
     }
+  }
+}
+
+/// Prepare Data Variable
+Future<Map> prepareAdditionalInfo(String source) async {
+  SharedPreferences _prefs = await SharedPreferences.getInstance();
+  String sourceSettings = _prefs.get("${source}_settings");
+  String sourceCookies = _prefs.getString("${source}_cookies");
+
+  if (sourceCookies == null && sourceSettings == null) {
+    return {};
+  } else {
+    Map generated = Map();
+
+    if (sourceSettings != null) {
+      /// Prepare Settings
+      Map settings = jsonDecode(sourceSettings); // Decode Settings
+      settings.forEach((key, value) {
+        if (value is! List) {
+          // is not List
+          generated[key] = value['selector'];
+        } else {
+          generated[key] =
+              value.map((e) => e['selector']).toList(); // Iterate if list
+        }
+      });
+    }
+
+    /// Prepare Cookies
+    if (sourceCookies != null) {
+      generated['cookies'] = jsonDecode(sourceCookies);
+    }
+
+    print("DATA: $generated");
+    return generated;
   }
 }
