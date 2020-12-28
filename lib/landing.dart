@@ -32,7 +32,9 @@ class _LandingState extends State<Landing> {
             child: HistoryPage(),
           ),
           Container(
-            child: DownloadsPage(),
+            child: Container(),
+            //todo, implement IOS flutter_downloads instructions
+            // DownloadsPage(),
           ),
           Container(
             child: MorePage(),

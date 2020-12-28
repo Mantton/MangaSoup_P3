@@ -114,11 +114,14 @@ void showNotification(v, flp) async {
 }
 
 Future<void> main() async {
+  print("IN!!!");
   WidgetsFlutterBinding.ensureInitialized();
+
   Workmanager.initialize(
       callbackDispatcher, // The top level function, aka callbackDispatcher
       isInDebugMode: false);
-  await FlutterDownloader.initialize(debug: false);
+
+  // await FlutterDownloader.initialize(debug: false); this is causing issues on IOS
 
   if (Platform.isAndroid) {
     await Workmanager.registerPeriodicTask(
@@ -133,7 +136,7 @@ Future<void> main() async {
       ),
     );
   }
-
+  print("awaiting run");
   runApp(
     MultiProvider(
       providers: [
@@ -146,7 +149,7 @@ Future<void> main() async {
         // View History
         ChangeNotifierProvider(create: (_) => ViewHistoryProvider()),
         ChangeNotifierProvider(create: (_) => BrowseProvider()),
-        ChangeNotifierProvider(create: (_) => DownloadProvider()),
+        // ChangeNotifierProvider(create: (_) => DownloadProvider()),
         ChangeNotifierProvider(create: (_) => ReaderProvider()),
 
         //
