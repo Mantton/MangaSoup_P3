@@ -199,7 +199,7 @@ class ApiManager {
       "sort_by": sort,
       "data": additionalParams,
     };
-    Response response = await _dio.post('/api/v1/tagComics', data: data);
+    Response response = await _dio.post('/api/v1/tag-comics', data: data);
     List dataPoints = response.data['comics'];
     List<ComicHighlight> comics = [];
     for (int index = 0; index < dataPoints.length; index++) {
