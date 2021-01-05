@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Setting.dart';
@@ -42,15 +41,14 @@ class TesterFilter extends StatelessWidget {
   Widget filterGroups(BuildContext context) {
     switch (filter.type) {
       case 1:
-        return PlatformTextField(
-          material: (_, __) => MaterialTextFieldData(
-            decoration: msDecoration(filter.name),
-            cursorColor: Colors.purple,
-          ),
+        return TextField(
+          decoration: msDecoration(filter.name),
+          cursorColor: Colors.purple,
           onChanged: (value) =>
               Provider.of<BrowseProvider>(context, listen: false)
                   .save(filter.selector, filter.type, "$value"),
         );
+
       case 2:
         int x = filter.options.indexWhere((element) =>
             Provider.of<BrowseProvider>(context)
@@ -170,9 +168,9 @@ class _MultiSelectState extends State<MultiSelect> {
           InkWell(
             child: Center(
                 child: Text(
-                  "Clear",
-                  style: isEmptyFont,
-                )),
+              "Clear",
+              style: isEmptyFont,
+            )),
             onTap: () {
               setState(() {
                 selectedItems.clear();

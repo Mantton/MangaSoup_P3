@@ -25,8 +25,10 @@ class ApiManager {
   );
   final Dio _dio = Dio(_options);
   final DexHub dex = DexHub();
-  final String imgSrcUrl =
-      'https://saucenao.com/search.php?db=37&output_type=2&numres=10&api_key=b1e601ed339f1c909df951a2ebfe597671592d90'; // Image Search Link
+  final String imgSrcUrl = 'https://saucenao.com/search.php?db=37'
+      '&output_type=2'
+      '&numres=10'
+      '&api_key=b1e601ed339f1c909df951a2ebfe597671592d90'; // Image Search Link
 
   /// Get Home Page
   Future<List<HomePage>> getHomePage() async {
@@ -48,8 +50,8 @@ class ApiManager {
       "/app/sources/previews",
       queryParameters: {
         "server": server,
-        "vip": "1"
-      }, // todo change vip field to vip status
+        "hentai": "1"
+      }, // todo change hentai parameter to a setting that is toggleable
     );
 
     List resData = response.data['sources'];
@@ -90,13 +92,11 @@ class ApiManager {
     return src;
   }
 
-
-
   /// ------------------- COMIC RESOURCES  ---------------------------- ///
   ///
   /// Get All
-  Future<List<ComicHighlight>> getAll(String source, String sortBy,
-      int page) async {
+  Future<List<ComicHighlight>> getAll(
+      String source, String sortBy, int page) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     if (source == "mangadex") return dex.get(sortBy, page, additionalParams);
 
