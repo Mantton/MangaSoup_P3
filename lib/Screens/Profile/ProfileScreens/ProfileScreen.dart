@@ -144,6 +144,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
           height: 250.h,
           child: SoupImage(
             url: profile.thumbnail,
+            referer: widget.highlight.imageReferer,
           ),
         ),
         SizedBox(
