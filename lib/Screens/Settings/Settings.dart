@@ -123,12 +123,13 @@ class _SettingsPageState extends State<SettingsPage> {
               userSourceSettings[setting.selector] = setting.options
                   .singleWhere((element) => element.value == value)
                   .toMap();
-
               print(userSourceSettings);
               SharedPreferences manager = await SharedPreferences.getInstance();
               await manager.setString(
                   "${selector}_settings", jsonEncode(userSourceSettings));
               sourcesStream.add(selector);
+              showSnackBarMessage(
+                  "${setting.name} ${value ? "enabled" : "disabled"} !");
               print("Success");
               setState(() {});
             },
@@ -159,7 +160,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       userSourceSettings[setting.selector] = value.toMap();
                       print(userSourceSettings);
                       SharedPreferences manager =
-                      await SharedPreferences.getInstance();
+                          await SharedPreferences.getInstance();
                       await manager.setString("${selector}_settings",
                           jsonEncode(userSourceSettings));
                       sourcesStream.add(selector);
