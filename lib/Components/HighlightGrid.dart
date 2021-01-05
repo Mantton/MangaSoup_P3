@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/GateWay.dart';
 
 import 'Images.dart';
@@ -71,6 +71,7 @@ class ComicGridTile extends StatelessWidget {
               ),
               child: SoupImage(
                 url: comic.thumbnail,
+                referer: comic.imageReferer,
               ),
             ),
           ),
