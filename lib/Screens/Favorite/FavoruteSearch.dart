@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/FavoriteGrid.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Providers/FavoriteProvider.dart';
+import 'package:provider/provider.dart';
 
 class FavoriteSearch extends StatefulWidget {
-  final List<Favorite> favorites;
-
-  const FavoriteSearch({Key key, @required this.favorites}) : super(key: key);
-
   @override
   _FavoriteSearchState createState() => _FavoriteSearchState();
 }
@@ -100,7 +98,8 @@ class _FavoriteSearchState extends State<FavoriteSearch> {
   }
 
   List<Favorite> searchFavorites(String query) {
-    List<Favorite> re = widget.favorites
+    List<Favorite> re = Provider.of<FavoriteProvider>(context, listen: false)
+        .favorites
         .where(
           (element) => element.highlight.title.toLowerCase().startsWith(
                 query.toLowerCase(),

@@ -55,6 +55,7 @@ class _AllComicsPageState extends State<AllComicsPage> {
       _scrollListener();
     });
     sourcesStream.stream.listen((event) {
+      print("loading homepage");
       _page = 1;
       Source _source =
           Provider.of<SourceNotifier>(context, listen: false).source;

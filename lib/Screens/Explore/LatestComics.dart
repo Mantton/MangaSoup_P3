@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
@@ -8,7 +8,6 @@ import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../Globals.dart';
 
@@ -50,6 +49,7 @@ class _LatestPageState extends State<LatestPage> {
       _scrollListener();
     });
     sourcesStream.stream.listen((event) {
+      print("loading latest page");
       Source _source =
           Provider.of<SourceNotifier>(context, listen: false).source;
       _futureComics = _loadComics(_source.selector, _page);
