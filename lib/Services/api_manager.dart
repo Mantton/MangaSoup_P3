@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiManager {
   //10.0.2.2 /127.0.0.1  http://10.0.2.2:8080/app/sources?server=live
 
-  static String _devAddress = "https://mangasoup-4500a.uc.r.appspot.com";
+  static String _devAddress = "http://34.70.145.22";
   static String _localTesting = "http://10.0.2.2:8080";
   static String _productionAddress =
       "http://mangasoup-env-1.eba-hd2s2exn.us-east-1.elasticbeanstalk.com";
@@ -25,8 +25,10 @@ class ApiManager {
   );
   final Dio _dio = Dio(_options);
   final DexHub dex = DexHub();
-  final String imgSrcUrl =
-      'https://saucenao.com/search.php?db=37&output_type=2&numres=10&api_key=b1e601ed339f1c909df951a2ebfe597671592d90'; // Image Search Link
+  final String imgSrcUrl = 'https://saucenao.com/search.php?db=37'
+      '&output_type=2'
+      '&numres=10'
+      '&api_key=b1e601ed339f1c909df951a2ebfe597671592d90'; // Image Search Link
 
   /// Get Home Page
   Future<List<HomePage>> getHomePage() async {
@@ -48,8 +50,8 @@ class ApiManager {
       "/app/sources/previews",
       queryParameters: {
         "server": server,
-        "vip": "1"
-      }, // todo change vip field to vip status
+        "hentai": "1"
+      }, // todo change hentai parameter to a setting that is toggleable
     );
 
     List resData = response.data['sources'];
@@ -90,23 +92,21 @@ class ApiManager {
     return src;
   }
 
-
-
   /// ------------------- COMIC RESOURCES  ---------------------------- ///
   ///
   /// Get All
-  Future<List<ComicHighlight>> getAll(String source, String sortBy,
-      int page) async {
+  Future<List<ComicHighlight>> getAll(
+      String source, String sortBy, int page) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     if (source == "mangadex") return dex.get(sortBy, page, additionalParams);
 
     Map data = {
-      "source": source,
+      "selector": source,
       "page": page,
       "sort_by": sortBy,
       "data": additionalParams
     };
-    Response response = await _dio.post("/api/v2/all", data: jsonEncode(data));
+    Response response = await _dio.post("/api/v1/all", data: jsonEncode(data));
     debugPrint(response.request.data.toString());
     List dataPoints = response.data['comics'];
     List<ComicHighlight> comics = [];
@@ -123,11 +123,11 @@ class ApiManager {
     if (source == "mangadex") return dex.get("0", page, additionalParams);
 
     Map data = {
-      "source": source,
+      "selector": source,
       "page": page,
       "data": additionalParams,
     };
-    Response response = await _dio.post('/api/v2/latest', data: data);
+    Response response = await _dio.post('/api/v1/latest', data: data);
     List dataPoints = response.data['comics'];
     List<ComicHighlight> comics = [];
     for (int index = 0; index < dataPoints.length; index++) {
@@ -142,15 +142,15 @@ class ApiManager {
     Map additionalParams = await prepareAdditionalInfo(source);
 
     if (source == "mangadex") return dex.profile(link, additionalParams);
-    Map data = {"source": source, "link": link, "data": additionalParams};
+    Map data = {"selector": source, "link": link, "data": additionalParams};
     try {
-      Response response = await _dio.post('/api/v2/profile', data: data);
+      Response response = await _dio.post('/api/v1/profile', data: data);
       debugPrint(
           "Retrieval Complete : /Profile : ${response.data['title']} @$source");
 
       return ComicProfile.fromMap(response.data);
     } on DioError catch (e) {
-      throw e.response.data['msg'];
+      throw e.response.data['detail'];
     }
   }
 
@@ -160,11 +160,11 @@ class ApiManager {
     if (source == "mangadex") return dex.images(link, additionalParams);
 
     Map data = {
-      "source": source,
+      "selector": source,
       "link": link,
       "data": additionalParams,
     };
-    Response response = await _dio.post('/api/v2/images', data: data);
+    Response response = await _dio.post('/api/v1/images', data: data);
     ImageChapter chapter = ImageChapter.fromMap(response.data);
     return chapter;
   }
@@ -174,7 +174,7 @@ class ApiManager {
     Map additionalParams = await prepareAdditionalInfo(source);
     if (source == "mangadex") return dex.getTags();
     Map data = {"source": source, "data": additionalParams};
-    Response response = await _dio.post('/api/v2/tags', data: data);
+    Response response = await _dio.post('/api/v1/tags', data: data);
     List dataPoints = response.data['genres'] ?? response.data;
     print(dataPoints);
     List<Tag> tags = [];
@@ -193,13 +193,13 @@ class ApiManager {
       return dex.getTagComics(sort, page, link, additionalParams);
 
     Map data = {
-      "source": source,
+      "selector": source,
       "page": page,
       "link": link,
       "sort_by": sort,
       "data": additionalParams,
     };
-    Response response = await _dio.post('/api/v2/tagComics', data: data);
+    Response response = await _dio.post('/api/v1/tag-comics', data: data);
     List dataPoints = response.data['comics'];
     List<ComicHighlight> comics = [];
     for (int index = 0; index < dataPoints.length; index++) {
@@ -216,11 +216,11 @@ class ApiManager {
     if (source == "mangadex") return dex.search(query, additionalParams);
 
     Map data = {
-      "source": source,
+      "selector": source,
       "query": query,
       "data": additionalParams,
     };
-    Response response = await _dio.post('/api/v2/search', data: data);
+    Response response = await _dio.post('/api/v1/search', data: data);
     List dataPoints = response.data['comics'];
     List<ComicHighlight> comics = [];
     for (int index = 0; index < dataPoints.length; index++) {
@@ -235,10 +235,10 @@ class ApiManager {
     if (source == "mangadex") return dex.browse(query, additionalParams);
     additionalParams.addAll(query);
     Map data = {
-      "source": source,
+      "selector": source,
       "data": additionalParams,
     };
-    Response response = await _dio.post('/api/v2/browse', data: data);
+    Response response = await _dio.post('/api/v1/browse', data: data);
     List dataPoints = response.data['comics'];
     List<ComicHighlight> comics = [];
     for (int index = 0; index < dataPoints.length; index++) {

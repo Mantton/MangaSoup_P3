@@ -17,10 +17,13 @@ class UpdateManager {
     int updateCount = 0;
     List<Favorite> holder = await _favoritesManager.getUpdateEnabledFavorites();
 
+    if (holder.isEmpty){
+      return updateCount;
+    }
+
     for (Favorite favorite in holder) {
       ComicHighlight highlight = favorite.highlight;
       ComicProfile _profile;
-
       try {
         _profile =
             await _apiManager.getProfile(highlight.selector, highlight.link);
@@ -54,7 +57,9 @@ class UpdateManager {
         continue;
       }
     }
-    favoritesStream.add("Update Check Complete");
+
+    if (updateCount > 0) favoritesStream.add("Update");
+
     print("Update Check done");
     return updateCount;
   }

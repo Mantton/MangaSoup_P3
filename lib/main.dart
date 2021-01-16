@@ -21,14 +21,13 @@ import 'package:flutter/material.dart'
         ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/BrowseProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
+import 'package:mangasoup_prototype_3/Providers/FavoriteProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/ReaderProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
@@ -114,11 +113,14 @@ void showNotification(v, flp) async {
 }
 
 Future<void> main() async {
+  print("IN!!!");
   WidgetsFlutterBinding.ensureInitialized();
+
   Workmanager.initialize(
       callbackDispatcher, // The top level function, aka callbackDispatcher
       isInDebugMode: false);
-  await FlutterDownloader.initialize(debug: false);
+
+  // await FlutterDownloader.initialize(debug: false); this is causing issues on IOS
 
   if (Platform.isAndroid) {
     await Workmanager.registerPeriodicTask(
@@ -133,7 +135,7 @@ Future<void> main() async {
       ),
     );
   }
-
+  print("awaiting run");
   runApp(
     MultiProvider(
       providers: [
@@ -146,8 +148,9 @@ Future<void> main() async {
         // View History
         ChangeNotifierProvider(create: (_) => ViewHistoryProvider()),
         ChangeNotifierProvider(create: (_) => BrowseProvider()),
-        ChangeNotifierProvider(create: (_) => DownloadProvider()),
+        // ChangeNotifierProvider(create: (_) => DownloadProvider()),
         ChangeNotifierProvider(create: (_) => ReaderProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
 
         //
       ],

@@ -5,15 +5,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
-import 'package:mangasoup_prototype_3/Database/FavoritesDatabase.dart';
-import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
+import 'package:mangasoup_prototype_3/Providers/FavoriteProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/AllChapters.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/DownloadChapters.dart';
+import 'package:mangasoup_prototype_3/Screens/Reader/DebugReaders/DebugReader2.dart';
 import 'package:mangasoup_prototype_3/Screens/Tags/TagComics.dart';
 import 'package:provider/provider.dart';
 
@@ -37,22 +37,20 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
     fontSize: 18.sp,
   );
   bool isExpanded = false;
-  FavoritesManager _favoritesManager = FavoritesManager();
-  Favorite favoriteObject;
-  bool _isFav = false;
-  List _collections;
+
   Future<bool> init;
 
   Future<bool> initializeProfile() async {
+    var provider = Provider.of<FavoriteProvider>(context, listen: false);
+    Favorite favoriteObject;
     profile = widget.comicProfile;
-    favoriteObject = await _favoritesManager.isFavorite(profile.link);
+    favoriteObject = await provider.returnFavorite(widget.highlight.link);
 
     /// Check if Favorite
     if (favoriteObject == null) {
-      _isFav = false;
+      // not in favorites
     } else {
-      _isFav = true;
-
+      // In favorites
       /// Update Chapter Count
       if (!widget.comicProfile.containsBooks)
         favoriteObject.chapterCount = widget.comicProfile.chapterCount;
@@ -69,13 +67,9 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
       favoriteObject.updateCount = 0;
       favoriteObject.highlight.thumbnail =
           widget.comicProfile.thumbnail; // Update Favorites Thumbnails
-      await _favoritesManager.updateByID(favoriteObject);
-      favoritesStream.add("");
+      await provider.update(favoriteObject);
     }
 
-    /// Get Active Collections
-    _collections = await _favoritesManager.getCollections();
-    // debugPrint(_collections.toString());
     return true;
   }
 
@@ -87,6 +81,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
         future: init,
         builder: (_, snapshot) {
@@ -96,7 +91,10 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
             );
           }
           if (snapshot.hasError) {
-            return Text("MangaSoup Encountered a Critical Error");
+            return Text(
+              "MangaSoup Encountered a Critical Error \n ${snapshot.error}",
+              textAlign: TextAlign.center,
+            );
           }
           if (snapshot.hasData) {
             return homeView();
@@ -146,6 +144,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
           height: 250.h,
           child: SoupImage(
             url: profile.thumbnail,
+            referer: widget.highlight.imageReferer,
           ),
         ),
         SizedBox(
@@ -232,354 +231,19 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
     return Column(
       children: [
         IconButton(
-            icon: Icon(
-              icon,
-              color: Colors.purpleAccent,
-            ),
-            iconSize: 30.w,
-            onPressed: action),
+          icon: Icon(
+            icon,
+            color: Colors.purpleAccent,
+          ),
+          iconSize: 30.w,
+          onPressed: () => action,
+        ),
         Text(
           actionText,
           textAlign: TextAlign.center,
           style: def,
         )
       ],
-    );
-  }
-
-  /// Actions
-  removeFromLibrary() async {
-    var x = await _favoritesManager.deleteByID(favoriteObject.id);
-    debugPrint(x.toString());
-    setState(() {
-      _isFav = false;
-    });
-    Navigator.pop(context);
-    favoritesStream.add(" ");
-
-    showMessage(
-      "Removed!",
-      Icons.check,
-      Duration(
-        milliseconds: 1000,
-      ),
-    );
-  }
-
-  inFavorites() {
-    return showPlatformModalSheet(
-        context: context,
-        builder: (_) => PlatformWidget(
-              material: (_, __) => ListView(
-                shrinkWrap: true,
-                children: [
-                  ListTile(
-                    title: Text(
-                      "Remove from Library",
-                      style: def,
-                    ),
-                    onTap: () async {
-                      await removeFromLibrary();
-                    },
-                  ),
-                  ListTile(
-                    title: Text(
-                      "Move to different Collection",
-                      style: def,
-                    ),
-                    onTap: () {
-                      moveToDifferentCollection();
-                    },
-                  )
-                ],
-              ),
-              cupertino: (_, __) => CupertinoActionSheet(
-                title: Text("Options"),
-                cancelButton: CupertinoButton(
-                  child: Text("Cancel"),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                actions: [
-                  CupertinoActionSheetAction(
-                    onPressed: () async {
-                      await removeFromLibrary();
-                    },
-                    child: Text("Remove from Library"),
-                  ),
-                  CupertinoActionSheetAction(
-                    onPressed: () {
-                      moveToDifferentCollection();
-                    },
-                    child: Text("Move to different Collection"),
-                  )
-                ],
-              ),
-            ));
-  }
-
-  move(int index) async {
-    favoriteObject.collection = _collections[index];
-    int q = await _favoritesManager.updateByID(favoriteObject);
-    setState(() {});
-    Navigator.pop(context);
-    favoritesStream.add("$q");
-
-    showMessage(
-      "Moved to ${_collections[index]}!",
-      Icons.check,
-      Duration(
-        milliseconds: 1000,
-      ),
-    );
-  }
-
-  moveToDifferentCollection() {
-    Navigator.pop(context);
-    return showPlatformModalSheet(
-      context: context,
-      builder: (_) => PlatformWidget(
-        material: (_, __) => Container(
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Container(
-              padding: EdgeInsets.all(10.w),
-              child: Center(
-                child: Text(
-                  "Move",
-                  style: def,
-                ),
-              ),
-            ),
-            Column(
-              children: List<Widget>.generate(
-                _collections.length,
-                (index) => ListTile(
-                  title: Text(
-                    _collections[index],
-                    style: def,
-                  ),
-                  onTap: () async {
-                    await move(index);
-                  },
-                ),
-              ),
-            ),
-            ListTile(
-              title: Text(
-                "Create New Collection",
-                style: def,
-              ),
-              onTap: () async {
-                Navigator.pop(context);
-                await createCollection();
-              },
-            )
-          ]),
-        ),
-        cupertino: (_, __) => CupertinoActionSheet(
-          title: Text(
-            "Add to Collection",
-          ),
-          cancelButton: CupertinoButton(
-            child: Text(
-              "Cancel",
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
-          actions: [
-            Column(
-              children: [
-                Column(
-                  children: List<CupertinoActionSheetAction>.generate(
-                    _collections.length,
-                    (index) => CupertinoActionSheetAction(
-                      onPressed: () async {
-                        await move(index);
-                      },
-                      child: Text(
-                        _collections[index],
-                      ),
-                    ),
-                  ),
-                ),
-                CupertinoActionSheetAction(
-                  child: Text("Create New Collection"),
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await createCollection();
-                  },
-                )
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<Favorite> addToFavorites(String collectionName) async {
-    print(
-        "Saving : ${Provider.of<ComicHighlightProvider>(context, listen: false).highlight.link}");
-    Favorite newFav = Favorite(
-        null,
-        Provider.of<ComicHighlightProvider>(context, listen: false).highlight,
-        collectionName,
-        profile.chapterCount,
-        0);
-
-    if (favoriteObject == null)
-      return await _favoritesManager.save(newFav);
-    else {
-      favoriteObject.collection = collectionName;
-      await _favoritesManager.updateByID(favoriteObject);
-      return favoriteObject;
-    }
-  }
-
-  add(int index) async {
-    favoriteObject = await addToFavorites(_collections[index]);
-    setState(() {
-      _isFav = true;
-    });
-    Navigator.pop(context);
-    favoritesStream.add("");
-    showMessage(
-      "Added to ${_collections[index]}!",
-      Icons.check,
-      Duration(
-        milliseconds: 1000,
-      ),
-    );
-  }
-
-  notInFavorites() {
-    return showPlatformModalSheet(
-      context: context,
-      builder: (_) => PlatformWidget(
-        material: (_, __) => Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Column(
-                children: List<Widget>.generate(
-                  _collections.length,
-                  (index) => ListTile(
-                    title: Text(
-                      _collections[index],
-                      style: def,
-                    ),
-                    onTap: () async {
-                      await add(index);
-                    },
-                  ),
-                ),
-              ),
-              ListTile(
-                title: Text(
-                  "Create New Collection",
-                  style: def,
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await createCollection();
-                },
-              )
-            ],
-          ),
-        ),
-        cupertino: (_, __) => CupertinoActionSheet(
-          title: Text(
-            "Add to Collection",
-          ),
-          cancelButton: CupertinoButton(
-            child: Text(
-              "Cancel",
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
-          actions: [
-            Column(
-              children: [
-                Column(
-                  children: List<CupertinoActionSheetAction>.generate(
-                    _collections.length,
-                    (index) => CupertinoActionSheetAction(
-                      onPressed: () async {
-                        await add(index);
-                      },
-                      child: Text(
-                        _collections[index],
-                      ),
-                    ),
-                  ),
-                ),
-                CupertinoActionSheetAction(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await createCollection();
-                  },
-                  child: Text(
-                    "Create New Collection",
-                  ),
-                )
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  createCollection() {
-    String newCollectionName = "";
-    showPlatformDialog(
-      context: context,
-      builder: (_) => PlatformAlertDialog(
-        title: Text("Create New Collection"),
-        content: Container(
-          child: PlatformTextField(
-            maxLength: 20,
-            cursorColor: Colors.purple,
-            onChanged: (val) => newCollectionName = val,
-          ),
-        ),
-        actions: [
-          PlatformDialogAction(
-            child: Text("Cancel"),
-            onPressed: () => Navigator.pop(context),
-          ),
-          PlatformDialogAction(
-            child: Text("OK"),
-            onPressed: () async {
-              debugPrint(newCollectionName);
-              if (newCollectionName == null) {
-                showMessage("Invalid Name", Icons.cancel_outlined,
-                    Duration(milliseconds: 1000));
-              } else {
-                if (_collections.contains(newCollectionName.trim()) ||
-                    newCollectionName == "") {
-                  showMessage("Invalid Name", Icons.cancel_outlined,
-                      Duration(milliseconds: 1000));
-                } else {
-                  favoriteObject = await addToFavorites(newCollectionName);
-                  setState(() {
-                    _isFav = true;
-                  });
-                  Navigator.pop(context);
-                  favoritesStream.add("");
-
-                  showMessage(
-                    "Added to $newCollectionName!",
-                    Icons.check,
-                    Duration(
-                      milliseconds: 1000,
-                    ),
-                  );
-                }
-              }
-            },
-          )
-        ],
-      ),
     );
   }
 
@@ -621,11 +285,36 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
               ],
             ),
             Spacer(),
-            actionButton(
-              _isFav ? Icons.favorite : Icons.favorite_border,
-              _isFav ? "In Library\n${favoriteObject.collection}" : "Favorite",
-              _isFav ? inFavorites : notInFavorites,
-            )
+            Consumer<FavoriteProvider>(builder: (context, provider, _) {
+              bool isFavorite =
+                  provider.isFavorite(widget.highlight.link) ? true : false;
+              Favorite fav;
+              if (isFavorite) {
+                fav = provider.returnFavorite(widget.highlight.link);
+              } else
+                fav = null;
+
+              /// Collection
+              return Column(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: Colors.purpleAccent,
+                    ),
+                    iconSize: 30.w,
+                    onPressed: () => isFavorite
+                        ? inFavorites(favorite: fav)
+                        : notInFavorites(favorite: fav),
+                  ),
+                  Text(
+                    isFavorite ? "${fav.collection}" : "Add",
+                    textAlign: TextAlign.center,
+                    style: def,
+                  )
+                ],
+              );
+            })
           ],
         ),
       );
@@ -818,7 +507,25 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                   bool read = (readChapterNames.contains(chapter.name) ||
                       readChapterLinks.contains(chapter.link));
                   return GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              DebugReader2(
+                                chapters: profile.chapters
+                                    .map((e) => Chapter.fromMap(e))
+                                    .toList(),
+                                selectedChapter: chapter,
+                                selector:
+                                Provider
+                                    .of<ComicHighlightProvider>(context)
+                                    .highlight
+                                    .selector,
+                              ),
+                        ),
+                      );
+                    },
                     child: Container(
                       height: 70.h,
                       child: ListTile(
@@ -946,6 +653,374 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
       return 5;
     else
       return length;
+  }
+
+  /// Actions
+  removeFromLibrary(Favorite favorite) async {
+    var x = await Provider.of<FavoriteProvider>(context, listen: false)
+        .delete(favorite);
+    debugPrint(x.toString());
+    Navigator.pop(context);
+    showMessage(
+      "Removed!",
+      Icons.check,
+      Duration(
+        milliseconds: 1000,
+      ),
+    );
+  }
+
+  //
+  inFavorites({Favorite favorite}) {
+    return showPlatformModalSheet(
+        context: context,
+        builder: (_) =>
+            PlatformWidget(
+              material: (_, __) =>
+                  ListView(
+                    shrinkWrap: true,
+                    children: [
+                      ListTile(
+                        title: Text(
+                          "Remove from Library",
+                          style: def,
+                        ),
+                        onTap: () async {
+                          await removeFromLibrary(favorite);
+                        },
+                      ),
+                      ListTile(
+                        title: Text(
+                          "Move to different Collection",
+                          style: def,
+                        ),
+                        onTap: () {
+                          moveToDifferentCollection(favorite: favorite);
+                        },
+                      )
+                    ],
+                  ),
+              cupertino: (_, __) =>
+                  CupertinoActionSheet(
+                    title: Text("Options"),
+                    cancelButton: CupertinoButton(
+                      child: Text("Cancel"),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    actions: [
+                      CupertinoActionSheetAction(
+                        onPressed: () async {
+                          await removeFromLibrary(favorite);
+                        },
+                        child: Text("Remove from Library"),
+                      ),
+                      CupertinoActionSheetAction(
+                        onPressed: () {
+                          moveToDifferentCollection(favorite: favorite);
+                        },
+                        child: Text("Move to different Collection"),
+                      )
+                    ],
+                  ),
+            ));
+  }
+
+  //
+  move({Favorite fav, String collection}) async {
+    fav.collection = collection;
+    await Provider.of<FavoriteProvider>(context, listen: false).update(fav);
+    setState(() {});
+    Navigator.pop(context);
+    showMessage(
+      "Moved to $collection!",
+      Icons.check,
+      Duration(
+        milliseconds: 1000,
+      ),
+    );
+  }
+
+  //
+  moveToDifferentCollection({Favorite favorite}) {
+    Navigator.pop(context);
+    List options =
+        Provider
+            .of<FavoriteProvider>(context, listen: false)
+            .collections;
+    options.remove(favorite.collection);
+    return showPlatformModalSheet(
+      context: context,
+      builder: (_) =>
+          PlatformWidget(
+            material: (_, __) =>
+                Container(
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Container(
+                      padding: EdgeInsets.all(10.w),
+                      child: Center(
+                        child: Text(
+                          "Move",
+                          style: def,
+                        ),
+                      ),
+                    ),
+                    Column(
+                      children: List<Widget>.generate(
+                        options.length,
+                            (index) =>
+                            ListTile(
+                              title: Text(
+                                options[index],
+                                style: def,
+                              ),
+                              onTap: () async {
+                                await move(fav: favorite,
+                                    collection: options[index]);
+                              },
+                            ),
+                      ),
+                    ),
+                    ListTile(
+                      title: Text(
+                        "Create New Collection",
+                        style: def,
+                      ),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await createCollection(favorite: favorite);
+                      },
+                    )
+                  ]),
+                ),
+            cupertino: (_, __) =>
+                CupertinoActionSheet(
+                  title: Text(
+                    "Add to Collection",
+                  ),
+                  cancelButton: CupertinoButton(
+                    child: Text(
+                      "Cancel",
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  actions: [
+                    Column(
+                      children: [
+                        Column(
+                          children: List<CupertinoActionSheetAction>.generate(
+                            options.length,
+                                (index) =>
+                                CupertinoActionSheetAction(
+                                  onPressed: () async {
+                                    await move(fav: favorite,
+                                        collection: options[index]);
+                                  },
+                                  child: Text(
+                                    options[index],
+                                  ),
+                                ),
+                          ),
+                        ),
+                        CupertinoActionSheetAction(
+                          child: Text("Create New Collection"),
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await createCollection(favorite: favorite);
+                          },
+                        )
+                      ],
+                    )
+                  ],
+                ),
+          ),
+    );
+  }
+
+  Future<Favorite> addToFavorites(
+      {String collectionName, Favorite favoriteObject}) async {
+    print(
+        "Saving : ${Provider
+            .of<ComicHighlightProvider>(context, listen: false)
+            .highlight
+            .link}");
+    Favorite newFav = Favorite(
+        null,
+        Provider
+            .of<ComicHighlightProvider>(context, listen: false)
+            .highlight,
+        collectionName,
+        profile.chapterCount,
+        0);
+
+    if (favoriteObject == null)
+      return await Provider.of<FavoriteProvider>(context, listen: false)
+          .add(newFav);
+    else {
+      favoriteObject.collection = collectionName;
+      await Provider.of<FavoriteProvider>(context, listen: false)
+          .update(favoriteObject);
+      return favoriteObject;
+    }
+  }
+
+  //
+  add({String collection, Favorite favorite}) async {
+    await addToFavorites(collectionName: collection, favoriteObject: favorite);
+    Navigator.pop(context);
+    showMessage(
+      "Added to $collection!",
+      Icons.check,
+      Duration(
+        milliseconds: 1000,
+      ),
+    );
+  }
+
+  //
+  notInFavorites({Favorite favorite}) {
+    List _collections =
+        Provider
+            .of<FavoriteProvider>(context, listen: false)
+            .collections;
+    return showPlatformModalSheet(
+      context: context,
+      builder: (_) =>
+          PlatformWidget(
+            material: (_, __) =>
+                Container(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Column(
+                        children: List<Widget>.generate(
+                          _collections.length,
+                              (index) =>
+                              ListTile(
+                                title: Text(
+                                  _collections[index],
+                                  style: def,
+                                ),
+                                onTap: () async {
+                                  await add(
+                                      collection: _collections[index],
+                                      favorite: favorite);
+                                },
+                              ),
+                        ),
+                      ),
+                      ListTile(
+                        title: Text(
+                          "Create New Collection",
+                          style: def,
+                        ),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await createCollection(favorite: favorite);
+                        },
+                      )
+                    ],
+                  ),
+                ),
+            cupertino: (_, __) =>
+                CupertinoActionSheet(
+                  title: Text(
+                    "Add to Collection",
+                  ),
+                  cancelButton: CupertinoButton(
+                    child: Text(
+                      "Cancel",
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  actions: [
+                    Column(
+                      children: [
+                        Column(
+                          children: List<CupertinoActionSheetAction>.generate(
+                            _collections.length,
+                                (index) =>
+                                CupertinoActionSheetAction(
+                                  onPressed: () async {
+                                    await add(collection: _collections[index]);
+                                  },
+                                  child: Text(
+                                    _collections[index],
+                                  ),
+                                ),
+                          ),
+                        ),
+                        CupertinoActionSheetAction(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await createCollection(favorite: favorite);
+                          },
+                          child: Text(
+                            "Create New Collection",
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+          ),
+    );
+  }
+
+  //
+  createCollection({@required Favorite favorite}) {
+    String newCollectionName = "";
+    List _collections =
+        Provider
+            .of<FavoriteProvider>(context, listen: false)
+            .collections;
+    showPlatformDialog(
+      context: context,
+      builder: (_) =>
+          PlatformAlertDialog(
+            title: Text("Create New Collection"),
+            content: Container(
+              child: PlatformTextField(
+                maxLength: 20,
+                cursorColor: Colors.purple,
+                onChanged: (val) => newCollectionName = val,
+              ),
+            ),
+            actions: [
+              PlatformDialogAction(
+                child: Text("Cancel"),
+                onPressed: () => Navigator.pop(context),
+              ),
+              PlatformDialogAction(
+                child: Text("OK"),
+                onPressed: () async {
+                  debugPrint(newCollectionName);
+                  if (newCollectionName == null) {
+                    showMessage("Invalid Name", Icons.cancel_outlined,
+                        Duration(milliseconds: 1000));
+                  } else {
+                    if (_collections.contains(newCollectionName.trim()) ||
+                        newCollectionName == "") {
+                      showMessage("Invalid Name", Icons.cancel_outlined,
+                          Duration(milliseconds: 1000));
+                    } else {
+                      await addToFavorites(
+                          collectionName: newCollectionName,
+                          favoriteObject: favorite);
+                      Navigator.pop(context);
+                      showMessage(
+                        "Added to $newCollectionName!",
+                        Icons.check,
+                        Duration(
+                          milliseconds: 1000,
+                        ),
+                      );
+                    }
+                  }
+                },
+              )
+            ],
+          ),
+    );
   }
 
   @override

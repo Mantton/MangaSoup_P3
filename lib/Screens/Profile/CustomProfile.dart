@@ -6,8 +6,10 @@ import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
+import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Reader/DebugReaders/DebugReader2.dart';
+import 'package:mangasoup_prototype_3/Screens/Tags/TagComics.dart';
 import 'package:provider/provider.dart';
 
 class CustomProfilePage extends StatefulWidget {
@@ -192,7 +194,13 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                         itemCount: tags.length,
                         itemBuilder: (BuildContext context, int i) =>
                             GestureDetector(
-                          onTap: null,
+                          onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => TagComicsPage(
+                                  tag: Tag.fromMap(tags[i]),
+                                ),
+                              )),
                           child: Container(
                             decoration: BoxDecoration(
                                 color: Colors.grey[900],

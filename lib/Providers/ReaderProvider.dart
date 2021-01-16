@@ -88,16 +88,21 @@ class ReaderProvider with ChangeNotifier {
   addChapter() async {
     if (currentImageChapter == loadedChapters.last) {
       print("Loading Next");
-
       loadingMore = true;
 
-      ImageChapter c = await loadChapter(chapterList[chapterIndex + 1], source);
-      showSnackBarMessage("Next Chapter Loaded!");
-      loadedChapters.add(c);
+      int newIndex = chapterIndex - 1;
+      if (newIndex < 0) {
+        showSnackBarMessage("Edge Reached");
+      } else {
+        print(chapterIndex);
+        ImageChapter c = await loadChapter(chapterList[newIndex], source);
+        showSnackBarMessage("Next Chapter Loaded!");
+        loadedChapters.add(c);
 
-      chapterIndex += 1;
+        chapterIndex = newIndex;
+        print("Append Complete");
+      }
       loadingMore = false;
-      print("Append Complete");
       notifyListeners();
     }
   }

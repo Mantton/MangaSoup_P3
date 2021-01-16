@@ -1,18 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/FavoriteGrid.dart';
-import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Database/FavoritesDatabase.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Providers/FavoriteProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Favorite/FavoriteEdit.dart';
 import 'package:mangasoup_prototype_3/Screens/Favorite/FavoruteSearch.dart';
 import 'package:mangasoup_prototype_3/Services/update_manager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 class FavouritePage extends StatefulWidget {
   @override
@@ -22,28 +22,22 @@ class FavouritePage extends StatefulWidget {
 class _FavouritePageState extends State<FavouritePage> {
   FavoritesManager _manager = FavoritesManager();
   UpdateManager _updateManager = UpdateManager();
-  List collections;
-  List<String> updateEnabledCollections;
-  Future<Map> initializer;
 
-  Future<Map> getFavorites() async {
-    Map holder = await _manager.getSortedFavorites();
-    collections = holder.keys.toList();
+  Future<bool> initializer;
 
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-    updateEnabledCollections = _prefs.getStringList("uec") ?? [];
-    return holder;
+  Future<bool> getFavorites() async {
+    print("starting");
+    await Provider.of<FavoriteProvider>(context, listen: false).init();
+    return true;
   }
 
   @override
   void initState() {
     super.initState();
     initializer = getFavorites();
-    favoritesStream.stream.listen((event) {
-      setState(() {
-        initializer = getFavorites();
-        debugPrint("Favorites Rebuilt!");
-      });
+
+    favoritesStream.stream.listen((event) async {
+      await Provider.of<FavoriteProvider>(context, listen: false).init();
     });
   }
 
@@ -59,15 +53,22 @@ class _FavouritePageState extends State<FavouritePage> {
           }
           if (snapshot.hasError) {
             return Center(
-              child: Text("Internal Error"),
+              child: Text(
+                "Internal Error \n  ${snapshot.error}",
+                textAlign: TextAlign.center,
+              ),
             );
           }
-          if (snapshot.hasData) if (snapshot.data.length != 0)
-            return mainBody(snapshot.data);
-          else
-            return emptyLibrary();
-          else {
-            return Text("No Favorites");
+          if (snapshot.hasData) {
+            return Consumer<FavoriteProvider>(
+                builder: (BuildContext context, provider, _) {
+              if (provider.favorites.isNotEmpty)
+                return mainBody(provider.sortedFavorites);
+              else
+                return emptyLibrary();
+            });
+          } else {
+            return Text("You Shouldn't be seeing this");
           }
         });
   }
@@ -80,84 +81,89 @@ class _FavouritePageState extends State<FavouritePage> {
       ),
       body: Center(
         child: Container(
-          child: Text("Your Library is currently empty"),
+          child: Text(
+            "Your Library is currently empty",
+            style: isEmptyFont,
+          ),
         ),
       ),
     );
   }
 
   Widget mainBody(Map comics) {
-    return DefaultTabController(
-      length: collections.length,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text("Favorites"),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Icon(CupertinoIcons.search),
+    return Consumer<FavoriteProvider>(builder: (context, provider, _) {
+      return DefaultTabController(
+        length: provider.collections.length,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text("Favorites"),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: Icon(CupertinoIcons.search),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => FavoriteSearch(),
+                    ),
+                  );
+                },
+              ),
+            ],
+            leading: IconButton(
+              icon: Icon(CupertinoIcons.refresh),
               onPressed: () async {
                 showLoadingDialog(context);
-                List<Favorite> favorites = await _manager.getAll();
+                int updateCount = await _updateManager.checkForUpdate();
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => FavoriteSearch(
-                      favorites: favorites,
+                if (updateCount > 0) {
+                  showMessage(
+                    "$updateCount new update(s)",
+                    CupertinoIcons.book_fill,
+                    Duration(
+                      milliseconds: 1500,
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  showSnackBarMessage("No new updates in you collections!");
+                }
               },
             ),
-          ],
-          leading: IconButton(
-            icon: Icon(CupertinoIcons.refresh),
-            onPressed: () async {
-              showLoadingDialog(context);
-              int updateCount = await _updateManager.checkForUpdate();
-              Navigator.pop(context);
-              if (updateCount > 0) {
-                showMessage(
-                  "$updateCount new update(s)",
-                  CupertinoIcons.book_fill,
-                  Duration(
-                    milliseconds: 1500,
-                  ),
+            bottom: TabBar(
+              indicatorColor: Colors.purpleAccent,
+              isScrollable: true,
+              unselectedLabelStyle: TextStyle(fontSize: 19.sp),
+              labelStyle:
+              TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
+              tabs: List<Widget>.generate(provider.collections.length, (index) {
+                return Tab(
+                  text: provider.collections[index],
                 );
-              } else {
-                showSnackBarMessage("No new updates in you collections!");
-              }
-            },
+              }),
+            ),
           ),
-          bottom: TabBar(
-            indicatorColor: Colors.purpleAccent,
-            isScrollable: true,
-            unselectedLabelStyle: TextStyle(fontSize: 19.sp),
-            labelStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
-            tabs: List<Widget>.generate(collections.length, (index) {
-              return Tab(
-                text: collections[index],
-              );
+          backgroundColor: Colors.black,
+          body: TabBarView(
+            children:
+            List<Widget>.generate(provider.collections.length, (index) {
+              List<Favorite> collectionComics =
+              comics[provider.collections[index]];
+              List<ComicHighlight> highlights = [];
+              collectionComics.forEach((element) {
+                highlights.add(element.highlight);
+              });
+              return page(collectionComics, provider.collections[index],
+                  provider.collections, provider.updateEnabledCollections);
             }),
           ),
         ),
-        backgroundColor: Colors.black,
-        body: TabBarView(
-          children: List<Widget>.generate(collections.length, (index) {
-            List<Favorite> collectionComics = comics[collections[index]];
-            List<ComicHighlight> highlights = [];
-            collectionComics.forEach((element) {
-              highlights.add(element.highlight);
-            });
-            return page(collectionComics, collections[index]);
-          }),
-        ),
-      ),
-    );
+      );
+    });
   }
 
-  Widget page(List<Favorite> comics, String currentCollection) {
+  Widget page(List<Favorite> comics, String currentCollection, List collections,
+      List updateEnabledCollections) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -201,7 +207,9 @@ class _FavouritePageState extends State<FavouritePage> {
                             Icons.notifications_off_outlined,
                           ),
                     onPressed: () async {
-                      await toggleUpdate(currentCollection);
+                      await Provider.of<FavoriteProvider>(context,
+                          listen: false)
+                          .toggleUpdateEnabled(currentCollection);
                     },
                     color:
                         (updateEnabledCollections.contains(currentCollection))
@@ -218,38 +226,5 @@ class _FavouritePageState extends State<FavouritePage> {
         ],
       ),
     );
-  }
-
-  toggleUpdate(String collectionName) async {
-    showLoadingDialog(context);
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-
-    if (updateEnabledCollections.contains(collectionName)) {
-      // Disable Updates
-
-      updateEnabledCollections.remove(collectionName);
-      await _prefs.setStringList("uec", updateEnabledCollections);
-      setState(() {});
-      Navigator.pop(context);
-      showMessage(
-        "Notifications Disabled!",
-        Icons.notifications_off_outlined,
-        Duration(
-          seconds: 1,
-        ),
-      );
-    } else {
-      updateEnabledCollections.add(collectionName);
-      await _prefs.setStringList("uec", updateEnabledCollections);
-      setState(() {});
-      Navigator.pop(context);
-      showMessage(
-        "Notificaations Enabled!",
-        Icons.notifications_active_outlined,
-        Duration(
-          seconds: 1,
-        ),
-      );
-    }
   }
 }
