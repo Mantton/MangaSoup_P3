@@ -37,9 +37,14 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
         .init(widget.highlight); // Initialize Read Chapter History
 
     /// Save to View History
-    // todo, get setting to check whether to save hentai sources comics to history
     bool hentai = widget.highlight.isHentai ?? false;
+    // Hentai checks for sites like nhentai
     if (!hentai) {
+      /*
+      * tags that contain adult content : adult, smut
+      * */
+      // Readmanhwa -> adult
+      // most others -> smut
       await Provider.of<ViewHistoryProvider>(context, listen: false)
           .addToHistory(widget.highlight); // Add to View History
     }

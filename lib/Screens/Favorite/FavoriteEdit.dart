@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/FavoriteGrid.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Database/FavoritesDatabase.dart';
-import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class FavoriteCollectionEdit extends StatefulWidget {
   final List<Favorite> favorites;
@@ -175,7 +174,6 @@ class _FavoriteCollectionEditState extends State<FavoriteCollectionEdit> {
                       onTap: () async {
                         showLoadingDialog(context);
                         await _manager.removeBulk(_selectedItems);
-                        favoritesStream.add(" Removed While Editing ");
                         setState(() {
                           _favs.removeWhere(
                             (element) => _selectedItems.contains(element),
@@ -306,7 +304,6 @@ class _FavoriteCollectionEditState extends State<FavoriteCollectionEdit> {
       element.collection = name;
     });
     await _manager.updateBulk(_selectedItems);
-    favoritesStream.add(" Updated ");
     setState(() {
       _favs.removeWhere(
         (element) => _selectedItems.contains(element),
@@ -402,7 +399,6 @@ class _FavoriteCollectionEditState extends State<FavoriteCollectionEdit> {
                     element.collection = newCollectionName;
                   });
                   await _manager.updateBulk(_favs);
-                  favoritesStream.add(" Updated ");
                   setState(() {
                     _collectionName = newCollectionName;
 

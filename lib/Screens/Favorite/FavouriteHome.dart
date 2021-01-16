@@ -35,6 +35,10 @@ class _FavouritePageState extends State<FavouritePage> {
   void initState() {
     super.initState();
     initializer = getFavorites();
+
+    favoritesStream.stream.listen((event) async {
+      await Provider.of<FavoriteProvider>(context, listen: false).init();
+    });
   }
 
   @override

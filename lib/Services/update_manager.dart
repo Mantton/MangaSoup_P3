@@ -57,7 +57,9 @@ class UpdateManager {
         continue;
       }
     }
-    favoritesStream.add("Update");
+
+    if (updateCount > 0) favoritesStream.add("Update");
+
     print("Update Check done");
     return updateCount;
   }

@@ -67,13 +67,16 @@ class FavoritesTile extends StatelessWidget {
                     5.w,
                   ),
                   alignment: Alignment.topRight,
+                  height: 45.h,
                   child: CircleAvatar(
-                    child: Text(
-                      "${favorite.updateCount}",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 25.sp,
+                    child: Center(
+                      child: Text(
+                        "${favorite.updateCount}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 20.sp,
+                        ),
                       ),
                     ),
                     backgroundColor: Colors.red[700],

@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
-import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
@@ -14,6 +13,7 @@ import 'package:mangasoup_prototype_3/Providers/FavoriteProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/AllChapters.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/DownloadChapters.dart';
+import 'package:mangasoup_prototype_3/Screens/Reader/DebugReaders/DebugReader2.dart';
 import 'package:mangasoup_prototype_3/Screens/Tags/TagComics.dart';
 import 'package:provider/provider.dart';
 
@@ -44,7 +44,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
     var provider = Provider.of<FavoriteProvider>(context, listen: false);
     Favorite favoriteObject;
     profile = widget.comicProfile;
-    favoriteObject = await provider.returnFavorite(profile.link);
+    favoriteObject = await provider.returnFavorite(widget.highlight.link);
 
     /// Check if Favorite
     if (favoriteObject == null) {
@@ -287,10 +287,10 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
             Spacer(),
             Consumer<FavoriteProvider>(builder: (context, provider, _) {
               bool isFavorite =
-                  provider.isFavorite(widget.comicProfile.link) ? true : false;
+                  provider.isFavorite(widget.highlight.link) ? true : false;
               Favorite fav;
               if (isFavorite) {
-                fav = provider.returnFavorite(widget.comicProfile.link);
+                fav = provider.returnFavorite(widget.highlight.link);
               } else
                 fav = null;
 
@@ -507,7 +507,25 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                   bool read = (readChapterNames.contains(chapter.name) ||
                       readChapterLinks.contains(chapter.link));
                   return GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              DebugReader2(
+                                chapters: profile.chapters
+                                    .map((e) => Chapter.fromMap(e))
+                                    .toList(),
+                                selectedChapter: chapter,
+                                selector:
+                                Provider
+                                    .of<ComicHighlightProvider>(context)
+                                    .highlight
+                                    .selector,
+                              ),
+                        ),
+                      );
+                    },
                     child: Container(
                       height: 70.h,
                       child: ListTile(
@@ -849,7 +867,6 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   add({String collection, Favorite favorite}) async {
     await addToFavorites(collectionName: collection, favoriteObject: favorite);
     Navigator.pop(context);
-    favoritesStream.add("");
     showMessage(
       "Added to $collection!",
       Icons.check,
@@ -986,7 +1003,8 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                       showMessage("Invalid Name", Icons.cancel_outlined,
                           Duration(milliseconds: 1000));
                     } else {
-                      await addToFavorites(collectionName: newCollectionName,
+                      await addToFavorites(
+                          collectionName: newCollectionName,
                           favoriteObject: favorite);
                       Navigator.pop(context);
                       showMessage(
