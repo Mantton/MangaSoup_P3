@@ -289,8 +289,6 @@ class ApiManager {
           headers: {"Authorization": "Client-ID d50a5c2ba38acd4"},
         ),
       );
-      print((response.data).toString());
-
       // Process data
 
       List _imgAttr = response.data['data'];
@@ -298,6 +296,7 @@ class ApiManager {
       for (int i = 0; i < _imgAttr.length; i++) {
         images.add(_imgAttr[i]["link"]);
       }
+      print(images);
       return images;
     } catch (e) {
       print(e);
