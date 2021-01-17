@@ -173,7 +173,7 @@ class ApiManager {
   Future<List<Tag>> getTags(String source) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     if (source == "mangadex") return dex.getTags();
-    Map data = {"source": source, "data": additionalParams};
+    Map data = {"selector": source, "data": additionalParams};
     Response response = await _dio.post('/api/v1/tags', data: data);
     List dataPoints = response.data['genres'] ?? response.data;
     print(dataPoints);
