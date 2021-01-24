@@ -253,73 +253,75 @@ class _ChapterListState extends State<ChapterList> {
               itemBuilder: (BuildContext context, int index) {
                 Chapter chapter = Chapter.fromMap(chapterList[index]);
                 return Container(
-                  height: 70.h,
-                  child: ListTile(
-                    onTap: () {
-                      if (!editMode) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                DebugReader2(
-                                  chapters: chapterList
-                                      .map((e) => Chapter.fromMap(e))
-                                      .toList(),
-                                  selectedChapter: chapter,
-                                  selector:
-                                  Provider
-                                      .of<ComicHighlightProvider>(context)
-                                      .highlight
-                                      .selector,
-                                ),
-                          ),
-                        );
-                      } else {
-                        if (!selectedChapters.contains(chapterList[index])) {
-                          setState(() {
-                            selectedChapters.add(chapterList[index]);
-                          });
+                  height: 60.h,
+                  child: Center(
+                    child: ListTile(
+                      onTap: () {
+                        if (!editMode) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  DebugReader2(
+                                    chapters: chapterList
+                                        .map((e) => Chapter.fromMap(e))
+                                        .toList(),
+                                    selectedChapter: chapter,
+                                    selector:
+                                    Provider
+                                        .of<ComicHighlightProvider>(context)
+                                        .highlight
+                                        .selector,
+                                  ),
+                            ),
+                          );
                         } else {
-                          setState(() {
-                            selectedChapters.remove(chapterList[index]);
-                          });
+                          if (!selectedChapters.contains(chapterList[index])) {
+                            setState(() {
+                              selectedChapters.add(chapterList[index]);
+                            });
+                          } else {
+                            setState(() {
+                              selectedChapters.remove(chapterList[index]);
+                            });
+                          }
                         }
-                      }
-                    },
-                    title: Text(
-                      chapter.name,
-                      style: TextStyle(
-                        fontSize: 17.sp,
-                        color: (readChapterNames.contains(chapter.name) ||
-                                readChapterLinks.contains(chapter.link))
-                            ? Colors.grey[700]
-                            : Colors.white,
+                      },
+                      title: Text(
+                        chapter.name,
+                        style: TextStyle(
+                          fontSize: 17.sp,
+                          color: (readChapterNames.contains(chapter.name) ||
+                                  readChapterLinks.contains(chapter.link))
+                              ? Colors.grey[700]
+                              : Colors.white,
+                        ),
                       ),
-                    ),
-                    subtitle: Text(
-                      chapter.maker ?? "...",
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 15.sp,
+                      subtitle: (chapter.maker.isNotEmpty)?Text(
+                         chapter.maker,
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 15.sp,
+                        ),
+                      ): null,
+                      trailing: Text(
+                        chapter.date ?? "",
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 15.sp,
+                        ),
                       ),
-                    ),
-                    trailing: Text(
-                      chapter.date ?? "",
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 15.sp,
+                      leading: (!editMode)
+                          ? null
+                          : Icon(
+                        (selectedChapters.contains(chapterList[index]))
+                            ? Icons.check
+                            : Icons.radio_button_unchecked,
+                        color:
+                        (selectedChapters.contains(chapterList[index]))
+                            ? Colors.purple
+                            : Colors.grey,
                       ),
-                    ),
-                    leading: (!editMode)
-                        ? null
-                        : Icon(
-                      (selectedChapters.contains(chapterList[index]))
-                          ? Icons.check
-                          : Icons.radio_button_unchecked,
-                      color:
-                      (selectedChapters.contains(chapterList[index]))
-                          ? Colors.purple
-                          : Colors.grey,
                     ),
                   ),
                 );

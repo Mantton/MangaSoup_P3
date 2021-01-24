@@ -125,7 +125,10 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                   ),
                   comicActions(),
                   profileBody(),
-                  contentPreview()
+                  contentPreview(),
+                  (profile.altTitles != null)
+                      ? alternativeTitles()
+                      : Container(),
                 ],
               ),
             )
@@ -244,6 +247,36 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
           style: def,
         )
       ],
+    );
+  }
+
+  Widget alternativeTitles() {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      child: Padding(
+        padding: EdgeInsets.all(8.0.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 5,
+            ),
+            Text(
+              'Alternative Titles',
+              style: TextStyle(color: Colors.white, fontSize: 25.sp),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Text(
+              "${profile.altTitles}",
+              softWrap: true,
+              overflow: TextOverflow.fade,
+              style: TextStyle(color: Colors.grey, fontSize: 15.sp),
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -428,9 +461,9 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                     ),
                   );
                 }),
-            SizedBox(
-              height: 10.h,
-            ),
+            // SizedBox(
+            //   height: 10.h,
+            // ),
           ],
         ),
       ),
@@ -442,8 +475,9 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(
-              8.w,
+            padding: EdgeInsets.only(
+              left: 10.w,
+              right: 10.w,
             ),
             child: Row(
               children: [
@@ -451,21 +485,22 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                   (!profile.containsBooks) ? "Chapters" : "Chapter Collections",
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 25.sp,
+                    fontSize: 30.sp,
                   ),
                 ),
                 Spacer(),
                 IconButton(
                   onPressed: (!profile.containsBooks)
                       ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => DownloadChaptersPage(
-                                chapterList: profile.chapters,
-                              ),
-                            ),
-                          );
+                          showSnackBarMessage("Downloads have been disabled.");
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (_) => DownloadChaptersPage(
+                          //       chapterList: profile.chapters,
+                          //     ),
+                          //   ),
+                          // );
                         }
                       : null,
                   icon: Icon(
@@ -476,6 +511,12 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                 )
               ],
             ),
+          ),
+          Divider(
+            color: Colors.grey[900],
+            indent: 10.w,
+            endIndent: 10.w,
+            height: 10.0.h,
           ),
           (!profile.containsBooks) ? containsChapters() : containsBooks()
         ],
@@ -511,42 +552,42 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              DebugReader2(
-                                chapters: profile.chapters
-                                    .map((e) => Chapter.fromMap(e))
-                                    .toList(),
-                                selectedChapter: chapter,
-                                selector:
-                                Provider
-                                    .of<ComicHighlightProvider>(context)
+                          builder: (_) => DebugReader2(
+                            chapters: profile.chapters
+                                .map((e) => Chapter.fromMap(e))
+                                .toList(),
+                            selectedChapter: chapter,
+                            selector:
+                                Provider.of<ComicHighlightProvider>(context)
                                     .highlight
                                     .selector,
-                              ),
+                          ),
                         ),
                       );
                     },
                     child: Container(
-                      height: 70.h,
-                      child: ListTile(
-                        title: Text(
-                          chapter.name,
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            color: (read) ? Colors.grey[700] : Colors.white,
+                      height: 55.h,
+                      child: Center(
+                        child: ListTile(
+                          title: Text(
+                            chapter.name,
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              color: (read) ? Colors.grey[700] : Colors.white,
+                            ),
                           ),
-                        ),
-                        subtitle: chapter.maker.isNotEmpty
-                            ? Text(
-                                chapter.maker,
-                                style: TextStyle(
-                                    fontSize: 15.sp, color: Colors.grey[700]),
-                              )
-                            : null,
-                        trailing: Text(
-                          chapter.date ?? "",
-                          style: TextStyle(
-                              color: Colors.grey[700], fontSize: 15.sp),
+                          subtitle: chapter.maker.isNotEmpty
+                              ? Text(
+                                  chapter.maker,
+                                  style: TextStyle(
+                                      fontSize: 15.sp, color: Colors.grey[700]),
+                                )
+                              : null,
+                          trailing: Text(
+                            chapter.date ?? "",
+                            style: TextStyle(
+                                color: Colors.grey[700], fontSize: 15.sp),
+                          ),
                         ),
                       ),
                     ),
@@ -554,6 +595,12 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
                 }),
           );
         }),
+        Divider(
+          color: Colors.grey[900],
+          indent: 10.w,
+          endIndent: 10.w,
+          height: 10.0.h,
+        ),
         GestureDetector(
           onTap: () {
             Navigator.push(
@@ -567,7 +614,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
           },
           child: profile.chapterCount != 0
               ? Container(
-                  margin: EdgeInsets.all(15.w),
+                  margin: EdgeInsets.only(left: 20.w, right: 20.w),
                   decoration: BoxDecoration(
                       color: Colors.grey[900],
                       borderRadius: BorderRadius.circular(10)),
@@ -674,54 +721,51 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   inFavorites({Favorite favorite}) {
     return showPlatformModalSheet(
         context: context,
-        builder: (_) =>
-            PlatformWidget(
-              material: (_, __) =>
-                  ListView(
-                    shrinkWrap: true,
-                    children: [
-                      ListTile(
-                        title: Text(
-                          "Remove from Library",
-                          style: def,
-                        ),
-                        onTap: () async {
-                          await removeFromLibrary(favorite);
-                        },
-                      ),
-                      ListTile(
-                        title: Text(
-                          "Move to different Collection",
-                          style: def,
-                        ),
-                        onTap: () {
-                          moveToDifferentCollection(favorite: favorite);
-                        },
-                      )
-                    ],
-                  ),
-              cupertino: (_, __) =>
-                  CupertinoActionSheet(
-                    title: Text("Options"),
-                    cancelButton: CupertinoButton(
-                      child: Text("Cancel"),
-                      onPressed: () => Navigator.pop(context),
+        builder: (_) => PlatformWidget(
+              material: (_, __) => ListView(
+                shrinkWrap: true,
+                children: [
+                  ListTile(
+                    title: Text(
+                      "Remove from Library",
+                      style: def,
                     ),
-                    actions: [
-                      CupertinoActionSheetAction(
-                        onPressed: () async {
-                          await removeFromLibrary(favorite);
-                        },
-                        child: Text("Remove from Library"),
-                      ),
-                      CupertinoActionSheetAction(
-                        onPressed: () {
-                          moveToDifferentCollection(favorite: favorite);
-                        },
-                        child: Text("Move to different Collection"),
-                      )
-                    ],
+                    onTap: () async {
+                      await removeFromLibrary(favorite);
+                    },
                   ),
+                  ListTile(
+                    title: Text(
+                      "Move to different Collection",
+                      style: def,
+                    ),
+                    onTap: () {
+                      moveToDifferentCollection(favorite: favorite);
+                    },
+                  )
+                ],
+              ),
+              cupertino: (_, __) => CupertinoActionSheet(
+                title: Text("Options"),
+                cancelButton: CupertinoButton(
+                  child: Text("Cancel"),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                actions: [
+                  CupertinoActionSheetAction(
+                    onPressed: () async {
+                      await removeFromLibrary(favorite);
+                    },
+                    child: Text("Remove from Library"),
+                  ),
+                  CupertinoActionSheetAction(
+                    onPressed: () {
+                      moveToDifferentCollection(favorite: favorite);
+                    },
+                    child: Text("Move to different Collection"),
+                  )
+                ],
+              ),
             ));
   }
 
@@ -744,110 +788,96 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   moveToDifferentCollection({Favorite favorite}) {
     Navigator.pop(context);
     List options =
-        Provider
-            .of<FavoriteProvider>(context, listen: false)
-            .collections;
+        Provider.of<FavoriteProvider>(context, listen: false).collections;
     options.remove(favorite.collection);
     return showPlatformModalSheet(
       context: context,
-      builder: (_) =>
-          PlatformWidget(
-            material: (_, __) =>
-                Container(
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Container(
-                      padding: EdgeInsets.all(10.w),
-                      child: Center(
-                        child: Text(
-                          "Move",
-                          style: def,
-                        ),
-                      ),
-                    ),
-                    Column(
-                      children: List<Widget>.generate(
-                        options.length,
-                            (index) =>
-                            ListTile(
-                              title: Text(
-                                options[index],
-                                style: def,
-                              ),
-                              onTap: () async {
-                                await move(fav: favorite,
-                                    collection: options[index]);
-                              },
-                            ),
-                      ),
-                    ),
-                    ListTile(
-                      title: Text(
-                        "Create New Collection",
-                        style: def,
-                      ),
-                      onTap: () async {
-                        Navigator.pop(context);
-                        await createCollection(favorite: favorite);
-                      },
-                    )
-                  ]),
+      builder: (_) => PlatformWidget(
+        material: (_, __) => Container(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              padding: EdgeInsets.all(10.w),
+              child: Center(
+                child: Text(
+                  "Move",
+                  style: def,
                 ),
-            cupertino: (_, __) =>
-                CupertinoActionSheet(
+              ),
+            ),
+            Column(
+              children: List<Widget>.generate(
+                options.length,
+                (index) => ListTile(
                   title: Text(
-                    "Add to Collection",
+                    options[index],
+                    style: def,
                   ),
-                  cancelButton: CupertinoButton(
-                    child: Text(
-                      "Cancel",
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  actions: [
-                    Column(
-                      children: [
-                        Column(
-                          children: List<CupertinoActionSheetAction>.generate(
-                            options.length,
-                                (index) =>
-                                CupertinoActionSheetAction(
-                                  onPressed: () async {
-                                    await move(fav: favorite,
-                                        collection: options[index]);
-                                  },
-                                  child: Text(
-                                    options[index],
-                                  ),
-                                ),
-                          ),
-                        ),
-                        CupertinoActionSheetAction(
-                          child: Text("Create New Collection"),
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            await createCollection(favorite: favorite);
-                          },
-                        )
-                      ],
-                    )
-                  ],
+                  onTap: () async {
+                    await move(fav: favorite, collection: options[index]);
+                  },
                 ),
+              ),
+            ),
+            ListTile(
+              title: Text(
+                "Create New Collection",
+                style: def,
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                await createCollection(favorite: favorite);
+              },
+            )
+          ]),
+        ),
+        cupertino: (_, __) => CupertinoActionSheet(
+          title: Text(
+            "Add to Collection",
           ),
+          cancelButton: CupertinoButton(
+            child: Text(
+              "Cancel",
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+          actions: [
+            Column(
+              children: [
+                Column(
+                  children: List<CupertinoActionSheetAction>.generate(
+                    options.length,
+                    (index) => CupertinoActionSheetAction(
+                      onPressed: () async {
+                        await move(fav: favorite, collection: options[index]);
+                      },
+                      child: Text(
+                        options[index],
+                      ),
+                    ),
+                  ),
+                ),
+                CupertinoActionSheetAction(
+                  child: Text("Create New Collection"),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await createCollection(favorite: favorite);
+                  },
+                )
+              ],
+            )
+          ],
+        ),
+      ),
     );
   }
 
   Future<Favorite> addToFavorites(
       {String collectionName, Favorite favoriteObject}) async {
     print(
-        "Saving : ${Provider
-            .of<ComicHighlightProvider>(context, listen: false)
-            .highlight
-            .link}");
+        "Saving : ${Provider.of<ComicHighlightProvider>(context, listen: false).highlight.link}");
     Favorite newFav = Favorite(
         null,
-        Provider
-            .of<ComicHighlightProvider>(context, listen: false)
-            .highlight,
+        Provider.of<ComicHighlightProvider>(context, listen: false).highlight,
         collectionName,
         profile.chapterCount,
         0);
@@ -879,90 +909,82 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   //
   notInFavorites({Favorite favorite}) {
     List _collections =
-        Provider
-            .of<FavoriteProvider>(context, listen: false)
-            .collections;
+        Provider.of<FavoriteProvider>(context, listen: false).collections;
     return showPlatformModalSheet(
       context: context,
-      builder: (_) =>
-          PlatformWidget(
-            material: (_, __) =>
-                Container(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Column(
-                        children: List<Widget>.generate(
-                          _collections.length,
-                              (index) =>
-                              ListTile(
-                                title: Text(
-                                  _collections[index],
-                                  style: def,
-                                ),
-                                onTap: () async {
-                                  await add(
-                                      collection: _collections[index],
-                                      favorite: favorite);
-                                },
-                              ),
-                        ),
-                      ),
-                      ListTile(
-                        title: Text(
-                          "Create New Collection",
-                          style: def,
-                        ),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          await createCollection(favorite: favorite);
-                        },
-                      )
-                    ],
-                  ),
-                ),
-            cupertino: (_, __) =>
-                CupertinoActionSheet(
-                  title: Text(
-                    "Add to Collection",
-                  ),
-                  cancelButton: CupertinoButton(
-                    child: Text(
-                      "Cancel",
+      builder: (_) => PlatformWidget(
+        material: (_, __) => Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Column(
+                children: List<Widget>.generate(
+                  _collections.length,
+                  (index) => ListTile(
+                    title: Text(
+                      _collections[index],
+                      style: def,
                     ),
-                    onPressed: () => Navigator.pop(context),
+                    onTap: () async {
+                      await add(
+                          collection: _collections[index], favorite: favorite);
+                    },
                   ),
-                  actions: [
-                    Column(
-                      children: [
-                        Column(
-                          children: List<CupertinoActionSheetAction>.generate(
-                            _collections.length,
-                                (index) =>
-                                CupertinoActionSheetAction(
-                                  onPressed: () async {
-                                    await add(collection: _collections[index]);
-                                  },
-                                  child: Text(
-                                    _collections[index],
-                                  ),
-                                ),
-                          ),
-                        ),
-                        CupertinoActionSheetAction(
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            await createCollection(favorite: favorite);
-                          },
-                          child: Text(
-                            "Create New Collection",
-                          ),
-                        )
-                      ],
-                    )
-                  ],
                 ),
+              ),
+              ListTile(
+                title: Text(
+                  "Create New Collection",
+                  style: def,
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await createCollection(favorite: favorite);
+                },
+              )
+            ],
           ),
+        ),
+        cupertino: (_, __) => CupertinoActionSheet(
+          title: Text(
+            "Add to Collection",
+          ),
+          cancelButton: CupertinoButton(
+            child: Text(
+              "Cancel",
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+          actions: [
+            Column(
+              children: [
+                Column(
+                  children: List<CupertinoActionSheetAction>.generate(
+                    _collections.length,
+                    (index) => CupertinoActionSheetAction(
+                      onPressed: () async {
+                        await add(collection: _collections[index]);
+                      },
+                      child: Text(
+                        _collections[index],
+                      ),
+                    ),
+                  ),
+                ),
+                CupertinoActionSheetAction(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await createCollection(favorite: favorite);
+                  },
+                  child: Text(
+                    "Create New Collection",
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -970,56 +992,53 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   createCollection({@required Favorite favorite}) {
     String newCollectionName = "";
     List _collections =
-        Provider
-            .of<FavoriteProvider>(context, listen: false)
-            .collections;
+        Provider.of<FavoriteProvider>(context, listen: false).collections;
     showPlatformDialog(
       context: context,
-      builder: (_) =>
-          PlatformAlertDialog(
-            title: Text("Create New Collection"),
-            content: Container(
-              child: PlatformTextField(
-                maxLength: 20,
-                cursorColor: Colors.purple,
-                onChanged: (val) => newCollectionName = val,
-              ),
-            ),
-            actions: [
-              PlatformDialogAction(
-                child: Text("Cancel"),
-                onPressed: () => Navigator.pop(context),
-              ),
-              PlatformDialogAction(
-                child: Text("OK"),
-                onPressed: () async {
-                  debugPrint(newCollectionName);
-                  if (newCollectionName == null) {
-                    showMessage("Invalid Name", Icons.cancel_outlined,
-                        Duration(milliseconds: 1000));
-                  } else {
-                    if (_collections.contains(newCollectionName.trim()) ||
-                        newCollectionName == "") {
-                      showMessage("Invalid Name", Icons.cancel_outlined,
-                          Duration(milliseconds: 1000));
-                    } else {
-                      await addToFavorites(
-                          collectionName: newCollectionName,
-                          favoriteObject: favorite);
-                      Navigator.pop(context);
-                      showMessage(
-                        "Added to $newCollectionName!",
-                        Icons.check,
-                        Duration(
-                          milliseconds: 1000,
-                        ),
-                      );
-                    }
-                  }
-                },
-              )
-            ],
+      builder: (_) => PlatformAlertDialog(
+        title: Text("Create New Collection"),
+        content: Container(
+          child: PlatformTextField(
+            maxLength: 20,
+            cursorColor: Colors.purple,
+            onChanged: (val) => newCollectionName = val,
           ),
+        ),
+        actions: [
+          PlatformDialogAction(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          PlatformDialogAction(
+            child: Text("OK"),
+            onPressed: () async {
+              debugPrint(newCollectionName);
+              if (newCollectionName == null) {
+                showMessage("Invalid Name", Icons.cancel_outlined,
+                    Duration(milliseconds: 1000));
+              } else {
+                if (_collections.contains(newCollectionName.trim()) ||
+                    newCollectionName == "") {
+                  showMessage("Invalid Name", Icons.cancel_outlined,
+                      Duration(milliseconds: 1000));
+                } else {
+                  await addToFavorites(
+                      collectionName: newCollectionName,
+                      favoriteObject: favorite);
+                  Navigator.pop(context);
+                  showMessage(
+                    "Added to $newCollectionName!",
+                    Icons.check,
+                    Duration(
+                      milliseconds: 1000,
+                    ),
+                  );
+                }
+              }
+            },
+          )
+        ],
+      ),
     );
   }
 
