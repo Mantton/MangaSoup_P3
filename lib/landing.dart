@@ -17,8 +17,7 @@ class _LandingState extends State<Landing> {
 
   @override
   Widget build(BuildContext context) {
-    return PlatformScaffold(
-      iosContentPadding: true,
+    return Scaffold(
       body: IndexedStack(
         index: _index,
         children: [
@@ -41,15 +40,20 @@ class _LandingState extends State<Landing> {
           )
         ],
       ),
-      bottomNavBar: PlatformNavBar(
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
         backgroundColor: Colors.black,
-        itemChanged: (v) {
+        onTap: (v) {
           setState(() {
             if (v != _index)
               _index = v;
           });
         },
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        selectedItemColor: Colors.purple,
+        unselectedItemColor: Colors.grey[700],
+        type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
               icon: (_index != 0)
@@ -65,25 +69,18 @@ class _LandingState extends State<Landing> {
                   ? Icons.access_time_rounded
                   : Icons.access_time_sharp),
               label: "Recent"),
+
+          // Download Page
+          /*
           BottomNavigationBarItem(
               icon: Icon((_index != 3)
                   ? Icons.download_outlined
                   : Icons.download_sharp),
               label: "Downloads"),
+          */
+
           BottomNavigationBarItem(icon: Icon(Icons.dehaze), label: "More"),
         ],
-        material: (_, __) => MaterialNavBarData(
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          selectedItemColor: Colors.purple,
-          unselectedItemColor: Colors.grey[700],
-          type: BottomNavigationBarType.fixed,
-        ),
-        cupertino: (_, __) => CupertinoTabBarData(
-          activeColor: Colors.purple,
-          inactiveColor: Colors.grey,
-          backgroundColor: Colors.black,
-        ),
       ),
     );
   }
