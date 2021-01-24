@@ -83,7 +83,7 @@ class _ChapterListState extends State<ChapterList> {
               children: [
                 CupertinoButton(
                   child: Text('Select'),
-                  onPressed: selectMenu, //todo menu
+                  onPressed: selectMenu,
                 ),
                 Spacer(),
                 VerticalDivider(

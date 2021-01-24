@@ -28,7 +28,6 @@ class _ReaderImageState extends State<ReaderImage> {
               url: widget.link,
               referer: widget.referer,
               fit: widget.fit,
-              context: context,
             )
           : Image.file(
               File(widget.link),
@@ -36,46 +35,75 @@ class _ReaderImageState extends State<ReaderImage> {
     );
   }
 }
+class cImage extends StatefulWidget {
+  final String url;
+  final  BoxFit fit;
+  final String referer;
 
-Widget cImage({String url, BoxFit fit, String referer, BuildContext context}) {
-  return CachedNetworkImage(
-    imageUrl: url,
-    progressIndicatorBuilder: (_, url, var progress) =>
-        progress.progress != null
-            ? Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child: Center(
-                  child: Text(
-                    "${(progress.progress * 100).toInt()}%",
-                    style: TextStyle(
-                      color: Colors.blueGrey,
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "Lato",
-                    ),
-                  ),
-                ),
-              )
-            : Center(
-                child: Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  child: Center(
-                    child: Text("Loading..."),
-                  ),
-                ),
-              ),
-    httpHeaders: {"referer": referer ?? imageHeaders(url)},
-    errorWidget: (context, url, error) => Icon(
-      Icons.error,
-      color: Colors.purple,
-    ),
-    fit: fit,
-    fadeInDuration: Duration(microseconds: 500),
-    fadeInCurve: Curves.easeIn,
-  );
+  const cImage({Key key, this.url, this.fit, this.referer}) : super(key: key);
+
+
+  @override
+  _cImageState createState() => _cImageState();
 }
+
+class _cImageState extends State<cImage> {
+  @override
+  Widget build(BuildContext context) {
+    return CachedNetworkImage(
+      imageUrl: widget.url,
+      progressIndicatorBuilder: (_, url, var progress) =>
+      progress.progress != null
+          ? Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: Center(
+          child: Text(
+            "${(progress.progress * 100).toInt()}%",
+            style: TextStyle(
+              color: Colors.blueGrey,
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+              fontFamily: "Lato",
+            ),
+          ),
+        ),
+      )
+          : Center(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: Center(
+            child: Text("Loading..."),
+          ),
+        ),
+      ),
+      httpHeaders: {"referer": widget.referer ?? imageHeaders(widget.url)},
+      errorWidget: (context, url, error) => Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: Center(
+          child: IconButton(
+            icon: Icon(
+              Icons.error,
+            ),
+            color: Colors.purple,
+            iconSize: 50.w,
+            onPressed: () async {
+              await CachedNetworkImage.evictFromCache(url);
+              setState(() {});
+              debugPrint("Refreshed");
+            },
+          ),
+        ),
+      ),
+      fit: widget.fit,
+      fadeInDuration: Duration(microseconds: 500),
+      fadeInCurve: Curves.easeIn,
+    );
+  }
+}
+
 
 class TransitionPage extends StatelessWidget {
   // final Chapter chapter;
@@ -85,14 +113,8 @@ class TransitionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery
-          .of(context)
-          .size
-          .height,
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
       child: Center(
         child: Text(
           "Next Chapter",

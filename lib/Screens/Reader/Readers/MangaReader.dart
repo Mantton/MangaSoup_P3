@@ -37,7 +37,9 @@ class _MangaReaderState extends State<MangaReader> {
         Provider.of<ReaderProvider>(context, listen: false).loadingMore ==
             false &&
         !Provider.of<ReaderProvider>(context, listen: false).custom) {
-      await Provider.of<ReaderProvider>(context, listen: false).addChapter();
+      await Provider.of<ReaderProvider>(context, listen: false).addChapter(
+        context: context,
+      );
     }
   }
 

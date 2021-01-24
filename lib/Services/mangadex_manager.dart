@@ -297,6 +297,10 @@ class DexHub {
 
     String thumbnail = baseURL + manga['cover_url'];
     var altTitles = manga['alt_names'];
+    if (altTitles is List){
+      List t = altTitles;
+      altTitles = t.map((e) => e).join(", ");
+    }
     String artist = manga['artist'];
     String author = manga['author'];
     List genres = manga['genres'];
