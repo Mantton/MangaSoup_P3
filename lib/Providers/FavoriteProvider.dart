@@ -34,6 +34,7 @@ class FavoriteProvider with ChangeNotifier {
     favorites.add(fav);
     sortFavorites();
     notifyListeners();
+    print("saved!");
     return fav;
   }
 
@@ -55,7 +56,6 @@ class FavoriteProvider with ChangeNotifier {
   }
 
   returnFavorite(String link) {
-    print(link);
     Favorite fav = favorites.firstWhere(
         (element) => element.highlight.link == link,
         orElse: () => null);

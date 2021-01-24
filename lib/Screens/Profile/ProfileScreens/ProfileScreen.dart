@@ -51,23 +51,29 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
       // not in favorites
     } else {
       // In favorites
-      /// Update Chapter Count
-      if (!widget.comicProfile.containsBooks)
-        favoriteObject.chapterCount = widget.comicProfile.chapterCount;
-      else {
-        int chapterCount = 0;
-        for (Map bk in widget.comicProfile.books) {
-          Book book = Book.fromMap(bk);
-          chapterCount += book.generatedLength;
-        }
-        favoriteObject.chapterCount = chapterCount;
-      }
+      /// Update Logic
 
-      /// Reset Update Count
-      favoriteObject.updateCount = 0;
-      favoriteObject.highlight.thumbnail =
-          widget.comicProfile.thumbnail; // Update Favorites Thumbnails
-      await provider.update(favoriteObject);
+      /// Update Chapter Count
+
+      if (favoriteObject.updateCount > 0 ||
+          favoriteObject.highlight.thumbnail != widget.comicProfile.thumbnail) {
+        if (!widget.comicProfile.containsBooks)
+          favoriteObject.chapterCount = widget.comicProfile.chapterCount;
+        else {
+          int chapterCount = 0;
+          for (Map bk in widget.comicProfile.books) {
+            Book book = Book.fromMap(bk);
+            chapterCount += book.generatedLength;
+          }
+          favoriteObject.chapterCount = chapterCount;
+        }
+
+        /// Reset Update Count
+        favoriteObject.updateCount = 0;
+        favoriteObject.highlight.thumbnail =
+            widget.comicProfile.thumbnail; // Update Favorites Thumbnails
+        await provider.update(favoriteObject);
+      }
     }
 
     return true;
@@ -706,7 +712,6 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   removeFromLibrary(Favorite favorite) async {
     var x = await Provider.of<FavoriteProvider>(context, listen: false)
         .delete(favorite);
-    debugPrint(x.toString());
     Navigator.pop(context);
     showMessage(
       "Removed!",
@@ -874,7 +879,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
   Future<Favorite> addToFavorites(
       {String collectionName, Favorite favoriteObject}) async {
     print(
-        "Saving : ${Provider.of<ComicHighlightProvider>(context, listen: false).highlight.link}");
+        "Saving : ${Provider.of<ComicHighlightProvider>(context, listen: false).highlight.title}");
     Favorite newFav = Favorite(
         null,
         Provider.of<ComicHighlightProvider>(context, listen: false).highlight,
@@ -1012,7 +1017,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen>
           PlatformDialogAction(
             child: Text("OK"),
             onPressed: () async {
-              debugPrint(newCollectionName);
+              debugPrint("new collection name: $newCollectionName");
               if (newCollectionName == null) {
                 showMessage("Invalid Name", Icons.cancel_outlined,
                     Duration(milliseconds: 1000));

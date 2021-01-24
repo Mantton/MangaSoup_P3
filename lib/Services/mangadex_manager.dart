@@ -362,6 +362,8 @@ class DexHub {
       "link": comicLink,
       "contains_books": false,
     };
+    debugPrint("Retrieval Complete : /Profile: $title @$source ");
+
     return ComicProfile.fromMap(x);
   }
 
