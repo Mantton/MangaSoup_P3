@@ -116,7 +116,6 @@ class DexHub {
     Map<String, dynamic> data = Map();
     data.addAll(cookies);
     data['mangadex_h_toggle'] = info['nsfw'];
-    print(data);
     String encodedCookies = stringifyCookies(data);
     print(encodedCookies);
     Map<String, dynamic> browseHeaders = {
@@ -210,10 +209,8 @@ class DexHub {
     String url = baseURL +
         '/genre/$link/${tagsDict[link].toString().replaceAll(" ", "-")}/$sort/$page';
 
-    print(url);
     Dio _dio = Dio();
     String encodedCookies = stringifyCookies(data);
-    print(encodedCookies);
     Map<String, dynamic> browseHeaders = {
       "Cookie": encodedCookies,
       "authority": "mangadex.org",
@@ -269,13 +266,13 @@ class DexHub {
     List userLanguages = info['mangadex_languages'] ?? List();
     print("Languages: $userLanguages");
     String comicLink = link;
-    print("MD LINK: $comicLink");
+    // print("MD LINK: $comicLink");
     if (link.contains("http")) {
       var strings = link.split('/');
       link = strings.last;
     }
     var profileURL = apiURL + '/manga/$link';
-    print("MD API LINK: $profileURL");
+    // print("MD API LINK: $profileURL");
     //, headers: {'Cookie': stringifyCookies(cookies)}
     var response = await http.get(profileURL);
 
@@ -395,7 +392,6 @@ class DexHub {
       "tags": included + excluded
       // todo, excluded tags have a - in front
     };
-    print(params);
     String url = baseURL + '/search';
     Dio _dio = Dio();
 
@@ -405,7 +401,6 @@ class DexHub {
       //
       options: Options(headers: prepareHeaders(additionalInfo)),
     );
-    print(response.headers);
     var document = parse(response.data);
     var comics = document
         .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
@@ -534,8 +529,6 @@ class DexHub {
   }
 
   Future<ImageChapter> images(String chapterLink, Map info) async {
-    print(chapterLink);
-
     String link = chapterLink.split("/").last;
     Dio _dio = Dio();
     int saverMode = info['saver'];
