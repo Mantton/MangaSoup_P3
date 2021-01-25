@@ -29,7 +29,7 @@ class _MangaReaderState extends State<MangaReader> {
 
   loadChapter() async {
     double maxScroll = _internalController.position.maxScrollExtent;
-    double minScroll = _internalController.position.minScrollExtent;
+    // double minScroll = _internalController.position.minScrollExtent;
     double currentScroll = _internalController.position.pixels;
     double delta = _internalController.position.maxScrollExtent * .30;
 

@@ -124,19 +124,19 @@ class VioletImage extends StatefulWidget {
 }
 
 class _VioletImageState extends State<VioletImage> with AutomaticKeepAliveClientMixin {
-  Future<Size> testing;
+  Future<Size> _getDimensions;
 
   @override
   void initState() {
     super.initState();
-    testing = _calculateNetworkImageDimension(widget.url, widget.referrer);
+    _getDimensions = _calculateNetworkImageDimension(widget.url, widget.referrer);
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return FutureBuilder(
-      future: testing,
+      future: _getDimensions,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return ReaderImage(

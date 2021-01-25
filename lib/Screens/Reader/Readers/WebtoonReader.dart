@@ -97,6 +97,9 @@ class _WebtoonReaderState extends State<WebtoonReader>
     if (holder != pageHolder) {
       if (holder > pageCount)
         pageHolder = pageCount;
+
+      if (holder == 0)
+        pageHolder = 1;
       else
         pageHolder = holder;
 
@@ -105,7 +108,7 @@ class _WebtoonReaderState extends State<WebtoonReader>
     }
 
     double maxScroll = _internalController.position.maxScrollExtent;
-    double minScroll = _internalController.position.minScrollExtent;
+    // double minScroll = _internalController.position.minScrollExtent;
     double currentScroll = _internalController.position.pixels;
     double delta = maxScroll * .20;
 
