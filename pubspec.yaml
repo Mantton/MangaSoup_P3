@@ -54,6 +54,8 @@ dependencies:
   flutter_downloader: ^1.5.2
   preload_page_view: ^0.1.4
   carousel_slider: ^2.3.1
+  webview_flutter: ^1.0.7
+
 
 
   # The following adds the Cupertino Icons font to your application.

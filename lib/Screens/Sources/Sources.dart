@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +32,7 @@ class SourcesPage extends StatefulWidget {
 class _SourcesPageState extends State<SourcesPage> {
   ApiManager server = ApiManager();
   String _currentSelector;
+  Map newCookies = Map();
 
   check() {
     if (widget.selector != null)
@@ -49,7 +52,6 @@ class _SourcesPageState extends State<SourcesPage> {
   }
 
   selectSource(Source src) async {
-    // todo add check for login and cloudfare protection
     showLoadingDialog(context);
     Source full = await server.initSource(src.selector);
     TestPreference _prefs = TestPreference();
@@ -61,7 +63,12 @@ class _SourcesPageState extends State<SourcesPage> {
     if (full.cloudFareProtected) {
       SharedPreferences pref = await SharedPreferences.getInstance();
       String srcCookies = pref.getString("${src.selector}_cookies");
-      if (srcCookies == null) await cloudFareProtectedDialog();
+      if (srcCookies == null)
+        {
+          await cloudFareProtectedDialog(full.cloudFareLink);
+          print(newCookies);
+          pref.setString('${src.selector}_cookies', jsonEncode(newCookies));
+        }
     }
     Navigator.pop(context);
     debugPrint("Done");
@@ -272,25 +279,40 @@ class _SourcesPageState extends State<SourcesPage> {
             ));
   }
 
-  cloudFareProtectedDialog() {
+  cloudFareProtectedDialog(String cloudfareLink) {
     return showPlatformDialog(
       context: context,
       builder: (_) => PlatformAlertDialog(
         title: Text("CloudFare Protected Source"),
         content: Text(
           "The Selected source is CloudFare Protected\n"
-          " A webview session is required to bypass this.",
+          "  WebView session is required to bypass this.",
           textAlign: TextAlign.center,
         ),
         actions: [
+
           PlatformDialogAction(
             child: PlatformText("Proceed"),
-            onPressed: () async => await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => CloudFareBypass(),
-              ),
-            ),
+            onPressed: () async {
+               String cookies = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => CloudFareBypass(url: cloudfareLink,),
+                    fullscreenDialog: true
+                ),
+              );
+               Navigator.pop(context);
+               // Prepare Cookies
+               List<String> listedCookies = cookies.split("; ");
+               Map encodedCookies = Map();
+               for(String c in listedCookies){
+                 List d = c.split("=");
+                 MapEntry entry = MapEntry(d[0], d[1]);
+                 encodedCookies.putIfAbsent(entry.key, () => entry.value);
+               }
+               newCookies = encodedCookies;
+
+            }
           )
         ],
       ),
