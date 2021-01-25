@@ -221,7 +221,7 @@ class _ChapterViewerState extends State<ChapterViewer>
                     : 0,
               ),
               width: MediaQuery.of(context).size.width,
-              child: ReaderImage(
+              child: OldReaderImage(
                 link: image,
                 referer: imageChapter.referer,
                 fit: BoxFit.fitWidth,

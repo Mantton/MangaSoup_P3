@@ -16,7 +16,8 @@ class WebtoonReader extends StatefulWidget {
   _WebtoonReaderState createState() => _WebtoonReaderState();
 }
 
-class _WebtoonReaderState extends State<WebtoonReader>  with AutomaticKeepAliveClientMixin {
+class _WebtoonReaderState extends State<WebtoonReader>
+    with AutomaticKeepAliveClientMixin {
   PageController _externalController;
   ScrollController _internalController;
   int chapterHolder = 0;
@@ -98,15 +99,9 @@ class _WebtoonReaderState extends State<WebtoonReader>  with AutomaticKeepAliveC
         pageHolder = pageCount;
       else
         pageHolder = holder;
+
       Provider.of<ReaderProvider>(context, listen: false)
           .setPage(pageHolder, true);
-      // print(
-      //   "Current Extent: $currentExtent \n "
-      //   "Extent Per Page: $extentPerPage \n "
-      //   "Max Extent: $extent\n"
-      //   "Page: $pageHolder \n\n\n",
-      // );
-      print("$pageHolder");
     }
 
     double maxScroll = _internalController.position.maxScrollExtent;
@@ -119,7 +114,7 @@ class _WebtoonReaderState extends State<WebtoonReader>  with AutomaticKeepAliveC
             false &&
         !Provider.of<ReaderProvider>(context, listen: false).custom) {
       await Provider.of<ReaderProvider>(context, listen: false).addChapter(
-          context: context,
+        context: context,
       );
     }
   }
@@ -161,7 +156,8 @@ class _WebtoonReaderState extends State<WebtoonReader>  with AutomaticKeepAliveC
               // provider.setPage(0);
               provider.setImageChapter(p);
               showMessage(
-                "${p > chapterHolder ? "Next Chapter" : "Previous Chapter"} \n ${provider.currentChapter.name}",
+                "${p > chapterHolder ? "Next Chapter" : "Previous Chapter"}"
+                " \n ${provider.currentChapter.name}",
                 Icons.menu_book_rounded,
                 Duration(seconds: 1),
               );
@@ -202,7 +198,8 @@ class ChapterListView extends StatefulWidget {
   _ChapterListViewState createState() => _ChapterListViewState();
 }
 
-class _ChapterListViewState extends State<ChapterListView> with AutomaticKeepAliveClientMixin  {
+class _ChapterListViewState extends State<ChapterListView>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -217,9 +214,9 @@ class _ChapterListViewState extends State<ChapterListView> with AutomaticKeepAli
             (image) => Center(
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                child: ReaderImage(
-                  link: image,
-                  referer: widget.chapter.referer,
+                child: VioletImage(
+                  url: image,
+                  referrer: widget.chapter.referer,
                   fit: BoxFit.fitWidth,
                 ),
               ),
