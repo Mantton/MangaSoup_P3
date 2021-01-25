@@ -214,25 +214,17 @@ class _ChapterViewerState extends State<ChapterViewer>
     List<Widget> images = imageChapter.images
         .map(
           (image) => Center(
-            child: SingleChildScrollView(
-              physics: NeverScrollableScrollPhysics(),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(
-                      Provider.of<ReaderProvider>(context).paddingMode == 0
-                          ? 10
-                          : 0,
-                    ),
-                    width: MediaQuery.of(context).size.width,
-                    child: ReaderImage(
-                      link: image,
-                      referer: imageChapter.referer,
-                      fit: BoxFit.fitWidth,
-                    ),
-                  ),
-                ],
+            child: Container(
+              padding: EdgeInsets.all(
+                Provider.of<ReaderProvider>(context).paddingMode == 0
+                    ? 10
+                    : 0,
+              ),
+              width: MediaQuery.of(context).size.width,
+              child: ReaderImage(
+                link: image,
+                referer: imageChapter.referer,
+                fit: BoxFit.fitWidth,
               ),
             ),
           ),

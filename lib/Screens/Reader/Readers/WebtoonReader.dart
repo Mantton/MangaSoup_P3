@@ -16,7 +16,7 @@ class WebtoonReader extends StatefulWidget {
   _WebtoonReaderState createState() => _WebtoonReaderState();
 }
 
-class _WebtoonReaderState extends State<WebtoonReader> {
+class _WebtoonReaderState extends State<WebtoonReader>  with AutomaticKeepAliveClientMixin {
   PageController _externalController;
   ScrollController _internalController;
   int chapterHolder = 0;
@@ -100,12 +100,13 @@ class _WebtoonReaderState extends State<WebtoonReader> {
         pageHolder = holder;
       Provider.of<ReaderProvider>(context, listen: false)
           .setPage(pageHolder, true);
-      print(
-        "Current Extent: $currentExtent \n "
-        "Extent Per Page: $extentPerPage \n "
-        "Max Extent: $extent\n"
-        "Page: $pageHolder \n\n\n",
-      );
+      // print(
+      //   "Current Extent: $currentExtent \n "
+      //   "Extent Per Page: $extentPerPage \n "
+      //   "Max Extent: $extent\n"
+      //   "Page: $pageHolder \n\n\n",
+      // );
+      print("$pageHolder");
     }
 
     double maxScroll = _internalController.position.maxScrollExtent;
@@ -134,6 +135,7 @@ class _WebtoonReaderState extends State<WebtoonReader> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return RawGestureDetector(
       gestures: <Type, GestureRecognizerFactory>{
         VerticalDragGestureRecognizer:
@@ -184,6 +186,9 @@ class _WebtoonReaderState extends State<WebtoonReader> {
       }),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class ChapterListView extends StatefulWidget {
@@ -197,10 +202,10 @@ class ChapterListView extends StatefulWidget {
   _ChapterListViewState createState() => _ChapterListViewState();
 }
 
-class _ChapterListViewState extends State<ChapterListView> {
+class _ChapterListViewState extends State<ChapterListView> with AutomaticKeepAliveClientMixin  {
   @override
   Widget build(BuildContext context) {
-    // super.build(context);
+    super.build(context);
     return ListView(
       controller: widget.internalController,
       physics: NeverScrollableScrollPhysics(),
@@ -223,4 +228,7 @@ class _ChapterListViewState extends State<ChapterListView> {
           .toList(),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
