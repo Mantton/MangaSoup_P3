@@ -310,6 +310,7 @@ class _SourcesPageState extends State<SourcesPage> {
                  MapEntry entry = MapEntry(d[0], d[1]);
                  encodedCookies.putIfAbsent(entry.key, () => entry.value);
                }
+               print(cookies);
                newCookies = encodedCookies;
 
             }
