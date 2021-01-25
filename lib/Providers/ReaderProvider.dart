@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
+import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:provider/provider.dart';
 
 class ReaderProvider with ChangeNotifier {
   ApiManager _apiManager = ApiManager();
@@ -17,6 +19,7 @@ class ReaderProvider with ChangeNotifier {
   bool lastChapter;
   bool firstChapter;
   bool onlyChapter;
+  bool edgeReached = false;
 
   /// Chapter
   Chapter currentChapter;
@@ -51,10 +54,11 @@ class ReaderProvider with ChangeNotifier {
     print(imageChapter.link);
     chapterList = chapterListObject;
     page = 1;
+    edgeReached = false;
+
     source = chapterSource;
     lastLoaded = currentChapter;
     chapterLength = currentImageChapter.count;
-    print("right here");
     if (chapterList != null) {
       chapterIndex = chapterList
           .indexWhere((element) => element.link == currentChapter.link);
@@ -85,22 +89,61 @@ class ReaderProvider with ChangeNotifier {
     return await _apiManager.getImages(source, chapter.link);
   }
 
-  addChapter() async {
+  addChapter({BuildContext context}) async {
     if (currentImageChapter == loadedChapters.last) {
-      print("Loading Next");
       loadingMore = true;
 
       int newIndex = chapterIndex - 1;
-      if (newIndex < 0) {
-        showSnackBarMessage("Edge Reached");
-      } else {
-        print(chapterIndex);
-        ImageChapter c = await loadChapter(chapterList[newIndex], source);
-        showSnackBarMessage("Next Chapter Loaded!");
-        loadedChapters.add(c);
+      // int newIndex = currentIndex - 1;
 
-        chapterIndex = newIndex;
-        print("Append Complete");
+      if (newIndex < 0) {
+        if (!edgeReached) {
+          // If Message has not been shown, show message
+          /// Add to Read
+          try {
+            Chapter oldChapter = chapterList[chapterIndex];
+            Provider.of<ComicDetailProvider>(context, listen: false)
+                .addToRead(oldChapter.toMap());
+          } catch (err) {
+            showSnackBarMessage("Unable to mark as read");
+          }
+
+          /// Display Reached Edge Notifier
+          edgeReached = true;
+          debugPrint("Edge Reached");
+          showSnackBarMessage("This is the last available chapter");
+        }
+      } else {
+        Chapter oldChapter = chapterList[chapterIndex];
+        Chapter newChapter = chapterList[newIndex];
+
+        try {
+          /// Add to Read
+          try {
+            Provider.of<ComicDetailProvider>(context, listen: false)
+                .addToRead(oldChapter.toMap());
+          } catch (err) {
+            showSnackBarMessage("Unable to mark as read");
+          }
+          // todo, mangadex mark
+
+          if (oldChapter.name == newChapter.name) {
+            debugPrint("Duplicate");
+          }
+
+          debugPrint("Loading Next \n"
+              "Chapter Index: $chapterIndex");
+
+          ImageChapter c = await loadChapter(newChapter, source);
+          showSnackBarMessage("Next Chapter Loaded!");
+          loadedChapters.add(c);
+          chapterIndex = newIndex;
+          edgeReached = false;
+          print("Append Complete");
+        } catch (err) {
+          showSnackBarMessage("Next Chapter Load Failed.");
+          debugPrint(err);
+        }
       }
       loadingMore = false;
       notifyListeners();
@@ -112,7 +155,6 @@ class ReaderProvider with ChangeNotifier {
   Map readerModeOptions = {
     0: "Manga",
     1: "Webtoon",
-    2: "Paged Vertical",
   };
 
   setReaderMode(int mode) {

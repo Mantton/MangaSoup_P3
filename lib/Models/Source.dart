@@ -16,6 +16,7 @@ class Source {
   List filters;
   bool loginProtected;
   bool cloudFareProtected;
+  String cloudFareLink;
 
 
   Map<String, dynamic> toMap() {
@@ -34,6 +35,7 @@ class Source {
       "filters": filters,
       "login": loginProtected,
       "cloudfare": cloudFareProtected,
+      "cloudfare_link": cloudFareLink,
     };
   }
 
@@ -53,5 +55,6 @@ class Source {
     filters = map["filters"];
     cloudFareProtected = map['cloudfare'];
     loginProtected = map['login'];
+    cloudFareLink = map['cloudfare_link'];
   }
 }

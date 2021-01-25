@@ -165,30 +165,37 @@ class _MultiSelectState extends State<MultiSelect> {
         title: Text("Multi-Select"),
         centerTitle: true,
         actions: [
-          InkWell(
-            child: Center(
-                child: Text(
-              "Clear",
-              style: isEmptyFont,
-            )),
-            onTap: () {
-              setState(() {
-                selectedItems.clear();
-                Provider.of<BrowseProvider>(context, listen: false)
-                    .save(widget.selector, 3, selectedItems);
-              });
-            },
-          ),
-          SizedBox(
-            width: 10.w,
-          ),
-          InkWell(
-            child: Center(
-                child: Text(
-                  "Done",
-                  style: isEmptyFont,
-                )),
-            onTap: () => Navigator.pop(context),
+          Padding(
+            padding: EdgeInsets.all(7.w),
+            child: Row(
+              children: [
+                InkWell(
+                  child: Center(
+                      child: Text(
+                    "Clear",
+                    style: isEmptyFont,
+                  )),
+                  onTap: () {
+                    setState(() {
+                      selectedItems.clear();
+                      Provider.of<BrowseProvider>(context, listen: false)
+                          .save(widget.selector, 3, selectedItems);
+                    });
+                  },
+                ),
+                SizedBox(
+                  width: 10.w,
+                ),
+                InkWell(
+                  child: Center(
+                      child: Text(
+                        "Done",
+                        style: isEmptyFont,
+                      )),
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
+            ),
           )
         ],
       ),

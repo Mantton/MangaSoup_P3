@@ -29,7 +29,7 @@ class _MangaReaderState extends State<MangaReader> {
 
   loadChapter() async {
     double maxScroll = _internalController.position.maxScrollExtent;
-    double minScroll = _internalController.position.minScrollExtent;
+    // double minScroll = _internalController.position.minScrollExtent;
     double currentScroll = _internalController.position.pixels;
     double delta = _internalController.position.maxScrollExtent * .30;
 
@@ -37,7 +37,9 @@ class _MangaReaderState extends State<MangaReader> {
         Provider.of<ReaderProvider>(context, listen: false).loadingMore ==
             false &&
         !Provider.of<ReaderProvider>(context, listen: false).custom) {
-      await Provider.of<ReaderProvider>(context, listen: false).addChapter();
+      await Provider.of<ReaderProvider>(context, listen: false).addChapter(
+        context: context,
+      );
     }
   }
 
@@ -212,25 +214,17 @@ class _ChapterViewerState extends State<ChapterViewer>
     List<Widget> images = imageChapter.images
         .map(
           (image) => Center(
-            child: SingleChildScrollView(
-              physics: NeverScrollableScrollPhysics(),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(
-                      Provider.of<ReaderProvider>(context).paddingMode == 0
-                          ? 10
-                          : 0,
-                    ),
-                    width: MediaQuery.of(context).size.width,
-                    child: ReaderImage(
-                      link: image,
-                      referer: imageChapter.referer,
-                      fit: BoxFit.fitWidth,
-                    ),
-                  ),
-                ],
+            child: Container(
+              padding: EdgeInsets.all(
+                Provider.of<ReaderProvider>(context).paddingMode == 0
+                    ? 10
+                    : 0,
+              ),
+              width: MediaQuery.of(context).size.width,
+              child: OldReaderImage(
+                link: image,
+                referer: imageChapter.referer,
+                fit: BoxFit.fitWidth,
               ),
             ),
           ),

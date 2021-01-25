@@ -119,6 +119,7 @@ class FavoritesManager {
     SharedPreferences _pref = await SharedPreferences.getInstance();
     List updateEnabledCollections =
         _pref.getStringList("uec") ?? []; // UEC --> Update Enabled Collections
+    print(updateEnabledCollections);
     List<Map> queryResult = await dbClient.query(TABLE);
     List<Favorite> favorites = [];
 

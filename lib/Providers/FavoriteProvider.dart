@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Database/FavoritesDatabase.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,6 +35,7 @@ class FavoriteProvider with ChangeNotifier {
     favorites.add(fav);
     sortFavorites();
     notifyListeners();
+    print("saved!");
     return fav;
   }
 
@@ -54,8 +56,16 @@ class FavoriteProvider with ChangeNotifier {
     print("removed!");
   }
 
+  deleteBulk(List<Favorite> toDelete) async {
+    await _manager.removeBulk(toDelete);
+    favorites.removeWhere((element) => toDelete.contains(element));
+    sortFavorites();
+    notifyListeners();
+    showSnackBarMessage("${toDelete.length} comics removed from library");
+
+  }
+
   returnFavorite(String link) {
-    print(link);
     Favorite fav = favorites.firstWhere(
         (element) => element.highlight.link == link,
         orElse: () => null);
@@ -71,7 +81,7 @@ class FavoriteProvider with ChangeNotifier {
       {List<Favorite> toChange,
       String oldCollectionName,
       String newCollectionName,
-      bool rename,
+      bool rename = false,
       int collectionLength}) async {
     bool inUEC = updateEnabledCollections.contains(oldCollectionName);
     // Change Collection Name

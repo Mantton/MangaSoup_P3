@@ -211,7 +211,7 @@ class _DebugReaderState extends State<DebugReader> {
                                   .of(context)
                                   .size
                                   .width,
-                              child: ReaderImage(
+                              child: OldReaderImage(
                                 link: image,
                                 referer: chapter.referer,
                                 fit: BoxFit.fitWidth,
@@ -275,7 +275,7 @@ class _DebugReaderState extends State<DebugReader> {
                                     .of(context)
                                     .size
                                     .width,
-                                child: ReaderImage(
+                                child: OldReaderImage(
                                   link: image,
                                   referer: chapter.referer,
                                   fit: BoxFit.fitWidth,

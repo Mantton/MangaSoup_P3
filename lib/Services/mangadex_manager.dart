@@ -116,7 +116,6 @@ class DexHub {
     Map<String, dynamic> data = Map();
     data.addAll(cookies);
     data['mangadex_h_toggle'] = info['nsfw'];
-    print(data);
     String encodedCookies = stringifyCookies(data);
     print(encodedCookies);
     Map<String, dynamic> browseHeaders = {
@@ -210,10 +209,8 @@ class DexHub {
     String url = baseURL +
         '/genre/$link/${tagsDict[link].toString().replaceAll(" ", "-")}/$sort/$page';
 
-    print(url);
     Dio _dio = Dio();
     String encodedCookies = stringifyCookies(data);
-    print(encodedCookies);
     Map<String, dynamic> browseHeaders = {
       "Cookie": encodedCookies,
       "authority": "mangadex.org",
@@ -269,13 +266,13 @@ class DexHub {
     List userLanguages = info['mangadex_languages'] ?? List();
     print("Languages: $userLanguages");
     String comicLink = link;
-    print("MD LINK: $comicLink");
+    // print("MD LINK: $comicLink");
     if (link.contains("http")) {
       var strings = link.split('/');
       link = strings.last;
     }
     var profileURL = apiURL + '/manga/$link';
-    print("MD API LINK: $profileURL");
+    // print("MD API LINK: $profileURL");
     //, headers: {'Cookie': stringifyCookies(cookies)}
     var response = await http.get(profileURL);
 
@@ -297,6 +294,10 @@ class DexHub {
 
     String thumbnail = baseURL + manga['cover_url'];
     var altTitles = manga['alt_names'];
+    if (altTitles is List){
+      List t = altTitles;
+      altTitles = t.map((e) => e).join(", ");
+    }
     String artist = manga['artist'];
     String author = manga['author'];
     List genres = manga['genres'];
@@ -361,6 +362,8 @@ class DexHub {
       "link": comicLink,
       "contains_books": false,
     };
+    debugPrint("Retrieval Complete : /Profile: $title @$source ");
+
     return ComicProfile.fromMap(x);
   }
 
@@ -391,7 +394,6 @@ class DexHub {
       "tags": included + excluded
       // todo, excluded tags have a - in front
     };
-    print(params);
     String url = baseURL + '/search';
     Dio _dio = Dio();
 
@@ -401,7 +403,6 @@ class DexHub {
       //
       options: Options(headers: prepareHeaders(additionalInfo)),
     );
-    print(response.headers);
     var document = parse(response.data);
     var comics = document
         .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
@@ -530,13 +531,11 @@ class DexHub {
   }
 
   Future<ImageChapter> images(String chapterLink, Map info) async {
-    print(chapterLink);
-
     String link = chapterLink.split("/").last;
     Dio _dio = Dio();
     int saverMode = info['saver'];
     String imageAPI = "https://mangadex.org/api/v2/chapter/";
-    print(imageAPI + chapterLink);
+    // print(imageAPI + link);
 
     /// https://mangadex.org/api/v2//chapter/1100871?saver=1
     Response response = await _dio.get(

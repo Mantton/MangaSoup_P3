@@ -113,7 +113,6 @@ void showNotification(v, flp) async {
 }
 
 Future<void> main() async {
-  print("IN!!!");
   WidgetsFlutterBinding.ensureInitialized();
 
   Workmanager.initialize(
@@ -135,7 +134,6 @@ Future<void> main() async {
       ),
     );
   }
-  print("awaiting run");
   runApp(
     MultiProvider(
       providers: [

@@ -16,7 +16,8 @@ class WebtoonReader extends StatefulWidget {
   _WebtoonReaderState createState() => _WebtoonReaderState();
 }
 
-class _WebtoonReaderState extends State<WebtoonReader> {
+class _WebtoonReaderState extends State<WebtoonReader>
+    with AutomaticKeepAliveClientMixin {
   PageController _externalController;
   ScrollController _internalController;
   int chapterHolder = 0;
@@ -96,20 +97,18 @@ class _WebtoonReaderState extends State<WebtoonReader> {
     if (holder != pageHolder) {
       if (holder > pageCount)
         pageHolder = pageCount;
+
+      if (holder == 0)
+        pageHolder = 1;
       else
         pageHolder = holder;
+
       Provider.of<ReaderProvider>(context, listen: false)
           .setPage(pageHolder, true);
-      print(
-        "Current Extent: $currentExtent \n "
-        "Extent Per Page: $extentPerPage \n "
-        "Max Extent: $extent\n"
-        "Page: $pageHolder \n\n\n",
-      );
     }
 
     double maxScroll = _internalController.position.maxScrollExtent;
-    double minScroll = _internalController.position.minScrollExtent;
+    // double minScroll = _internalController.position.minScrollExtent;
     double currentScroll = _internalController.position.pixels;
     double delta = maxScroll * .20;
 
@@ -117,7 +116,9 @@ class _WebtoonReaderState extends State<WebtoonReader> {
         Provider.of<ReaderProvider>(context, listen: false).loadingMore ==
             false &&
         !Provider.of<ReaderProvider>(context, listen: false).custom) {
-      await Provider.of<ReaderProvider>(context, listen: false).addChapter();
+      await Provider.of<ReaderProvider>(context, listen: false).addChapter(
+        context: context,
+      );
     }
   }
 
@@ -132,6 +133,7 @@ class _WebtoonReaderState extends State<WebtoonReader> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return RawGestureDetector(
       gestures: <Type, GestureRecognizerFactory>{
         VerticalDragGestureRecognizer:
@@ -157,7 +159,8 @@ class _WebtoonReaderState extends State<WebtoonReader> {
               // provider.setPage(0);
               provider.setImageChapter(p);
               showMessage(
-                "${p > chapterHolder ? "Next Chapter" : "Previous Chapter"} \n ${provider.currentChapter.name}",
+                "${p > chapterHolder ? "Next Chapter" : "Previous Chapter"}"
+                " \n ${provider.currentChapter.name}",
                 Icons.menu_book_rounded,
                 Duration(seconds: 1),
               );
@@ -182,6 +185,9 @@ class _WebtoonReaderState extends State<WebtoonReader> {
       }),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class ChapterListView extends StatefulWidget {
@@ -195,10 +201,11 @@ class ChapterListView extends StatefulWidget {
   _ChapterListViewState createState() => _ChapterListViewState();
 }
 
-class _ChapterListViewState extends State<ChapterListView> {
+class _ChapterListViewState extends State<ChapterListView>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
-    // super.build(context);
+    super.build(context);
     return ListView(
       controller: widget.internalController,
       physics: NeverScrollableScrollPhysics(),
@@ -210,9 +217,9 @@ class _ChapterListViewState extends State<ChapterListView> {
             (image) => Center(
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                child: ReaderImage(
-                  link: image,
-                  referer: widget.chapter.referer,
+                child: VioletImage(
+                  url: image,
+                  referrer: widget.chapter.referer,
                   fit: BoxFit.fitWidth,
                 ),
               ),
@@ -221,4 +228,7 @@ class _ChapterListViewState extends State<ChapterListView> {
           .toList(),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

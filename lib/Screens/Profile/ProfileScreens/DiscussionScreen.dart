@@ -9,7 +9,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.amber,
+      child: Center(child: Text("Coming Soon..."))
     );
   }
 }

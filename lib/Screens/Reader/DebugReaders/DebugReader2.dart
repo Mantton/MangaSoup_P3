@@ -9,7 +9,6 @@ import 'package:mangasoup_prototype_3/Providers/DownloadProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/ReaderProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Reader/Readers/MangaReader.dart';
-import 'package:mangasoup_prototype_3/Screens/Reader/Readers/VerticalReader.dart';
 import 'package:mangasoup_prototype_3/Screens/Reader/Readers/WebtoonReader.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:provider/provider.dart';
@@ -147,25 +146,21 @@ class _DebugReader2State extends State<DebugReader2> {
               _showControls = !_showControls;
             });
           },
-          child: Container(child: Consumer<ReaderProvider>(
-            builder: (BuildContext context, provider, _) {
-              int mode = provider.readerMode;
-              if (mode == 0)
-                return MangaReader(
-                  page: Provider.of<ReaderProvider>(context).page,
-                );
-              else if (mode == 1)
-                return WebtoonReader();
-              else if (mode == 2)
-                return VerticalReader(
-                  page: Provider.of<ReaderProvider>(context).page,
-                );
-              else
-                return MangaReader();
-            },
-          )
-              // WebtoonReader(),
-              ),
+          child: Container(
+            child: Consumer<ReaderProvider>(
+              builder: (BuildContext context, provider, _) {
+                int mode = provider.readerMode;
+                if (mode == 0)
+                  return MangaReader(
+                    page: Provider.of<ReaderProvider>(context).page,
+                  );
+                else if (mode == 1)
+                  return WebtoonReader();
+                else
+                  return MangaReader();
+              },
+            ),
+          ),
         ),
         header(),
         footer(),
@@ -257,31 +252,27 @@ class _DebugReader2State extends State<DebugReader2> {
                   ),
                   !widget.custom
                       ? Flexible(
-                    flex: 3,
-                    fit: FlexFit.tight,
-                    child: Container(
-                      child: GestureDetector(
-                        onTap: () =>
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    chapterDialog()),
-                        child: Text(
-                          '${Provider
-                              .of<ReaderProvider>(context)
-                              .currentChapter
-                              .name} ▼',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 17.sp,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Roboto",
+                          flex: 3,
+                          fit: FlexFit.tight,
+                          child: Container(
+                            child: GestureDetector(
+                              onTap: () => showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      chapterDialog()),
+                              child: Text(
+                                '${Provider.of<ReaderProvider>(context).currentChapter.name} ▼',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 17.sp,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "Roboto",
+                                ),
+                                textAlign: TextAlign.right,
+                              ),
+                            ),
                           ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ),
-                  )
+                        )
                       : Container(),
                 ],
               ),
@@ -308,23 +299,19 @@ class _DebugReader2State extends State<DebugReader2> {
               children: <Widget>[
                 !provider.custom
                     ? IconButton(
-                  onPressed: () async {
-                    // todo, move to previous chapter
-                  },
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.grey,
-                  ),
-                )
+                        onPressed: () async {
+                          // todo, move to previous chapter
+                        },
+                        icon: Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.grey,
+                        ),
+                      )
                     : Container(),
                 Spacer(),
                 Container(
                   child: Text(
-                    'Page ${Provider
-                        .of<ReaderProvider>(context)
-                        .page} / ${Provider
-                        .of<ReaderProvider>(context)
-                        .chapterLength}',
+                    'Page ${Provider.of<ReaderProvider>(context).page} / ${Provider.of<ReaderProvider>(context).chapterLength}',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20.sp,
@@ -336,14 +323,14 @@ class _DebugReader2State extends State<DebugReader2> {
                 Spacer(),
                 !provider.custom
                     ? IconButton(
-                  onPressed: () {
-                    // todo, move to next page
-                  },
-                  icon: Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.grey,
-                  ),
-                )
+                        onPressed: () {
+                          // todo, move to next page
+                        },
+                        icon: Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.grey,
+                        ),
+                      )
                     : Container(),
               ],
             );
@@ -353,8 +340,7 @@ class _DebugReader2State extends State<DebugReader2> {
     );
   }
 
-  settingsDialog() =>
-      Dialog(
+  settingsDialog() => Dialog(
         backgroundColor: Colors.black87,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0),
@@ -384,7 +370,7 @@ class _DebugReader2State extends State<DebugReader2> {
               readerModeSetting(),
               Consumer<ReaderProvider>(
                 builder: (BuildContext context, provider, _) =>
-                provider.readerMode == 0 ? mangaModeOptions() : Container(),
+                    provider.readerMode == 0 ? mangaModeOptions() : Container(),
               ),
 
               SizedBox(
@@ -408,8 +394,7 @@ class _DebugReader2State extends State<DebugReader2> {
         ),
       );
 
-  Widget chapterDialog() =>
-      Dialog(
+  Widget chapterDialog() => Dialog(
         backgroundColor: Colors.black87,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0),
@@ -438,64 +423,63 @@ class _DebugReader2State extends State<DebugReader2> {
                 List readChapterLinks = [];
                 if (provider.history.readChapters != null) {
                   readChapterNames = provider.history.readChapters
-                      .map((m) => m['name'])
-                      .toList() ??
+                          .map((m) => m['name'])
+                          .toList() ??
                       [];
                   readChapterLinks = provider.history.readChapters
-                      .map((m) => m['link'])
-                      .toList() ??
+                          .map((m) => m['link'])
+                          .toList() ??
                       [];
                 }
                 return Container(
                   height: 450.h,
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width - 100.w,
+                  width: MediaQuery.of(context).size.width - 100.w,
                   child: ListView(
                     shrinkWrap: true,
                     children: widget.chapters
-                        .map((chapter) =>
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Colors.grey[900],
+                        .map((chapter) => Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey[900],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          height: 80,
-                          child: ListTile(
-                            // tileColor: Colors.grey,
-                            title: Text(
-                              "${chapter.name}",
-                              style: TextStyle(
-                                fontSize: 17.sp,
-                                color: (readChapterNames
-                                    .contains(chapter.name) ||
-                                    readChapterLinks
-                                        .contains(chapter.link))
-                                    ? Colors.grey[700]
-                                    : Colors.white,
-                              ),
-                            ),
+                              height: 65.h,
+                              child: Center(
+                                child: ListTile(
+                                  // tileColor: Colors.grey,
+                                  title: Text(
+                                    "${chapter.name}",
+                                    style: TextStyle(
+                                      fontSize: 17.sp,
+                                      color: (readChapterNames
+                                                  .contains(chapter.name) ||
+                                              readChapterLinks
+                                                  .contains(chapter.link))
+                                          ? Colors.grey[700]
+                                          : Colors.white,
+                                    ),
+                                  ),
 
-                            subtitle: Text(
-                              chapter.maker ?? "...",
-                              style: TextStyle(
-                                color: Colors.grey[700],
-                                fontSize: 15.sp,
+                                  subtitle: (chapter.maker.isNotEmpty)
+                                      ? Text(
+                                          chapter.maker,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontSize: 15.sp,
+                                          ),
+                                        )
+                                      : null,
+                                  leading: Provider.of<ReaderProvider>(context)
+                                              .currentChapter
+                                              .link ==
+                                          chapter.link
+                                      ? Icon(Icons.check, color: Colors.purple)
+                                      : null,
+                                ),
                               ),
-                            ),
-                            leading: Provider
-                                .of<ReaderProvider>(context)
-                                .currentChapter
-                                .link ==
-                                chapter.link
-                                ? Icon(Icons.check, color: Colors.purple)
-                                : null,
-                          ),
-                        ))
+                            ))
                         .toList(),
                   ),
                 );
@@ -505,7 +489,7 @@ class _DebugReader2State extends State<DebugReader2> {
               ),
               MaterialButton(
                 height: 50.h,
-                minWidth: 100.w,
+                minWidth: 200.w,
                 onPressed: () => Navigator.pop(context),
                 child: Text(
                   "Close",
@@ -550,15 +534,14 @@ class _DebugReader2State extends State<DebugReader2> {
               child: DropdownButton(
                 items: rOptions
                     .map(
-                      (e) =>
-                      DropdownMenuItem(
+                      (e) => DropdownMenuItem(
                         child: Text(
                           e.value,
                           style: TextStyle(fontSize: 17.sp),
                         ),
                         value: e,
                       ),
-                )
+                    )
                     .toList(),
                 dropdownColor: Colors.grey[900],
                 value: rOptions[provider.readerMode],
@@ -621,15 +604,14 @@ class _DebugReader2State extends State<DebugReader2> {
                     child: DropdownButton(
                       items: rOptions
                           .map(
-                            (e) =>
-                            DropdownMenuItem(
+                            (e) => DropdownMenuItem(
                               child: Text(
                                 e.value,
                                 style: TextStyle(fontSize: 17.sp),
                               ),
                               value: e,
                             ),
-                      )
+                          )
                           .toList(),
                       dropdownColor: Colors.grey[900],
                       value: rOptions[provider.orientationMode],
@@ -679,15 +661,14 @@ class _DebugReader2State extends State<DebugReader2> {
                         child: DropdownButton(
                           items: rOptions
                               .map(
-                                (e) =>
-                                DropdownMenuItem(
+                                (e) => DropdownMenuItem(
                                   child: Text(
                                     e.value,
                                     style: TextStyle(fontSize: 17.sp),
                                   ),
                                   value: e,
                                 ),
-                          )
+                              )
                               .toList(),
                           dropdownColor: Colors.grey[900],
                           value: rOptions[provider.scrollDirectionMode],

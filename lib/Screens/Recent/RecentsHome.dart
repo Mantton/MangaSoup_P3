@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
 import 'package:provider/provider.dart';
-
+import 'recentsettings.dart';
 import 'RecentsHighlightViews.dart';
 
 class HistoryPage extends StatefulWidget {
@@ -34,6 +34,16 @@ class _HistoryPageState extends State<HistoryPage> {
         centerTitle: true,
         title: Text("History"),
         actions: [
+
+          IconButton(
+            icon: Icon(
+              Icons.settings,
+              color: Colors.white,
+            ),
+            onPressed: ()=>showSettings(context: context),
+          ),
+
+          IconButton(icon: Icon(Icons.edit), onPressed: null ),
           IconButton(
               icon: Icon((mode != 1)
                   ? CupertinoIcons.square_grid_3x2_fill

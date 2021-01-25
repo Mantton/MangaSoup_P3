@@ -80,7 +80,8 @@ class _BrowsePageState extends State<BrowsePage> {
                       : Container(
                           child: Center(
                             child: Text(
-                                "This Source does not support the browse feature"),
+                              "This Source does not support the browse feature",
+                            ),
                           ),
                         ),
                 ),
@@ -150,14 +151,8 @@ class _BrowsePageState extends State<BrowsePage> {
     return Stack(
       children: [
         Container(
-          height: MediaQuery
-              .of(context)
-              .size
-              .height,
-          width: MediaQuery
-              .of(context)
-              .size
-              .width,
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
         ),
         Positioned(
           child: Container(
@@ -224,13 +219,13 @@ class _BrowsePageState extends State<BrowsePage> {
             return (snapshot.data.length != 0)
                 ? ComicGrid(comics: snapshot.data)
                 : Container(
-              child: Center(
-                child: Text(
-                  "No Results",
-                  style: isEmptyFont,
-                ),
-              ),
-            );
+                    child: Center(
+                      child: Text(
+                        "No Results",
+                        style: isEmptyFont,
+                      ),
+                    ),
+                  );
           } else {
             return Container(
               child: Center(
@@ -246,89 +241,90 @@ class _BrowsePageState extends State<BrowsePage> {
     );
   }
 
-  buildFilters() =>
-      Dialog(
-        backgroundColor: Colors.blueGrey[900],
+  buildFilters() => Dialog(
+        backgroundColor: Colors.grey[900],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0),
         ),
-        child: Padding(
-          padding: EdgeInsets.all(17.0.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Text(
-                      "Filters",
-                      style: TextStyle(fontFamily: "Roboto", fontSize: 30.sp),
-                    ),
-                    Spacer(),
-                    IconButton(
-                      icon: Icon(
-                        Icons.cancel_outlined,
-                        size: 30.w,
-                        color: Colors.red,
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 20.h,
-              ),
-              Column(
+        child: Container(
+          height: 500.h,
+          child: Padding(
+            padding: EdgeInsets.all(17.0.w),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Column(
-                    children: List.generate(
-                      Provider
-                          .of<SourceNotifier>(context)
-                          .source
-                          .filters
-                          .length,
-                          (index) =>
-                          TesterFilter(
-                            filter: SourceSetting.fromMap(
-                                Provider
-                                    .of<SourceNotifier>(context)
-                                    .source
-                                    .filters[index]),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          "Filters",
+                          style: TextStyle(fontFamily: "Roboto", fontSize: 30.sp),
+                        ),
+                        Spacer(),
+                        IconButton(
+                          icon: Icon(
+                            Icons.cancel_outlined,
+                            size: 30.w,
+                            color: Colors.red,
                           ),
+                          onPressed: () => Navigator.pop(context),
+                        )
+                      ],
                     ),
                   ),
                   SizedBox(
-                    height: 15.h,
+                    height: 20.h,
                   ),
-                  MaterialButton(
-                    height: 50.h,
-                    minWidth: 100.w,
-                    onPressed: () {
-                      Navigator.pop(context);
-                      queryMap =
-                          Provider.of<BrowseProvider>(context, listen: false)
-                              .encodedData;
-                      print(queryMap);
-                      // API SEARCH
-                      setState(() {
-                        results = getResults();
-                        filters = false;
-                      });
-                    },
-                    child: Text(
-                      "Browse",
-                      style: isEmptyFont,
-                    ),
-                    color: Colors.deepPurpleAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
+                  Column(
+                    children: [
+                      Column(
+                        children: List.generate(
+                          Provider.of<SourceNotifier>(context)
+                              .source
+                              .filters
+                              .length,
+                          (index) => TesterFilter(
+                            filter: SourceSetting.fromMap(
+                                Provider.of<SourceNotifier>(context)
+                                    .source
+                                    .filters[index]),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 15.h,
+                      ),
+                      MaterialButton(
+                        height: 50.h,
+                        minWidth: 100.w,
+                        onPressed: () {
+                          Navigator.pop(context);
+                          queryMap =
+                              Provider.of<BrowseProvider>(context, listen: false)
+                                  .encodedData;
+                          print(queryMap);
+                          // API SEARCH
+                          setState(() {
+                            results = getResults();
+                            filters = false;
+                          });
+                        },
+                        child: Text(
+                          "Browse",
+                          style: isEmptyFont,
+                        ),
+                        color: Colors.deepPurpleAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ],
+                  )
                 ],
-              )
-            ],
+              ),
+            ),
           ),
         ),
       );
