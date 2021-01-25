@@ -7,6 +7,8 @@ import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Database/FavoritesDatabase.dart';
 import 'package:mangasoup_prototype_3/Models/Favorite.dart';
+import 'package:mangasoup_prototype_3/Providers/FavoriteProvider.dart';
+import 'package:provider/provider.dart';
 
 class FavoriteCollectionEdit extends StatefulWidget {
   final List<Favorite> favorites;
@@ -173,14 +175,15 @@ class _FavoriteCollectionEditState extends State<FavoriteCollectionEdit> {
                       ),
                       onTap: () async {
                         showLoadingDialog(context);
-                        await _manager.removeBulk(_selectedItems);
-                        setState(() {
-                          _favs.removeWhere(
-                            (element) => _selectedItems.contains(element),
-                          );
+                        // Provider Delete
+                        await Provider.of<FavoriteProvider>(context, listen:false).deleteBulk(_selectedItems);
 
-                          _selectedItems.clear();
-                        });
+                        // Edit View Delete
+                        _favs.removeWhere(
+                              (element) => _selectedItems.contains(element),
+                        );
+                        _selectedItems.clear();
+                        setState(() {});
                         Navigator.pop(context);
                         showMessage(
                           "Done!",
@@ -300,16 +303,20 @@ class _FavoriteCollectionEditState extends State<FavoriteCollectionEdit> {
 
   moveCollection(String name) async {
     showLoadingDialog(context);
-    _selectedItems.forEach((element) {
-      element.collection = name;
-    });
-    await _manager.updateBulk(_selectedItems);
-    setState(() {
-      _favs.removeWhere(
-        (element) => _selectedItems.contains(element),
-      );
-      _selectedItems.clear();
-    });
+    await Provider.of<FavoriteProvider>(context, listen: false).moveCollection(
+      toChange: _selectedItems,
+      oldCollectionName: _selectedItems[0].collection,
+      newCollectionName: name,
+      collectionLength: _favs.length
+    );
+
+    // Edit View Delete
+    _favs.removeWhere(
+          (element) => _selectedItems.contains(element),
+    );
+    _selectedItems.clear();
+    setState(() {});
+    Navigator.pop(context);
     Navigator.pop(context);
     showMessage(
       "Done!",
@@ -395,10 +402,15 @@ class _FavoriteCollectionEditState extends State<FavoriteCollectionEdit> {
 
                   //rename
                   showLoadingDialog(context);
-                  _favs.forEach((element) {
-                    element.collection = newCollectionName;
-                  });
-                  await _manager.updateBulk(_favs);
+                  await Provider.of<FavoriteProvider>(context, listen: false).moveCollection(
+                      toChange: _favs,
+                      oldCollectionName: _collectionName,
+                      newCollectionName: newCollectionName,
+                      collectionLength: _favs.length,
+                    rename: true
+                  );
+
+                  print(_collectionName);
                   setState(() {
                     _collectionName = newCollectionName;
 
