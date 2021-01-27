@@ -150,6 +150,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ReaderProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
 
+
         //
       ],
       child: App(),
@@ -268,6 +269,7 @@ class Handler extends StatefulWidget {
 
 class _HandlerState extends State<Handler> {
   Future<bool> initSource() async {
+    debugPrint("Start Up");
     TestPreference _prefs = TestPreference();
     await _prefs.init();
     Source source = await _prefs.loadSource();
@@ -280,6 +282,7 @@ class _HandlerState extends State<Handler> {
 
       return false;
     }
+
   }
 
   Future<bool> firstLaunch;
@@ -307,9 +310,11 @@ class _HandlerState extends State<Handler> {
             else
               return Landing();
           } else
-            return Text(
-              "error",
-              style: TextStyle(color: Colors.white),
+            return Center(
+              child: Text(
+                "Start Up Error\n ${snapshot.error}",
+                style: TextStyle(color: Colors.white),
+              ),
             );
         });
   }
