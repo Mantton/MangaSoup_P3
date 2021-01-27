@@ -7,11 +7,6 @@ import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 class HistoryQuery {
   Database db = DatabaseTestManager.db;
 
-  /// Insert
-  /// delete
-  /// get recent with limit
-  /// update last read
-
   Future<History> addHistory(History history) async {
     history.id = await db.insert(HistoryTable.TABLE, history.toMap());
     return history;

@@ -6,9 +6,6 @@ import 'package:sqflite/sqflite.dart';
 class ComicQuery {
   Database db = DatabaseTestManager.db;
 
-  /// Queries
-  /// get comics in library
-  /// get comic with id, link or title
   Future<List<Comic>> getLibrary() async {
     List<Map> queryMaps = await db.query(ComicTable.TABLE,
         where: "${ComicTable.COL_IN_LIBRARY} = ?", whereArgs: [1]);

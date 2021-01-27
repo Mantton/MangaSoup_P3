@@ -8,15 +8,6 @@ import '../manager.dart';
 class ComicCollectionQueries {
   Database db = DatabaseTestManager.db;
 
-  /*
-  * get all
-  * get for specific comic
-  * set for one
-  * set for multiple
-  * delete for multiple
-  *
-  * */
-
   // get all
   Future<List<ComicCollection>> getAll() async {
     List<Map> queryMap = await db.query(ComicCollectionTable.TABLE);
