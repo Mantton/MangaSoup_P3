@@ -1,3 +1,4 @@
+import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/collection_table.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/comic-collection_table.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/history_table.dart';
@@ -24,6 +25,7 @@ class DatabaseTestManager {
     await db.execute(CollectionTable.createTableQuery()); // Collection Table
     await db.execute(ComicCollectionTable.createTableQuery()); // Comic Collection Table
     await db.execute(HistoryTable.createTableQuery()); // History Table
+    await db.insert(CollectionTable.TABLE, Collection.createDefault().toMap());
     print("database created successfully!");
     return db;
   }

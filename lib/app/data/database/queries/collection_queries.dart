@@ -23,6 +23,13 @@ class CollectionQuery {
     return collections;
   }
 
+  Future<Collection> getSingleCollection(int id) async {
+    List<Map> queryMap = await db.query(CollectionTable.TABLE,
+        where: "${CollectionTable.COL_ID} = ?", whereArgs: [id], limit: 1);
+
+    return Collection.fromMap(queryMap[0]);
+  }
+
   deleteCollection(Collection collection) async {
     await db.delete(CollectionTable.TABLE,
         where: "${CollectionTable.COL_ID} = ?", whereArgs: [collection.id]);

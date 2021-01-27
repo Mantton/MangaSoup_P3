@@ -30,7 +30,6 @@ class ComicQuery {
   Future<Comic> updateComic(Comic comic) async {
     int updatedId =  await db
         .update(ComicTable.TABLE, comic.toMap(), where: '${ComicTable.COL_ID} = ?', whereArgs: [comic.id]);
-    print("Updated Entry No.$updatedId");
     return comic;
   }
 

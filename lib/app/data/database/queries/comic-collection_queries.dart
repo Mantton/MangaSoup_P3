@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/comic-collection_table.dart';
@@ -42,6 +44,19 @@ class ComicCollectionQueries {
     return collections;
   }
 
+  Future<List<ComicCollection>> insertForComic(
+      {@required List<Collection> collections, int comicId}) async {
+
+    List<ComicCollection> newC = List();
+    for (Collection collection in collections) {
+      ComicCollection c =
+          ComicCollection(comicId: comicId, collectionId: collection.id);
+      c = await insert(c);
+      newC.add(c);
+    }
+    return newC;
+  }
+
   // Set for one
 
   Future<ComicCollection> insert(ComicCollection comicCollection) async {
@@ -63,9 +78,15 @@ class ComicCollectionQueries {
   // Set for multiple
   setCollections(List<ComicCollection> collections, List<Comic> comics) async {
     await delete(comics);
-    for (ComicCollection collection in collections){
+    for (ComicCollection collection in collections) {
       await insert(collection);
     }
   }
 
+  setCollectionsNonBatch(List<Collection> collections, int comicId)async{
+    Comic comic = Comic();
+    comic.id = comicId;
+    await delete([comic]);
+    await insertForComic(collections: collections, comicId: comicId);
+  }
 }

@@ -21,9 +21,9 @@ class ProfileGateWay extends StatefulWidget {
 }
 
 class _ProfileGateWayState extends State<ProfileGateWay> {
-  Future<ComicProfile> _profile;
+  Future<Map<String, dynamic>> _profile;
 
-  Future<ComicProfile> getProfile() async {
+  Future<Map<String, dynamic>> getProfile() async {
     ApiManager _manager = ApiManager();
 
     /// Get Profile
@@ -32,35 +32,29 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
       widget.highlight.link,
     );
 
-    /// Initialize Providers
-    await Provider.of<ComicHighlightProvider>(context, listen: false)
-        .loadHighlight(widget.highlight); // Load Current Highlight to Provider
-    await Provider.of<ComicDetailProvider>(context, listen: false)
-        .init(widget.highlight); // Initialize Read Chapter History
-
-    Comic comic = Comic(
+    Comic generated = Comic(
         title: widget.highlight.title,
         link: widget.highlight.link,
         thumbnail: widget.highlight.thumbnail,
+        referer: widget.highlight.imageReferer,
         source: widget.highlight.source,
         sourceSelector: widget.highlight.selector,
         chapterCount: profile.chapterCount);
-    // await Provider.of<DatabaseProvider>(context, listen: false).testAdd(comic);
+    Comic comic =  Provider.of<DatabaseProvider>(context, listen: false)
+        .isComicSaved(generated);
 
-    /// Save to View History
-    bool hentai = widget.highlight.isHentai ?? false;
-    // Hentai checks for sites like nhentai
-    if (!hentai) {
-      /*
-      * tags that contain adult content : adult, smut
-      * */
-      // Readmanhwa -> adult
-      // most others -> smut
-      await Provider.of<ViewHistoryProvider>(context, listen: false)
-          .addToHistory(widget.highlight); // Add to View History
-    }
+    if (comic!= null){
+      // UPDATE VALUES HERE
+      comic.thumbnail = widget.highlight.thumbnail;
+      comic.updateCount = profile.chapterCount - comic.updateCount;
+      comic.chapterCount = profile.chapterCount;
+    } else
+        comic = generated;
+    // Evaluate
+    int _id = await Provider.of<DatabaseProvider>(context, listen: false)
+        .evaluate(comic);
 
-    return profile;
+    return {"profile": profile, "id": _id};
   }
 
   @override
@@ -103,11 +97,12 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
           }
 
           if (snapshot.hasData) {
-            ComicProfile prof = snapshot.data;
+            ComicProfile prof = snapshot.data['profile'];
+            int id = snapshot.data['id'];
             if (prof.properties == null) {
               return ProfilePage(
                 profile: prof,
-                highlight: widget.highlight,
+                comicId: id,
               );
             } else {
               return CustomProfilePage(

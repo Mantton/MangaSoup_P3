@@ -10,7 +10,11 @@ class Collection {
     this.updateEnabled = false;
   }
 
-  Collection createDefault() => Collection(name: "Default");
+  static Collection createDefault() {
+    Collection col = Collection(name: "Default");
+    col.order = 0;
+    return col;
+  }
 
   Collection.fromMap(Map<String, dynamic> map) {
     id = map['id'];

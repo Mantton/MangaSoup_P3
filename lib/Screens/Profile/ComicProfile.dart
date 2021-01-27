@@ -3,25 +3,19 @@ import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/ProfileScreens/DiscussionScreen.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/ProfileScreens/ProfileScreen.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/ProfileScreens/TrackingScreen.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/profile_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   final ComicProfile profile;
-  final ComicHighlight highlight;
+  final int comicId;
 
-  const ProfilePage({Key key, @required this.profile,@required this.highlight}) : super(key: key);
+  const ProfilePage({Key key, @required this.profile,@required this.comicId}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage>with AutomaticKeepAliveClientMixin {
-  ComicProfile _profile;
-
-  @override
-  void initState() {
-    super.initState();
-    _profile = widget.profile;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +26,7 @@ class _ProfilePageState extends State<ProfilePage>with AutomaticKeepAliveClientM
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_profile.title),
+          title: Text(widget.profile.title),
           centerTitle: true,
           backgroundColor: Colors.black,
           bottom: TabBar(
@@ -58,9 +52,9 @@ class _ProfilePageState extends State<ProfilePage>with AutomaticKeepAliveClientM
         backgroundColor: Colors.black,
         body: TabBarView(
           children: [
-            ProfilePageScreen(
-              comicProfile: _profile,
-              highlight: widget.highlight,
+            NewProfileScreen(
+              profile: widget.profile,
+              comicId: widget.comicId,
             ),
             DiscussionPage(),
             TrackingPage(),

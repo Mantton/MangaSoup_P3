@@ -7,6 +7,7 @@ class Comic {
   String title;
   String link;
   String thumbnail;
+  String referer;
   bool isNsfw; // Either Hentai or contains adult tags
 
   // App Information
@@ -24,6 +25,7 @@ class Comic {
       {this.title,
       this.link,
       this.thumbnail,
+        this.referer,
       this.source,
       this.sourceSelector,
       this.chapterCount}) {

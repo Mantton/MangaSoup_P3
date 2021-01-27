@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Screens/Favorite/FavouriteHome.dart';
 import 'package:mangasoup_prototype_3/Screens/More/MoreHomePage.dart';
+import 'package:mangasoup_prototype_3/app/screens/library/library_home.dart';
 import 'Screens/Explore/Home.dart';
 import 'Screens/Recent/RecentsHome.dart';
 import 'app/testing/screens/new_db_screen.dart';
@@ -23,7 +24,7 @@ class _LandingState extends State<Landing> {
             child: Home(), // Explore
           ),
           Container(
-            child: FavouritePage(),
+            child: LibraryHome(),
           ),
           Container(
             child: HistoryPage(),
