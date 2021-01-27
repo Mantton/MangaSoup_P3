@@ -4,13 +4,22 @@ import 'package:mangasoup_prototype_3/app/data/database/tables/comic_table.dart'
 import 'package:sqflite/sqflite.dart';
 
 class ComicQuery {
-  Database db = DatabaseTestManager.db;
+  Database db;
+
+  ComicQuery(this.db);
 
   Future<List<Comic>> getLibrary() async {
     List<Map> queryMaps = await db.query(ComicTable.TABLE,
         where: "${ComicTable.COL_IN_LIBRARY} = ?", whereArgs: [1]);
     List<Comic> comics = queryMaps.map((map) => Comic.fromMap(map)).toList();
     return comics;
+  }
+
+  Future<List<Comic>> getAll() async {
+    List<Map> queryMaps = await db.query(ComicTable.TABLE );
+    List<Comic> comics = queryMaps.map((map) => Comic.fromMap(map)).toList();
+    return comics;
+
   }
 
   Future<Comic> addComic(Comic comic) async {

@@ -6,7 +6,8 @@ import 'package:sqflite/sqflite.dart';
 import '../manager.dart';
 
 class ComicCollectionQueries {
-  Database db = DatabaseTestManager.db;
+  Database db;
+  ComicCollectionQueries(this.db);
 
   // get all
   Future<List<ComicCollection>> getAll() async {

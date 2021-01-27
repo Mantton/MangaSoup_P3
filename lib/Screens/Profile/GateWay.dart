@@ -7,6 +7,8 @@ import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/ComicProfile.dart';
 import 'package:mangasoup_prototype_3/Screens/Profile/CustomProfile.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:provider/provider.dart';
 
 class ProfileGateWay extends StatefulWidget {
@@ -35,6 +37,15 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
         .loadHighlight(widget.highlight); // Load Current Highlight to Provider
     await Provider.of<ComicDetailProvider>(context, listen: false)
         .init(widget.highlight); // Initialize Read Chapter History
+
+    Comic comic = Comic(
+        title: widget.highlight.title,
+        link: widget.highlight.link,
+        thumbnail: widget.highlight.thumbnail,
+        source: widget.highlight.source,
+        sourceSelector: widget.highlight.selector,
+        chapterCount: profile.chapterCount);
+    // await Provider.of<DatabaseProvider>(context, listen: false).testAdd(comic);
 
     /// Save to View History
     bool hentai = widget.highlight.isHentai ?? false;

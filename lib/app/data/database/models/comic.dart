@@ -1,3 +1,5 @@
+import 'package:mangasoup_prototype_3/Models/Comic.dart';
+
 class Comic {
   int id;
 
@@ -45,6 +47,10 @@ class Comic {
     inLibrary = map["in_library"] == 1 ? true : false;
     viewerMode = map['view_mode'];
     isNsfw = map['nsfw'] == 1 ? true : false;
+  }
+
+  ComicHighlight toHighlight(){
+    return ComicHighlight(title, link, thumbnail, sourceSelector, source, isNsfw, "");
   }
 
   // Create DB Injectable Map from Comic

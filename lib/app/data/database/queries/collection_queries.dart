@@ -4,7 +4,9 @@ import 'package:mangasoup_prototype_3/app/data/database/tables/collection_table.
 import 'package:sqflite/sqflite.dart';
 
 class CollectionQuery {
-  Database db = DatabaseTestManager.db;
+  Database db;
+
+  CollectionQuery(this.db);
 
   Future<Collection> addCollection(Collection newCollection) async {
     newCollection.id =
