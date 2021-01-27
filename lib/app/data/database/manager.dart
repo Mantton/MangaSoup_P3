@@ -1,3 +1,4 @@
+import 'package:mangasoup_prototype_3/app/data/database/tables/collection_table.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -16,7 +17,8 @@ class DatabaseTestManager {
   }
 
   _onCreate(Database db, int version) async {
-    await db.execute(ComicTable.createTableQuery());
+    await db.execute(ComicTable.createTableQuery()); // Comic Table
+    await db.execute(CollectionTable.createTableQuery()); // Collection Table
     return db;
   }
 
