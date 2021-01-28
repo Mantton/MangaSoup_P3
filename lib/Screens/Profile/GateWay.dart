@@ -39,15 +39,15 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
         referer: widget.highlight.imageReferer,
         source: widget.highlight.source,
         sourceSelector: widget.highlight.selector,
-        chapterCount: profile.chapterCount);
+        chapterCount: profile.chapterCount ?? 0);
     Comic comic =  Provider.of<DatabaseProvider>(context, listen: false)
         .isComicSaved(generated);
 
     if (comic!= null){
       // UPDATE VALUES HERE
       comic.thumbnail = widget.highlight.thumbnail;
-      comic.updateCount = profile.chapterCount - comic.updateCount;
-      comic.chapterCount = profile.chapterCount;
+      comic.updateCount = profile.chapterCount?? 0 - comic.updateCount;
+      comic.chapterCount = profile.chapterCount ?? 0;
     } else
         comic = generated;
     // Evaluate
@@ -107,6 +107,7 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
             } else {
               return CustomProfilePage(
                 profile: prof,
+                comicId: id,
               );
             }
           } else {

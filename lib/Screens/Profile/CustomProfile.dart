@@ -10,12 +10,18 @@ import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Reader/DebugReaders/DebugReader2.dart';
 import 'package:mangasoup_prototype_3/Screens/Tags/TagComics.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/dialogs/not_in_library.dart';
 import 'package:provider/provider.dart';
 
 class CustomProfilePage extends StatefulWidget {
   final ComicProfile profile;
+  final int comicId;
 
-  const CustomProfilePage({Key key, @required this.profile}) : super(key: key);
+  const CustomProfilePage({Key key, @required this.profile, this.comicId})
+      : super(key: key);
 
   @override
   _CustomProfilePageState createState() => _CustomProfilePageState();
@@ -46,11 +52,19 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                     children: [
                       profileHeader(),
                       Divider(
-                        height: 20.h,
+                        height: 10.h,
                         indent: 5.w,
                         endIndent: 5.w,
                         color: Colors.white12,
                         thickness: 2,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 8.0.w, right: 8.w),
+                        child: Consumer<DatabaseProvider>(
+                          builder: (BuildContext context, provider, _) =>
+                              collectionViewer(
+                                  provider.retrieveComic(widget.comicId)),
+                        ),
                       ),
                       profileTags(widget.profile.properties),
                       readButton(),
@@ -158,6 +172,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
   Widget profileTags(List properties) {
     return Container(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: List.generate(properties.length, (index) {
           Map property = properties[index];
           String name = property['name'];
@@ -168,8 +183,10 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                     left: 15.w,
                     right: 15.w,
                   ),
-                  margin: EdgeInsets.only(bottom: 10.h),
+                  // margin: EdgeInsets.only(bottom: 10.h),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
+
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -230,6 +247,8 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
 
   Widget contentPreview() {
     return Column(
+      mainAxisSize: MainAxisSize.min,
+
       children: [
         Text(
           "Preview",
@@ -335,4 +354,66 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
           ),
         );
       });
+
+  Widget collectionViewer(Comic comic) => Container(
+        child: comic.inLibrary ? inLibrary(comic) : notInLibrary(comic),
+      );
+
+  Widget inLibrary(Comic comic) => InkWell(
+        onTap: () => notInLibraryDialog(context: context, comicId: comic.id),
+        child: Container(
+          margin: EdgeInsets.only(left: 10.w),
+          height: 50.h,
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.library_add_check,
+                  color: Colors.purple,
+                  size: 35,
+                ),
+                SizedBox(
+                  width: 10.w,
+                ),
+                Text(
+                  "In Library",
+                  style: notInLibraryFont,
+                ),
+                Spacer(),
+                Text(
+                  "Tap to Edit",
+                  style: TextStyle(color: Colors.grey[700], fontSize: 15.sp),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+  Widget notInLibrary(Comic comic) => InkWell(
+        onTap: () => notInLibraryDialog(context: context, comicId: comic.id),
+        child: Container(
+          margin: EdgeInsets.only(left: 10),
+          height: 50.h,
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.library_add_sharp,
+                  color: Colors.purple,
+                  size: 35,
+                ),
+                SizedBox(
+                  width: 10.w,
+                ),
+                Text(
+                  "Add to Library",
+                  style: notInLibraryFont,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
 }

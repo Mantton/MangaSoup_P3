@@ -68,6 +68,7 @@ class AddToLibrary extends StatefulWidget {
 
 class _AddToLibraryState extends State<AddToLibrary> {
   List<Collection> _selectedCollections = List();
+  int initialCount = 0;
 
   toggleSelection(Collection collection) {
     if (_selectedCollections.contains(collection)) {
@@ -85,6 +86,7 @@ class _AddToLibraryState extends State<AddToLibrary> {
         Provider.of<DatabaseProvider>(context, listen: false)
             .collections
             .where((element) => confirmed.contains(element.id)));
+    initialCount = _selectedCollections.length;
     super.initState();
   }
 
@@ -177,9 +179,13 @@ class _AddToLibraryState extends State<AddToLibrary> {
                           ),
                           Spacer(),
                           FlatButton(
-                            disabledColor: Colors.grey,
+                            disabledColor: Colors.grey[900],
                             child: Text(
-                              "Confirm",
+                              (_selectedCollections.isNotEmpty)
+                                  ? "Confirm"
+                                  : (initialCount > 0)
+                                      ? "Remove from Library"
+                                      : "",
                               style: createCancelStyle,
                               textAlign: TextAlign.center,
                             ),
@@ -191,7 +197,17 @@ class _AddToLibraryState extends State<AddToLibrary> {
                                         _selectedCollections, widget.comicId);
                                     Navigator.pop(context);
                                   }
-                                : null,
+                                : (initialCount > 0)
+                                    ? () async {
+                                        Navigator.pop(context);
+                                        showLoadingDialog(context);
+                                        await provider.addToLibrary(
+                                            _selectedCollections,
+                                            widget.comicId,
+                                            remove: true);
+                                        Navigator.pop(context);
+                                      }
+                                    : null,
                           )
                         ],
                       ),

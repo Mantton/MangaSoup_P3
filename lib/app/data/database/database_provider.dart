@@ -116,12 +116,12 @@ class DatabaseProvider with ChangeNotifier {
   }
 
   /// Add to Library
-  addToLibrary(List<Collection> collections, int comicId) async {
+  addToLibrary(List<Collection> collections, int comicId, {bool remove = false}) async {
     // Insert to Comic Collections
     batchSetComicCollection(collections, comicId);
     // Change status to in Library
     Comic retrieved = retrieveComic(comicId);
-    retrieved.inLibrary = true;
+    retrieved.inLibrary = (!remove) ?true:false;
     await comicManager.updateComic(retrieved);
     int index = comics.indexOf(retrieved);
     comics[index] = retrieved;
@@ -135,4 +135,16 @@ class DatabaseProvider with ChangeNotifier {
         .toList();
     return retrieved.map((e) => e.collectionId).toList();
   }
+
+  List<Comic> getCollectionComics(int id){
+    // get the get comic collections matching given id;
+
+    List<int> requiredIds = comicCollections.where((element) => element.collectionId == id
+    ).toList().map((e) => e.comicId).toList();
+
+    // get the comic linked to those collections
+
+    List<Comic> requiredComics = comics.where((element) => requiredIds.contains(element.id)).toList();
+    return requiredComics;
+    }
 }

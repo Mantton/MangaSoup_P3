@@ -12,6 +12,7 @@ final textFieldStyle = TextStyle(
   color: Colors.grey,
   fontSize: 18.sp,
 );
+TextStyle isEmptyFont = TextStyle(fontSize: 20.sp, fontFamily: "Lato");
 
 final createCancelStyle = TextStyle(
     fontSize: 20.sp,
