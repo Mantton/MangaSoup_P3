@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
@@ -18,7 +17,7 @@ class DatabaseProvider with ChangeNotifier {
   // Provider Variables
   List<Comic> comics = List();
   List<Collection> collections = List();
-  List<History> history = List();
+  List<History> historyList = List();
   List<ComicCollection> comicCollections = List();
   List<ChapterData> chapters = List();
   Database _db;
@@ -42,7 +41,7 @@ class DatabaseProvider with ChangeNotifier {
     // Load Data into Provider Variables
     comics = await comicManager.getAll();
     collections = await collectionManager.getCollections();
-    history = await historyManager.getHistory(limit: 25);
+    historyList = await historyManager.getHistory(limit: 25);
     comicCollections = await comicCollectionManager.getAll();
     chapters = await chapterManager.getAll();
     print("database initialization complete.");
@@ -76,6 +75,10 @@ class DatabaseProvider with ChangeNotifier {
 
   Collection retrieveCollection(int id) {
     return collections.firstWhere((element) => element.id == id);
+  }
+
+  ChapterData retrieveChapter(int id) {
+    return chapters.firstWhere((element) => element.id == id);
   }
 
   Comic isComicSaved(Comic comic) {
@@ -210,8 +213,13 @@ class DatabaseProvider with ChangeNotifier {
     }
   }
 
-  bool checkSimilarRead(Chapter chapter, int comicId){
-    bool check = chapters.any((element) => element.read && element.generatedChapterNumber == chapter.generatedNumber && element.mangaId == comicId);
+
+
+  bool checkSimilarRead(Chapter chapter, int comicId) {
+    bool check = chapters.any((element) =>
+        element.read &&
+        element.generatedChapterNumber == chapter.generatedNumber &&
+        element.mangaId == comicId);
     return check;
   }
 
@@ -238,7 +246,7 @@ class DatabaseProvider with ChangeNotifier {
     }
     data = await chapterManager.updateBatch(data);
     // if in chapters, update
-    for (ChapterData obj in data){
+    for (ChapterData obj in data) {
       if (chapters.any((element) => element.id == obj.id))
         chapters[chapters.indexWhere((element) => element.id == obj.id)] = obj;
       else
@@ -246,5 +254,31 @@ class DatabaseProvider with ChangeNotifier {
     }
     notifyListeners();
     print("done");
+  }
+
+  updateHistory(int comicId, int chapterId) async {
+    History newHistory = History(comicId: comicId, chapterId: chapterId);
+
+    if (historyList.any((element) => element.comicId == comicId)) {
+      historyList[historyList.indexWhere((element) => element.comicId == comicId)] =
+          newHistory;
+      await historyManager.updateHistory(
+          historyList[historyList.indexWhere((element) => element.comicId == comicId)]);
+      // update
+    } else {
+      // add
+      History newHistory = History(comicId: comicId, chapterId: chapterId);
+      newHistory = await historyManager.addHistory(newHistory);
+      historyList.add(newHistory);
+    }
+
+    notifyListeners();
+  }
+  
+  removeHistory(History history) async {
+      await historyManager.deleteHistory(history);
+      historyList.remove(history);
+      notifyListeners();
+      
   }
 }

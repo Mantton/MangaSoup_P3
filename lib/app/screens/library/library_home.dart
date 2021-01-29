@@ -44,14 +44,15 @@ class _LibraryHomeState extends State<LibraryHome> {
               onPressed: null, //todo, search library
             ),
             IconButton(
-                icon: Icon(Icons.format_list_numbered_rtl_outlined),
-                onPressed: () => Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (_) => LibrarySettings(),
-                        fullscreenDialog: true,
-                      ),
-                    ))
+              icon: Icon(Icons.format_list_numbered_rtl_outlined),
+              onPressed: () => Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (_) => LibrarySettings(),
+                  fullscreenDialog: true,
+                ),
+              ),
+            ),
           ],
           bottom: TabBar(
             indicatorColor: Colors.purpleAccent,

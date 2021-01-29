@@ -38,7 +38,7 @@ class _ChapterListState extends State<ChapterList> {
     });
   }
 
-  void onTap(Chapter chapter) {
+  Future<void> onTap(Chapter chapter) async {
     // toggle chapter selection
     if (editMode()) {
       if (_selectedChapters.contains(chapter))
@@ -46,7 +46,17 @@ class _ChapterListState extends State<ChapterList> {
       else
         _selectedChapters.add(chapter);
     } else {
-      print("go to chapter");
+      // create chapter data
+      DatabaseProvider provider = Provider.of<DatabaseProvider>(context, listen: false);
+      ChapterData data = provider.checkIfChapterMatch(chapter);
+      if (data == null){
+        await provider.updateFromACS([chapter], widget.comicId, false, widget.source, widget.selector);
+        data = provider.checkIfChapterMatch(chapter);
+
+      }
+      // add to history, push to reader
+      await provider.updateHistory(widget.comicId,data.id );
+      print("done");
     }
 
     setState(() {});

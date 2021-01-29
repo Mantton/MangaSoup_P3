@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Screens/More/MoreHomePage.dart';
+import 'package:mangasoup_prototype_3/app/screens/history/history_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/library_home.dart';
 import 'Screens/Explore/Home.dart';
-import 'app/testing/screens/new_db_screen.dart';
 
 class Landing extends StatefulWidget {
   @override
@@ -25,12 +25,9 @@ class _LandingState extends State<Landing> {
             child: LibraryHome(),
           ),
           Container(
-            child: Container(), //todo, history
+            child: HistoryHome(),
           ),
 
-          Container(
-            child: ComicInNewDB(),
-          ),
           Container(
             child: MorePage(),
           )

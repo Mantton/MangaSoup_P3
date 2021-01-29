@@ -1,10 +1,10 @@
 class History{
   int id;
   int comicId;
-  // int chapterId;
+  int chapterId;
   DateTime lastRead;
 
-  History({this.comicId}){
+  History({this.comicId, this.chapterId}){
     this.id = null;
     this.lastRead = DateTime.now() ;
 
@@ -13,6 +13,7 @@ class History{
   History.fromMap(Map<String, dynamic> map){
     id = map['id'];
     comicId = map['comic_id'];
+    chapterId = map['chapter_id'];
     lastRead = DateTime.fromMicrosecondsSinceEpoch(map['last_read']);
   }
 
@@ -20,6 +21,7 @@ class History{
       {
         "id": id,
         "comic_id": comicId,
+        "chapter_id": comicId,
         "last_read": lastRead.microsecondsSinceEpoch
       };
 
