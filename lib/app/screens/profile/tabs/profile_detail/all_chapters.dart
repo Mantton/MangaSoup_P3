@@ -83,23 +83,54 @@ class _ChapterListState extends State<ChapterList> {
             itemBuilder: (BuildContext context, int index) {
               Chapter chapter = widget.chapterList[index];
               ChapterData data = provider.checkIfChapterMatch(chapter);
-
+              bool similarRead =
+                  provider.checkSimilarRead(chapter, widget.comicId);
               if (data != null) {
-                // It is Stored
+                TextStyle readFont = TextStyle(
+                  color: data.read ? Colors.grey[800] : Colors.white,
+                );
+                // It is Store
                 return ListTile(
-                  title: Text(chapter.name),
-                  subtitle: Text(chapter.generatedNumber.toString()),
-                  tileColor: data.read ? Colors.blue : null,
+                  title: Text(chapter.name, style: readFont),
+                  subtitle: chapter.maker.isNotEmpty
+                      ? Text(
+                          chapter.maker,
+                          style: readFont,
+                        )
+                      : null,
                   selected: isSelected(chapter),
+                  trailing: Text(
+                    chapter.date,
+                    style: readFont,
+                  ),
+                  selectedTileColor: Colors.grey[900],
+                  onLongPress: () => longPress(chapter),
+                  onTap: () => onTap(chapter),
+                );
+              }
+              if (similarRead) {
+                return ListTile(
+                  title: Text(chapter.name,
+                      style: TextStyle(color: Colors.grey[800])),
+                  subtitle: chapter.maker.isNotEmpty
+                      ? Text(chapter.maker,
+                          style: TextStyle(color: Colors.grey[800]))
+                      : null,
+                  selected: isSelected(chapter),
+                  trailing:
+                      Text("SR", style: TextStyle(color: Colors.blueGrey[800])),
                   selectedTileColor: Colors.grey[900],
                   onLongPress: () => longPress(chapter),
                   onTap: () => onTap(chapter),
                 );
               } else {
                 return ListTile(
-                  title: Text(chapter.name),
-                  subtitle: Text(chapter.generatedNumber.toString()),
+                  title:
+                      Text(chapter.name, style: TextStyle(color: Colors.white)),
+                  subtitle:
+                      chapter.maker.isNotEmpty ? Text(chapter.maker) : null,
                   selected: isSelected(chapter),
+                  trailing: Text(chapter.date),
                   selectedTileColor: Colors.grey[900],
                   onLongPress: () => longPress(chapter),
                   onTap: () => onTap(chapter),
@@ -177,7 +208,6 @@ class _ChapterListState extends State<ChapterList> {
     else {
       int start = widget.chapterList.indexOf(_selectedChapters[0]);
       int end = widget.chapterList.indexOf(_selectedChapters[1]);
-      print("$start, $end");
 
       if (end < start) {
         setState(() {
@@ -212,51 +242,49 @@ class _ChapterListState extends State<ChapterList> {
     return showPlatformModalSheet(
       context: (context),
       builder: (_) => PlatformWidget(
-          material: (_, __) => ListView(
-                shrinkWrap: true,
-                children: [
-                  ListTile(
-                    title: Text("Mark as Read"),
-                    onTap: ()async {
-                      await markAsRead();
-                      Navigator.pop(context);
-
-                    },
-                  ),
-                  ListTile(
-                    title: Text("Mark as Unread"),
-                    onTap: ()async {
-                      await markAsUnread();
-                      Navigator.pop(context);
-
-                    },
-                  ),
-                ],
-              ),
-          cupertino: (_, __) => CupertinoActionSheet(
-                title: Text("Mark As"),
-                cancelButton: CupertinoButton(
-                  child: Text("Cancel"),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                actions: [
-                  CupertinoActionSheetAction(
-                    child: Text("Read"),
-                    onPressed: ()async {
-                       await markAsRead();
-                       Navigator.pop(context);
-
-                    },
-                  ),
-                  CupertinoActionSheetAction(
-                    child: Text("Unread"),
-                    onPressed:() async {
-                  await markAsUnread();
-                  Navigator.pop(context);
-                  },
-                  ),
-                ],
-              )),
+        material: (_, __) => ListView(
+          shrinkWrap: true,
+          children: [
+            ListTile(
+              title: Text("Mark as Read"),
+              onTap: () async {
+                await markAsRead();
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text("Mark as Unread"),
+              onTap: () async {
+                await markAsUnread();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+        cupertino: (_, __) => CupertinoActionSheet(
+          title: Text("Mark As"),
+          cancelButton: CupertinoButton(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          actions: [
+            CupertinoActionSheetAction(
+              child: Text("Read"),
+              onPressed: () async {
+                await markAsRead();
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: Text("Unread"),
+              onPressed: () async {
+                await markAsUnread();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 

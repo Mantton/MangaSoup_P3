@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,8 +6,6 @@ import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
-import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
-import 'package:mangasoup_prototype_3/Screens/Tags/TagComics.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/nhentai_property.dart';
@@ -280,7 +277,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
   }
 
   Widget readButton() =>
-      Consumer<ComicHighlightProvider>(builder: (context, provider, _) {
+      Consumer(builder: (context, provider, _) {
         return GestureDetector(
           onTap: () {
             ComicHighlight highlight = provider.highlight;

@@ -17,9 +17,7 @@ class ChapterQuery {
   }
 
   Future<ChapterData> add(ChapterData chapterData) async {
-    print("adding");
     chapterData.id = await db.insert(ChapterTable.TABLE, chapterData.toMap());
-    print("added");
     return chapterData;
   }
     // chapters for specific comic

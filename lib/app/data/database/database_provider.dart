@@ -210,6 +210,11 @@ class DatabaseProvider with ChangeNotifier {
     }
   }
 
+  bool checkSimilarRead(Chapter chapter, int comicId){
+    bool check = chapters.any((element) => element.read && element.generatedChapterNumber == chapter.generatedNumber && element.mangaId == comicId);
+    return check;
+  }
+
   updateFromACS(List<Chapter> incoming, int comicId, bool read, String source,
       String selector) async {
     print("starting update");
