@@ -26,12 +26,9 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/BrowseProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/FavoriteProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/ReaderProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Services/test_preference.dart';
 import 'package:mangasoup_prototype_3/Services/update_manager.dart';
@@ -143,13 +140,9 @@ Future<void> main() async {
         // Highlight
         ChangeNotifierProvider(create: (_) => ComicHighlightProvider()),
         // Read History
-        ChangeNotifierProvider(create: (_) => ComicDetailProvider()),
         // View History
-        ChangeNotifierProvider(create: (_) => ViewHistoryProvider()),
         ChangeNotifierProvider(create: (_) => BrowseProvider()),
         // ChangeNotifierProvider(create: (_) => DownloadProvider()),
-        ChangeNotifierProvider(create: (_) => ReaderProvider()),
-        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
         ChangeNotifierProvider(create: (_) => DatabaseProvider()),
       ],
       child: App(),

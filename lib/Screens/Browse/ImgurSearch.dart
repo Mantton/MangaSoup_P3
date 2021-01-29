@@ -68,16 +68,16 @@ class _ImgurAlbumPageState extends State<ImgurAlbumPage> {
                         source: "Imgur",
                         count: images.length,
                       );
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => DebugReader2(
-                            selector: "imgur",
-                            custom: true,
-                            chapter: chapter,
-                          ),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (_) => DebugReader2(
+                      //       selector: "imgur",
+                      //       custom: true,
+                      //       chapter: chapter,
+                      //     ),
+                      //   ),
+                      // ); //todo,push to reader
                     } else {
                       showPlatformDialog(
                           context: context,

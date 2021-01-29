@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
@@ -7,10 +6,12 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
-import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:html_unescape/html_unescape.dart';
 
 class DexHub {
   final String baseURL = "https://mangadex.org";
@@ -262,7 +263,7 @@ class DexHub {
     return highlights;
   }
 
-  Future<ComicProfile> profile(String link, Map info) async {
+  Future<Profile> profile(String link, Map info) async {
     List userLanguages = info['mangadex_languages'] ?? List();
     print("Languages: $userLanguages");
     String comicLink = link;
@@ -348,7 +349,7 @@ class DexHub {
 
     Map<String, dynamic> x = {
       "title": title,
-      "summary": summary,
+      "summary": HtmlUnescape().convert(summary),
       "thumbnail": thumbnail,
       "alt_title": altTitles,
       "author": author,
@@ -364,9 +365,9 @@ class DexHub {
     };
     debugPrint("Retrieval Complete : /Profile: $title @$source ");
 
-    return ComicProfile.fromMap(x);
+    return Profile.fromMap(x);
   }
-
+  String replaceThumbnail(String initial)=>initial.replaceAll(".large.", ".");
   String _emoji(String country) {
     country = country.toUpperCase();
     int flagOffset = 0x1F1E6;
@@ -517,7 +518,7 @@ class DexHub {
     await _dio.get("https://mangadex.org/api/v2/chapter/$id");
 
     int mangaID = response.data['data']['mangaId'];
-    ComicProfile _profile = await profile("https://mangadex.org/title/$mangaID",
+    Profile _profile = await profile("https://mangadex.org/title/$mangaID",
         await prepareAdditionalInfo(source));
     ComicHighlight newHighlight = ComicHighlight(
         _profile.title,

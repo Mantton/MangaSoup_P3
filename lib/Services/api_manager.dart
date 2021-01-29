@@ -8,6 +8,8 @@ import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiManager {
@@ -31,18 +33,7 @@ class ApiManager {
       '&api_key=b1e601ed339f1c909df951a2ebfe597671592d90'; // Image Search Link
 
   /// Get Home Page
-  Future<List<HomePage>> getHomePage() async {
-    Response response = await _dio.get('/app/homepage');
-    List initial = response.data['content'];
-    debugPrint(initial.length.toString());
-    List<HomePage> pages = [];
-    for (int index = 0; index < initial.length; index++) {
-      Map test = initial[index];
-      pages.add(HomePage.fromMap(test));
-    }
-    debugPrint("HomePage Loaded");
-    return pages;
-  }
+  //todo, homepage
 
   /// ------------- Server Resources
   Future<List<Source>> getServerSources(String server) async {
@@ -138,7 +129,7 @@ class ApiManager {
   }
 
   /// Get Profile
-  Future<ComicProfile> getProfile(String source, String link) async {
+  Future<Profile> getProfile(String source, String link) async {
     Map additionalParams = await prepareAdditionalInfo(source);
 
     if (source == "mangadex") return dex.profile(link, additionalParams);
@@ -148,7 +139,7 @@ class ApiManager {
       debugPrint(
           "Retrieval Complete : /Profile : ${response.data['title']} @$source");
 
-      return ComicProfile.fromMap(response.data);
+      return Profile.fromMap(response.data);
     } on DioError catch (e) {
       throw e.response.data['detail'];
     }

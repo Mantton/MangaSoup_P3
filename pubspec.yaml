@@ -55,6 +55,8 @@ dependencies:
   preload_page_view: ^0.1.4
   carousel_slider: ^2.3.1
   webview_flutter: ^1.0.7
+  html_unescape: ^1.0.2
+
 
 
 

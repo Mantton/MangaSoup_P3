@@ -1,14 +1,12 @@
 import "package:flutter/material.dart";
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
-import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
-import 'package:mangasoup_prototype_3/Screens/Profile/ComicProfile.dart';
-import 'package:mangasoup_prototype_3/Screens/Profile/CustomProfile.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/custom_profile.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/generic_profile.dart';
 import 'package:provider/provider.dart';
 
 class ProfileGateWay extends StatefulWidget {
@@ -27,7 +25,7 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
     ApiManager _manager = ApiManager();
 
     /// Get Profile
-    ComicProfile profile = await _manager.getProfile(
+    Profile profile = await _manager.getProfile(
       widget.highlight.selector,
       widget.highlight.link,
     );
@@ -40,16 +38,15 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
         source: widget.highlight.source,
         sourceSelector: widget.highlight.selector,
         chapterCount: profile.chapterCount ?? 0);
-    Comic comic =  Provider.of<DatabaseProvider>(context, listen: false)
+    Comic comic = Provider.of<DatabaseProvider>(context, listen: false)
         .isComicSaved(generated);
-
-    if (comic!= null){
+    if (comic != null) {
       // UPDATE VALUES HERE
-      comic.thumbnail = widget.highlight.thumbnail;
-      comic.updateCount = profile.chapterCount?? 0 - comic.updateCount;
+      comic.thumbnail = profile.thumbnail;
+      comic.updateCount = profile.chapterCount ?? 0 - comic.updateCount;
       comic.chapterCount = profile.chapterCount ?? 0;
     } else
-        comic = generated;
+      comic = generated;
     // Evaluate
     int _id = await Provider.of<DatabaseProvider>(context, listen: false)
         .evaluate(comic);
@@ -74,11 +71,8 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
         future: _profile,
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Scaffold(
-              appBar: AppBar(),
-              body: Center(
-                child: LoadingIndicator(),
-              ),
+            return Center(
+              child: LoadingIndicator(),
             );
           }
 
@@ -97,10 +91,10 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
           }
 
           if (snapshot.hasData) {
-            ComicProfile prof = snapshot.data['profile'];
+            Profile prof = snapshot.data['profile'];
             int id = snapshot.data['id'];
             if (prof.properties == null) {
-              return ProfilePage(
+              return GenericProfilePage(
                 profile: prof,
                 comicId: id,
               );

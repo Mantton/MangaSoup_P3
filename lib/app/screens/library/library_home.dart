@@ -1,9 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
-import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/screens/library/library_settings.dart';
 import 'package:provider/provider.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,6 +34,25 @@ class _LibraryHomeState extends State<LibraryHome> {
         appBar: AppBar(
           title: Text("Library"),
           centerTitle: true,
+          leading: IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: null, // todo, check for updates
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: null, //todo, search library
+            ),
+            IconButton(
+                icon: Icon(Icons.format_list_numbered_rtl_outlined),
+                onPressed: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (_) => LibrarySettings(),
+                        fullscreenDialog: true,
+                      ),
+                    ))
+          ],
           bottom: TabBar(
             indicatorColor: Colors.purpleAccent,
             isScrollable: true,
@@ -87,7 +107,7 @@ class _LibraryHomeState extends State<LibraryHome> {
                                           child: Icon(
                                             Icons.edit,
                                             color: Colors.amber,
-                                            size: 35,
+                                            // size: 35,
                                           ),
                                         ),
                                         onPressed: null,
@@ -96,12 +116,13 @@ class _LibraryHomeState extends State<LibraryHome> {
                                       IconButton(
                                         icon: Center(
                                           child: Icon(
-                                              collection.updateEnabled
-                                                  ? Icons
-                                                      .notifications_active_outlined
-                                                  : Icons
-                                                      .notifications_off_outlined,
-                                              size: 35),
+                                            collection.updateEnabled
+                                                ? Icons
+                                                    .notifications_active_outlined
+                                                : Icons
+                                                    .notifications_off_outlined,
+                                            // size: 35,
+                                          ),
                                         ),
                                         color: collection.updateEnabled
                                             ? Colors.green

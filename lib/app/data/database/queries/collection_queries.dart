@@ -1,4 +1,3 @@
-import 'package:mangasoup_prototype_3/app/data/database/manager.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/collection_table.dart';
 import 'package:sqflite/sqflite.dart';
@@ -36,7 +35,6 @@ class CollectionQuery {
   }
 
   Future<Collection> renameCollection(Collection collection) async {
-    // todo, check if name exists in provider
     await db.update(CollectionTable.TABLE, collection.toMap(),
         where: "${CollectionTable.COL_ID} = ?", whereArgs: [collection.id]);
     return collection;

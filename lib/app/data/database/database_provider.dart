@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
+import 'package:mangasoup_prototype_3/app/data/database/queries/chapter_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic-collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic_queries.dart';
@@ -16,6 +20,7 @@ class DatabaseProvider with ChangeNotifier {
   List<Collection> collections = List();
   List<History> history = List();
   List<ComicCollection> comicCollections = List();
+  List<ChapterData> chapters = List();
   Database _db;
 
   // Query Managers
@@ -23,7 +28,7 @@ class DatabaseProvider with ChangeNotifier {
   HistoryQuery historyManager;
   CollectionQuery collectionManager;
   ComicCollectionQueries comicCollectionManager;
-
+  ChapterQuery chapterManager;
   // init
 
   init() async {
@@ -33,11 +38,13 @@ class DatabaseProvider with ChangeNotifier {
     historyManager = HistoryQuery(_db);
     collectionManager = CollectionQuery(_db);
     comicCollectionManager = ComicCollectionQueries(_db);
+    chapterManager = ChapterQuery(_db);
     // Load Data into Provider Variables
     comics = await comicManager.getAll();
     collections = await collectionManager.getCollections();
     history = await historyManager.getHistory(limit: 25);
     comicCollections = await comicCollectionManager.getAll();
+    chapters = await chapterManager.getAll();
     print("database initialization complete.");
     notifyListeners();
   }
@@ -93,9 +100,54 @@ class DatabaseProvider with ChangeNotifier {
       return true;
   }
 
+  updateCollectionOrder(int initial, int newIndex) async {
+    initial++;
+
+    print("initial: $initial\n new:$newIndex");
+    if (newIndex < initial) {
+      newIndex++;
+      // Get Target Collection that is being updated
+      Collection target =
+          collections.firstWhere((element) => element.order == initial);
+      // get affected collections from update
+      List<Collection> strays = collections
+          .where(
+              (element) => element.order >= newIndex && element.order < initial)
+          .toList();
+      // update affected collections
+      strays.forEach((element) {
+        int toUpdate = collections.indexOf(element);
+        collections[toUpdate].order++;
+      });
+
+      // Update provider collections variable
+      collections[collections.indexOf(target)].order = newIndex;
+    } else {
+      // Get Target Collection that is being updated
+      Collection target =
+          collections.firstWhere((element) => element.order == initial);
+      // get affected collections from update
+      List<Collection> strays = collections
+          .where((element) =>
+              element.order <= newIndex && element.order >= initial)
+          .toList();
+      // update affected collections
+      strays.forEach((element) {
+        int toUpdate = collections.indexOf(element);
+        collections[toUpdate].order--;
+      });
+
+      // Update provider collections variable
+
+      collections[collections.indexOf(target)].order = newIndex;
+    }
+    await collectionManager.reorderCollections(collections);
+    notifyListeners();
+  }
+
   Future<Collection> createCollection(String collectionName) async {
     Collection newCollection = Collection(name: collectionName);
-    newCollection.order = collections.length + 1;
+    newCollection.order = collections.length;
     newCollection = await collectionManager.addCollection(newCollection);
     collections.add(newCollection);
     notifyListeners();
@@ -106,22 +158,16 @@ class DatabaseProvider with ChangeNotifier {
   batchSetComicCollection(List<Collection> collections, int comicId) async {
     await comicCollectionManager.setCollectionsNonBatch(collections, comicId);
     comicCollections = await comicCollectionManager.getAll();
-
-    // print(comicCollections.map((e) => e.comicId).toList());
-    // List<ComicCollection> newLibraryInputs = await comicCollectionManager
-    //     .insertForComic(collections: collections, comicId: comicIc);
-    // comicCollections.addAll(newLibraryInputs);
-    // print(comicCollections.map((e) => e.comicId).toList());
-    // notifyListeners();
   }
 
   /// Add to Library
-  addToLibrary(List<Collection> collections, int comicId, {bool remove = false}) async {
+  addToLibrary(List<Collection> collections, int comicId,
+      {bool remove = false}) async {
     // Insert to Comic Collections
     batchSetComicCollection(collections, comicId);
     // Change status to in Library
     Comic retrieved = retrieveComic(comicId);
-    retrieved.inLibrary = (!remove) ?true:false;
+    retrieved.inLibrary = (!remove) ? true : false;
     await comicManager.updateComic(retrieved);
     int index = comics.indexOf(retrieved);
     comics[index] = retrieved;
@@ -136,15 +182,64 @@ class DatabaseProvider with ChangeNotifier {
     return retrieved.map((e) => e.collectionId).toList();
   }
 
-  List<Comic> getCollectionComics(int id){
+  List<Comic> getCollectionComics(int id) {
     // get the get comic collections matching given id;
 
-    List<int> requiredIds = comicCollections.where((element) => element.collectionId == id
-    ).toList().map((e) => e.comicId).toList();
+    List<int> requiredIds = comicCollections
+        .where((element) => element.collectionId == id)
+        .toList()
+        .map((e) => e.comicId)
+        .toList();
 
     // get the comic linked to those collections
 
-    List<Comic> requiredComics = comics.where((element) => requiredIds.contains(element.id)).toList();
+    List<Comic> requiredComics =
+        comics.where((element) => requiredIds.contains(element.id)).toList();
     return requiredComics;
+  }
+
+  ChapterData checkIfChapterMatch(Chapter chapter) {
+    ChapterData implied;
+    try {
+      implied = chapters.firstWhere((element) =>
+          element.generatedChapterNumber == chapter.generatedNumber &&
+          element.link == chapter.link);
+      return implied;
+    } catch (err) {
+      return null;
     }
+  }
+
+  updateFromACS(List<Chapter> incoming, int comicId, bool read, String source,
+      String selector) async {
+    print("starting update");
+    List<ChapterData> data = List();
+    // Chack for matches, update their status to read then add to data
+    for (Chapter chapter in incoming) {
+      ChapterData append = checkIfChapterMatch(chapter);
+      // Check for non matches Create nChapterData objects then append to data
+      if (append == null) {
+        append = ChapterData(
+          title: chapter.name,
+          mangaId: comicId,
+          link: chapter.link,
+          generatedChapterNumber: chapter.generatedNumber,
+          source: source,
+          selector: selector,
+        );
+      }
+      append.read = read;
+      data.add(append);
+    }
+    data = await chapterManager.updateBatch(data);
+    // if in chapters, update
+    for (ChapterData obj in data){
+      if (chapters.any((element) => element.id == obj.id))
+        chapters[chapters.indexWhere((element) => element.id == obj.id)] = obj;
+      else
+        chapters.add(obj);
+    }
+    notifyListeners();
+    print("done");
+  }
 }
