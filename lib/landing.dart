@@ -56,21 +56,12 @@ class _LandingState extends State<Landing> {
           BottomNavigationBarItem(
               icon:
                   Icon((_index != 1) ? Icons.favorite_border : Icons.favorite),
-              label: "Favorites"),
+              label: "Library"),
           BottomNavigationBarItem(
               icon: Icon((_index != 2)
                   ? Icons.access_time_rounded
                   : Icons.access_time_sharp),
-              label: "Recent"),
-
-          // Download Page
-          /*
-          BottomNavigationBarItem(
-              icon: Icon((_index != 3)
-                  ? Icons.download_outlined
-                  : Icons.download_sharp),
-              label: "Downloads"),
-          */
+              label: "History"),
 
           BottomNavigationBarItem(icon: Icon(Icons.dehaze), label: "More"),
         ],

@@ -46,17 +46,10 @@ class _ChapterListState extends State<ChapterList> {
       else
         _selectedChapters.add(chapter);
     } else {
-      // create chapter data
-      DatabaseProvider provider = Provider.of<DatabaseProvider>(context, listen: false);
-      ChapterData data = provider.checkIfChapterMatch(chapter);
-      if (data == null){
-        await provider.updateFromACS([chapter], widget.comicId, false, widget.source, widget.selector);
-        data = provider.checkIfChapterMatch(chapter);
+      // create history, then push
 
-      }
-      // add to history, push to reader
-      await provider.updateHistory(widget.comicId,data.id );
-      print("done");
+      await Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
+          chapter, widget.comicId, widget.source, widget.selector);
     }
 
     setState(() {});

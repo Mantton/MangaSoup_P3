@@ -225,7 +225,6 @@ class DatabaseProvider with ChangeNotifier {
 
   updateFromACS(List<Chapter> incoming, int comicId, bool read, String source,
       String selector) async {
-    print("starting update");
     List<ChapterData> data = List();
     // Chack for matches, update their status to read then add to data
     for (Chapter chapter in incoming) {
@@ -253,7 +252,6 @@ class DatabaseProvider with ChangeNotifier {
         chapters.add(obj);
     }
     notifyListeners();
-    print("done");
   }
 
   updateHistory(int comicId, int chapterId) async {
@@ -280,5 +278,15 @@ class DatabaseProvider with ChangeNotifier {
       historyList.remove(history);
       notifyListeners();
       
+  }
+
+  historyLogic(Chapter chapter, int comicId, String source, String selector) async {
+    ChapterData data = checkIfChapterMatch(chapter);
+    if (data == null){
+      await updateFromACS([chapter], comicId, false, source, selector);
+      data = checkIfChapterMatch(chapter);
+
+    }
+    await updateHistory(comicId,data.id );
   }
 }
