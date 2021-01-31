@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Screens/More/MoreHomePage.dart';
 import 'package:mangasoup_prototype_3/app/screens/history/history_home.dart';
@@ -22,14 +23,17 @@ class _LandingState extends State<Landing> {
             child: Home(), // Explore
           ),
           Container(
-            child: LibraryHome(),
+            child: LibraryHome(), // Library
           ),
           Container(
-            child: HistoryHome(),
+            child: HistoryHome(), // View History
           ),
-
           Container(
-            child: MorePage(),
+            color: Colors.grey[900],
+            // push to general discussions page
+          ),
+          Container(
+            child: MorePage(), // More
           )
         ],
       ),
@@ -38,8 +42,7 @@ class _LandingState extends State<Landing> {
         backgroundColor: Colors.black,
         onTap: (v) {
           setState(() {
-            if (v != _index)
-              _index = v;
+            if (v != _index) _index = v;
           });
         },
         showSelectedLabels: false,
@@ -49,21 +52,37 @@ class _LandingState extends State<Landing> {
         type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
-              icon: (_index != 0)
-                  ? Icon(Icons.explore_outlined)
-                  : Icon(Icons.explore),
-              label: "Explore"),
+            icon: (_index != 0)
+                ? Icon(CupertinoIcons.compass)
+                : Icon(
+                    CupertinoIcons.compass_fill,
+                  ),
+            label: "Explore",
+          ),
           BottomNavigationBarItem(
-              icon:
-                  Icon((_index != 1) ? Icons.favorite_border : Icons.favorite),
-              label: "Library"),
+            icon: Icon(
+              (_index != 1) ? CupertinoIcons.heart : CupertinoIcons.heart_fill,
+            ),
+            label: "Library",
+          ),
           BottomNavigationBarItem(
-              icon: Icon((_index != 2)
-                  ? Icons.access_time_rounded
-                  : Icons.access_time_sharp),
-              label: "History"),
-
-          BottomNavigationBarItem(icon: Icon(Icons.dehaze), label: "More"),
+            icon: Icon(
+              (_index != 2) ? CupertinoIcons.clock : CupertinoIcons.clock_fill,
+            ),
+            label: "History",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              (_index != 3) ? CupertinoIcons.bubble_left : CupertinoIcons.bubble_left_fill,
+            ),
+            label: "Discussions",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon((_index != 4)
+                ? CupertinoIcons.square_stack_3d_up
+                : CupertinoIcons.square_stack_3d_up_fill),
+            label: "More",
+          ),
         ],
       ),
     );

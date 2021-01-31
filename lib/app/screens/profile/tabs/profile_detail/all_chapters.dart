@@ -59,7 +59,10 @@ class _ChapterListState extends State<ChapterList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chapters"),
+        title: Text(
+          "Chapters",
+          style: notInLibraryFont,
+        ),
         centerTitle: true,
         actions: [
           (_selectedChapters.length > 0)

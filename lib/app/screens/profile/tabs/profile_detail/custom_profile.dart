@@ -6,11 +6,8 @@ import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
-import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/nhentai_property.dart';
-import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
-import 'package:mangasoup_prototype_3/app/dialogs/not_in_library.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/tag_widget.dart';
 import 'package:mangasoup_prototype_3/app/widgets/comic_collection_widget.dart';
 import 'package:provider/provider.dart';
@@ -320,66 +317,4 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
           ),
         );
       });
-
-  Widget collectionViewer(Comic comic) => Container(
-        child: comic.inLibrary ? inLibrary(comic) : notInLibrary(comic),
-      );
-
-  Widget inLibrary(Comic comic) => InkWell(
-        onTap: () => notInLibraryDialog(context: context, comicId: comic.id),
-        child: Container(
-          margin: EdgeInsets.only(left: 10.w),
-          height: 50.h,
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.library_add_check,
-                  color: Colors.purple,
-                  size: 35,
-                ),
-                SizedBox(
-                  width: 10.w,
-                ),
-                Text(
-                  "In Library",
-                  style: notInLibraryFont,
-                ),
-                Spacer(),
-                Text(
-                  "Tap to Edit",
-                  style: TextStyle(color: Colors.grey[700], fontSize: 15.sp),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-  Widget notInLibrary(Comic comic) => InkWell(
-        onTap: () => notInLibraryDialog(context: context, comicId: comic.id),
-        child: Container(
-          margin: EdgeInsets.only(left: 10),
-          height: 50.h,
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.library_add_sharp,
-                  color: Colors.purple,
-                  size: 35,
-                ),
-                SizedBox(
-                  width: 10.w,
-                ),
-                Text(
-                  "Add to Library",
-                  style: notInLibraryFont,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
 }

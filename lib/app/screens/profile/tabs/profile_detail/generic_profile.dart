@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 
@@ -208,18 +209,18 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
       child: Row(
         children: [
           // Spacer(),
-          actionButton(Icons.play_arrow, "Read", null),
+          actionButton(CupertinoIcons.play, "Read", null),
           Spacer(),
           actionButton(
-              widget.profile.containsBooks ? Icons.book : Icons.dehaze,
+              widget.profile.containsBooks ?CupertinoIcons.collections  :CupertinoIcons.book ,
               widget.profile.containsBooks
                   ? "${widget.profile.bookCount} ${widget.profile.bookCount > 1 ? "Books" : "Book"}"
                   : "${idk.length} ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}",
               null),
           Spacer(),
-          actionButton(Icons.bookmark_border, "Bookmarks", null),
+          actionButton(CupertinoIcons.bookmark, "Bookmarks", null),
           Spacer(),
-          actionButton(Icons.rate_review_outlined, "Rate", null),
+          actionButton(CupertinoIcons.chart_bar_square, "Rate", null),
           // Spacer()
         ],
       ),

@@ -35,16 +35,16 @@ class _LibraryHomeState extends State<LibraryHome> {
           title: Text("Library"),
           centerTitle: true,
           leading: IconButton(
-            icon: Icon(Icons.refresh),
+            icon: Icon(CupertinoIcons.refresh),
             onPressed: null, // todo, check for updates
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.search),
+              icon: Icon(CupertinoIcons.search),
               onPressed: null, //todo, search library
             ),
             IconButton(
-              icon: Icon(Icons.format_list_numbered_rtl_outlined),
+              icon: Icon(CupertinoIcons.square_favorites),
               onPressed: () => Navigator.push(
                 context,
                 CupertinoPageRoute(

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
@@ -37,7 +38,7 @@ class _CollectionStateWidgetState extends State<CollectionStateWidget> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Icon(
-              Icons.library_add_check,
+              CupertinoIcons.checkmark_seal,
               color: Colors.purple,
               size: 35,
             ),
@@ -68,7 +69,7 @@ class _CollectionStateWidgetState extends State<CollectionStateWidget> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Icon(
-              Icons.library_add_sharp,
+              CupertinoIcons.folder_badge_plus,
               color: Colors.purple,
               size: 35,
             ),

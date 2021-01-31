@@ -167,7 +167,6 @@ class ApiManager {
     Map data = {"selector": source, "data": additionalParams};
     Response response = await _dio.post('/api/v1/tags', data: data);
     List dataPoints = response.data['genres'] ?? response.data;
-    print(dataPoints);
     List<Tag> tags = [];
     for (int index = 0; index < dataPoints.length; index++) {
       tags.add(Tag.fromMap(dataPoints[index]));
