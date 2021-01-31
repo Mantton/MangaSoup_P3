@@ -16,7 +16,7 @@ class AllComicsPage extends StatefulWidget {
   _AllComicsPageState createState() => _AllComicsPageState();
 }
 
-class _AllComicsPageState extends State<AllComicsPage> {
+class _AllComicsPageState extends State<AllComicsPage>  with AutomaticKeepAliveClientMixin{
   Map _sort = {"Name": "Default", "Selector": "default"};
   Future<List<ComicHighlight>> _futureComics;
   List<ComicHighlight> _comics;
@@ -259,4 +259,7 @@ class _AllComicsPageState extends State<AllComicsPage> {
           }),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

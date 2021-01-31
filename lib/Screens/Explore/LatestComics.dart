@@ -16,7 +16,7 @@ class LatestPage extends StatefulWidget {
   _LatestPageState createState() => _LatestPageState();
 }
 
-class _LatestPageState extends State<LatestPage> {
+class _LatestPageState extends State<LatestPage>  with AutomaticKeepAliveClientMixin{
   Future<List<ComicHighlight>> _futureComics;
   List<ComicHighlight> _comics;
   int _page = 1;
@@ -129,4 +129,7 @@ class _LatestPageState extends State<LatestPage> {
           }),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
