@@ -8,6 +8,7 @@ import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/all_chapters.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:provider/provider.dart';
 
 class ProfileContentPreview extends StatefulWidget {
@@ -199,11 +200,23 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
   }
 
   onTap(Chapter chapter) async {
+    // print("${widget.comicId}, ${widget.profile.source},${widget.profile.selector}, ${chapter.name}, ${chapter.generatedNumber}");
+    // print("${widget.profile.chapters.indexOf(chapter)}");
     await Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
         chapter,
         widget.comicId,
         widget.profile.source,
         widget.profile.selector);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ReaderHome(
+          selector: widget.profile.selector,
+          chapters: widget.profile.chapters,
+          initialChapterIndex: widget.profile.chapters.indexOf(chapter),
+        ),
+      ),
+    );
   }
 
   Widget containsBooks() {

@@ -285,10 +285,9 @@ class DatabaseProvider with ChangeNotifier {
     if (data == null){
       await updateFromACS([chapter], comicId, false, source, selector);
       data = checkIfChapterMatch(chapter);
-      if (data == null){
-        print("still null");
-      }
+
     }
+
     await updateHistory(comicId,data.id );
   }
 }

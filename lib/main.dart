@@ -31,6 +31,7 @@ import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Services/test_preference.dart';
 import 'package:mangasoup_prototype_3/Services/update_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/landing.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -137,6 +138,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => SourceNotifier()),
         ChangeNotifierProvider(create: (_) => BrowseProvider()),
         ChangeNotifierProvider(create: (_) => DatabaseProvider()),
+        ChangeNotifierProvider(create: (_) => ReaderProvider()),
       ],
       child: App(),
     ),

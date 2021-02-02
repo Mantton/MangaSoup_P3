@@ -16,7 +16,8 @@ class AllComicsPage extends StatefulWidget {
   _AllComicsPageState createState() => _AllComicsPageState();
 }
 
-class _AllComicsPageState extends State<AllComicsPage>  with AutomaticKeepAliveClientMixin{
+class _AllComicsPageState extends State<AllComicsPage>
+    with AutomaticKeepAliveClientMixin {
   Map _sort = {"Name": "Default", "Selector": "default"};
   Future<List<ComicHighlight>> _futureComics;
   List<ComicHighlight> _comics;
@@ -82,6 +83,7 @@ class _AllComicsPageState extends State<AllComicsPage>  with AutomaticKeepAliveC
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer<SourceNotifier>(
       builder: (context, sourceProvider, _) => FutureBuilder(
           future: _futureComics,
@@ -136,7 +138,9 @@ class _AllComicsPageState extends State<AllComicsPage>  with AutomaticKeepAliveC
                                   // _sort['Name']
                                   _sort['name'] ?? "",
                                   style: TextStyle(
-                                      color: Colors.purple, fontSize: 20.sp),
+                                    color: Colors.purple,
+                                    fontSize: 20.sp,
+                                  ),
                                 ),
                                 onTap: () {
                                   showPlatformModalSheet(
@@ -179,55 +183,53 @@ class _AllComicsPageState extends State<AllComicsPage>  with AutomaticKeepAliveC
                                       ),
                                       cupertino: (_, __) =>
                                           CupertinoActionSheet(
-                                            title: Text("Sort by"),
-                                            cancelButton: CupertinoButton(
-                                              child: Text("Cancel"),
-                                              onPressed: () =>
-                                                  Navigator.pop(context),
-                                            ),
-                                            actions: List<
-                                                CupertinoActionSheetAction>.generate(
-                                              sourceProvider.source.sorters
-                                                  .length,
-                                                  (index) =>
-                                                  CupertinoActionSheetAction(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        _sort = sourceProvider
-                                                            .source
-                                                            .sorters[index];
-                                                        _futureComics =
-                                                            _loadComics(
-                                                                sourceProvider
-                                                                    .source
-                                                                    .selector,
-                                                                _sort['selector'],
-                                                                1,
-                                                                {});
-                                                        Navigator.pop(context);
-                                                      });
-                                                    },
-                                                    child: Row(
-                                                      children: <Widget>[
-                                                        Text(
+                                        title: Text(
+                                          "Sort by",
+                                        ),
+                                        cancelButton: CupertinoButton(
+                                          child: Text(
+                                            "Cancel",
+                                          ),
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                        ),
+                                        actions: List<
+                                            CupertinoActionSheetAction>.generate(
+                                          sourceProvider.source.sorters.length,
+                                          (index) => CupertinoActionSheetAction(
+                                            onPressed: () {
+                                              setState(() {
+                                                _sort = sourceProvider
+                                                    .source.sorters[index];
+                                                _futureComics = _loadComics(
+                                                    sourceProvider
+                                                        .source.selector,
+                                                    _sort['selector'],
+                                                    1,
+                                                    {});
+                                                Navigator.pop(context);
+                                              });
+                                            },
+                                            child: Row(
+                                              children: <Widget>[
+                                                Text(
+                                                  sourceProvider.source
+                                                      .sorters[index]['name'],
+                                                ),
+                                                Spacer(),
+                                                Icon(
+                                                  _sort['selector'] ==
                                                           sourceProvider.source
-                                                              .sorters[index]['name'],
-                                                        ),
-                                                        Spacer(),
-                                                        Icon(
-                                                          _sort['selector'] ==
-                                                              sourceProvider
-                                                                  .source
                                                                   .sorters[
                                                               index]['selector']
-                                                              ? CupertinoIcons
-                                                              .check_mark
-                                                              : null,
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
+                                                      ? CupertinoIcons
+                                                          .check_mark
+                                                      : null,
+                                                )
+                                              ],
                                             ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   );

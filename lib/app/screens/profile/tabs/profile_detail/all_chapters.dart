@@ -6,6 +6,7 @@ import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -47,9 +48,22 @@ class _ChapterListState extends State<ChapterList> {
         _selectedChapters.add(chapter);
     } else {
       // create history, then push
-
       await Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
-          chapter, widget.comicId, widget.source, widget.selector);
+          chapter,
+          widget.comicId,
+          widget.source,
+          widget.selector);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ReaderHome(
+            selector: widget.selector,
+            chapters: widget.chapterList,
+            initialChapterIndex: widget.chapterList.indexOf(chapter),
+          ),
+        ),
+      );
     }
 
     setState(() {});
