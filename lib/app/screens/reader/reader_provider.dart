@@ -165,8 +165,13 @@ class ReaderProvider with ChangeNotifier {
         print(nextIndex);
         // Add to Read
         Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
-            [chapters.elementAt(currentIndex)], comicId, true, source,
+            [chapters.elementAt(currentIndex)],
+            comicId,
+            true,
+            source,
             selector);
+        Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
+            chapters.elementAt(currentIndex), comicId, source, selector);
 
         // Load Next chapter
         loadNextChapter(nextIndex);
