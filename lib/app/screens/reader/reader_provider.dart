@@ -27,8 +27,6 @@ class ReaderProvider with ChangeNotifier {
   int pageDisplayNumber = 1;
   int pageDisplayCount = 1;
   Map chapterHolder = Map();
-  Map testing = Map();
-
   String currentChapterName = "";
   int lastPage;
   BuildContext context;

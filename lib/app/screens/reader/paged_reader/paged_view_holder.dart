@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/ReaderComponents.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
-import 'package:photo_view/photo_view.dart';
 
 class PagedViewHolder extends StatefulWidget {
   final ReaderPage page;
@@ -29,14 +28,10 @@ class TestImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PhotoView.customChild(
-      child: ReaderImage(
-        referer: page.referer,
-        url: page.imgUrl,
-      ),
-      maxScale: 2.0,
-      minScale: 0.5,
-      // initialScale: PhotoViewComputedScale.contained,
+    return ReaderImage(
+      referer: page.referer,
+      url: page.imgUrl,
+      fit: BoxFit.fitWidth,
     );
   }
 }

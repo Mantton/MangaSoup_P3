@@ -8,15 +8,22 @@ class ViewerGateway extends StatefulWidget {
   _ViewerGatewayState createState() => _ViewerGatewayState();
 }
 
-class _ViewerGatewayState extends State<ViewerGateway> {
+class _ViewerGatewayState extends State<ViewerGateway>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
-    return Consumer<ReaderProvider>(builder: (context, provider, _){
+    super.build(context);
+    return Consumer<ReaderProvider>(builder: (context, provider, _) {
       return PreloadPageView(
+        // scrollDirection: Axis.vertical,
+        reverse: true,
         onPageChanged: provider.pageChanged,
         preloadPagesCount: 3,
         children: provider.widgetPageList,
       );
     });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -48,7 +48,7 @@ class ReaderImage extends StatefulWidget {
   const ReaderImage(
       {Key key,
       this.url,
-      this.fit = BoxFit.contain,
+      this.fit = BoxFit.fitWidth,
       this.referer,
       this.imageSize,
       this.mangaMode = true})
@@ -61,53 +61,83 @@ class ReaderImage extends StatefulWidget {
 class _ReaderImageState extends State<ReaderImage> {
   @override
   Widget build(BuildContext context) {
-    return CachedNetworkImage(
-      imageUrl: widget.url,
-      progressIndicatorBuilder: (_, url, var progress) =>
-          progress.progress != null
-              ? Container(
-                  height: (widget.mangaMode)
-                      ? MediaQuery.of(context).size.height
-                      : widget.imageSize.height,
-                  width: MediaQuery.of(context).size.width,
-                  child: Center(
-                    child: Text(
-                      "${(progress.progress * 100).toInt()}%",
-                      style: TextStyle(
-                        color: Colors.blueGrey,
-                        fontSize: 20.sp,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Lato",
-                      ),
-                    ),
-                  ),
-                )
-              : Center(
-                  child: Container(
-                    height: (widget.mangaMode)
-                        ? MediaQuery.of(context).size.height
-                        : widget.imageSize.height,
-                    width: MediaQuery.of(context).size.width,
-                    child: Center(
-                      child: Text("Loading..."),
+    return Center(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CachedNetworkImage(
+              imageUrl: widget.url,
+              progressIndicatorBuilder: (_, url, var progress) =>
+              progress.progress != null
+                  ? Container(
+                height: (widget.mangaMode)
+                    ? MediaQuery
+                    .of(context)
+                    .size
+                    .height
+                    : widget.imageSize.height,
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
+                child: Center(
+                  child: Text(
+                    "${(progress.progress * 100).toInt()}%",
+                    style: TextStyle(
+                      color: Colors.blueGrey,
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Lato",
                     ),
                   ),
                 ),
-      httpHeaders: {"referer": widget.referer ?? imageHeaders(widget.url)},
-      errorWidget: (context, url, error) => Center(
-        child: Container(
-          height: (widget.mangaMode)
-              ? MediaQuery.of(context).size.height
-              : widget.imageSize.height,
-          width: MediaQuery.of(context).size.width,
-          child: Center(
-            child: Text("$error"),
-          ),
+              )
+                  : Center(
+                child: Container(
+                  height: (widget.mangaMode)
+                      ? MediaQuery
+                      .of(context)
+                      .size
+                      .height
+                      : widget.imageSize.height,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width,
+                  child: Center(
+                    child: Text("Loading..."),
+                  ),
+                ),
+              ),
+              httpHeaders: {
+                "referer": widget.referer ?? imageHeaders(widget.url)
+              },
+              errorWidget: (context, url, error) =>
+                  Center(
+                    child: Container(
+                      height: (widget.mangaMode)
+                          ? MediaQuery
+                          .of(context)
+                          .size
+                          .height
+                          : widget.imageSize.height,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width,
+                      child: Center(
+                        child: Text("$error"),
+                      ),
+                    ),
+                  ),
+              fit: widget.fit,
+              fadeInDuration: Duration(microseconds: 500),
+              fadeInCurve: Curves.easeIn,
+            ),
+          ],
         ),
       ),
-      fit: widget.fit,
-      fadeInDuration: Duration(microseconds: 500),
-      fadeInCurve: Curves.easeIn,
     );
   }
 }
