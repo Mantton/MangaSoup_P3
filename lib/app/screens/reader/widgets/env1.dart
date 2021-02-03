@@ -9,6 +9,7 @@ class EmbeddedPageViewTest extends StatefulWidget {
 
 class _EmbeddedPageViewTestState extends State<EmbeddedPageViewTest> {
   ScrollController scrollController;
+  int lastPage = 0;
 
   // use this one if the listItem's height is known
   // or width in case of a horizontal list
@@ -32,7 +33,15 @@ class _EmbeddedPageViewTestState extends State<EmbeddedPageViewTest> {
         scrollController.position.minScrollExtent;
     int firstVisibleItemIndex =
         (scrollOffset / (scrollRange + viewportHeight) * itemCount).floor();
-    print(firstVisibleItemIndex);
+
+    if (firstVisibleItemIndex != lastPage &&
+        firstVisibleItemIndex > 0 &&
+        firstVisibleItemIndex < itemCount) {
+      print(firstVisibleItemIndex);
+      Provider.of<ReaderProvider>(context, listen: false)
+          .pageChanged(firstVisibleItemIndex);
+      lastPage = firstVisibleItemIndex;
+    }
   }
 
   @override
@@ -54,8 +63,14 @@ class _EmbeddedPageViewTestState extends State<EmbeddedPageViewTest> {
       body: SafeArea(
         child: Consumer<ReaderProvider>(builder: (context, provider, _) {
           return ListView(
+            shrinkWrap: true,
             controller: scrollController,
             children: provider.widgetPageList,
+            cacheExtent: MediaQuery
+                .of(context)
+                .size
+                .height * 2,
+
           );
         }),
       ),
