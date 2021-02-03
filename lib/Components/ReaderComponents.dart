@@ -48,7 +48,7 @@ class ReaderImage extends StatefulWidget {
   const ReaderImage(
       {Key key,
       this.url,
-      this.fit,
+      this.fit = BoxFit.contain,
       this.referer,
       this.imageSize,
       this.mangaMode = true})
@@ -141,13 +141,11 @@ class _VioletImageState extends State<VioletImage> with AutomaticKeepAliveClient
         if (snapshot.hasData) {
           return Container(
             height: snapshot.data.height,
-            child: Expanded(
-              child: ReaderImage(
-                url: widget.url,
-                referer: widget.referrer,
-                fit: widget.fit,
-                imageSize: snapshot.data,
-              ),
+            child: ReaderImage(
+              url: widget.url,
+              referer: widget.referrer,
+              fit: widget.fit,
+              imageSize: snapshot.data,
             ),
           );
         }
@@ -159,9 +157,15 @@ class _VioletImageState extends State<VioletImage> with AutomaticKeepAliveClient
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: LoadingIndicator(),
+            height: MediaQuery
+                .of(context)
+                .size
+                .height,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,
+            child: Center(child: LoadingIndicator()),
           );
         } else {
           return Container(

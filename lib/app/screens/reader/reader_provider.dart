@@ -1,81 +1,173 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/paged_reader/paged_view_holder.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reader_transition_page.dart';
 
-class ReaderProvider with ChangeNotifier{
-
-  List<ReaderPage> pages = List();
+class ReaderProvider with ChangeNotifier {
+  List<ReaderChapter> readerChapters = List();
   List<Widget> widgetPageList = List();
-
+  List chapterLengthList = List();
   List<Chapter> chapters = List();
   String selector;
   int currentIndex = 0;
   ChapterData currentChapter;
   int pageDisplayNumber = 1;
+  int pageDisplayCount = 1;
+  Map chapterHolder = Map();
+  List pagePositionList = List();
+  List chapterNameList = List();
+  String currentChapterName = "";
+  int lastPage;
 
-  Future init(List<Chapter> incomingChapters, int initialIndex, String incomingSelector) async{
+  Future init(List<Chapter> incomingChapters, int initialIndex,
+      String incomingSelector) async {
     reset();
     // Create Starting values
     chapters = List.of(incomingChapters);
     currentIndex = initialIndex;
     selector = incomingSelector;
 
+    // Get Chapter being pointed to
     Chapter chapter = incomingChapters.elementAt(initialIndex);
-    print("${chapter.link}");
+
+    // Initialize Reader Chapter
+    ReaderChapter firstChapter = ReaderChapter();
+    firstChapter.chapterName = chapter.name;
+    firstChapter.generatedNumber = chapter.generatedNumber;
+    firstChapter.index = 0;
+
+    // Get Images
     ImageChapter response =
         await ApiManager().getImages(selector, chapter.link);
     int c = 0;
-    for (String uri in response.images){
-      ReaderPage newPage = ReaderPage(c, uri, response.referer);
-      Widget widgetPage = PagedViewHolder(
-        page: newPage,
-      );
-      widgetPageList.add(widgetPage);
+    for (String uri in response.images) {
+      ReaderPage newPage = ReaderPage(c + 1, uri, response.referer);
+      firstChapter.pages.add(newPage);
       c++;
+      pagePositionList.add(c);
+      chapterLengthList.add(response.images.length);
+      chapterNameList.add(firstChapter.chapterName);
     }
 
+    // Add to View and Notify Listener
+    addInitialChapterToView(firstChapter);
     notifyListeners();
     return true;
   }
 
-  reset(){
-    // Reset Variables
-    pages.clear();
-    widgetPageList.clear();
-    chapters.clear();
-    selector = '';
-    currentIndex = 0;
-    currentChapter= null;
-    pageDisplayNumber = 1;
-  }
-  pageChangeLogic(int index){
-    /// What to do when the page is changed in the PageView
-    currentIndex = index; // Update Current Index
-    ReaderPage currentPage = pages[index];
+  addInitialChapterToView(ReaderChapter chapter) {
+    /// This adds the initial ReaderChapter ReaderPages to the PageListView
+    // Create Page Widgets, add to View
 
-    if (currentPage.index == currentChapter.images.length){
-      /// LAST PAGE, APPEND NEXT CHAPTER
-
+    for (ReaderPage page in chapter.pages) {
+      Widget view = PagedViewHolder(
+        page: page,
+      );
+      widgetPageList.add(view);
     }
+    readerChapters.add(chapter);
 
-    pageDisplayNumber = currentPage.index;
+    Map initialEntry = {chapter.index: chapter.pages.length};
+    chapterHolder.addAll(initialEntry);
+    pageDisplayCount = chapter.pages.length;
+    currentChapterName = chapter.chapterName;
+
     notifyListeners();
   }
 
+  addChapterToView(ReaderChapter chapter) {
+    /// Adds chapters to the pagelistview
+    ReaderChapter current = readerChapters.last;
+    Widget transition = TransitionPage(
+      current: current,
+      next: chapter,
+    );
+    widgetPageList.add(transition);
+    print(pagePositionList);
+    for (ReaderPage page in chapter.pages) {
+      Widget view = PagedViewHolder(
+        page: page,
+      );
+      widgetPageList.add(view);
+    }
+    readerChapters.add(chapter);
 
-  appendChapter(Chapter chapter){
-    // Load Chapter
-    // Create ChapterData
-
+    Map initialEntry = {chapter.index: chapter.pages.length};
+    chapterHolder.addAll(initialEntry);
+    notifyListeners();
   }
 
-  transition(Chapter current, Chapter next){
-    widgetPageList.add(TransitionPage(current: current,next: next,));
+  loadNextChapter(int nextIndex) async {
+    Chapter chapter = chapters.elementAt(nextIndex);
+
+    // Initialize Reader Chapter
+    ReaderChapter readerChapter = ReaderChapter();
+    readerChapter.chapterName = chapter.name;
+    readerChapter.generatedNumber = chapter.generatedNumber;
+    readerChapter.index = nextIndex;
+    // Get Images
+    ImageChapter response =
+        await ApiManager().getImages(selector, chapter.link);
+    int c = 0;
+    pagePositionList.add(null); // for transition page
+    chapterLengthList.add(null);
+    chapterNameList.add(null);
+
+    for (String uri in response.images) {
+      ReaderPage newPage = ReaderPage(c, uri, response.referer);
+      readerChapter.pages.add(newPage);
+      c++;
+      pagePositionList.add(c);
+      chapterLengthList.add(response.images.length);
+      chapterNameList.add(readerChapter.chapterName);
+    }
+
+    addChapterToView(readerChapter);
+  }
+
+  pageChanged(int page) {
+    pageDisplayNumber = pagePositionList[page];
+    pageDisplayCount = chapterLengthList[page];
+    currentChapterName = chapterNameList[page];
+
+    notifyListeners();
+
+    // Check location of page
+    if (pageDisplayNumber == pageDisplayCount && page > lastPage) {
+      // things to fix, going bac would cause next to be triggered
+      int nextIndex = currentIndex - 1;
+      if (!chapterHolder.keys.contains(nextIndex)) {
+        print("loading next");
+        print(nextIndex);
+        loadNextChapter(nextIndex);
+        currentIndex--;
+      }
+    }
+
+    lastPage = page;
+  }
+
+  reset() {
+    // Reset Variables
+
+    readerChapters.clear();
+    widgetPageList.clear();
+    chapterLengthList.clear();
+    chapters.clear();
+    selector = "";
+    currentIndex = 0;
+    currentChapter = null;
+    pageDisplayNumber = 1;
+    pageDisplayCount = 1;
+    chapterHolder.clear();
+    pagePositionList.clear();
+    chapterNameList.clear();
+    currentChapterName = "";
+    lastPage = 0;
   }
 }

@@ -1,8 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:mangasoup_prototype_3/Components/ReaderComponents.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PagedViewHolder extends StatefulWidget {
   final ReaderPage page;
@@ -30,34 +29,14 @@ class TestImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PhotoView(
+    return PhotoView.customChild(
+      child: ReaderImage(
+        referer: page.referer,
+        url: page.imgUrl,
+      ),
       maxScale: 2.0,
-      minScale: 0.3,
-      initialScale: PhotoViewComputedScale.contained,
-      gaplessPlayback: true,
-      imageProvider: CachedNetworkImageProvider(page.imgUrl),
-      loadingBuilder: (_, event) {
-        return event != null
-            ? Container(
-                child: Center(
-                  child: Text(
-                    ((event.cumulativeBytesLoaded / event.expectedTotalBytes) *
-                            100)
-                        .toInt().toString(),
-                  ),
-                ),
-              )
-            : Center(
-                child: Text(
-                  "Loading",style: TextStyle(
-                  color: Colors.blueGrey,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Lato",
-                ),
-                ),
-              );
-      },
+      minScale: 0.5,
+      // initialScale: PhotoViewComputedScale.contained,
     );
   }
 }

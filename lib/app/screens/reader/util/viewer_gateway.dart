@@ -13,6 +13,7 @@ class _ViewerGatewayState extends State<ViewerGateway> {
   Widget build(BuildContext context) {
     return Consumer<ReaderProvider>(builder: (context, provider, _){
       return PreloadPageView(
+        onPageChanged: provider.pageChanged,
         preloadPagesCount: 3,
         children: provider.widgetPageList,
       );
