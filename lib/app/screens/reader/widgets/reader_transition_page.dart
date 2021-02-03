@@ -14,31 +14,39 @@ class TransitionPage extends StatelessWidget {
         child: RichText(
           text: TextSpan(children: [
             TextSpan(
-                text: "Completed: ",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "roboto",
-                  fontSize: 25,
-                )),
+              text: "Completed: ",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: "roboto",
+                fontSize: 25,
+                color: Colors.grey[700],
+              ),
+            ),
             TextSpan(
-                text: "Chapter ${current.generatedNumber}\n",
-                style: TextStyle(
-                  fontFamily: "roboto",
-                  fontSize: 25,
-                )),
+              text: "Chapter ${current.generatedNumber}\n",
+              style: TextStyle(
+                fontFamily: "roboto",
+                fontSize: 25,
+                color: Colors.grey[700],
+              ),
+            ),
             TextSpan(
-                text: "Next: ",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "roboto",
-                  fontSize: 25,
-                )),
+              text: "Next: ",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: "roboto",
+                fontSize: 25,
+                color: Colors.grey[700],
+              ),
+            ),
             TextSpan(
-                text: "Chapter ${next.generatedNumber}\n",
-                style: TextStyle(
-                  fontFamily: "roboto",
-                  fontSize: 25,
-                ))
+              text: "Chapter ${next.generatedNumber}\n",
+              style: TextStyle(
+                fontFamily: "roboto",
+                fontSize: 25,
+                color: Colors.grey[700],
+              ),
+            )
           ]),
         ),
       ),

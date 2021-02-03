@@ -7,6 +7,7 @@ import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/paged_reader/paged_view_holder.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reached_end_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reader_transition_page.dart';
 import 'package:provider/provider.dart';
 
@@ -14,21 +15,24 @@ class ReaderProvider with ChangeNotifier {
   int comicId;
   String source;
 
-  List<ReaderChapter> readerChapters = List();
-  List<Widget> widgetPageList = List();
-  List chapterLengthList = List();
-  List<Chapter> chapters = List();
+  List<ReaderChapter> readerChapters = List(); // loaded chapters
+  List<Widget> widgetPageList = List(); // Pages to be shown
+  List<Chapter> chapters = List(); // the chapters from the profile
+  List pagePositionList = List(); // the page number for each widget page
+  List indexList = List(); // the chapter index for each page
+
   String selector;
   int currentIndex = 0;
   ChapterData currentChapter;
   int pageDisplayNumber = 1;
   int pageDisplayCount = 1;
   Map chapterHolder = Map();
-  List pagePositionList = List();
-  List chapterNameList = List();
+  Map testing = Map();
+
   String currentChapterName = "";
   int lastPage;
   BuildContext context;
+  bool reachedEnd = false;
 
   Future init(
       List<Chapter> incomingChapters,
@@ -45,7 +49,6 @@ class ReaderProvider with ChangeNotifier {
     context = widgetContext;
     comicId = comic_id;
     source = incomingSource;
-
     // Get Chapter being pointed to
     Chapter chapter = incomingChapters.elementAt(initialIndex);
 
@@ -53,7 +56,7 @@ class ReaderProvider with ChangeNotifier {
     ReaderChapter firstChapter = ReaderChapter();
     firstChapter.chapterName = chapter.name;
     firstChapter.generatedNumber = chapter.generatedNumber;
-    firstChapter.index = 0;
+    firstChapter.index = initialIndex;
 
     // Get Images
     ImageChapter response =
@@ -64,10 +67,8 @@ class ReaderProvider with ChangeNotifier {
       firstChapter.pages.add(newPage);
       c++;
       pagePositionList.add(c);
-      chapterLengthList.add(response.images.length);
-      chapterNameList.add(firstChapter.chapterName);
+      indexList.add(currentIndex);
     }
-
     // Add to View and Notify Listener
     addInitialChapterToView(firstChapter);
     notifyListeners();
@@ -118,6 +119,10 @@ class ReaderProvider with ChangeNotifier {
 
   loadNextChapter(int nextIndex) async {
     Chapter chapter = chapters.elementAt(nextIndex);
+
+    // create chapteredata object
+    Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
+        [chapter], comicId, false, source, selector);
     // Initialize Reader Chapter
     ReaderChapter readerChapter = ReaderChapter();
     readerChapter.chapterName = chapter.name;
@@ -128,38 +133,59 @@ class ReaderProvider with ChangeNotifier {
     await ApiManager().getImages(selector, chapter.link);
     int c = 0;
     pagePositionList.add(null); // for transition page
-    chapterLengthList.add(null);
-    chapterNameList.add(null);
+    indexList.add(null);
 
     for (String uri in response.images) {
       ReaderPage newPage = ReaderPage(c, uri, response.referer);
       readerChapter.pages.add(newPage);
       c++;
       pagePositionList.add(c);
-      chapterLengthList.add(response.images.length);
-      chapterNameList.add(readerChapter.chapterName);
+      indexList.add(nextIndex);
     }
 
     addChapterToView(readerChapter);
-
-    /// todo,
-    /// mark as read
-    /// update read history
-    /// settings rework then comeback to reader
   }
 
   pageChanged(int page) {
+    currentIndex =
+    indexList[page]; // get the current chapter index for the page
     pageDisplayNumber = pagePositionList[page];
-    pageDisplayCount = chapterLengthList[page];
-    currentChapterName = chapterNameList[page];
+    try {
+      pageDisplayCount = readerChapters
+          .firstWhere((element) => element.index == currentIndex)
+          .pages
+          .length;
+    } catch (e) {
+      pageDisplayCount = null;
+    }
 
+    currentChapterName =
+    indexList[page] != null ? chapters
+        .elementAt(indexList[page])
+        .name : "";
     notifyListeners();
 
-    // Check location of page
-    if (pageDisplayCount != null && pageDisplayNumber == pageDisplayCount &&
+    /// History Update LOGIC
+    try {
+      Chapter pointer = chapters.elementAt(indexList[page]);
+      Provider.of<DatabaseProvider>(context, listen: false).updateChapterInfo(
+          pageDisplayNumber, pointer);
+      ChapterData pointed = Provider.of<DatabaseProvider>(
+          context, listen: false).checkIfChapterMatch(pointer);
+      Provider.of<DatabaseProvider>(context, listen: false).updateHistory(
+          comicId, pointed.id);
+    } catch (e) {
+      // do nothing
+    }
+
+
+    /// UPDATE LOGIC
+    if (pageDisplayCount != null &&
+        pageDisplayNumber == pageDisplayCount &&
         page > lastPage) {
       // things to fix, going bac would cause next to be triggered
       int nextIndex = currentIndex - 1;
+      print(chapterHolder.keys.toList());
       if (!chapterHolder.keys.contains(nextIndex)) {
         print("loading next");
         print(nextIndex);
@@ -170,16 +196,30 @@ class ReaderProvider with ChangeNotifier {
             true,
             source,
             selector);
-        Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
-            chapters.elementAt(currentIndex), comicId, source, selector);
+        // Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
+        //     chapters.elementAt(currentIndex), comicId, source, selector);
 
-        // Load Next chapter
-        loadNextChapter(nextIndex);
-        currentIndex--;
+        if (nextIndex < 0) {
+          if (reachedEnd) {
+            print("reached end, do nothing");
+          } else
+            endReached();
+        } else {
+          // Load Next chapter
+          loadNextChapter(nextIndex);
+          currentIndex--;
+        }
       }
     }
 
     lastPage = page;
+  }
+
+  endReached() {
+    reachedEnd = true;
+    pagePositionList.add(null); // for transition page
+    indexList.add(null);
+    widgetPageList.add(ReachedEndPage());
   }
 
   reset() {
@@ -187,7 +227,6 @@ class ReaderProvider with ChangeNotifier {
 
     readerChapters.clear();
     widgetPageList.clear();
-    chapterLengthList.clear();
     chapters.clear();
     selector = "";
     currentIndex = 0;
@@ -196,11 +235,12 @@ class ReaderProvider with ChangeNotifier {
     pageDisplayCount = 1;
     chapterHolder.clear();
     pagePositionList.clear();
-    chapterNameList.clear();
+    indexList.clear();
     currentChapterName = "";
     lastPage = 0;
     context = null;
     source = "";
     comicId = null;
+    reachedEnd = false;
   }
 }

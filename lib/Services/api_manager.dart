@@ -16,9 +16,7 @@ class ApiManager {
   //10.0.2.2 /127.0.0.1  http://10.0.2.2:8080/app/sources?server=live
 
   static String _devAddress = "http://34.70.145.22";
-  static String _localTesting = "http://10.0.2.2:8080";
-  static String _productionAddress =
-      "http://mangasoup-env-1.eba-hd2s2exn.us-east-1.elasticbeanstalk.com";
+
   static BaseOptions _options = BaseOptions(
     // actual route -->
     baseUrl: _devAddress,
@@ -33,16 +31,12 @@ class ApiManager {
       '&api_key=b1e601ed339f1c909df951a2ebfe597671592d90'; // Image Search Link
 
   /// Get Home Page
-  //todo, homepage
 
   /// ------------- Server Resources
   Future<List<Source>> getServerSources(String server) async {
     Response response = await _dio.get(
       "/app/sources/previews",
-      queryParameters: {
-        "server": server,
-        "hentai": "1"
-      }, // todo change hentai parameter to a setting that is toggleable
+      queryParameters: {"server": server, "hentai": "1"},
     );
 
     List resData = response.data['sources'];

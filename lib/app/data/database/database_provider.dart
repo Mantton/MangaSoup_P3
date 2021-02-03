@@ -9,9 +9,10 @@ import 'package:mangasoup_prototype_3/app/data/database/queries/comic-collection
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/history_queries.dart';
 import 'package:sqflite/sqflite.dart';
-import 'models/comic.dart';
-import 'models/collection.dart';
+
 import 'manager.dart';
+import 'models/collection.dart';
+import 'models/comic.dart';
 
 class DatabaseProvider with ChangeNotifier {
   // Provider Variables
@@ -254,14 +255,23 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  updateChapterInfo(int page, Chapter chapter) async {
+    ChapterData data = checkIfChapterMatch(chapter);
+    data.lastPageRead = page;
+    int d = chapters.indexWhere((element) => element.id == data.id);
+    chapters[d] = data;
+    await chapterManager.updateBatch([data]);
+    notifyListeners();
+  }
+
   updateHistory(int comicId, int chapterId) async {
     History newHistory = History(comicId: comicId, chapterId: chapterId);
 
     if (historyList.any((element) => element.comicId == comicId)) {
-      historyList[historyList.indexWhere((element) => element.comicId == comicId)] =
-          newHistory;
-      await historyManager.updateHistory(
-          historyList[historyList.indexWhere((element) => element.comicId == comicId)]);
+      historyList[historyList
+          .indexWhere((element) => element.comicId == comicId)] = newHistory;
+      await historyManager.updateHistory(historyList[
+          historyList.indexWhere((element) => element.comicId == comicId)]);
       // update
     } else {
       // add
