@@ -2,13 +2,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/paged_reader/paged_view_holder.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reader_transition_page.dart';
+import 'package:provider/provider.dart';
 
 class ReaderProvider with ChangeNotifier {
+  int comicId;
+  String source;
+
   List<ReaderChapter> readerChapters = List();
   List<Widget> widgetPageList = List();
   List chapterLengthList = List();
@@ -23,14 +28,23 @@ class ReaderProvider with ChangeNotifier {
   List chapterNameList = List();
   String currentChapterName = "";
   int lastPage;
+  BuildContext context;
 
-  Future init(List<Chapter> incomingChapters, int initialIndex,
-      String incomingSelector) async {
+  Future init(
+      List<Chapter> incomingChapters,
+      int initialIndex,
+      String incomingSelector,
+      BuildContext widgetContext,
+      int comic_id,
+      String incomingSource) async {
     reset();
     // Create Starting values
     chapters = List.of(incomingChapters);
     currentIndex = initialIndex;
     selector = incomingSelector;
+    context = widgetContext;
+    comicId = comic_id;
+    source = incomingSource;
 
     // Get Chapter being pointed to
     Chapter chapter = incomingChapters.elementAt(initialIndex);
@@ -43,7 +57,7 @@ class ReaderProvider with ChangeNotifier {
 
     // Get Images
     ImageChapter response =
-        await ApiManager().getImages(selector, chapter.link);
+    await ApiManager().getImages(selector, chapter.link);
     int c = 0;
     for (String uri in response.images) {
       ReaderPage newPage = ReaderPage(c + 1, uri, response.referer);
@@ -104,7 +118,6 @@ class ReaderProvider with ChangeNotifier {
 
   loadNextChapter(int nextIndex) async {
     Chapter chapter = chapters.elementAt(nextIndex);
-
     // Initialize Reader Chapter
     ReaderChapter readerChapter = ReaderChapter();
     readerChapter.chapterName = chapter.name;
@@ -112,7 +125,7 @@ class ReaderProvider with ChangeNotifier {
     readerChapter.index = nextIndex;
     // Get Images
     ImageChapter response =
-        await ApiManager().getImages(selector, chapter.link);
+    await ApiManager().getImages(selector, chapter.link);
     int c = 0;
     pagePositionList.add(null); // for transition page
     chapterLengthList.add(null);
@@ -128,6 +141,11 @@ class ReaderProvider with ChangeNotifier {
     }
 
     addChapterToView(readerChapter);
+
+    /// todo,
+    /// mark as read
+    /// update read history
+    /// settings rework then comeback to reader
   }
 
   pageChanged(int page) {
@@ -138,12 +156,19 @@ class ReaderProvider with ChangeNotifier {
     notifyListeners();
 
     // Check location of page
-    if (pageDisplayNumber == pageDisplayCount && page > lastPage) {
+    if (pageDisplayCount != null && pageDisplayNumber == pageDisplayCount &&
+        page > lastPage) {
       // things to fix, going bac would cause next to be triggered
       int nextIndex = currentIndex - 1;
       if (!chapterHolder.keys.contains(nextIndex)) {
         print("loading next");
         print(nextIndex);
+        // Add to Read
+        Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
+            [chapters.elementAt(currentIndex)], comicId, true, source,
+            selector);
+
+        // Load Next chapter
         loadNextChapter(nextIndex);
         currentIndex--;
       }
@@ -169,5 +194,8 @@ class ReaderProvider with ChangeNotifier {
     chapterNameList.clear();
     currentChapterName = "";
     lastPage = 0;
+    context = null;
+    source = "";
+    comicId = null;
   }
 }

@@ -214,6 +214,8 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
           selector: widget.profile.selector,
           chapters: widget.profile.chapters,
           initialChapterIndex: widget.profile.chapters.indexOf(chapter),
+          comicId: widget.comicId,
+          source: widget.profile.source,
         ),
       ),
     );

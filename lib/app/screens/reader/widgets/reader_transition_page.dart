@@ -11,8 +11,35 @@ class TransitionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Center(
-        child: Text(
-          "Transitioning from ${current.chapterName} to ${next.chapterName}",
+        child: RichText(
+          text: TextSpan(children: [
+            TextSpan(
+                text: "Completed: ",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "roboto",
+                  fontSize: 25,
+                )),
+            TextSpan(
+                text: "Chapter ${current.generatedNumber}\n",
+                style: TextStyle(
+                  fontFamily: "roboto",
+                  fontSize: 25,
+                )),
+            TextSpan(
+                text: "Next: ",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "roboto",
+                  fontSize: 25,
+                )),
+            TextSpan(
+                text: "Chapter ${next.generatedNumber}\n",
+                style: TextStyle(
+                  fontFamily: "roboto",
+                  fontSize: 25,
+                ))
+          ]),
         ),
       ),
     );

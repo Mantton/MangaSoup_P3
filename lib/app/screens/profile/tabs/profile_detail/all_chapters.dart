@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
@@ -8,7 +9,6 @@ import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ChapterList extends StatefulWidget {
   final List<Chapter> chapterList;
@@ -61,6 +61,8 @@ class _ChapterListState extends State<ChapterList> {
             selector: widget.selector,
             chapters: widget.chapterList,
             initialChapterIndex: widget.chapterList.indexOf(chapter),
+            comicId: widget.comicId,
+            source: widget.source,
           ),
         ),
       );

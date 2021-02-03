@@ -10,9 +10,16 @@ class ReaderHome extends StatefulWidget {
   final List<Chapter> chapters;
   final int initialChapterIndex;
   final String selector;
+  final String source;
+  final int comicId;
 
   const ReaderHome(
-      {Key key, this.chapters, this.initialChapterIndex, this.selector})
+      {Key key,
+      this.chapters,
+      this.initialChapterIndex,
+      this.selector,
+      this.source,
+      this.comicId})
       : super(key: key);
 
   @override
@@ -24,7 +31,8 @@ class _ReaderHomeState extends State<ReaderHome> {
   @override
   void initState() {
     providerInitializer = Provider.of<ReaderProvider>(context, listen: false)
-        .init(widget.chapters, widget.initialChapterIndex, widget.selector);
+        .init(widget.chapters, widget.initialChapterIndex, widget.selector,
+        context, widget.comicId, widget.source);
     super.initState();
   }
 
@@ -127,12 +135,13 @@ class _ReaderFrameState extends State<ReaderFrame> {
                       Container(
                         width: 50.w,
                         child: FlatButton(
-                            child: Icon(
-                              Icons.more_horiz,
-                              color: Colors.grey,
-                              size: 30.sp,
-                            ),
-                            onPressed: () {}),
+                          child: Icon(
+                            Icons.more_horiz,
+                            color: Colors.grey,
+                            size: 30.sp,
+                          ),
+                          onPressed: () {},
+                        ),
                       )
                     ],
                   ),
@@ -152,10 +161,15 @@ class _ReaderFrameState extends State<ReaderFrame> {
                       flex: 7,
                       fit: FlexFit.tight,
                       child: Container(
-                        child: Text(
+                        child: provider.currentChapterName != null
+                            ? Text(
                           "${provider.currentChapterName}",
-                          style: TextStyle(color: Colors.grey, fontSize: 18.sp),
-                        ),
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 18.sp,
+                          ),
+                        )
+                            : Container(),
                       ),
                     ),
                     VerticalDivider(
@@ -175,48 +189,54 @@ class _ReaderFrameState extends State<ReaderFrame> {
   }
 
   Widget footer() {
-    return Consumer<ReaderProvider>(
-        builder: (context, provider, _) {
-          return AnimatedPositioned(
-            duration: Duration(milliseconds: 150),
-            curve: Curves.ease,
-            bottom: _showControls ? 0 : -60.h,
-            child: Container(
-              height: 60.h,
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width,
-              color: Colors.black,
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () async {},
-                      icon: Icon(
-                        Icons.arrow_back_ios,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    Spacer(),
-                    provider.pageDisplayNumber != null ? Text(
-                        "${provider.pageDisplayNumber}/${provider
-                            .pageDisplayCount}") : Container(),
-                    Spacer(),
-                    IconButton(
-                      onPressed: () async {},
-                      icon: Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
+    return Consumer<ReaderProvider>(builder: (context, provider, _) {
+      return AnimatedPositioned(
+        duration: Duration(milliseconds: 150),
+        curve: Curves.ease,
+        bottom: _showControls ? 0 : -60.h,
+        child: Container(
+          height: 60.h,
+          width: MediaQuery
+              .of(context)
+              .size
+              .width,
+          color: Colors.black,
+          child: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () async {},
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.grey,
+                  ),
                 ),
-              ),
+                Spacer(),
+                provider.pageDisplayNumber != null
+                    ? Text(
+                  "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.sp,
+                    fontFamily: 'Lato',
+                    color: Colors.grey,
+                  ),
+                )
+                    : Container(),
+                Spacer(),
+                IconButton(
+                  onPressed: () async {},
+                  icon: Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
             ),
-          );
-        }
-    );
+          ),
+        ),
+      );
+    });
   }
 }
