@@ -202,11 +202,7 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
   onTap(Chapter chapter) async {
     // print("${widget.comicId}, ${widget.profile.source},${widget.profile.selector}, ${chapter.name}, ${chapter.generatedNumber}");
     // print("${widget.profile.chapters.indexOf(chapter)}");
-    await Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
-        chapter,
-        widget.comicId,
-        widget.profile.source,
-        widget.profile.selector);
+
     Navigator.push(
       context,
       MaterialPageRoute(

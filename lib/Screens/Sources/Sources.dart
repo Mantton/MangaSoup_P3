@@ -177,7 +177,8 @@ class _SourcesPageState extends State<SourcesPage> {
                                   child: GridTile(
                                     child: SoupImage(
                                       url: source.thumbnail,
-                                      referer: "",
+                                      referer: source.url,
+                                      fit: BoxFit.fitWidth,
                                     ),
                                     footer: Center(
                                       child: FittedBox(

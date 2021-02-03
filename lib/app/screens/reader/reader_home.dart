@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/util/viewer_gateway.dart';
@@ -12,15 +13,19 @@ class ReaderHome extends StatefulWidget {
   final String selector;
   final String source;
   final int comicId;
+  final bool preloaded;
+  final ImageChapter preloadedChapter;
 
-  const ReaderHome(
-      {Key key,
-      this.chapters,
-      this.initialChapterIndex,
-      this.selector,
-      this.source,
-      this.comicId})
-      : super(key: key);
+  const ReaderHome({
+    Key key,
+    this.chapters,
+    this.initialChapterIndex,
+    this.selector,
+    this.source,
+    this.comicId,
+    this.preloaded = false,
+    this.preloadedChapter,
+  }) : super(key: key);
 
   @override
   _ReaderHomeState createState() => _ReaderHomeState();
@@ -32,7 +37,8 @@ class _ReaderHomeState extends State<ReaderHome> {
   void initState() {
     providerInitializer = Provider.of<ReaderProvider>(context, listen: false)
         .init(widget.chapters, widget.initialChapterIndex, widget.selector,
-        context, widget.comicId, widget.source);
+        context, widget.comicId, widget.source, loaded: widget.preloaded,
+        loadedChapter: widget.preloadedChapter);
     super.initState();
   }
 

@@ -40,7 +40,9 @@ class ReaderProvider with ChangeNotifier {
       String incomingSelector,
       BuildContext widgetContext,
       int comic_id,
-      String incomingSource) async {
+      String incomingSource,
+      {bool loaded = false,
+      ImageChapter loadedChapter}) async {
     reset();
     // Create Starting values
     chapters = List.of(incomingChapters);
@@ -52,6 +54,9 @@ class ReaderProvider with ChangeNotifier {
     // Get Chapter being pointed to
     Chapter chapter = incomingChapters.elementAt(initialIndex);
 
+    await Provider.of<DatabaseProvider>(context, listen: false)
+        .historyLogic(chapter, comicId, source, selector);
+
     // Initialize Reader Chapter
     ReaderChapter firstChapter = ReaderChapter();
     firstChapter.chapterName = chapter.name;
@@ -59,8 +64,9 @@ class ReaderProvider with ChangeNotifier {
     firstChapter.index = initialIndex;
 
     // Get Images
-    ImageChapter response =
-    await ApiManager().getImages(selector, chapter.link);
+    ImageChapter response = !loaded
+        ? await ApiManager().getImages(selector, chapter.link)
+        : loadedChapter;
     int c = 0;
     for (String uri in response.images) {
       ReaderPage newPage = ReaderPage(c + 1, uri, response.referer);
@@ -121,8 +127,8 @@ class ReaderProvider with ChangeNotifier {
     Chapter chapter = chapters.elementAt(nextIndex);
 
     // create chapteredata object
-    Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
-        [chapter], comicId, false, source, selector);
+    Provider.of<DatabaseProvider>(context, listen: false)
+        .updateFromACS([chapter], comicId, false, source, selector);
     // Initialize Reader Chapter
     ReaderChapter readerChapter = ReaderChapter();
     readerChapter.chapterName = chapter.name;
@@ -168,16 +174,16 @@ class ReaderProvider with ChangeNotifier {
     /// History Update LOGIC
     try {
       Chapter pointer = chapters.elementAt(indexList[page]);
-      Provider.of<DatabaseProvider>(context, listen: false).updateChapterInfo(
-          pageDisplayNumber, pointer);
-      ChapterData pointed = Provider.of<DatabaseProvider>(
-          context, listen: false).checkIfChapterMatch(pointer);
-      Provider.of<DatabaseProvider>(context, listen: false).updateHistory(
-          comicId, pointed.id);
+      Provider.of<DatabaseProvider>(context, listen: false)
+          .updateChapterInfo(pageDisplayNumber, pointer);
+      ChapterData pointed =
+      Provider.of<DatabaseProvider>(context, listen: false)
+          .checkIfChapterMatch(pointer);
+      Provider.of<DatabaseProvider>(context, listen: false)
+          .updateHistory(comicId, pointed.id);
     } catch (e) {
       // do nothing
     }
-
 
     /// UPDATE LOGIC
     if (pageDisplayCount != null &&

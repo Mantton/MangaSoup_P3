@@ -4,11 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
-import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/nhentai_property.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/tag_widget.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:mangasoup_prototype_3/app/widgets/comic_collection_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -274,31 +276,35 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
   }
 
   Widget readButton() =>
-      Consumer(builder: (context, provider, _) {
+      Consumer<DatabaseProvider>(builder: (context, provider, _) {
         return GestureDetector(
           onTap: () {
-            ComicHighlight highlight = provider.highlight;
-            ImageChapter chapter = ImageChapter(
-              images: (widget.profile.images)
-                  ?.map((item) => item as String)
-                  ?.toList(),
-              referer: highlight.imageReferer,
+            ImageChapter imageChapter = ImageChapter(
+              images: (widget.profile.images),
+              referer: widget.profile.link,
               link: widget.profile.link,
-              source: highlight.selector,
+              source: widget.profile.selector,
               count: widget.profile.images.length,
             );
 
-            //todo, push to reader
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (_) => DebugReader2(
-            //       selector: highlight.selector,
-            //       custom: true,
-            //       chapter: chapter,
-            //     ),
-            //   ),
-            // );
+            Chapter chapter = Chapter(
+                "Chapter 1", widget.profile.link, "", widget.profile.source);
+            chapter.generatedNumber = 1.0;
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => ReaderHome(
+                        chapters: [chapter],
+                        initialChapterIndex: 0,
+                        selector:
+                            widget.profile.selector ?? widget.profile.source,
+                        source: widget.profile.source,
+                        comicId: widget.comicId,
+                        preloaded: true,
+                        preloadedChapter: imageChapter,
+                      )),
+            );
           },
           child: Container(
             margin: EdgeInsets.all(15),

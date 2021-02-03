@@ -240,6 +240,8 @@ class DatabaseProvider with ChangeNotifier {
           source: source,
           selector: selector,
         );
+
+        print(append.toMap());
       }
       append.read = read;
       data.add(append);
@@ -293,9 +295,9 @@ class DatabaseProvider with ChangeNotifier {
   historyLogic(Chapter chapter, int comicId, String source, String selector) async {
     ChapterData data = checkIfChapterMatch(chapter);
     if (data == null){
+      print("no chapter match creating object");
       await updateFromACS([chapter], comicId, false, source, selector);
       data = checkIfChapterMatch(chapter);
-
     }
 
     await updateHistory(comicId,data.id );
