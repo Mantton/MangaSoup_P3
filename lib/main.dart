@@ -26,15 +26,12 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/BrowseProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/FavoriteProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/ReaderProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Services/test_preference.dart';
 import 'package:mangasoup_prototype_3/Services/update_manager.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/landing.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -139,18 +136,9 @@ Future<void> main() async {
       providers: [
         // Source
         ChangeNotifierProvider(create: (_) => SourceNotifier()),
-        // Highlight
-        ChangeNotifierProvider(create: (_) => ComicHighlightProvider()),
-        // Read History
-        ChangeNotifierProvider(create: (_) => ComicDetailProvider()),
-        // View History
-        ChangeNotifierProvider(create: (_) => ViewHistoryProvider()),
         ChangeNotifierProvider(create: (_) => BrowseProvider()),
-        // ChangeNotifierProvider(create: (_) => DownloadProvider()),
+        ChangeNotifierProvider(create: (_) => DatabaseProvider()),
         ChangeNotifierProvider(create: (_) => ReaderProvider()),
-        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
-
-        //
       ],
       child: App(),
     ),
@@ -268,6 +256,8 @@ class Handler extends StatefulWidget {
 
 class _HandlerState extends State<Handler> {
   Future<bool> initSource() async {
+    debugPrint("Start Up");
+    await Provider.of<DatabaseProvider>(context, listen:false).init();
     TestPreference _prefs = TestPreference();
     await _prefs.init();
     Source source = await _prefs.loadSource();
@@ -307,9 +297,11 @@ class _HandlerState extends State<Handler> {
             else
               return Landing();
           } else
-            return Text(
-              "error",
-              style: TextStyle(color: Colors.white),
+            return Center(
+              child: Text(
+                "Start Up Error\n ${snapshot.error}",
+                style: TextStyle(color: Colors.white),
+              ),
             );
         });
   }

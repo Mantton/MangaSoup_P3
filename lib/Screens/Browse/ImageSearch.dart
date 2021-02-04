@@ -7,7 +7,7 @@ import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
-import 'package:mangasoup_prototype_3/Screens/Profile/GateWay.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/gateway.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 

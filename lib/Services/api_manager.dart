@@ -8,15 +8,15 @@ import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiManager {
   //10.0.2.2 /127.0.0.1  http://10.0.2.2:8080/app/sources?server=live
 
   static String _devAddress = "http://34.70.145.22";
-  static String _localTesting = "http://10.0.2.2:8080";
-  static String _productionAddress =
-      "http://mangasoup-env-1.eba-hd2s2exn.us-east-1.elasticbeanstalk.com";
+
   static BaseOptions _options = BaseOptions(
     // actual route -->
     baseUrl: _devAddress,
@@ -31,27 +31,12 @@ class ApiManager {
       '&api_key=b1e601ed339f1c909df951a2ebfe597671592d90'; // Image Search Link
 
   /// Get Home Page
-  Future<List<HomePage>> getHomePage() async {
-    Response response = await _dio.get('/app/homepage');
-    List initial = response.data['content'];
-    debugPrint(initial.length.toString());
-    List<HomePage> pages = [];
-    for (int index = 0; index < initial.length; index++) {
-      Map test = initial[index];
-      pages.add(HomePage.fromMap(test));
-    }
-    debugPrint("HomePage Loaded");
-    return pages;
-  }
 
   /// ------------- Server Resources
   Future<List<Source>> getServerSources(String server) async {
     Response response = await _dio.get(
       "/app/sources/previews",
-      queryParameters: {
-        "server": server,
-        "hentai": "1"
-      }, // todo change hentai parameter to a setting that is toggleable
+      queryParameters: {"server": server, "hentai": "1"},
     );
 
     List resData = response.data['sources'];
@@ -138,7 +123,7 @@ class ApiManager {
   }
 
   /// Get Profile
-  Future<ComicProfile> getProfile(String source, String link) async {
+  Future<Profile> getProfile(String source, String link) async {
     Map additionalParams = await prepareAdditionalInfo(source);
 
     if (source == "mangadex") return dex.profile(link, additionalParams);
@@ -148,7 +133,7 @@ class ApiManager {
       debugPrint(
           "Retrieval Complete : /Profile : ${response.data['title']} @$source");
 
-      return ComicProfile.fromMap(response.data);
+      return Profile.fromMap(response.data);
     } on DioError catch (e) {
       throw e.response.data['detail'];
     }
@@ -176,7 +161,6 @@ class ApiManager {
     Map data = {"selector": source, "data": additionalParams};
     Response response = await _dio.post('/api/v1/tags', data: data);
     List dataPoints = response.data['genres'] ?? response.data;
-    print(dataPoints);
     List<Tag> tags = [];
     for (int index = 0; index < dataPoints.length; index++) {
       tags.add(Tag.fromMap(dataPoints[index]));

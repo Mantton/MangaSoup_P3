@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
-import 'package:mangasoup_prototype_3/Screens/Profile/GateWay.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/gateway.dart';
 
 import 'Images.dart';
 
@@ -52,7 +53,7 @@ class ComicGridTile extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => ProfileGateWay(comic),
+              builder: (_) => ProfileHome(highlight:comic),
             ),
           );
         },
