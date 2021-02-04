@@ -25,18 +25,18 @@ InputDecoration testTextField = InputDecoration(
   ),
 );
 
-final createCollectionFormDecoration = InputDecoration(
-  hintText: "Enter Collection Name",
+InputDecoration mangasoupInputDecoration(String hint)=> InputDecoration(
+  hintText: hint,
   contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
   floatingLabelBehavior: FloatingLabelBehavior.always,
   enabledBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(10),
-    borderSide: BorderSide(color: Colors.grey[800]),
+    borderSide: BorderSide(color: Colors.grey[900]),
     gapPadding: 5,
   ),
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(10),
-    borderSide: BorderSide(color: Colors.grey[600]),
+    borderSide: BorderSide(color: Colors.grey[800]),
     gapPadding: 5,
   ),
   errorBorder: OutlineInputBorder(

@@ -4,7 +4,8 @@ import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
-import 'package:mangasoup_prototype_3/app/screens/library/library_settings.dart';
+import 'package:mangasoup_prototype_3/app/screens/library/libary_order.dart';
+import 'package:mangasoup_prototype_3/app/screens/library/library_search.dart';
 import 'package:provider/provider.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -41,14 +42,20 @@ class _LibraryHomeState extends State<LibraryHome> {
           actions: [
             IconButton(
               icon: Icon(CupertinoIcons.search),
-              onPressed: null, //todo, search library
+              onPressed: () => Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (_) => LibrarySearch(),
+                  fullscreenDialog: true,
+                ),
+              ),
             ),
             IconButton(
               icon: Icon(CupertinoIcons.square_favorites),
               onPressed: () => Navigator.push(
                 context,
                 CupertinoPageRoute(
-                  builder: (_) => LibrarySettings(),
+                  builder: (_) => LibraryOrderManagerPage(),
                   fullscreenDialog: true,
                 ),
               ),

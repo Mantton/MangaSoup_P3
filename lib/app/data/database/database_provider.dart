@@ -70,6 +70,16 @@ class DatabaseProvider with ChangeNotifier {
     return comic.id;
   }
 
+  List<Comic> searchLibrary(String query) {
+    return comics.where(
+      (element) =>
+          element.inLibrary &&
+          element.title.toLowerCase().startsWith(
+                query.toLowerCase(),
+              ),
+    ).toList();
+  }
+
   Comic retrieveComic(int id) {
     return comics.firstWhere((element) => element.id == id);
   }
@@ -214,8 +224,6 @@ class DatabaseProvider with ChangeNotifier {
     }
   }
 
-
-
   bool checkSimilarRead(Chapter chapter, int comicId) {
     bool check = chapters.any((element) =>
         element.read &&
@@ -240,7 +248,6 @@ class DatabaseProvider with ChangeNotifier {
           source: source,
           selector: selector,
         );
-
       }
       append.read = read;
       data.add(append);
@@ -283,21 +290,21 @@ class DatabaseProvider with ChangeNotifier {
 
     notifyListeners();
   }
-  
+
   removeHistory(History history) async {
-      await historyManager.deleteHistory(history);
-      historyList.remove(history);
-      notifyListeners();
-      
+    await historyManager.deleteHistory(history);
+    historyList.remove(history);
+    notifyListeners();
   }
 
-  historyLogic(Chapter chapter, int comicId, String source, String selector) async {
+  historyLogic(
+      Chapter chapter, int comicId, String source, String selector) async {
     ChapterData data = checkIfChapterMatch(chapter);
-    if (data == null){
+    if (data == null) {
       await updateFromACS([chapter], comicId, false, source, selector);
       data = checkIfChapterMatch(chapter);
     }
 
-    await updateHistory(comicId,data.id );
+    await updateHistory(comicId, data.id);
   }
 }

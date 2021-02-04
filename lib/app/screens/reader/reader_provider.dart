@@ -152,7 +152,6 @@ class ReaderProvider with ChangeNotifier {
   }
 
   pageChanged(int page) {
-    print(page);
     currentIndex =
     indexList[page]; // get the current chapter index for the page
     pageDisplayNumber = pagePositionList[page];

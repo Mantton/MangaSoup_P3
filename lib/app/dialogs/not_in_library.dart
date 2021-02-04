@@ -302,7 +302,7 @@ class _CreateCollectionWidgetState extends State<CreateCollectionWidget> {
                     children: [
                       TextFormField(
                         controller: _textController,
-                        decoration: createCollectionFormDecoration,
+                        decoration: mangasoupInputDecoration("Enter Collection Name"),
                         cursorColor: Colors.grey,
                         maxLines: 1,
                         style: textFieldStyle,

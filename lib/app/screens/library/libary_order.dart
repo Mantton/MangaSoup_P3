@@ -5,12 +5,12 @@ import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class LibrarySettings extends StatefulWidget {
+class LibraryOrderManagerPage extends StatefulWidget {
   @override
-  _LibrarySettingsState createState() => _LibrarySettingsState();
+  _LibraryOrderManagerPageState createState() => _LibraryOrderManagerPageState();
 }
 
-class _LibrarySettingsState extends State<LibrarySettings> {
+class _LibraryOrderManagerPageState extends State<LibraryOrderManagerPage> {
   @override
   Widget build(BuildContext context) {
     return PlatformScaffold(
