@@ -170,7 +170,6 @@ class _VioletImageState extends State<VioletImage> with AutomaticKeepAliveClient
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return Container(
-            color: Colors.grey,
             child: ReaderImage(
               url: widget.url,
               referer: widget.referrer,

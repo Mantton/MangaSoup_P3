@@ -4,7 +4,7 @@ import 'package:mangasoup_prototype_3/Screens/Browse/ImageSearch.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/ImgurSearch.dart';
 import 'package:mangasoup_prototype_3/Screens/MangaDex/DexLogin.dart';
 import 'package:mangasoup_prototype_3/Screens/Testing.dart';
-import 'package:mangasoup_prototype_3/app/screens/reader/widgets/env1.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_page_adapter.dart';
 
 import '../Settings/Settings.dart';
 
@@ -27,7 +27,7 @@ class _MorePageState extends State<MorePage> {
   String _selector;
 
   List pages = [
-    EmbeddedPageViewTest(),
+    WebToonPageAdapter(),
     SettingsPage(),
     Testing(),
     MangadexLoginPage(),

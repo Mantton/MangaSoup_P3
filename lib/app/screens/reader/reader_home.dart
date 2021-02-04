@@ -4,7 +4,8 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
-import 'package:mangasoup_prototype_3/app/screens/reader/widgets/env1.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_page_adapter.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/widgets/viewer_gateway.dart';
 import 'package:provider/provider.dart';
 
 class ReaderHome extends StatefulWidget {
@@ -83,8 +84,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
         child: Stack(
           children: [
             plain(),
-            EmbeddedPageViewTest(),
-            // ViewerGateway(),
+            ViewerGateWay(),
             header(),
             footer(),
           ],

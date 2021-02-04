@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:provider/provider.dart';
 
-class EmbeddedPageViewTest extends StatefulWidget {
+class WebToonPageAdapter extends StatefulWidget {
   @override
-  _EmbeddedPageViewTestState createState() => _EmbeddedPageViewTestState();
+  _WebToonPageAdapterState createState() => _WebToonPageAdapterState();
 }
 
-class _EmbeddedPageViewTestState extends State<EmbeddedPageViewTest> {
+class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
   ScrollController scrollController;
   int lastPage = 0;
 

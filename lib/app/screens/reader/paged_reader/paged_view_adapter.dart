@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
-import 'package:mangasoup_prototype_3/app/screens/reader/paged_reader/paged_view_holder.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:preload_page_view/preload_page_view.dart';
+import 'package:provider/provider.dart';
 
-class PageViewAdapter extends StatefulWidget {
-  final List<ReaderPage> pages;
-
-  const PageViewAdapter({Key key, this.pages}) : super(key: key);
+class PagedViewAdapter extends StatefulWidget {
   @override
-  _PageViewAdapterState createState() => _PageViewAdapterState();
+  _PagedViewAdapterState createState() => _PagedViewAdapterState();
 }
 
-class _PageViewAdapterState extends State<PageViewAdapter> {
+class _PagedViewAdapterState extends State<PagedViewAdapter>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
-    return PreloadPageView.builder(
-        itemCount: widget.pages.length,
+    super.build(context);
+    return Consumer<ReaderProvider>(builder: (context, provider, _) {
+      return PreloadPageView(
+        // scrollDirection: Axis.vertical,
+        reverse: true,
+        onPageChanged: provider.pageChanged,
         preloadPagesCount: 3,
-        itemBuilder: (BuildContext context, int index) {
-          return PagedViewHolder(
-            page: widget.pages[index],
-          );
-        });
+        children: provider.widgetPageList,
+      );
+    });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
