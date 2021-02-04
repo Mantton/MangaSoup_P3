@@ -7,6 +7,7 @@ import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/paged_reader/paged_view_holder.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_view_holder.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reached_end_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reader_transition_page.dart';
 import 'package:provider/provider.dart';
@@ -84,7 +85,7 @@ class ReaderProvider with ChangeNotifier {
     // Create Page Widgets, add to View
 
     for (ReaderPage page in chapter.pages) {
-      Widget view = PagedViewHolder(
+      Widget view = WebToonViewHolder(
         page: page,
       );
       widgetPageList.add(view);
@@ -109,7 +110,7 @@ class ReaderProvider with ChangeNotifier {
     widgetPageList.add(transition);
     print(pagePositionList);
     for (ReaderPage page in chapter.pages) {
-      Widget view = PagedViewHolder(
+      Widget view = WebToonViewHolder(
         page: page,
       );
       widgetPageList.add(view);
@@ -151,6 +152,7 @@ class ReaderProvider with ChangeNotifier {
   }
 
   pageChanged(int page) {
+    print(page);
     currentIndex =
     indexList[page]; // get the current chapter index for the page
     pageDisplayNumber = pagePositionList[page];

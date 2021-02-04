@@ -37,9 +37,8 @@ class _EmbeddedPageViewTestState extends State<EmbeddedPageViewTest> {
     if (firstVisibleItemIndex != lastPage &&
         firstVisibleItemIndex > 0 &&
         firstVisibleItemIndex < itemCount) {
-      print(firstVisibleItemIndex);
       Provider.of<ReaderProvider>(context, listen: false)
-          .pageChanged(firstVisibleItemIndex);
+          .pageChanged(firstVisibleItemIndex + 1);
       lastPage = firstVisibleItemIndex;
     }
   }
