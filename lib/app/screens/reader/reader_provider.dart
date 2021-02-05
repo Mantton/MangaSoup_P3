@@ -31,6 +31,7 @@ class ReaderProvider with ChangeNotifier {
   int lastPage;
   BuildContext context;
   bool reachedEnd = false;
+  bool imgur = false;
 
   Future init(
       List<Chapter> incomingChapters,
@@ -40,7 +41,7 @@ class ReaderProvider with ChangeNotifier {
       int comic_id,
       String incomingSource,
       {bool loaded = false,
-        bool imgur = false,
+        bool imgurAlbum = false,
       ImageChapter loadedChapter}) async {
     reset();
     // Create Starting values
@@ -52,7 +53,7 @@ class ReaderProvider with ChangeNotifier {
     source = incomingSource;
     // Get Chapter being pointed to
     Chapter chapter = incomingChapters.elementAt(initialIndex);
-
+    imgur = imgurAlbum;
     if (!imgur)
       await Provider.of<DatabaseProvider>(context, listen: false)
           .historyLogic(chapter, comicId, source, selector);
@@ -97,8 +98,6 @@ class ReaderProvider with ChangeNotifier {
     chapterHolder.addAll(initialEntry);
     pageDisplayCount = chapter.pages.length;
     currentChapterName = chapter.chapterName;
-
-    notifyListeners();
   }
 
   addChapterToView(ReaderChapter chapter) {
@@ -173,14 +172,18 @@ class ReaderProvider with ChangeNotifier {
 
     /// History Update LOGIC
     try {
-      Chapter pointer = chapters.elementAt(indexList[page]);
-      Provider.of<DatabaseProvider>(context, listen: false)
-          .updateChapterInfo(pageDisplayNumber, pointer);
-      ChapterData pointed =
-      Provider.of<DatabaseProvider>(context, listen: false)
-          .checkIfChapterMatch(pointer);
-      Provider.of<DatabaseProvider>(context, listen: false)
-          .updateHistory(comicId, pointed.id);
+
+      if (!imgur){
+        Chapter pointer = chapters.elementAt(indexList[page]);
+        Provider.of<DatabaseProvider>(context, listen: false)
+            .updateChapterInfo(pageDisplayNumber, pointer);
+        ChapterData pointed =
+        Provider.of<DatabaseProvider>(context, listen: false)
+            .checkIfChapterMatch(pointer);
+        Provider.of<DatabaseProvider>(context, listen: false)
+            .updateHistory(comicId, pointed.id);
+      }
+
     } catch (e) {
       // do nothing
     }
@@ -188,7 +191,7 @@ class ReaderProvider with ChangeNotifier {
     /// UPDATE LOGIC
     if (pageDisplayCount != null &&
         pageDisplayNumber == pageDisplayCount &&
-        page > lastPage) {
+        page > lastPage && !imgur) {
       // things to fix, going bac would cause next to be triggered
       int nextIndex = currentIndex - 1;
       print(chapterHolder.keys.toList());
@@ -248,5 +251,6 @@ class ReaderProvider with ChangeNotifier {
     source = "";
     comicId = null;
     reachedEnd = false;
+    imgur = false;
   }
 }

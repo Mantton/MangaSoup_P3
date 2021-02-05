@@ -40,7 +40,7 @@ class _ReaderHomeState extends State<ReaderHome> {
     providerInitializer = Provider.of<ReaderProvider>(context, listen: false)
         .init(widget.chapters, widget.initialChapterIndex, widget.selector,
         context, widget.comicId, widget.source, loaded: widget.preloaded,
-        loadedChapter: widget.preloadedChapter, imgur: widget.imgur);
+        loadedChapter: widget.preloadedChapter, imgurAlbum: widget.imgur);
     super.initState();
   }
 
