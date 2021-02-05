@@ -55,6 +55,9 @@ class WebViewExampleState extends State<WebViewExample> {
       },
       onWebViewCreated: (WebViewController webViewController) {
         _controller.complete(webViewController);
+        webViewController.clearCache();
+        final cookieManager = CookieManager();
+        cookieManager.clearCookies();
       },
       javascriptChannels: <JavascriptChannel>[
         _toasterJavascriptChannel(context),
@@ -75,6 +78,7 @@ class WebViewExampleState extends State<WebViewExample> {
           final String cookies =
               await view.evaluateJavascript('document.cookie');
           print("Retrieved Cookies");
+          print(cookies);
           Navigator.pop(context, cookies);
         });
       },

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,13 +13,14 @@ import 'package:mangasoup_prototype_3/Screens/Settings/MultipleSelect.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingsPage extends StatefulWidget {
+class SourceSettingsPage extends StatefulWidget {
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  _SourceSettingsPageState createState() => _SourceSettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SourceSettingsPageState extends State<SourceSettingsPage> {
   Map userSourceSettings;
+  String _selector;
 
   getUserSourceSettings(String selector) async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
@@ -37,9 +39,9 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    String selector =
+    _selector =
         Provider.of<SourceNotifier>(context, listen: false).source.selector;
-    getUserSourceSettings(selector);
+    getUserSourceSettings(_selector);
   }
 
   @override
@@ -52,7 +54,19 @@ class _SettingsPageState extends State<SettingsPage> {
       body: Container(
           child: Column(
         children: [
+          ListTile(
+            title: Text("Clear Source Cookies"),
+            subtitle: Text("This would log you out or remove cloudfare bypasses"),
+            onTap: ()async{
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setString("${_selector}_cookies", null).then((value){
+                showSnackBarMessage("Source Cookies cleared!");
+
+              });
+            },
+          ),
           (userSourceSettings != null) ? sourceSettings() : Container(),
+
         ],
       )),
     );
@@ -62,34 +76,22 @@ class _SettingsPageState extends State<SettingsPage> {
     List settings = Provider.of<SourceNotifier>(context).source.settings;
     return SingleChildScrollView(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(8.0.w),
-            child: Text("Source Settings", style: TextStyle(fontSize: 20.sp)),
-          ),
-          Divider(
-            color: Colors.grey,
-          ),
-          Column(
-            children: List<Widget>.generate(settings.length, (index) {
-              SourceSetting ss = SourceSetting.fromMap(settings[index]);
-              return Padding(
-                padding: EdgeInsets.fromLTRB(20.w, 5.h, 20.w, 5.h),
-                child: Row(
-                  children: [
-                    Text(
-                      ss.name,
-                      style: TextStyle(fontSize: 17.sp),
-                    ),
-                    Spacer(),
-                    optionType(ss)
-                  ],
+        children: List<Widget>.generate(settings.length, (index) {
+          SourceSetting ss = SourceSetting.fromMap(settings[index]);
+          return Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 5.h, 20.w, 5.h),
+            child: Row(
+              children: [
+                Text(
+                  ss.name,
+                  style: TextStyle(fontSize: 17.sp),
                 ),
-              );
-            }),
-          )
-        ],
+                Spacer(),
+                optionType(ss)
+              ],
+            ),
+          );
+        }),
       ),
     );
   }

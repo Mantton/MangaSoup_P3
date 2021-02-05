@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
@@ -52,38 +53,52 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
-
   // GENERATE COMIC
-  Future<Map<String, dynamic>>generate(ComicHighlight highlight) async {
+  Future<Map<String, dynamic>> generate(ComicHighlight highlight) async {
     ApiManager _manager = ApiManager();
 
     /// Get Profile
-    Profile profile = await _manager.getProfile(
-      highlight.selector,
-      highlight.link,
-    );
+    try{
+      Profile profile = await _manager.getProfile(
+        highlight.selector,
+        highlight.link,
+      );
 
-    Comic generated = Comic(
-        title: highlight.title,
-        link: highlight.link,
-        thumbnail: profile.thumbnail,
-        referer: highlight.imageReferer,
-        source: highlight.source,
-        sourceSelector: highlight.selector,
-        chapterCount: profile.chapterCount ?? 0);
-    Comic comic = isComicSaved(generated);
-    if (comic != null) {
-      // UPDATE VALUES HERE
-      comic.thumbnail = profile.thumbnail;
-      comic.updateCount = 0;
-      comic.chapterCount = profile.chapterCount ?? 0;
-    } else
-      comic = generated;
-    // Evaluate
-    int _id = await evaluate(comic);
+      Comic generated = Comic(
+          title: highlight.title,
+          link: highlight.link,
+          thumbnail: profile.selector != "hasu"
+              ? profile.thumbnail
+              : highlight.thumbnail,
+          referer: highlight.imageReferer,
+          source: highlight.source,
+          sourceSelector: highlight.selector,
+          chapterCount: profile.chapterCount ?? 0);
 
-    return {"profile": profile, "id": _id};
+      Comic comic = isComicSaved(generated);
+      if (comic != null) {
+        // UPDATE VALUES HERE
+        if (profile.selector != "hasu") comic.thumbnail = profile.thumbnail;
+        comic.updateCount = 0;
+        comic.chapterCount = profile.chapterCount ?? 0;
+      } else
+        comic = generated;
+      // Evaluate
+      int _id = await evaluate(comic);
+      return {"profile": profile, "id": _id};
+    }
+    catch(e){
+      if (e is DioError){
+        throw "Network Related Error";
+      }else{
+        print(e);
+        throw "Unable to Serialize";
+      }
+
+    }
+
   }
+
   /// COMICS
   Future<int> evaluate(Comic comic) async {
     // Updates OR Adds comics to db
@@ -103,6 +118,7 @@ class DatabaseProvider with ChangeNotifier {
       comics[index] = comic;
     }
     notifyListeners();
+    print(comic.thumbnail);
     return comic.id;
   }
 
@@ -250,36 +266,39 @@ class DatabaseProvider with ChangeNotifier {
         comics.where((element) => requiredIds.contains(element.id)).toList();
     return requiredComics;
   }
-   toggleCollectionUpdate(Collection collection){
+
+  toggleCollectionUpdate(Collection collection) {
     collection.updateEnabled = !collection.updateEnabled;
 
-    int target = collections.indexWhere((element) => element.id == collection.id);
+    int target =
+        collections.indexWhere((element) => element.id == collection.id);
     collections[target] = collection;
     collectionManager.updateCollection(collection);
     notifyListeners();
   }
 
-  updateCollection(Collection collection){
-    int target = collections.indexWhere((element) => element.id == collection.id);
+  updateCollection(Collection collection) {
+    int target =
+        collections.indexWhere((element) => element.id == collection.id);
     collections[target] = collection;
     collectionManager.updateCollection(collection);
     notifyListeners();
   }
+
   Future<int> checkForUpdates() async {
     print("--- CHECKING FOR UPDATE ---");
-    int updateCount = 0 ;
+    int updateCount = 0;
     List<Collection> uec =
         collections.where((element) => element.updateEnabled).toList();
 
-    if (uec.isEmpty)
-      return null;
+    if (uec.isEmpty) return null;
 
     for (Collection c in uec) {
       List<ComicCollection> d = comicCollections
           .where((element) => element.collectionId == c.id)
           .toList();
 
-      for (ComicCollection e in d){
+      for (ComicCollection e in d) {
         Comic comic = comics.firstWhere((element) => element.id == e.comicId);
         print(comic.title);
         // calculate if chapter count has increased
@@ -374,9 +393,8 @@ class DatabaseProvider with ChangeNotifier {
 
   updateHistory(int comicId, int chapterId) async {
     if (historyList.any((element) => element.comicId == comicId)) {
-
-      int targetIndex = historyList
-          .indexWhere((element) => element.comicId == comicId);
+      int targetIndex =
+          historyList.indexWhere((element) => element.comicId == comicId);
 
       historyList[targetIndex].chapterId = chapterId;
       historyList[targetIndex].lastRead = DateTime.now();

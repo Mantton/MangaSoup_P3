@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/ImageSearch.dart';
+import 'package:mangasoup_prototype_3/Screens/WebViews/mangadex_login.dart';
 import 'package:mangasoup_prototype_3/app/screens/browse/imgur_search.dart';
-import 'package:mangasoup_prototype_3/Screens/Settings/Settings.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/app/screens/settings/settings_home.dart';
 
 class MoreHomePage extends StatelessWidget {
   final List titles = [
     "Settings",
     "MangaDex Image Search",
     "Imgur Album",
+    "MangaDex Login"
   ];
   final List pages = [
-    SettingsPage(),
+    SettingsHome(),
     ImageSearchPage(),
     ImgurAlbumPage(),
+    MangaDexLogin()
   ];
   @override
   Widget build(BuildContext context) {

@@ -125,17 +125,19 @@ class ApiManager {
   /// Get Profile
   Future<Profile> getProfile(String source, String link) async {
     Map additionalParams = await prepareAdditionalInfo(source);
-
     if (source == "mangadex") return dex.profile(link, additionalParams);
     Map data = {"selector": source, "link": link, "data": additionalParams};
     try {
       Response response = await _dio.post('/api/v1/profile', data: data);
       debugPrint(
           "Retrieval Complete : /Profile : ${response.data['title']} @$source");
-
       return Profile.fromMap(response.data);
     } on DioError catch (e) {
-      throw e.response.data['detail'];
+
+      if (e.response.statusCode == 500)
+        throw "MangaSoup Server Error";
+      else
+        throw e.response.data['detail'];
     }
   }
 

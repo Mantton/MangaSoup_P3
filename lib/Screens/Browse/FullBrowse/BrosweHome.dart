@@ -9,7 +9,7 @@ import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Setting.dart';
 import 'package:mangasoup_prototype_3/Providers/BrowseProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
-import 'package:mangasoup_prototype_3/Screens/MangaDex/DexLogin.dart';
+import 'package:mangasoup_prototype_3/Screens/WebViews/mangadex_login.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:provider/provider.dart';
@@ -193,7 +193,7 @@ class _BrowsePageState extends State<BrowsePage> {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => MangadexLoginPage(),
+                          builder: (_) => MangaDexLogin(),
                           fullscreenDialog: true,
                         ),
                       );
