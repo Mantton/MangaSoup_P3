@@ -6,6 +6,7 @@ TextStyle def =
     TextStyle(color: Colors.white, fontSize: 18.sp, fontFamily: "Lato");
 
 TextStyle notInLibraryFont = TextStyle(fontSize: 20.sp, fontFamily: "Lato");
+TextStyle updateFont = TextStyle(fontSize: 25.sp, fontFamily: "Lato", fontWeight: FontWeight.bold);
 
 final textFieldStyle = TextStyle(
   height: 1.7,

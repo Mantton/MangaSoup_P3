@@ -43,7 +43,7 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
     if (comic != null) {
       // UPDATE VALUES HERE
       comic.thumbnail = profile.thumbnail;
-      comic.updateCount = profile.chapterCount ?? 0 - comic.updateCount;
+      comic.updateCount = 0;
       comic.chapterCount = profile.chapterCount ?? 0;
     } else
       comic = generated;

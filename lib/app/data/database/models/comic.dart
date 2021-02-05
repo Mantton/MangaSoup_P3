@@ -60,7 +60,7 @@ class Comic {
 
   ComicHighlight toHighlight() {
     return ComicHighlight(
-        title, link, thumbnail, sourceSelector, source, isNsfw, "");
+        title, link, thumbnail, sourceSelector, source, isNsfw, "",updateCount: updateCount);
   }
 
   // Create DB Injectable Map from Comic

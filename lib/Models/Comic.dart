@@ -1,8 +1,4 @@
 // Comic Highlight
-import 'dart:convert';
-
-import 'package:mangasoup_prototype_3/Models/Misc.dart';
-
 class ComicHighlight {
   String title;
   String thumbnail;
@@ -11,9 +7,10 @@ class ComicHighlight {
   String source;
   bool isHentai;
   String imageReferer;
+  int updateCount;
 
   ComicHighlight(
-      this.title, this.link, this.thumbnail, this.selector, this.source, this.isHentai, this.imageReferer);
+      this.title, this.link, this.thumbnail, this.selector, this.source, this.isHentai, this.imageReferer, {this.updateCount});
 
   Map<String, dynamic> toMap() {
     return {

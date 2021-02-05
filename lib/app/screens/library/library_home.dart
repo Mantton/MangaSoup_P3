@@ -8,6 +8,7 @@ import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/enums/collection_sort.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/libary_order.dart';
+import 'package:mangasoup_prototype_3/app/screens/library/library_collection_edit.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/library_search.dart';
 import 'package:provider/provider.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
@@ -96,7 +97,8 @@ class _LibraryHomeState extends State<LibraryHome> {
                     List.of(provider.getCollectionComics(collection.id));
 
                 // Sort
-                collectionComics = sortComicCollection(collection.librarySort, collectionComics);
+                collectionComics = sortComicCollection(
+                    collection.librarySort, collectionComics);
                 // Prepare Comics
                 return Stack(
                   children: <Widget>[
@@ -134,7 +136,15 @@ class _LibraryHomeState extends State<LibraryHome> {
                                             // size: 35,
                                           ),
                                         ),
-                                        onPressed: null,
+                                        onPressed: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => CollectionEdit(
+                                              collectionId: collection.id,
+                                            ),
+                                            fullscreenDialog: true,
+                                          ),
+                                        ),
                                       ),
                                       SizedBox(width: 5.w),
                                       IconButton(
