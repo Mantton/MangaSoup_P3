@@ -33,7 +33,7 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
     Comic generated = Comic(
         title: widget.highlight.title,
         link: widget.highlight.link,
-        thumbnail: widget.highlight.thumbnail,
+        thumbnail: profile.thumbnail,
         referer: widget.highlight.imageReferer,
         source: widget.highlight.source,
         sourceSelector: widget.highlight.selector,
