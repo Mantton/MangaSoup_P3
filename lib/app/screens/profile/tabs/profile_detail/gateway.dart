@@ -22,36 +22,8 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
   Future<Map<String, dynamic>> _profile;
 
   Future<Map<String, dynamic>> getProfile() async {
-    ApiManager _manager = ApiManager();
-
-    /// Get Profile
-    Profile profile = await _manager.getProfile(
-      widget.highlight.selector,
-      widget.highlight.link,
-    );
-
-    Comic generated = Comic(
-        title: widget.highlight.title,
-        link: widget.highlight.link,
-        thumbnail: profile.thumbnail,
-        referer: widget.highlight.imageReferer,
-        source: widget.highlight.source,
-        sourceSelector: widget.highlight.selector,
-        chapterCount: profile.chapterCount ?? 0);
-    Comic comic = Provider.of<DatabaseProvider>(context, listen: false)
-        .isComicSaved(generated);
-    if (comic != null) {
-      // UPDATE VALUES HERE
-      comic.thumbnail = profile.thumbnail;
-      comic.updateCount = 0;
-      comic.chapterCount = profile.chapterCount ?? 0;
-    } else
-      comic = generated;
-    // Evaluate
-    int _id = await Provider.of<DatabaseProvider>(context, listen: false)
-        .evaluate(comic);
-
-    return {"profile": profile, "id": _id};
+    return await Provider.of<DatabaseProvider>(context, listen: false)
+        .generate(widget.highlight);
   }
 
   @override

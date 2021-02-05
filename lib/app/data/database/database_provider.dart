@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
@@ -51,6 +52,38 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
+
+  // GENERATE COMIC
+  Future<Map<String, dynamic>>generate(ComicHighlight highlight) async {
+    ApiManager _manager = ApiManager();
+
+    /// Get Profile
+    Profile profile = await _manager.getProfile(
+      highlight.selector,
+      highlight.link,
+    );
+
+    Comic generated = Comic(
+        title: highlight.title,
+        link: highlight.link,
+        thumbnail: profile.thumbnail,
+        referer: highlight.imageReferer,
+        source: highlight.source,
+        sourceSelector: highlight.selector,
+        chapterCount: profile.chapterCount ?? 0);
+    Comic comic = isComicSaved(generated);
+    if (comic != null) {
+      // UPDATE VALUES HERE
+      comic.thumbnail = profile.thumbnail;
+      comic.updateCount = 0;
+      comic.chapterCount = profile.chapterCount ?? 0;
+    } else
+      comic = generated;
+    // Evaluate
+    int _id = await evaluate(comic);
+
+    return {"profile": profile, "id": _id};
+  }
   /// COMICS
   Future<int> evaluate(Comic comic) async {
     // Updates OR Adds comics to db

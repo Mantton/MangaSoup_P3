@@ -4,12 +4,17 @@ import 'dart:io';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
-import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/gateway.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
+import 'package:provider/provider.dart';
 
 class ImageSearchPage extends StatefulWidget {
   @override
@@ -85,7 +90,6 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
             ],
           ),
           SizedBox(
-
             height: 15.h,
           ),
           Center(
@@ -96,6 +100,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                     : () async {
                         setState(() {
                           results = _manager.imageSearch(_image);
+
                           /// Image Search
                         });
                       },
@@ -200,7 +205,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                                               style: def,
                                             ),
                                             Text(
-                                              "Written by ${searchResult.author}",
+                                              "Created by ${searchResult.author}",
                                               style: def,
                                             ),
                                           ],
@@ -229,8 +234,47 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                                         "Read Chapter",
                                         style: chapterTitleFont,
                                       ),
-                                      onPressed: () {
-                                        // todo, get profile link then push to reader
+                                      onPressed: () async {
+                                        showLoadingDialog(context);
+                                        try {
+                                          print(searchResult.chapterLink);
+                                          ComicHighlight comicHighlight =
+                                              await DexHub()
+                                                  .imageSearchViewComic(
+                                                      searchResult.mCID);
+                                          Map<String, dynamic> _data =
+                                              await Provider.of<
+                                                          DatabaseProvider>(
+                                                      context,
+                                                      listen: false)
+                                                  .generate(comicHighlight);
+                                          Profile profile = _data['profile'];
+                                          int _id = _data['id'];
+                                          print(profile.chapters[0].link);
+                                          int initialIndex = profile.chapters
+                                              .indexWhere((element) =>
+                                                  searchResult.chapterLink
+                                                      .contains(element.link));
+                                          Navigator.pop(context);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => ReaderHome(
+                                                chapters: profile.chapters,
+                                                initialChapterIndex:
+                                                    initialIndex,
+                                                comicId: _id,
+                                                selector: profile.selector,
+                                                source: profile.source,
+                                              ),
+                                            ),
+                                          );
+                                        } catch (err) {
+                                          print(err);
+                                          Navigator.pop(context);
+                                          showSnackBarMessage(
+                                              "An Error Occurred");
+                                        }
                                       },
                                     ),
                                     Spacer(),
@@ -241,19 +285,25 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                                         ),
                                         onPressed: () async {
                                           showLoadingDialog(context);
-                                          DexHub _dex = DexHub();
-                                          ComicHighlight comicHighlight =
-                                              await _dex.imageSearchViewComic(
-                                                  searchResult.mCID);
-                                          Navigator.pop(context);
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => ProfileGateWay(
-                                                comicHighlight,
+                                          try {
+                                            DexHub _dex = DexHub();
+                                            ComicHighlight comicHighlight =
+                                                await _dex.imageSearchViewComic(
+                                                    searchResult.mCID);
+                                            Navigator.pop(context);
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => ProfileHome(
+                                                  highlight: comicHighlight,
+                                                ),
                                               ),
-                                            ),
-                                          );
+                                            );
+                                          } catch (err) {
+                                            print(err);
+                                            showSnackBarMessage(
+                                                "An Error Occurred");
+                                          }
                                         })
                                   ],
                                 )
