@@ -27,7 +27,7 @@ class _ComicGridState extends State<ComicGrid> {
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: widget.crossAxisCount ?? 3,
             crossAxisSpacing: 10.w,
-            mainAxisSpacing: 10.w,
+            mainAxisSpacing: 15.w,
             childAspectRatio: 65 / 100),
         shrinkWrap: true,
         itemCount: widget.comics.length,
