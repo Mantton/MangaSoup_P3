@@ -40,6 +40,11 @@ class CollectionQuery {
     return collection;
   }
 
+  updateCollection(Collection collection) async {
+    await db.update(CollectionTable.TABLE, collection.toMap(),
+        where: "${CollectionTable.COL_ID} = ?", whereArgs: [collection.id]);
+  }
+
   Future<List<Collection>> reorderCollections(
       List<Collection> collections) async {
     // do order value setting in provider

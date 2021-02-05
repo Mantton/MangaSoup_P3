@@ -1,4 +1,3 @@
-import 'package:mangasoup_prototype_3/app/data/database/manager.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/comic_table.dart';
 import 'package:sqflite/sqflite.dart';
@@ -22,13 +21,20 @@ class ComicQuery {
 
   }
 
+  Future<Comic> getComic(int id )async{
+    List<Map> queryMaps = await db.query(ComicTable.TABLE, where: "$ComicTable.COL_ID = ?", whereArgs: [id] );
+    List<Comic> comics = queryMaps.map((map) => Comic.fromMap(map)).toList();
+    return comics.first;
+
+  }
+
   Future<Comic> addComic(Comic comic) async {
     comic.id = await db.insert(ComicTable.TABLE, comic.toMap());
     return comic;
   }
 
   Future<Comic> updateComic(Comic comic) async {
-    int updatedId =  await db
+    await db
         .update(ComicTable.TABLE, comic.toMap(), where: '${ComicTable.COL_ID} = ?', whereArgs: [comic.id]);
     return comic;
   }

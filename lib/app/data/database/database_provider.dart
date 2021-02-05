@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
@@ -33,7 +35,7 @@ class DatabaseProvider with ChangeNotifier {
 
   init() async {
     // Init Local DB
-    _db = await DatabaseTestManager.initDB();
+    _db = await DatabaseManager.initDB();
     comicManager = ComicQuery(_db);
     historyManager = HistoryQuery(_db);
     collectionManager = CollectionQuery(_db);
@@ -57,6 +59,7 @@ class DatabaseProvider with ChangeNotifier {
 
     if (retrieved == null) {
       // Save to Lib
+      comic.dateAdded = DateTime.now();
       comic = await comicManager.addComic(comic);
       comics.add(comic);
     } else {
@@ -71,13 +74,15 @@ class DatabaseProvider with ChangeNotifier {
   }
 
   List<Comic> searchLibrary(String query) {
-    return comics.where(
-      (element) =>
-          element.inLibrary &&
-          element.title.toLowerCase().startsWith(
-                query.toLowerCase(),
-              ),
-    ).toList();
+    return comics
+        .where(
+          (element) =>
+              element.inLibrary &&
+              element.title.toLowerCase().startsWith(
+                    query.toLowerCase(),
+                  ),
+        )
+        .toList();
   }
 
   Comic retrieveComic(int id) {
@@ -172,6 +177,7 @@ class DatabaseProvider with ChangeNotifier {
   batchSetComicCollection(List<Collection> collections, int comicId) async {
     await comicCollectionManager.setCollectionsNonBatch(collections, comicId);
     comicCollections = await comicCollectionManager.getAll();
+    notifyListeners();
   }
 
   /// Add to Library
@@ -210,6 +216,67 @@ class DatabaseProvider with ChangeNotifier {
     List<Comic> requiredComics =
         comics.where((element) => requiredIds.contains(element.id)).toList();
     return requiredComics;
+  }
+   toggleCollectionUpdate(Collection collection){
+    collection.updateEnabled = !collection.updateEnabled;
+
+    int target = collections.indexWhere((element) => element.id == collection.id);
+    collections[target] = collection;
+    collectionManager.updateCollection(collection);
+    notifyListeners();
+  }
+
+  updateCollection(Collection collection){
+    int target = collections.indexWhere((element) => element.id == collection.id);
+    collections[target] = collection;
+    collectionManager.updateCollection(collection);
+    notifyListeners();
+  }
+  Future<int> checkForUpdates() async {
+    print("--- CHECKING FOR UPDATE ---");
+    int updateCount = 0 ;
+    List<Collection> uec =
+        collections.where((element) => element.updateEnabled).toList();
+
+    if (uec.isEmpty)
+      return null;
+
+    for (Collection c in uec) {
+      List<ComicCollection> d = comicCollections
+          .where((element) => element.collectionId == c.id)
+          .toList();
+
+      for (ComicCollection e in d){
+        Comic comic = comics.firstWhere((element) => element.id == e.comicId);
+        print(comic.title);
+        // calculate if chapter count has increased
+        /// CHECK FOR UPDATE LOGIC
+        int currentChapterCount = comic.chapterCount;
+        // Get Profile of comic
+
+        try {
+          Profile profile =
+              await ApiManager().getProfile(comic.sourceSelector, comic.link);
+          int updatedChapterCount = profile.chapterCount;
+
+          // increase or do nothing about the updated count
+          /// UPDATE COUNT LOGIC
+          if (updatedChapterCount > currentChapterCount) {
+            updateCount++; // increase update count metric
+
+            // Update Comic Data
+            comic.chapterCount = updatedChapterCount;
+            comic.updateCount = updatedChapterCount - currentChapterCount;
+            await evaluate(comic);
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+    }
+    print("---DONE CHECKING FOR UPDATE---");
+    notifyListeners();
+    return updateCount;
   }
 
   ChapterData checkIfChapterMatch(Chapter chapter) {

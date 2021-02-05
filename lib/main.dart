@@ -4,18 +4,13 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart'
     show
-        CupertinoActionSheet,
-        CupertinoActionSheetAction,
-        CupertinoActivityIndicator,
         CupertinoDynamicColor,
-        CupertinoIcons,
         CupertinoThemeData,
         DefaultCupertinoLocalizations;
 import 'package:flutter/material.dart'
     show
         Colors,
         DefaultMaterialLocalizations,
-        Icons,
         Theme,
         ThemeData,
         ThemeMode;
@@ -61,7 +56,7 @@ void callbackDispatcher() {
     switch (task) {
       case simplePeriodicTask:
         print("Android BG Task Triggered");
-        updateCount = await _updateManger.checkForUpdate();
+        updateCount = await _updateManger.checkForUpdateBackGround();
         stderr.writeln("Check Complete");
 
         if (updateCount > 0) {
@@ -78,7 +73,7 @@ void callbackDispatcher() {
         if (connectivityResult == ConnectivityResult.mobile ||
             connectivityResult == ConnectivityResult.wifi) {
           // Only Check for updates with the user connected to a valid network
-          updateCount = await _updateManger.checkForUpdate();
+          updateCount = await _updateManger.checkForUpdateBackGround();
         }
         if (updateCount > 0) {
           if (updateCount == 1)

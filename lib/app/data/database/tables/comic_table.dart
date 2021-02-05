@@ -18,6 +18,8 @@ class ComicTable {
   static const COL_CHAPTER_COUNT = "chapter_count";
   static const COL_VIEW_MODE = "view_mode";
   static const COL_IS_NSFW = "nsfw";
+  static const COL_DATE_ADDED = "date_added";
+  static const COL_RATING = "rating";
 
 
   static String createTableQuery()=>
@@ -32,7 +34,9 @@ class ComicTable {
             $COL_CHAPTER_COUNT INTEGER NOT NULL,
             $COL_UPDATE_COUNT INTEGER NOT NULL,
             $COL_VIEW_MODE INTEGER NOT NULL,
-            $COL_IS_NSFW INTEGER NOT NULL
+            $COL_IS_NSFW INTEGER NOT NULL,
+            $COL_RATING INTEGER NOT NULL,
+            $COL_DATE_ADDED INTEGER NOT NULL
             )""";
 
 

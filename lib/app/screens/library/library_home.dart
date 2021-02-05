@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/enums/collection_sort.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/libary_order.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/library_search.dart';
 import 'package:provider/provider.dart';
@@ -36,9 +39,18 @@ class _LibraryHomeState extends State<LibraryHome> {
           title: Text("Library"),
           centerTitle: true,
           leading: IconButton(
-            icon: Icon(CupertinoIcons.refresh),
-            onPressed: null, // todo, check for updates
-          ),
+              icon: Icon(CupertinoIcons.refresh),
+              onPressed: () {
+                showSnackBarMessage("Checking for updates.");
+                provider.checkForUpdates().then((value) {
+                  if (value == null)
+                    showSnackBarMessage("No Update Enabled Collections.");
+                  else if (value == 0)
+                    showSnackBarMessage("No new Updates.");
+                  else
+                    showSnackBarMessage("$value new updates in your Library.");
+                });
+              }),
           actions: [
             IconButton(
               icon: Icon(CupertinoIcons.search),
@@ -81,7 +93,10 @@ class _LibraryHomeState extends State<LibraryHome> {
               (index) {
                 Collection collection = collections[index];
                 List<Comic> collectionComics =
-                    provider.getCollectionComics(collection.id);
+                    List.of(provider.getCollectionComics(collection.id));
+
+                // Sort
+                collectionComics = sortComicCollection(collection.librarySort, collectionComics);
                 // Prepare Comics
                 return Stack(
                   children: <Widget>[
@@ -104,10 +119,11 @@ class _LibraryHomeState extends State<LibraryHome> {
                                       Text(
                                         "${collectionComics.length} Comic${collectionComics.length > 1 || collectionComics.length == 0 ? "s" : ''} in Collection",
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.grey,
-                                            fontSize: 15.sp,
-                                            fontFamily: "lato"),
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey,
+                                          fontSize: 15.sp,
+                                          fontFamily: "lato",
+                                        ),
                                       ),
                                       Spacer(),
                                       IconButton(
@@ -135,18 +151,22 @@ class _LibraryHomeState extends State<LibraryHome> {
                                         color: collection.updateEnabled
                                             ? Colors.green
                                             : Colors.red,
-                                        onPressed: null,
+                                        onPressed: () => provider
+                                            .toggleCollectionUpdate(collection),
                                       ),
-                                      SizedBox(width: 10.w),
+                                      SizedBox(width: 5.w),
                                       InkWell(
                                         child: Text(
-                                          "Sort",
+                                          "Sort by\n${collectionSortNames[collection.librarySort]}",
                                           style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.grey,
-                                              fontSize: 17.sp,
-                                              fontFamily: "lato"),
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                            fontSize: 15.sp,
+                                            fontFamily: "lato",
+                                          ),
+                                          textAlign: TextAlign.center,
                                         ),
+                                        onTap: () => idg(collection, provider),
                                       )
                                     ],
                                   ),
@@ -190,4 +210,35 @@ class _LibraryHomeState extends State<LibraryHome> {
       ),
     );
   }
+
+  idg(Collection collection, DatabaseProvider provider) =>
+      showPlatformModalSheet(
+        context: context,
+        builder: (_) => PlatformWidget(
+          material: (_, __) => Column(
+            mainAxisSize: MainAxisSize.min,
+          ),
+          cupertino: (_, __) => CupertinoActionSheet(
+            title: Text("Collection Sort"),
+            cancelButton: CupertinoActionSheetAction(
+              child: Text("Cancel"),
+              isDestructiveAction: true,
+              onPressed: () => Navigator.pop(context),
+            ),
+            actions: List.generate(
+              Sort.values.length,
+              (index) => CupertinoActionSheetAction(
+                onPressed: () {
+                  collection.librarySort = index;
+                  provider.updateCollection(collection);
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  collectionSortNames[index],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
 }
