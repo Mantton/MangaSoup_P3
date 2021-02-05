@@ -8,7 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class MoreHomePage extends StatelessWidget {
   final List titles = [
     "Settings",
-    "Image Search",
+    "MangaDex Image Search",
     "Imgur Album",
   ];
   final List pages = [

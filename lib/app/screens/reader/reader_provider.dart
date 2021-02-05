@@ -55,8 +55,12 @@ class ReaderProvider with ChangeNotifier {
     Chapter chapter = incomingChapters.elementAt(initialIndex);
     imgur = imgurAlbum;
     if (!imgur)
-      await Provider.of<DatabaseProvider>(context, listen: false)
-          .historyLogic(chapter, comicId, source, selector);
+      {
+        await Provider.of<DatabaseProvider>(context, listen: false)
+            .historyLogic(chapter, comicId, source, selector);
+        print("History Initialized");
+      }
+
 
     // Initialize Reader Chapter
     ReaderChapter firstChapter = ReaderChapter();
