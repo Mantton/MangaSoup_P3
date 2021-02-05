@@ -61,7 +61,7 @@ class _LandingState extends State<Landing> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              (_index != 1) ? CupertinoIcons.heart : CupertinoIcons.heart_fill,
+              (_index != 1) ? CupertinoIcons.folder : CupertinoIcons.folder_fill,
             ),
             label: "Library",
           ),

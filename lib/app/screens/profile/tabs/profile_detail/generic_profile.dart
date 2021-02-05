@@ -6,6 +6,7 @@ import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/dialogs/comic_rating.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/tag_widget.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/widgets/content_preview.dart';
 import 'package:mangasoup_prototype_3/app/widgets/comic_collection_widget.dart';
@@ -62,7 +63,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                       CollectionStateWidget(
                         comicId: widget.comicId,
                       ),
-                      profileActionWidget(),
+                      profileActionWidget(comic),
                       profileBody(),
                       ProfileContentPreview(
                         profile: widget.profile,
@@ -192,9 +193,9 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
     );
   }
 
-  profileActionWidget() {
+  profileActionWidget(Comic comic) {
     List idk = List();
-    if (!widget.profile.containsBooks){
+    if (!widget.profile.containsBooks) {
       idk = widget.profile.chapters
           .map((e) => e.generatedNumber)
           .toSet()
@@ -209,7 +210,9 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
           actionButton(CupertinoIcons.play, "Read", null),
           Spacer(),
           actionButton(
-              widget.profile.containsBooks ?CupertinoIcons.collections  :CupertinoIcons.book ,
+              widget.profile.containsBooks
+                  ? CupertinoIcons.collections
+                  : CupertinoIcons.book,
               widget.profile.containsBooks
                   ? "${widget.profile.bookCount} ${widget.profile.bookCount > 1 ? "Books" : "Book"}"
                   : "${idk.length} ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}",
@@ -217,7 +220,50 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
           Spacer(),
           actionButton(CupertinoIcons.bookmark, "Bookmarks", null),
           Spacer(),
-          actionButton(CupertinoIcons.chart_bar_square, "Rate", null),
+
+          comic.rating == 0
+              ? Column(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        CupertinoIcons.chart_bar_square,
+                        color: Colors.purpleAccent,
+                      ),
+                      iconSize: 30.w,
+                      onPressed: () =>
+                          comicRatingDialog(context: context, comic: comic),
+                    ),
+                    Text(
+                      "Rate",
+                      textAlign: TextAlign.center,
+                      style: def,
+                    )
+                  ],
+                )
+              : InkWell(
+                  onTap: () =>
+                      comicRatingDialog(context: context, comic: comic),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "${comic.rating}/5",
+                        style: TextStyle(
+                          color: Colors.purple,
+                          fontSize: 30.sp,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10.h,
+                      ),
+                      Text(
+                        "Rating",
+                        textAlign: TextAlign.center,
+                        style: def,
+                      )
+                    ],
+                  ),
+                ),
           // Spacer()
         ],
       ),

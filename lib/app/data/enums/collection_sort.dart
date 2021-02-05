@@ -26,7 +26,7 @@ List<Comic>sortComicCollection(int sort, List<Comic> comics){
   else if (sort == Sort.chapter_count.index)
     comics.sort((a, b) => a.chapterCount.compareTo(b.chapterCount));
   else if (sort == Sort.rating.index)
-    comics.sort((a, b) => a.rating.compareTo(b.rating));
+    comics.sort((a, b) => b.rating.compareTo(a.rating));
   return comics;
 
 }
