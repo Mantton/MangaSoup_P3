@@ -40,8 +40,15 @@ class _HistoryHomeState extends State<HistoryHome> {
               sorted.sort((a, b) => a.lastRead.compareTo(b.lastRead));
               History history = sorted.reversed.toList()[index];
               Comic comic = provider.retrieveComic(history.comicId);
-              ChapterData chapter = provider.retrieveChapter(history.chapterId);
-              return Container(
+              ChapterData chapter;
+              try{
+                chapter = provider.retrieveChapter(history.chapterId);
+              }catch(E){
+
+              }
+              if (chapter == null)
+                return Container();
+              else return Container(
                 color:Color.fromRGBO(15, 15, 15, 1.0),
                 height: 110.h,
                 margin: EdgeInsets.only(bottom: 5.w),

@@ -373,13 +373,15 @@ class DatabaseProvider with ChangeNotifier {
   }
 
   updateHistory(int comicId, int chapterId) async {
-    History newHistory = History(comicId: comicId, chapterId: chapterId);
-
     if (historyList.any((element) => element.comicId == comicId)) {
-      historyList[historyList
-          .indexWhere((element) => element.comicId == comicId)] = newHistory;
-      await historyManager.updateHistory(historyList[
-          historyList.indexWhere((element) => element.comicId == comicId)]);
+
+      int targetIndex = historyList
+          .indexWhere((element) => element.comicId == comicId);
+
+      historyList[targetIndex].chapterId = chapterId;
+      historyList[targetIndex].lastRead = DateTime.now();
+
+      await historyManager.updateHistory(historyList[targetIndex]);
       // update
     } else {
       // add
