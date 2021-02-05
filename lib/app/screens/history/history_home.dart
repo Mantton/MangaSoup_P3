@@ -43,14 +43,14 @@ class _HistoryHomeState extends State<HistoryHome> {
               ChapterData chapter = provider.retrieveChapter(history.chapterId);
               return Container(
                 color:Color.fromRGBO(15, 15, 15, 1.0),
-                height: 100.h,
+                height: 110.h,
                 margin: EdgeInsets.only(bottom: 5.w),
                 padding: EdgeInsets.all(5.w),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 2,
+                      flex: 3,
                       child: Container(
                         child: Row(
                           children: [
@@ -62,6 +62,7 @@ class _HistoryHomeState extends State<HistoryHome> {
                         ),
                       ),
                     ),
+
                     Expanded(
                       flex: 7,
                       child: Container(
@@ -70,47 +71,41 @@ class _HistoryHomeState extends State<HistoryHome> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              flex: 4,
-                              child: AutoSizeText(
-                                comic.title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                minFontSize: 17.sp,
-                                style: TextStyle(
-                                  fontFamily: "lato",
-                                  fontSize: 20.sp,
-                                ),
+                            AutoSizeText(
+                              comic.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              minFontSize: 17.sp,
+                              style: TextStyle(
+                                fontFamily: "lato",
+                                fontSize: 20.sp,
                               ),
                             ),
 
-                            Flexible(
-                              flex:6,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  AutoSizeText(
-                                    "Chapter ${chapter.generatedChapterNumber}${chapter.lastPageRead == null || chapter.lastPageRead == 0 ? "" : ", Page ${chapter.lastPageRead}"}",
-                                    style: TextStyle(color: Colors.blueGrey, fontSize: 15.sp),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AutoSizeText(
+                                  "Chapter ${chapter.generatedChapterNumber}${chapter.lastPageRead == null || chapter.lastPageRead == 0 ? "" : ", Page ${chapter.lastPageRead}"}",
+                                  style: TextStyle(color: Colors.blueGrey, fontSize: 15.sp),
+                                ),
+                                AutoSizeText(
+                                  comic.source,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: "lato",
+                                    fontSize: 15.sp,
                                   ),
-                                  AutoSizeText(
-                                    comic.source,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontFamily: "lato",
-                                      fontSize: 15.sp,
-                                    ),
+                                ),
+                                AutoSizeText(
+                                  DateFormat('yyyy-MM-dd')
+                                      .format(history.lastRead),
+                                  style: TextStyle(
+                                    color: Colors.grey[800],
                                   ),
-                                  AutoSizeText(
-                                    DateFormat('yyyy-MM-dd')
-                                        .format(history.lastRead),
-                                    style: TextStyle(
-                                      color: Colors.grey[800],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
