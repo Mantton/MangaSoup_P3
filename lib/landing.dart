@@ -10,11 +10,12 @@ class Landing extends StatefulWidget {
   _LandingState createState() => _LandingState();
 }
 
-class _LandingState extends State<Landing> {
+class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin{
   int _index = 0;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       body: IndexedStack(
         index: _index,
@@ -87,4 +88,7 @@ class _LandingState extends State<Landing> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

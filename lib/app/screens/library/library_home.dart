@@ -19,9 +19,10 @@ class LibraryHome extends StatefulWidget {
   _LibraryHomeState createState() => _LibraryHomeState();
 }
 
-class _LibraryHomeState extends State<LibraryHome> {
+class _LibraryHomeState extends State<LibraryHome> with AutomaticKeepAliveClientMixin{
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer<DatabaseProvider>(
         builder: (BuildContext context, provider, _) =>
             (provider.collections.length > 1)
@@ -251,4 +252,7 @@ class _LibraryHomeState extends State<LibraryHome> {
           ),
         ),
       );
+
+  @override
+  bool get wantKeepAlive => true;
 }
