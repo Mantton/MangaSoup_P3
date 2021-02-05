@@ -170,8 +170,8 @@ class ApiManager {
   }
 
   /// Get Tag Comics
-  Future<List<ComicHighlight>> getTagComics(String source, int page,
-      String link, String sort) async {
+  Future<List<ComicHighlight>> getTagComics(
+      String source, int page, String link, String sort) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     if (source == "mangadex")
       return dex.getTagComics(sort, page, link, additionalParams);
@@ -250,7 +250,7 @@ class ApiManager {
     return isrResults;
   }
 
-  Future<List> getImgurAlbum(String info) async {
+  Future<Map> getImgurAlbum(String info) async {
     String albumID;
 
     // Link
@@ -267,24 +267,29 @@ class ApiManager {
     // Use Imgur API
     albumID = albumID.trim();
     try {
-      Response response = await _dio.get(
-        "https://api.imgur.com/3/album/$albumID/images",
+
+      Response albumDetails = await _dio.get(
+        "https://api.imgur.com/3/album/$albumID",
         options: Options(
           headers: {"Authorization": "Client-ID d50a5c2ba38acd4"},
         ),
       );
-      // Process data
-
-      List _imgAttr = response.data['data'];
+      String title = albumDetails.data["data"]['title'];
       List images = [];
-      for (int i = 0; i < _imgAttr.length; i++) {
-        images.add(_imgAttr[i]["link"]);
+
+      for (Map map in albumDetails.data['data']['images']) {
+        images.add(map['link']);
       }
-      print(images);
-      return images;
+
+      // Process data
+      return {
+        "title": title,
+        "images": images,
+        "link": "https://api.imgur.com/3/album/$albumID"
+      };
     } catch (e) {
       print(e);
-      return null;
+      return {"title": "", "images": []};
     }
   }
 }

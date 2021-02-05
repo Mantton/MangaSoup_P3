@@ -6,7 +6,6 @@ import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
-import 'package:mangasoup_prototype_3/app/screens/reader/paged_reader/paged_view_holder.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_view_holder.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reached_end_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reader_transition_page.dart';
@@ -41,6 +40,7 @@ class ReaderProvider with ChangeNotifier {
       int comic_id,
       String incomingSource,
       {bool loaded = false,
+        bool imgur = false,
       ImageChapter loadedChapter}) async {
     reset();
     // Create Starting values
@@ -53,8 +53,9 @@ class ReaderProvider with ChangeNotifier {
     // Get Chapter being pointed to
     Chapter chapter = incomingChapters.elementAt(initialIndex);
 
-    await Provider.of<DatabaseProvider>(context, listen: false)
-        .historyLogic(chapter, comicId, source, selector);
+    if (!imgur)
+      await Provider.of<DatabaseProvider>(context, listen: false)
+          .historyLogic(chapter, comicId, source, selector);
 
     // Initialize Reader Chapter
     ReaderChapter firstChapter = ReaderChapter();

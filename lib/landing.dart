@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Screens/More/MoreHomePage.dart';
 import 'package:mangasoup_prototype_3/app/screens/history/history_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/library_home.dart';
+import 'package:mangasoup_prototype_3/app/screens/more/more_home.dart';
 import 'Screens/Explore/Home.dart';
 
 class Landing extends StatefulWidget {
@@ -34,7 +34,7 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin{
             // push to general discussions page
           ),
           Container(
-            child: MorePage(), // More
+            child: MoreHomePage(), // More
           )
         ],
       ),

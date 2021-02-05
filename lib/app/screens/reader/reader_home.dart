@@ -4,7 +4,6 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
-import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_page_adapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/viewer_gateway.dart';
 import 'package:provider/provider.dart';
 
@@ -16,6 +15,7 @@ class ReaderHome extends StatefulWidget {
   final int comicId;
   final bool preloaded;
   final ImageChapter preloadedChapter;
+  final bool imgur;
 
   const ReaderHome({
     Key key,
@@ -26,6 +26,7 @@ class ReaderHome extends StatefulWidget {
     this.comicId,
     this.preloaded = false,
     this.preloadedChapter,
+    this.imgur = false,
   }) : super(key: key);
 
   @override
@@ -39,7 +40,7 @@ class _ReaderHomeState extends State<ReaderHome> {
     providerInitializer = Provider.of<ReaderProvider>(context, listen: false)
         .init(widget.chapters, widget.initialChapterIndex, widget.selector,
         context, widget.comicId, widget.source, loaded: widget.preloaded,
-        loadedChapter: widget.preloadedChapter);
+        loadedChapter: widget.preloadedChapter, imgur: widget.imgur);
     super.initState();
   }
 
