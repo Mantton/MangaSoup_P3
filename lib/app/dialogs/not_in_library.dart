@@ -9,14 +9,14 @@ import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/widgets/textfields.dart';
 import 'package:provider/provider.dart';
 
-notInLibraryDialog({@required BuildContext context, int comicId}) {
+libraryDialog({@required BuildContext context, int comicId}) {
   showGeneralDialog(
     barrierLabel: "Not In Library",
     barrierDismissible: true,
     barrierColor: Colors.black.withOpacity(0.5),
     transitionDuration: Duration(milliseconds: 70),
     context: context,
-    pageBuilder: (_, __, ___) => buildNotInLibraryDialog(context, comicId),
+    pageBuilder: (_, __, ___) => buildLibraryDialog(context, comicId),
     transitionBuilder: (_, anim, __, child) {
       return SlideTransition(
         position: Tween(begin: Offset(0, 1), end: Offset(0, 0)).animate(anim),
@@ -50,7 +50,7 @@ createCollectionBuilder(BuildContext context) => Dialog(
       ),
       child: CreateCollectionWidget(),
     );
-buildNotInLibraryDialog(BuildContext context, int comicId) => Dialog(
+buildLibraryDialog(BuildContext context, int comicId) => Dialog(
       backgroundColor: Colors.grey[900], //blue for testing, change to black
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
@@ -94,139 +94,142 @@ class _AddToLibraryState extends State<AddToLibrary> {
   Widget build(BuildContext context) {
     return Consumer<DatabaseProvider>(
         builder: (BuildContext context, provider, _) {
-      if (provider.collections.length > 1) {
-        List<Collection> collections = List.of(provider.collections);
-        collections.removeWhere(
-            (element) => element.order == 0); // Remove default collection
-        return SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                child: Padding(
-                  padding: EdgeInsets.all(10.0.w),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Library",
+      List<Collection> collections = List.of(provider.collections);
+      if (collections.length >= 1) {
+        // Remove default collection
+        collections.removeWhere((element) => element.order == 0);
+      }
+      return SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              child: Padding(
+                padding: EdgeInsets.all(10.0.w),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Library",
+                      style: TextStyle(
+                          fontFamily: "roboto",
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                    SizedBox(height: 5.h),
+                    Container(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List<Widget>.generate(
+                          collections.length,
+                          (index) => ListTile(
+                            selected: _selectedCollections
+                                .contains(collections[index]),
+                            selectedTileColor: Colors.grey[800],
+                            leading: Icon(
+                              _selectedCollections.contains(collections[index])
+                                  ? Icons.check_box_outlined
+                                  : Icons.check_box_outline_blank,
+                              color: Colors.white,
+                            ),
+                            title: Text(
+                              collections[index].name,
+                              style: TextStyle(
+                                fontFamily: "Lato",
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                            onTap: () {
+                              toggleSelection(collections[index]);
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    ListTile(
+                      title: Text(
+                        "Create New Collection",
                         style: TextStyle(
-                            fontFamily: "roboto",
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey),
-                      ),
-                      SizedBox(height: 5.h),
-                      Container(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: List<Widget>.generate(
-                            collections.length,
-                            (index) => ListTile(
-                              selected: _selectedCollections
-                                  .contains(collections[index]),
-                              selectedTileColor: Colors.grey[800],
-                              leading: Icon(
-                                _selectedCollections.contains(collections[index])
-                                    ? Icons.check_box_outlined
-                                    : Icons.check_box_outline_blank,
-                                color: Colors.white,
-                              ),
-                              title: Text(
-                                collections[index].name,
-                                style: TextStyle(
-                                  fontFamily: "Lato",
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              onTap: () {
-                                toggleSelection(collections[index]);
-                              },
-                            ),
-                          ),
+                          fontFamily: "Lato",
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.lightBlueAccent,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      ListTile(
-                        title: Text(
-                          "Create New Collection",
-                          style: TextStyle(
-                            fontFamily: "Lato",
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.lightBlueAccent,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                          createCollectionDialog(context: context);
-                        },
-                      ),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 15.w, right: 15.w),
-                        child: Row(
-                          children: [
-                            FlatButton(
-                              child: Text(
-                                "Cancel",
-                                style: createCancelStyle,
-                                textAlign: TextAlign.center,
-                              ),
-                              onPressed: () => Navigator.pop(context),
+                      onTap: () {
+                        // Navigator.pop(context);
+                        createCollectionDialog(context: context);
+                      },
+                    ),
+                    SizedBox(
+                      height: 10.h,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 15.w, right: 15.w),
+                      child: Row(
+                        children: [
+                          FlatButton(
+                            child: Text(
+                              "Cancel",
+                              style: createCancelStyle,
+                              textAlign: TextAlign.center,
                             ),
-                            Spacer(),
-                            FlatButton(
-                              disabledColor: Colors.grey[900],
-                              child: Text(
-                                (_selectedCollections.isNotEmpty)
-                                    ? "Confirm"
-                                    : (initialCount > 0)
-                                        ? "Remove from Library"
-                                        : "",
-                                style: createCancelStyle,
-                                textAlign: TextAlign.center,
-                              ),
-                              onPressed: (_selectedCollections.isNotEmpty)
-                                  ? () async {
-                                      Navigator.pop(context);
-                                      showLoadingDialog(context);
-                                      await provider.addToLibrary(
-                                          _selectedCollections, widget.comicId);
-                                      Navigator.pop(context);
-                                    }
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          Spacer(),
+                          FlatButton(
+                            disabledColor: Colors.grey[900],
+                            child: Text(
+                              (_selectedCollections.isNotEmpty)
+                                  ? "Confirm"
                                   : (initialCount > 0)
-                                      ? () async {
-                                          Navigator.pop(context);
-                                          showLoadingDialog(context);
-                                          await provider.addToLibrary(
-                                              _selectedCollections,
-                                              widget.comicId,
-                                              remove: true);
-                                          Navigator.pop(context);
-                                        }
-                                      : null,
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
+                                      ? "Remove from Library"
+                                      : "",
+                              style: createCancelStyle,
+                              textAlign: TextAlign.center,
+                            ),
+                            onPressed: (_selectedCollections.isNotEmpty)
+                                ? () async {
+                                    Navigator.pop(context);
+                                    showLoadingDialog(context);
+                                    await provider.addToLibrary(
+                                        _selectedCollections, widget.comicId);
+                                    Navigator.pop(context);
+                                  }
+                                : (initialCount > 0)
+                                    ? () async {
+                                        Navigator.pop(context);
+                                        showLoadingDialog(context);
+                                        await provider.addToLibrary(
+                                            _selectedCollections,
+                                            widget.comicId,
+                                            remove: true);
+                                        Navigator.pop(context);
+                                      }
+                                    : null,
+                          )
+                        ],
+                      ),
+                    )
+                  ],
                 ),
               ),
-            ],
-          ),
-        );
-      } else
-        return CreateCollectionWidget();
+            ),
+          ],
+        ),
+      );
     });
   }
 }
 
 class CreateCollectionWidget extends StatefulWidget {
+  final bool initialCreate;
+
+  const CreateCollectionWidget({Key key, this.initialCreate = false})
+      : super(key: key);
   @override
   _CreateCollectionWidgetState createState() => _CreateCollectionWidgetState();
 }
@@ -302,7 +305,8 @@ class _CreateCollectionWidgetState extends State<CreateCollectionWidget> {
                     children: [
                       TextFormField(
                         controller: _textController,
-                        decoration: mangasoupInputDecoration("Enter Collection Name"),
+                        decoration:
+                            mangasoupInputDecoration("Enter Collection Name"),
                         cursorColor: Colors.grey,
                         maxLines: 1,
                         style: textFieldStyle,

@@ -7,7 +7,7 @@ import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:mangasoup_prototype_3/app/util/generateChapterNumber.dart';
-import '../../../Globals.dart';
+import 'package:mangasoup_prototype_3/app/widgets/textfields.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 
 class ImgurAlbumPage extends StatefulWidget {
@@ -33,7 +33,7 @@ class _ImgurAlbumPageState extends State<ImgurAlbumPage> {
             Padding(
               padding: EdgeInsets.all(8.w),
               child: TextField(
-                decoration: msTextField,
+                decoration: mangasoupInputDecoration("Enter Album/Gallery Link or ID"),
                 cursorColor: Colors.grey,
                 maxLines: 1,
                 style: TextStyle(

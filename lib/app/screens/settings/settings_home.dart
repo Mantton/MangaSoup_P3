@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Screens/Settings/Settings.dart';
+import 'package:mangasoup_prototype_3/Screens/Settings/source_setting.dart';
 
 class SettingsHome extends StatefulWidget {
   @override

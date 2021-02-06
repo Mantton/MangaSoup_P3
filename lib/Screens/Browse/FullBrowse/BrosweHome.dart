@@ -50,7 +50,7 @@ class _BrowsePageState extends State<BrowsePage> {
   Future<bool> start() async {
     if (Provider.of<SourceNotifier>(context, listen: false).source.filters !=
         null) {
-      Provider.of<BrowseProvider>(context, listen: false).init(
+      await Provider.of<BrowseProvider>(context, listen: false).init(
           Provider.of<SourceNotifier>(context, listen: false).source.filters);
     }
     return true;
@@ -67,66 +67,62 @@ class _BrowsePageState extends State<BrowsePage> {
             IconButton(icon: Icon(Icons.filter_alt), onPressed: showFilters)
           ],
         ),
-        body: FutureBuilder(
-          future: init,
-          builder: (_, snapshot) {
-            if (snapshot.hasData) {
-              return Consumer<SourceNotifier>(
-                builder: (context, provider, _) => Container(
-                  child: (provider.source.filters != null)
-                      ? Container(
-                          child: skeleton(provider.source.filters),
-                        )
-                      : Container(
-                          child: Center(
-                            child: Text(
-                              "This Source does not support the browse feature",
+        body: Center(
+          child: FutureBuilder(
+            future: init,
+            builder: (_, snapshot) {
+              if (snapshot.hasData) {
+                return Consumer<SourceNotifier>(
+                  builder: (context, provider, _) => Container(
+                    child: (provider.source.filters != null)
+                        ? Container(
+                            child: skeleton(provider.source.filters),
+                          )
+                        : Container(
+                            child: Center(
+                              child: Text(
+                                "This Source does not support the browse feature",
+                              ),
                             ),
                           ),
-                        ),
-                ),
-              );
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Container(
-                child: Center(
-                  child: Column(
-                    children: [
-                      Image.asset("Assets/More/loading.gif"),
-                      SizedBox(height: 10.h),
-                      LoadingIndicator(),
-                    ],
                   ),
-                ),
-              );
-            }
-            if (snapshot.hasError) {
-              return Container(
-                child: Center(
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        results = getResults();
-                      });
-                    },
-                    child: Text(
-                      "An Error Occurred \n ${snapshot.error} \n Tap to Retry",
-                      textAlign: TextAlign.center,
+                );
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: Container(
+                    child: LoadingIndicator(),
+                  ),
+                );
+              }
+              if (snapshot.hasError) {
+                return Container(
+                  child: Center(
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          results = getResults();
+                        });
+                      },
+                      child: Text(
+                        "An Error Occurred \n ${snapshot.error} \n Tap to Retry",
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                ),
-              );
-            } else {
-              return Container(
-                child: Center(
-                  child: Text(
-                    "Awaiting Filter Selection",
-                    style: isEmptyFont,
+                );
+              } else {
+                return Container(
+                  child: Center(
+                    child: Text(
+                      "Awaiting Filter Selection",
+                      style: isEmptyFont,
+                    ),
                   ),
-                ),
-              );
-            }
-          },
+                );
+              }
+            },
+          ),
         ));
   }
 
@@ -169,16 +165,8 @@ class _BrowsePageState extends State<BrowsePage> {
         future: results,
         builder: (_, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Container(
-              child: Center(
-                child: Column(
-                  children: [
-                    Image.asset("Assets/More/loading.gif"),
-                    SizedBox(height: 10.h),
-                    LoadingIndicator(),
-                  ],
-                ),
-              ),
+            return Center(
+              child: LoadingIndicator(),
             );
           }
           if (snapshot.hasError) {
@@ -242,89 +230,90 @@ class _BrowsePageState extends State<BrowsePage> {
   }
 
   buildFilters() => Dialog(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: Color.fromRGBO(10, 10, 10, 1.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0),
         ),
-        child: Container(
-          height: 500.h,
-          child: Padding(
-            padding: EdgeInsets.all(17.0.w),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+        child: Padding(
+          padding: EdgeInsets.all(10.0.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          "Filters",
-                          style: TextStyle(fontFamily: "Roboto", fontSize: 30.sp),
-                        ),
-                        Spacer(),
-                        IconButton(
-                          icon: Icon(
-                            Icons.cancel_outlined,
-                            size: 30.w,
-                            color: Colors.red,
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                        )
-                      ],
+                  Text(
+                    "Filters",
+                    style: TextStyle(fontFamily: "Roboto", fontSize: 30.sp),
+                  ),
+                  Spacer(),
+                  IconButton(
+                    icon: Icon(
+                      Icons.cancel_outlined,
+                      size: 30.w,
+                      color: Colors.red,
                     ),
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  Column(
-                    children: [
-                      Column(
-                        children: List.generate(
-                          Provider.of<SourceNotifier>(context)
-                              .source
-                              .filters
-                              .length,
-                          (index) => TesterFilter(
-                            filter: SourceSetting.fromMap(
-                                Provider.of<SourceNotifier>(context)
-                                    .source
-                                    .filters[index]),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 15.h,
-                      ),
-                      MaterialButton(
-                        height: 50.h,
-                        minWidth: 100.w,
-                        onPressed: () {
-                          Navigator.pop(context);
-                          queryMap =
-                              Provider.of<BrowseProvider>(context, listen: false)
-                                  .encodedData;
-                          print(queryMap);
-                          // API SEARCH
-                          setState(() {
-                            results = getResults();
-                            filters = false;
-                          });
-                        },
-                        child: Text(
-                          "Browse",
-                          style: isEmptyFont,
-                        ),
-                        color: Colors.deepPurpleAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ],
+                    onPressed: () => Navigator.pop(context),
                   )
                 ],
               ),
-            ),
+              SizedBox(
+                height: 20.h,
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+
+                    children: List.generate(
+                      Provider.of<SourceNotifier>(context)
+                          .source
+                          .filters
+                          .length,
+                      (index) => TesterFilter(
+                        filter: SourceSetting.fromMap(
+                          Provider.of<SourceNotifier>(context)
+                              .source
+                              .filters[index],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 5.h,
+                  ),
+                  Padding(
+                    padding:  EdgeInsets.all(8.0.w),
+                    child: MaterialButton(
+                      height: 50.h,
+                      minWidth: 100.w,
+                      onPressed: () {
+                        Navigator.pop(context);
+                        queryMap =
+                            Provider.of<BrowseProvider>(context, listen: false)
+                                .encodedData;
+                        print(queryMap);
+                        // API SEARCH
+                        setState(() {
+                          results = getResults();
+                          filters = false;
+                        });
+                      },
+                      child: Text(
+                        "Browse",
+                        style: isEmptyFont,
+                      ),
+                      color: Colors.deepPurpleAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ],
           ),
         ),
       );

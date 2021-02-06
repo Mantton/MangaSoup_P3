@@ -29,7 +29,7 @@ class _CollectionStateWidgetState extends State<CollectionStateWidget> {
   );
 
   Widget inLibrary(Comic comic) => InkWell(
-    onTap: () => notInLibraryDialog(context: context, comicId: comic.id),
+    onTap: () => libraryDialog(context: context, comicId: comic.id),
     child: Container(
       margin: EdgeInsets.only(left: 10.w),
       height: 50.h,
@@ -60,7 +60,7 @@ class _CollectionStateWidgetState extends State<CollectionStateWidget> {
     ),
   );
   Widget notInLibrary(Comic comic) => InkWell(
-    onTap: () => notInLibraryDialog(context: context, comicId: comic.id),
+    onTap: () => libraryDialog(context: context, comicId: comic.id),
     child: Container(
       margin: EdgeInsets.only(left: 10),
       height: 50.h,
