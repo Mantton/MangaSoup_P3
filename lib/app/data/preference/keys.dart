@@ -6,5 +6,6 @@ class PreferenceKeys {
   static const MANGA_ORIENTATION =
       "manga_mode_orientation"; // Vertical or Horizontal
   static const MANGA_PADDING = "manga_mode_padding"; // True or False
+  static const MANGADEX_PROFILE = "mangadex_profile"; // Json Object
 
 }

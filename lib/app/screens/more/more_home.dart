@@ -10,7 +10,7 @@ class MoreHomePage extends StatelessWidget {
   final List titles = [
     "Settings",
     "MangaDex Image Search",
-    "Imgur Album",
+    "Imgur Album Search",
     "MangaDex Login"
   ];
   final List pages = [

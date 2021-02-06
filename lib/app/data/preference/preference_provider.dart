@@ -1,12 +1,18 @@
 
 
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceProvider with ChangeNotifier{
-
+  SharedPreferences _prefs;
   // Init at launch
 
-  void init(){
+  Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+
+  setMangadexProfile(){
 
   }
 }

@@ -4,6 +4,7 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Screens/WebViews/chapter_webview.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/viewer_gateway.dart';
 import 'package:provider/provider.dart';
@@ -41,6 +42,7 @@ class _ReaderHomeState extends State<ReaderHome> {
   Widget build(BuildContext context) {
     Chapter target = widget.chapters[widget.initialChapterIndex];
     if (target.openInBrowser) {
+      Provider.of<DatabaseProvider>(context, listen: false).historyLogic(target, widget.comicId, widget.source, widget.selector);
       return ChapterWebView(url: target.link);
     } else {
       return ReaderOpener(
