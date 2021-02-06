@@ -11,6 +11,9 @@ import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:html_unescape/html_unescape.dart';
+import 'package:mangasoup_prototype_3/app/data/mangadex/models/mangadex_profile.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DexHub {
   final String baseURL = "https://mangadex.org";
@@ -391,7 +394,6 @@ class DexHub {
     String url = baseURL + '/search';
     Dio _dio = Dio();
 
-    print(prepareHeaders(additionalInfo));
     try {
       Response response = await _dio.get(
         url,
@@ -401,7 +403,6 @@ class DexHub {
       );
 
       // print(response.headers);
-      print(response.data);
       var document = parse(response.data);
       var comics = document
           .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
@@ -498,5 +499,36 @@ class DexHub {
     // queryParameters: params,
     //
     // options: Options(headers: prepareHeaders(additionalInfo)),
+  }
+
+  Future<DexProfile> setUserProfile(Map additionalInfo) async {
+    Response response = await Dio().get(
+      apiV2URL + "/user/me",
+      options: Options(headers: prepareHeaders(additionalInfo)),
+    );
+    DexProfile userProfile = DexProfile.fromMap(response.data["data"]);
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+
+    await _prefs.setString(
+      PreferenceKeys.MANGADEX_PROFILE,
+      jsonEncode(
+        userProfile.toMap(),
+      ),
+    );
+    return userProfile;
+  }
+
+  Future<List<ComicHighlight>> getUserLibrary(Map additionalInfo) async{
+    Response response = await Dio().get(
+      apiV2URL + "/user/me/followed-manga",
+      options: Options(headers: prepareHeaders(additionalInfo)),
+    );
+    
+    List data = response.data['data'];
+    List<ComicHighlight> comics = List();
+    for (Map d in data){
+      comics.add(ComicHighlight.fromMangaDex(d));
+    }
+    return comics;
   }
 }

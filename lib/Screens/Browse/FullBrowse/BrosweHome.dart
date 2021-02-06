@@ -46,6 +46,7 @@ class _BrowsePageState extends State<BrowsePage> {
   }
 
   Future<bool> init;
+  bool enabled = false;
 
   Future<bool> start() async {
     if (Provider.of<SourceNotifier>(context, listen: false).source.filters !=
@@ -53,6 +54,7 @@ class _BrowsePageState extends State<BrowsePage> {
       await Provider.of<BrowseProvider>(context, listen: false).init(
           Provider.of<SourceNotifier>(context, listen: false).source.filters);
     }
+
     return true;
   }
 
@@ -64,7 +66,15 @@ class _BrowsePageState extends State<BrowsePage> {
           title: Text("Browse"),
           centerTitle: true,
           actions: [
-            IconButton(icon: Icon(Icons.filter_alt), onPressed: showFilters)
+            IconButton(
+              icon: Icon(Icons.filter_alt),
+              onPressed: Provider.of<SourceNotifier>(context, listen: false)
+                          .source
+                          .filters !=
+                      null
+                  ? showFilters
+                  : null,
+            ),
           ],
         ),
         body: Center(
@@ -262,11 +272,9 @@ class _BrowsePageState extends State<BrowsePage> {
               ),
               Column(
                 mainAxisSize: MainAxisSize.min,
-
                 children: [
                   Column(
                     mainAxisSize: MainAxisSize.min,
-
                     children: List.generate(
                       Provider.of<SourceNotifier>(context)
                           .source
@@ -285,7 +293,7 @@ class _BrowsePageState extends State<BrowsePage> {
                     height: 5.h,
                   ),
                   Padding(
-                    padding:  EdgeInsets.all(8.0.w),
+                    padding: EdgeInsets.all(8.0.w),
                     child: MaterialButton(
                       height: 50.h,
                       minWidth: 100.w,

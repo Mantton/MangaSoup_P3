@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/ImageSearch.dart';
-import 'package:mangasoup_prototype_3/Screens/WebViews/mangadex_login.dart';
 import 'package:mangasoup_prototype_3/app/screens/browse/imgur_search.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/app/screens/mangadex/mangadex_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/settings/settings_home.dart';
 
 class MoreHomePage extends StatelessWidget {
@@ -11,13 +11,13 @@ class MoreHomePage extends StatelessWidget {
     "Settings",
     "MangaDex Image Search",
     "Imgur Album Search",
-    "MangaDex Login"
+    "MangaDex Home"
   ];
   final List pages = [
     SettingsHome(),
     ImageSearchPage(),
     ImgurAlbumPage(),
-    MangaDexLogin()
+    DexHubHome()
   ];
   @override
   Widget build(BuildContext context) {

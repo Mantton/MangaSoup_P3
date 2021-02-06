@@ -100,7 +100,7 @@ class DatabaseProvider with ChangeNotifier {
   }
 
   /// COMICS
-  Future<int> evaluate(Comic comic) async {
+  Future<int> evaluate(Comic comic, {bool overWriteChapterCount=true}) async {
     // Updates OR Adds comics to db
 
     Comic retrieved = isComicSaved(comic);
@@ -113,12 +113,14 @@ class DatabaseProvider with ChangeNotifier {
     } else {
       // Update Comic Details
       comic.id = retrieved.id;
+      comic.dateAdded = retrieved.dateAdded;
+      if (!overWriteChapterCount)
+        comic.chapterCount = retrieved.chapterCount;
       await comicManager.updateComic(comic);
       int index = comics.indexOf(retrieved);
       comics[index] = comic;
     }
     notifyListeners();
-    print(comic.thumbnail);
     return comic.id;
   }
 
@@ -214,7 +216,7 @@ class DatabaseProvider with ChangeNotifier {
   }
 
   Future<Collection> createCollection(String collectionName) async {
-    Collection newCollection = Collection(name: collectionName);
+    Collection newCollection = Collection(name: collectionName.trim());
     newCollection.order = collections.length;
     newCollection = await collectionManager.addCollection(newCollection);
     collections.add(newCollection);

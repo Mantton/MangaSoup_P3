@@ -10,6 +10,7 @@ import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
+import 'package:mangasoup_prototype_3/app/data/mangadex/models/mangadex_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiManager {
@@ -234,6 +235,15 @@ class ApiManager {
     return comics;
   }
 
+  Future<DexProfile> getMangadexProfile()async{
+    Map additionalParams = await prepareAdditionalInfo("mangadex");
+    return DexHub().setUserProfile(additionalParams);
+  }
+
+  Future<List<ComicHighlight>> getMangaDexUserLibrary()async{
+    Map additionalParams = await prepareAdditionalInfo("mangadex");
+    return DexHub().getUserLibrary(additionalParams);
+  }
   Future<List<ImageSearchResult>> imageSearch(File image) async {
     debugPrint("${image.path}");
     FormData _data = FormData.fromMap({
