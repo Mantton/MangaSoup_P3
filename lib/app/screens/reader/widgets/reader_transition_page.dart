@@ -56,7 +56,10 @@ class TransitionPage extends StatelessWidget {
           (next.generatedNumber - current.generatedNumber > 1)
               ? Row(
                   children: [
-                    Icon(Icons.error_outline),
+                    Icon(
+                      Icons.error_outline,
+                      color: Colors.purple,
+                    ),
                     SizedBox(
                       width: 10.w,
                     ),

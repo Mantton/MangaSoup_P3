@@ -23,7 +23,7 @@ import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/BrowseProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
-import 'package:mangasoup_prototype_3/Services/test_preference.dart';
+import 'package:mangasoup_prototype_3/Services/source_manager.dart';
 import 'package:mangasoup_prototype_3/Services/update_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
@@ -253,7 +253,7 @@ class _HandlerState extends State<Handler> {
   Future<bool> initSource() async {
     debugPrint("Start Up");
     await Provider.of<DatabaseProvider>(context, listen:false).init();
-    TestPreference _prefs = TestPreference();
+    SourcePreference _prefs = SourcePreference();
     await _prefs.init();
     Source source = await _prefs.loadSource();
     if (source == null) {
