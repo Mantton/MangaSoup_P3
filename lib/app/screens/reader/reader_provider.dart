@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
@@ -10,6 +11,7 @@ import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reached_end_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reader_transition_page.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ReaderProvider with ChangeNotifier {
   int comicId;
@@ -155,7 +157,7 @@ class ReaderProvider with ChangeNotifier {
     addChapterToView(readerChapter);
   }
 
-  pageChanged(int page) {
+  pageChanged(int page) async {
     currentIndex =
     indexList[page]; // get the current chapter index for the page
     pageDisplayNumber = pagePositionList[page];
@@ -209,8 +211,22 @@ class ReaderProvider with ChangeNotifier {
             true,
             source,
             selector);
-        // Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
-        //     chapters.elementAt(currentIndex), comicId, source, selector);
+        // MD Sync Logic
+        if (selector == "mangadex"){
+          SharedPreferences.getInstance().then((_prefs) async {
+            if (_prefs.getString("mangadex_cookies")!= null){
+                // Cookies containing profile exists
+              // Sync to MD
+              try{
+                print('syncing to ${chapters.elementAt(currentIndex).link} to MangaDex');
+                await ApiManager().syncChapters([chapters.elementAt(currentIndex).link], true);
+              }catch(err){
+                showSnackBarMessage(err);
+              }
+            }
+          });
+        }
+
 
         if (nextIndex < 0) {
           if (reachedEnd) {
@@ -219,7 +235,7 @@ class ReaderProvider with ChangeNotifier {
             endReached();
         } else {
           // Load Next chapter
-          loadNextChapter(nextIndex);
+          await loadNextChapter(nextIndex);
           currentIndex--;
         }
       }

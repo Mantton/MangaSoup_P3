@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
@@ -12,6 +13,7 @@ import 'package:mangasoup_prototype_3/app/data/database/queries/collection_queri
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic-collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/history_queries.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'manager.dart';
@@ -382,6 +384,20 @@ class DatabaseProvider with ChangeNotifier {
         chapters.add(obj);
     }
     notifyListeners();
+    // MD Sync
+    if (selector == "mangadex"){
+      SharedPreferences.getInstance().then((_prefs) async {
+        if (_prefs.getString("mangadex_cookies")!= null){
+          // Cookies containing profile exists
+          // Sync to MD
+          try{
+             ApiManager().syncChapters(data.map((e) => e.link).toList(), true);
+          }catch(err){
+            showSnackBarMessage(err);
+          }
+        }
+      });
+    }
   }
 
   updateChapterInfo(int page, Chapter chapter) async {

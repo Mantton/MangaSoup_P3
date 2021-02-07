@@ -531,4 +531,22 @@ class DexHub {
     }
     return comics;
   }
+
+  Future<void> markChapter(List<int> ids, bool read, Map additionalInfo) async {
+    var headers = prepareHeaders(additionalInfo);
+    headers.addAll({
+     'Content-Type': "application/json",
+    });
+    Response response = await Dio().post(
+      apiV2URL + "/user/me/marker",
+      options: Options(headers: headers),
+      data: {
+        "chapters":ids,
+        "read": read
+      }
+    );
+    print(response.data);
+    print("MangaDex Chapter Sync Complete");
+
+  }
 }

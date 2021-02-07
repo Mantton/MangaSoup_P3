@@ -244,6 +244,22 @@ class ApiManager {
     Map additionalParams = await prepareAdditionalInfo("mangadex");
     return DexHub().getUserLibrary(additionalParams);
   }
+
+  void syncChapters(List<String> links, bool read)async{
+    Map additionalParams = await prepareAdditionalInfo("mangadex");
+    List<int> ids = List();
+    try{
+      for (String link in links){
+        String target = link.split("/").last;
+        ids.add(int.parse(target));
+      }
+      await  DexHub().markChapter(ids, read, additionalParams);
+    }catch(e){
+      print(e.response.data);
+      throw "Parsing Error";
+    }
+
+  }
   Future<List<ImageSearchResult>> imageSearch(File image) async {
     debugPrint("${image.path}");
     FormData _data = FormData.fromMap({
