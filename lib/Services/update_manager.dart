@@ -1,66 +1,74 @@
-import 'package:mangasoup_prototype_3/Database/FavoritesDatabase.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
-import 'package:mangasoup_prototype_3/Models/Comic.dart';
-import 'package:mangasoup_prototype_3/Models/Favorite.dart';
-import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/database/manager.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/database/queries/collection_queries.dart';
+import 'package:mangasoup_prototype_3/app/data/database/queries/comic-collection_queries.dart';
+import 'package:mangasoup_prototype_3/app/data/database/queries/comic_queries.dart';
+import 'package:sqflite/sqflite.dart';
 
 class UpdateManager {
   ApiManager _apiManager = ApiManager();
-  FavoritesManager _favoritesManager = FavoritesManager();
 
-  backgroundUpdate() {}
+  Future<int> checkForUpdateBackGround() async {
+    int updateCount = 0; // Number of Updated Comics
+    Database _db = await DatabaseManager.initDB(); // Initialize Database
+    // Get Update Enabled Collections
 
-  Future<int> checkForUpdate() async {
-    print("In Function");
-    // Get Sorted Favorites
-    int updateCount = 0;
-    List<Favorite> holder = await _favoritesManager.getUpdateEnabledFavorites();
+    List<Collection> updateEnabledCollections =
+        await CollectionQuery(_db).getCollections();
+    updateEnabledCollections = updateEnabledCollections.where(
+        (element) => element.updateEnabled).toList(); // select only update enabled
 
-    if (holder.isEmpty){
-      return updateCount;
-    }
+    // Get Comics for each uec
+    for (Collection collection in updateEnabledCollections) {
+      // Get the matching comic collections for the specified collection {id}
+      List<ComicCollection> comicCollections =
+          await ComicCollectionQueries(_db).getForCollection(id: collection.id);
 
-    for (Favorite favorite in holder) {
-      ComicHighlight highlight = favorite.highlight;
-      ComicProfile _profile;
-      try {
-        _profile =
-            await _apiManager.getProfile(highlight.selector, highlight.link);
-        print("Retrieved ${highlight.title} from ${highlight.selector}");
-      } catch (e) {
-        // on API Error, Skip.
-        print("$e");
-        continue;
-      }
+      for (ComicCollection target in comicCollections) {
+        // Get target comic
+        Comic comic = await ComicQuery(_db).getComic(target.comicId);
 
-      if (_profile.containsBooks) {
-        // Contains books
-        _profile.chapterCount = 0;
-        for (Map bk in _profile.books) {
-          Book book = Book.fromMap(bk);
-          _profile.chapterCount += book.generatedLength ?? book.chapters.length;
+        // calculate if chapter count has increased
+        /// CHECK FOR UPDATE LOGIC
+        int currentChapterCount = comic.chapterCount;
+        // Get Profile of comic
+
+        try {
+          Profile profile =
+              await _apiManager.getProfile(comic.sourceSelector, comic.link);
+          int updatedChapterCount = profile.chapterCount;
+
+          // increase or do nothing about the updated count
+          /// UPDATE COUNT LOGIC
+          if (updatedChapterCount > currentChapterCount) {
+            updateCount++; // increase update count metric
+
+            // Update Comic Data
+            comic.chapterCount = updatedChapterCount;
+            comic.updateCount = updatedChapterCount - currentChapterCount;
+            await ComicQuery(_db).updateComic(comic);
+          }
+        } catch (e) {
+          continue;
         }
       }
-
-      int delta = _profile.chapterCount - favorite.chapterCount;
-      if (delta <= 0) // If no new updates
-        continue;
-
-      // Else Do Update Count Logic
-      favorite.updateCount = delta;
-      try {
-        await _favoritesManager.updateByID(favorite);
-        updateCount++;
-      } catch (e) {
-        // If an error occurs when updating the DB
-        continue;
-      }
     }
 
-    if (updateCount > 0) favoritesStream.add("Update");
-
-    print("Update Check done");
+    // update UI
+    // return update count for notification
+    _db.close(); // Close DB
+    print("Update Count : $updateCount");
+    try{
+      bgUpdateStream.add("$updateCount");
+      print("added to stream");
+    }catch(err){
+      print("ERROR\n$err");
+    }
     return updateCount;
   }
 }

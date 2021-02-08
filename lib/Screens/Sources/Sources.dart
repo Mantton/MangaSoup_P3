@@ -1,20 +1,19 @@
 import 'dart:convert';
+import 'dart:ui';
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
-import 'package:mangasoup_prototype_3/Screens/WebViews/CloudFare.dart';
+import 'package:mangasoup_prototype_3/Screens/WebViews/cloudfare_webview.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
-import 'package:collection/collection.dart';
-import 'dart:ui';
-
-import 'package:mangasoup_prototype_3/Services/test_preference.dart';
+import 'package:mangasoup_prototype_3/Services/source_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,24 +51,23 @@ class _SourcesPageState extends State<SourcesPage> {
   }
 
   selectSource(Source src) async {
+    if (src.cloudFareProtected) {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      String srcCookies = pref.getString("${src.selector}_cookies");
+      if (srcCookies == null) {
+        await cloudFareProtectedDialog(src.cloudFareLink);
+        print(newCookies);
+        pref.setString('${src.selector}_cookies', jsonEncode(newCookies));
+      }
+    }
     showLoadingDialog(context);
+
     Source full = await server.initSource(src.selector);
-    TestPreference _prefs = TestPreference();
+    SourcePreference _prefs = SourcePreference();
     await _prefs.init();
     await _prefs.setSource(full);
     await Provider.of<SourceNotifier>(context, listen: false).loadSource(full);
     sourcesStream.add(full.selector);
-
-    if (full.cloudFareProtected) {
-      SharedPreferences pref = await SharedPreferences.getInstance();
-      String srcCookies = pref.getString("${src.selector}_cookies");
-      if (srcCookies == null)
-        {
-          await cloudFareProtectedDialog(full.cloudFareLink);
-          print(newCookies);
-          pref.setString('${src.selector}_cookies', jsonEncode(newCookies));
-        }
-    }
     Navigator.pop(context);
     debugPrint("Done");
     if (Navigator.canPop(context)) {
@@ -177,24 +175,20 @@ class _SourcesPageState extends State<SourcesPage> {
                                                 : Colors.purple),
                                   ),
                                   child: GridTile(
-                                    child: Image.network(source.thumbnail),
-
-                                    // CachedNetworkImage(
-                                    //   imageUrl: source.thumbnail,
-                                    //   fadeInDuration:
-                                    //       Duration(milliseconds: 200),
-                                    //   placeholder: (context, url) => Center(
-                                    //     child: CupertinoActivityIndicator(),
-                                    //   ),
-                                    // ),
+                                    child: SoupImage(
+                                      url: source.thumbnail,
+                                      referer: source.url,
+                                      fit: BoxFit.fitWidth,
+                                    ),
                                     footer: Center(
                                       child: FittedBox(
                                         child: Text(
                                           source.name,
                                           style: TextStyle(
-                                              fontSize: 17.sp,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold),
+                                            fontSize: 17.sp,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ),

@@ -7,9 +7,10 @@ import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/FullBrowse/BrosweHome.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/Search.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/AllComics.dart';
-import 'package:mangasoup_prototype_3/Screens/Explore/ForYou.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/LatestComics.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
+import 'package:mangasoup_prototype_3/Screens/Tags/AllTags.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
@@ -58,9 +59,20 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               );
             },
           ),
-          title: Text("Discover"),
+          title: Text(
+            "Discover",
+            style: notInLibraryFont,
+          ),
           centerTitle: true,
           actions: [
+            IconButton(
+                icon: Icon(CupertinoIcons.tag),
+                onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AllTagsPage(),
+                      ),
+                    )),
             IconButton(
               icon: Icon(CupertinoIcons.collections),
               onPressed: () => Navigator.push(
@@ -128,7 +140,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         body: IndexedStack(
           index: _index,
           children: [
-            ForYouPage(),
+            Container(), //todo, for you
             AllComicsPage(),
             LatestPage(),
           ],

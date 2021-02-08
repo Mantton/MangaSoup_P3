@@ -4,18 +4,13 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart'
     show
-        CupertinoActionSheet,
-        CupertinoActionSheetAction,
-        CupertinoActivityIndicator,
         CupertinoDynamicColor,
-        CupertinoIcons,
         CupertinoThemeData,
         DefaultCupertinoLocalizations;
 import 'package:flutter/material.dart'
     show
         Colors,
         DefaultMaterialLocalizations,
-        Icons,
         Theme,
         ThemeData,
         ThemeMode;
@@ -26,15 +21,12 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/BrowseProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/ComicHistoryProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/FavoriteProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/HighlIghtProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/ReaderProvider.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
-import 'package:mangasoup_prototype_3/Providers/ViewHistoryProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
-import 'package:mangasoup_prototype_3/Services/test_preference.dart';
+import 'package:mangasoup_prototype_3/Services/source_manager.dart';
 import 'package:mangasoup_prototype_3/Services/update_manager.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/landing.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -43,7 +35,6 @@ import 'package:workmanager/workmanager.dart';
 const simplePeriodicTask = "simplePeriodicTask";
 
 void callbackDispatcher() {
-//  UpdateManager test = UpdateManager();
   Workmanager.executeTask((task, inputData) async {
     /// initialize notifications settings
     FlutterLocalNotificationsPlugin flp = FlutterLocalNotificationsPlugin();
@@ -64,7 +55,7 @@ void callbackDispatcher() {
     switch (task) {
       case simplePeriodicTask:
         print("Android BG Task Triggered");
-        updateCount = await _updateManger.checkForUpdate();
+        updateCount = await _updateManger.checkForUpdateBackGround();
         stderr.writeln("Check Complete");
 
         if (updateCount > 0) {
@@ -76,20 +67,29 @@ void callbackDispatcher() {
         break;
       case Workmanager.iOSBackgroundTask:
         stderr.writeln("The iOS background fetch was triggered");
-        var connectivityResult = await (Connectivity()
-            .checkConnectivity()); //Check if user is connected
-        if (connectivityResult == ConnectivityResult.mobile ||
-            connectivityResult == ConnectivityResult.wifi) {
-          // Only Check for updates with the user connected to a valid network
-          updateCount = await _updateManger.checkForUpdate();
+
+        try{
+          var connectivityResult = await (Connectivity()
+              .checkConnectivity()); //Check if user is connected
+
+          if (connectivityResult == ConnectivityResult.mobile ||
+              connectivityResult == ConnectivityResult.wifi) {
+            // Only Check for updates with the user connected to a valid network
+            updateCount = await _updateManger.checkForUpdateBackGround();
+            if (updateCount > 0) {
+              if (updateCount == 1)
+                showNotification("$updateCount new update in your library", flp);
+              else
+                showNotification("$updateCount new updates in your library", flp);
+            }
+            stderr.writeln("Done");
+          }
+
+        }catch(err){
+          stderr.writeln("ERROR\n$err");
+          showNotification("Failed to Update Library", flp);
         }
-        if (updateCount > 0) {
-          if (updateCount == 1)
-            showNotification("$updateCount new update in your library", flp);
-          else
-            showNotification("$updateCount new updates in your library", flp);
-        }
-        stderr.writeln("Done");
+
         break;
     }
     return Future.value(true);
@@ -139,18 +139,9 @@ Future<void> main() async {
       providers: [
         // Source
         ChangeNotifierProvider(create: (_) => SourceNotifier()),
-        // Highlight
-        ChangeNotifierProvider(create: (_) => ComicHighlightProvider()),
-        // Read History
-        ChangeNotifierProvider(create: (_) => ComicDetailProvider()),
-        // View History
-        ChangeNotifierProvider(create: (_) => ViewHistoryProvider()),
         ChangeNotifierProvider(create: (_) => BrowseProvider()),
-        // ChangeNotifierProvider(create: (_) => DownloadProvider()),
+        ChangeNotifierProvider(create: (_) => DatabaseProvider()),
         ChangeNotifierProvider(create: (_) => ReaderProvider()),
-        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
-
-        //
       ],
       child: App(),
     ),
@@ -268,7 +259,9 @@ class Handler extends StatefulWidget {
 
 class _HandlerState extends State<Handler> {
   Future<bool> initSource() async {
-    TestPreference _prefs = TestPreference();
+    debugPrint("Start Up");
+    await Provider.of<DatabaseProvider>(context, listen:false).init();
+    SourcePreference _prefs = SourcePreference();
     await _prefs.init();
     Source source = await _prefs.loadSource();
     if (source == null) {
@@ -307,9 +300,11 @@ class _HandlerState extends State<Handler> {
             else
               return Landing();
           } else
-            return Text(
-              "error",
-              style: TextStyle(color: Colors.white),
+            return Center(
+              child: Text(
+                "Start Up Error\n ${snapshot.error}",
+                style: TextStyle(color: Colors.white),
+              ),
             );
         });
   }

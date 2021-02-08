@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Setting.dart';
 import 'package:mangasoup_prototype_3/Providers/BrowseProvider.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/widgets/textfields.dart';
 import 'package:provider/provider.dart';
 
 class TesterFilter extends StatelessWidget {
@@ -42,7 +43,7 @@ class TesterFilter extends StatelessWidget {
     switch (filter.type) {
       case 1:
         return TextField(
-          decoration: msDecoration(filter.name),
+          decoration: mangasoupInputDecoration(filter.name),
           cursorColor: Colors.purple,
           onChanged: (value) =>
               Provider.of<BrowseProvider>(context, listen: false)
@@ -57,7 +58,7 @@ class TesterFilter extends StatelessWidget {
             element.selector);
         return Row(
           children: [
-            Text(filter.name, style: isEmptyFont),
+            Text(filter.name, style: notInLibraryFont),
             Spacer(),
             DropdownButtonHideUnderline(
               child: DropdownButton<SettingOption>(
@@ -79,7 +80,12 @@ class TesterFilter extends StatelessWidget {
             : tags(context, filter.options, filter.name, filter.selector);
 
       default:
-        return Icon(Icons.favorite);
+        return Center(
+          child: Text(
+            "API Error",
+            style: notInLibraryFont,
+          ),
+        );
     }
   }
 
@@ -99,33 +105,38 @@ class TesterFilter extends StatelessWidget {
       BuildContext context, List options, String title, String selector) {
     return Row(
       children: [
-        Text(
-          "$title",
-          style: isEmptyFont,
+        Expanded(
+          flex: 3,
+          child: Text(
+            "$title",
+            style: notInLibraryFont,
+          ),
         ),
-        Spacer(),
-        Flexible(
-          flex: 1,
-          child: InkWell(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => MultiSelect(
-                  options: options,
-                  selector: "$selector",
+        Expanded(
+          flex: 7,
+          child: Container(
+            alignment: Alignment.centerRight,
+            child: InkWell(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => MultiSelect(
+                    options: options,
+                    selector: "$selector",
+                  ),
                 ),
               ),
-            ),
-            child: Text(
-              (Provider.of<BrowseProvider>(context).data["$selector"].length ==
-                      0)
-                  ? "Select"
-                  : "${Provider.of<BrowseProvider>(context).data["$selector"].map((element) => element.name).join(", ")}",
-              style: TextStyle(
-                color: Colors.purple,
-                fontSize: 20.sp,
+              child: Text(
+                (Provider.of<BrowseProvider>(context).data["$selector"].length ==
+                        0)
+                    ? "Select"
+                    : "${Provider.of<BrowseProvider>(context).data["$selector"].map((element) => element.name).join(", ")}",
+                style: TextStyle(
+                  color: Colors.purple,
+                  fontSize: 20.sp,
+                ),
+                softWrap: true,
               ),
-              softWrap: true,
             ),
           ),
         )
@@ -173,7 +184,7 @@ class _MultiSelectState extends State<MultiSelect> {
                   child: Center(
                       child: Text(
                     "Clear",
-                    style: isEmptyFont,
+                    style: notInLibraryFont,
                   )),
                   onTap: () {
                     setState(() {
@@ -189,9 +200,9 @@ class _MultiSelectState extends State<MultiSelect> {
                 InkWell(
                   child: Center(
                       child: Text(
-                        "Done",
-                        style: isEmptyFont,
-                      )),
+                    "Done",
+                    style: notInLibraryFont,
+                  )),
                   onTap: () => Navigator.pop(context),
                 ),
               ],
