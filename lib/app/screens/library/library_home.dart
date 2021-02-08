@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
+import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
@@ -20,6 +21,16 @@ class LibraryHome extends StatefulWidget {
 
 class _LibraryHomeState extends State<LibraryHome>
     with AutomaticKeepAliveClientMixin {
+
+  @override
+  void initState() {
+    bgUpdateStream.stream.listen((event) async {
+      print("Bg Update Triggered");
+      await Provider.of<DatabaseProvider>(context).init();
+      setState(() {});
+    });
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -215,7 +226,7 @@ class _LibraryHomeState extends State<LibraryHome>
             Container(
               child: Text(
                 "Your Library is currently empty.",
-                style: isEmptyFont,
+                style: notInLibraryFont,
               ),
             ),
             FlatButton(

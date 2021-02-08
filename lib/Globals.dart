@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 StreamController<String> sourcesStream = StreamController.broadcast();
-StreamController<String> favoritesStream = StreamController.broadcast();
-StreamController<String> historyStream = StreamController.broadcast();
+StreamController<String> bgUpdateStream = StreamController.broadcast();
 TextStyle isEmptyFont = TextStyle(fontSize: 20.sp, fontFamily: "Lato");
 
 Map<String, String> imageHeaders(String link) {

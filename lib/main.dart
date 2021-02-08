@@ -35,7 +35,6 @@ import 'package:workmanager/workmanager.dart';
 const simplePeriodicTask = "simplePeriodicTask";
 
 void callbackDispatcher() {
-//  UpdateManager test = UpdateManager();
   Workmanager.executeTask((task, inputData) async {
     /// initialize notifications settings
     FlutterLocalNotificationsPlugin flp = FlutterLocalNotificationsPlugin();
@@ -68,20 +67,29 @@ void callbackDispatcher() {
         break;
       case Workmanager.iOSBackgroundTask:
         stderr.writeln("The iOS background fetch was triggered");
-        var connectivityResult = await (Connectivity()
-            .checkConnectivity()); //Check if user is connected
-        if (connectivityResult == ConnectivityResult.mobile ||
-            connectivityResult == ConnectivityResult.wifi) {
-          // Only Check for updates with the user connected to a valid network
-          updateCount = await _updateManger.checkForUpdateBackGround();
+
+        try{
+          var connectivityResult = await (Connectivity()
+              .checkConnectivity()); //Check if user is connected
+
+          if (connectivityResult == ConnectivityResult.mobile ||
+              connectivityResult == ConnectivityResult.wifi) {
+            // Only Check for updates with the user connected to a valid network
+            updateCount = await _updateManger.checkForUpdateBackGround();
+            if (updateCount > 0) {
+              if (updateCount == 1)
+                showNotification("$updateCount new update in your library", flp);
+              else
+                showNotification("$updateCount new updates in your library", flp);
+            }
+            stderr.writeln("Done");
+          }
+
+        }catch(err){
+          stderr.writeln("ERROR\n$err");
+          showNotification("Failed to Update Library", flp);
         }
-        if (updateCount > 0) {
-          if (updateCount == 1)
-            showNotification("$updateCount new update in your library", flp);
-          else
-            showNotification("$updateCount new updates in your library", flp);
-        }
-        stderr.writeln("Done");
+
         break;
     }
     return Future.value(true);

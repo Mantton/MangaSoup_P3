@@ -22,7 +22,7 @@ class ComicQuery {
   }
 
   Future<Comic> getComic(int id )async{
-    List<Map> queryMaps = await db.query(ComicTable.TABLE, where: "$ComicTable.COL_ID = ?", whereArgs: [id] );
+    List<Map> queryMaps = await db.query(ComicTable.TABLE, where: "${ComicTable.COL_ID} = ?", whereArgs: [id] );
     List<Comic> comics = queryMaps.map((map) => Comic.fromMap(map)).toList();
     return comics.first;
 

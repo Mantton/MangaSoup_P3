@@ -1,3 +1,4 @@
+import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/manager.dart';
@@ -14,19 +15,20 @@ class UpdateManager {
 
   Future<int> checkForUpdateBackGround() async {
     int updateCount = 0; // Number of Updated Comics
-    Database _db = DatabaseManager.initDB(); // Initialize Database
+    Database _db = await DatabaseManager.initDB(); // Initialize Database
     // Get Update Enabled Collections
 
     List<Collection> updateEnabledCollections =
         await CollectionQuery(_db).getCollections();
     updateEnabledCollections = updateEnabledCollections.where(
-        (element) => element.updateEnabled); // select only update enabled
+        (element) => element.updateEnabled).toList(); // select only update enabled
 
     // Get Comics for each uec
     for (Collection collection in updateEnabledCollections) {
       // Get the matching comic collections for the specified collection {id}
       List<ComicCollection> comicCollections =
           await ComicCollectionQueries(_db).getForCollection(id: collection.id);
+
       for (ComicCollection target in comicCollections) {
         // Get target comic
         Comic comic = await ComicQuery(_db).getComic(target.comicId);
@@ -61,6 +63,12 @@ class UpdateManager {
     // return update count for notification
     _db.close(); // Close DB
     print("Update Count : $updateCount");
+    try{
+      bgUpdateStream.add("$updateCount");
+      print("added to stream");
+    }catch(err){
+      print("ERROR\n$err");
+    }
     return updateCount;
   }
 }
