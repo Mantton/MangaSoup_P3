@@ -1,7 +1,5 @@
 // Comic Highlight
-import 'dart:convert';
-
-import 'package:mangasoup_prototype_3/Models/Misc.dart';
+import 'package:mangasoup_prototype_3/app/data/enums/mangadex_follow_category.dart';
 
 class ComicHighlight {
   String title;
@@ -11,9 +9,11 @@ class ComicHighlight {
   String source;
   bool isHentai;
   String imageReferer;
+  int updateCount;
+  String mangadexFollowType;
 
   ComicHighlight(
-      this.title, this.link, this.thumbnail, this.selector, this.source, this.isHentai, this.imageReferer);
+      this.title, this.link, this.thumbnail, this.selector, this.source, this.isHentai, this.imageReferer, {this.updateCount});
 
   Map<String, dynamic> toMap() {
     return {
@@ -35,5 +35,16 @@ class ComicHighlight {
     source = map['source'];
     isHentai = map['is_hentai'];
     imageReferer = map['image_referer'];
+  }
+
+  ComicHighlight.fromMangaDex(Map map){
+    title = map['mangaTitle'];
+    isHentai = map['isHentai'];
+    thumbnail = map['mainCover'];
+    selector = "mangadex";
+    source = "MangaDex";
+    imageReferer = "mangadex.org";
+    link = "https://mangadex.org/title/" + map['mangaId'].toString();
+    mangadexFollowType = getCategory(map['followType']);
   }
 }

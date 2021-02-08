@@ -5,8 +5,6 @@ import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/comic-collection_table.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../manager.dart';
-
 class ComicCollectionQueries {
   Database db;
   ComicCollectionQueries(this.db);
@@ -67,7 +65,7 @@ class ComicCollectionQueries {
   }
 
   // Delete Categories
-  delete(List<Comic> comics) async {
+  deleteForComic(List<Comic> comics) async {
     for (Comic comic in comics) {
       await db.delete(ComicCollectionTable.TABLE,
           where: "${ComicCollectionTable.COL_COMIC_ID} = ?",
@@ -75,9 +73,13 @@ class ComicCollectionQueries {
     }
   }
 
+  deleteComicCollection(ComicCollection c)async{
+    await db.delete(ComicCollectionTable.TABLE, where: "${ComicCollectionTable.COL_ID} = ?", whereArgs: [c.id]);
+  }
+
   // Set for multiple
   setCollections(List<ComicCollection> collections, List<Comic> comics) async {
-    await delete(comics);
+    await deleteForComic(comics);
     for (ComicCollection collection in collections) {
       await insert(collection);
     }
@@ -86,7 +88,7 @@ class ComicCollectionQueries {
   setCollectionsNonBatch(List<Collection> collections, int comicId)async{
     Comic comic = Comic();
     comic.id = comicId;
-    await delete([comic]);
+    await deleteForComic([comic]);
     await insertForComic(collections: collections, comicId: comicId);
   }
 }

@@ -3,11 +3,13 @@ class Collection {
   String name;
   int order;
   bool updateEnabled;
+  int librarySort;
 
   Collection({this.name}) {
     this.id = null;
     this.order = null;
     this.updateEnabled = false;
+    this.librarySort = 0;
   }
 
   static Collection createDefault() {
@@ -21,6 +23,7 @@ class Collection {
     name = map['name'];
     order = map['sort'];
     updateEnabled = map['update_enabled'] == 1 ? true : false;
+    librarySort = map["library_sort"];
   }
 
   Map<String, dynamic> toMap() {
@@ -29,6 +32,7 @@ class Collection {
       "name": name,
       "sort": order,
       "update_enabled": updateEnabled ? 1 : 0,
+      "library_sort": librarySort,
     };
   }
 }

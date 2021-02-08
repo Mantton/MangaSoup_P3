@@ -5,7 +5,6 @@ class History{
   DateTime lastRead;
 
   History({this.comicId, this.chapterId}){
-    this.id = null;
     this.lastRead = DateTime.now() ;
 
   }

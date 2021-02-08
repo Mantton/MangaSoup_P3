@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
@@ -8,9 +7,11 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/ImageSearch.dart';
-import 'package:mangasoup_prototype_3/Screens/MangaDex/DexLogin.dart';
+import 'package:mangasoup_prototype_3/Screens/WebViews/mangadex_login.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/widgets/textfields.dart';
 import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
@@ -65,34 +66,8 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget searchForm() {
     return TextField(
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 35, vertical: 20),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(color: Colors.grey[800]),
-          gapPadding: 5,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(color: Colors.grey[600]),
-          gapPadding: 5,
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(color: Colors.red),
-          gapPadding: 5,
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(color: Colors.redAccent),
-          gapPadding: 5,
-        ),
-        suffixIcon: Icon(
-          Icons.search,
-          color: Colors.purple,
-        ),
-      ),
+      decoration: mangasoupInputDecoration(
+          "Search ${Provider.of<SourceNotifier>(context, listen: false).source.name}..."),
       cursorColor: Colors.grey,
       maxLines: 1,
       style: TextStyle(
@@ -141,28 +116,44 @@ class _SearchPageState extends State<SearchPage> {
                       textAlign: TextAlign.center,
                     ),
                     onPressed: () async {
-                      final result = await Navigator.push(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => MangadexLoginPage(),
+                          builder: (_) => MangaDexLogin(),
                           fullscreenDialog: true,
                         ),
-                      );
+                      ).then((value) {
+                        showSnackBarMessage("Retrying");
+                        setState(() {
+                          _futureComics = _manager.search(
+                              Provider.of<SourceNotifier>(context,
+                                      listen: false)
+                                  .source
+                                  .selector,
+                              _query);
+                        });
+                      });
+                    });
+              } else {
+                return Center(
+                  child: InkWell(
+                    child: Text(
+                      "An Error Occurred \n ${snapshot.error} \n Tap to retry",
+                      textAlign: TextAlign.center,
+                      style: notInLibraryFont,
+                    ),
 
-                      showSnackBarMessage(result);
+                    onTap: (){
+                      showSnackBarMessage("Retrying");
                       setState(() {
                         _futureComics = _manager.search(
-                            Provider.of<SourceNotifier>(context, listen: false)
+                            Provider.of<SourceNotifier>(context,
+                                listen: false)
                                 .source
                                 .selector,
                             _query);
                       });
-                    });
-              } else {
-                return InkWell(
-                  child: Text(
-                    "An Error Occurred \n ${snapshot.error} \n Tap to retry",
-                    textAlign: TextAlign.center,
+                    },
                   ),
                 );
               }
@@ -180,27 +171,17 @@ class _SearchPageState extends State<SearchPage> {
                 height: 300.h,
                 margin: EdgeInsets.only(top: 10.h),
                 child: Center(
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Text(
-                          "Searching from ${Provider.of<SourceNotifier>(context).source.name}",
-                          style: TextStyle(fontSize: 20),
-                        ),
+                  child: CupertinoButton(
+                    child: Text(
+                      "Image Search",
+                      style: TextStyle(fontSize: 23),
+                    ),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ImageSearchPage(),
                       ),
-                      CupertinoButton(
-                        child: Text(
-                          "Image Search",
-                          style: TextStyle(fontSize: 23),
-                        ),
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ImageSearchPage(),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               );

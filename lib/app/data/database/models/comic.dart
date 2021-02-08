@@ -20,12 +20,15 @@ class Comic {
   int updateCount; // Number of updates available after update check
   int viewerMode; // Specifies the mode in which the user views this comic
 
+  // Library Information 2
+  DateTime dateAdded;
+  int rating;
   // Initialize new Comic
   Comic(
       {this.title,
       this.link,
       this.thumbnail,
-        this.referer,
+      this.referer,
       this.source,
       this.sourceSelector,
       this.chapterCount}) {
@@ -34,6 +37,8 @@ class Comic {
     this.updateCount = 0;
     this.viewerMode = 0;
     this.isNsfw = false;
+    this.rating = 0;
+    this.dateAdded = null;
   }
 
   // Create Comic from map
@@ -49,10 +54,13 @@ class Comic {
     inLibrary = map["in_library"] == 1 ? true : false;
     viewerMode = map['view_mode'];
     isNsfw = map['nsfw'] == 1 ? true : false;
+    rating = map['rating'];
+    dateAdded = DateTime.fromMicrosecondsSinceEpoch(map['date_added']);
   }
 
-  ComicHighlight toHighlight(){
-    return ComicHighlight(title, link, thumbnail, sourceSelector, source, isNsfw, "");
+  ComicHighlight toHighlight() {
+    return ComicHighlight(
+        title, link, thumbnail, sourceSelector, source, isNsfw, "",updateCount: updateCount);
   }
 
   // Create DB Injectable Map from Comic
@@ -69,7 +77,9 @@ class Comic {
       "update_count": updateCount,
       "in_library": inLibrary ? 1 : 0,
       "view_mode": viewerMode,
-      "nsfw": isNsfw ? 1 : 0
+      "nsfw": isNsfw ? 1 : 0,
+      "rating": rating,
+      "date_added": dateAdded.microsecondsSinceEpoch,
     };
   }
 }

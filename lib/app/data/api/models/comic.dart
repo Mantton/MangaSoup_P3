@@ -57,7 +57,6 @@ class Profile {
     if (containsBooks == null) {
       isHentai = true;
     }
-
     title = map['title'];
     description = map['summary'];
     thumbnail = map['thumbnail'];
@@ -65,6 +64,7 @@ class Profile {
     author = map['author'];
     artist = map['artist'];
     status = map['status'];
+
     genres = map['tags'] != null
         ? (map['tags'] as List).map((e) => Tag.fromMap(e)).toList()
         : null;

@@ -117,8 +117,10 @@ class _AllComicsPageState extends State<AllComicsPage>
               return SingleChildScrollView(
                 controller: _controller,
                 child: Container(
-                  padding: EdgeInsets.all(10),
+
+                  padding: EdgeInsets.only(left: 10, right: 10),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Padding(
                         padding: EdgeInsets.all(8.0.w),

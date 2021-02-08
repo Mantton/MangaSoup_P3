@@ -1,9 +1,9 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
-import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/gateway.dart';
-
 import 'Images.dart';
 
 class ComicGrid extends StatefulWidget {
@@ -21,13 +21,13 @@ class _ComicGridState extends State<ComicGrid> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:  EdgeInsets.all(8.0.w),
+      padding: EdgeInsets.all(8.0.w),
       child: GridView.builder(
         physics: ScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: widget.crossAxisCount ?? 3,
             crossAxisSpacing: 10.w,
-            mainAxisSpacing: 10.w,
+            mainAxisSpacing: 15.w,
             childAspectRatio: 65 / 100),
         shrinkWrap: true,
         itemCount: widget.comics.length,
@@ -53,7 +53,7 @@ class ComicGridTile extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => ProfileHome(highlight:comic),
+              builder: (_) => ProfileHome(highlight: comic),
             ),
           );
         },
@@ -76,6 +76,27 @@ class ComicGridTile extends StatelessWidget {
               ),
             ),
           ),
+          header: comic.updateCount != null && comic.updateCount != 0
+              ? Padding(
+                  padding: EdgeInsets.all(5.0.w),
+                  child: Container(
+                    alignment: Alignment.topRight,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.red[900],
+                      foregroundColor: Colors.white,
+                      child: Padding(
+                        padding: EdgeInsets.all(2.0.w),
+                        child: Center(
+                          child: AutoSizeText(
+                            "${comic.updateCount}",
+                            style: updateFont,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : Container(),
           footer: Container(
             color: Colors.black54,
             child: Padding(

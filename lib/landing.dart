@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Screens/More/MoreHomePage.dart';
 import 'package:mangasoup_prototype_3/app/screens/history/history_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/library_home.dart';
+import 'package:mangasoup_prototype_3/app/screens/more/more_home.dart';
 import 'Screens/Explore/Home.dart';
 
 class Landing extends StatefulWidget {
@@ -10,11 +10,12 @@ class Landing extends StatefulWidget {
   _LandingState createState() => _LandingState();
 }
 
-class _LandingState extends State<Landing> {
+class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin{
   int _index = 0;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       body: IndexedStack(
         index: _index,
@@ -33,7 +34,7 @@ class _LandingState extends State<Landing> {
             // push to general discussions page
           ),
           Container(
-            child: MorePage(), // More
+            child: MoreHomePage(), // More
           )
         ],
       ),
@@ -61,7 +62,7 @@ class _LandingState extends State<Landing> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              (_index != 1) ? CupertinoIcons.heart : CupertinoIcons.heart_fill,
+              (_index != 1) ? CupertinoIcons.folder : CupertinoIcons.folder_fill,
             ),
             label: "Library",
           ),
@@ -87,4 +88,7 @@ class _LandingState extends State<Landing> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

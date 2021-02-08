@@ -9,7 +9,7 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:io' as io;
 import 'package:mangasoup_prototype_3/app/data/database/tables/comic_table.dart';
 
-class DatabaseTestManager {
+class DatabaseManager {
   static Database db;
   static const String DB_NAME = 'mangasoup.db';
   static const int VERSION = 1;

@@ -49,10 +49,7 @@ class _ChapterListState extends State<ChapterList> {
     } else {
       // create history, then push
       await Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
-          chapter,
-          widget.comicId,
-          widget.source,
-          widget.selector);
+          chapter, widget.comicId, widget.source, widget.selector);
 
       Navigator.push(
         context,
@@ -123,7 +120,9 @@ class _ChapterListState extends State<ChapterList> {
                   selected: isSelected(chapter),
                   trailing: Text(
                     chapter.date,
-                    style: readFont,
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                    ),
                   ),
                   selectedTileColor: Colors.grey[900],
                   onLongPress: () => longPress(chapter),
@@ -152,7 +151,12 @@ class _ChapterListState extends State<ChapterList> {
                   subtitle:
                       chapter.maker.isNotEmpty ? Text(chapter.maker) : null,
                   selected: isSelected(chapter),
-                  trailing: Text(chapter.date),
+                  trailing: Text(
+                    chapter.date,
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                    ),
+                  ),
                   selectedTileColor: Colors.grey[900],
                   onLongPress: () => longPress(chapter),
                   onTap: () => onTap(chapter),

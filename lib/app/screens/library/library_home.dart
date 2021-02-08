@@ -1,10 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
+import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
-import 'package:mangasoup_prototype_3/app/screens/library/library_settings.dart';
+import 'package:mangasoup_prototype_3/app/data/enums/collection_sort.dart';
+import 'package:mangasoup_prototype_3/app/screens/library/libary_order.dart';
+import 'package:mangasoup_prototype_3/app/screens/library/library_search.dart';
 import 'package:provider/provider.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,19 +19,34 @@ class LibraryHome extends StatefulWidget {
   _LibraryHomeState createState() => _LibraryHomeState();
 }
 
-class _LibraryHomeState extends State<LibraryHome> {
+class _LibraryHomeState extends State<LibraryHome>
+    with AutomaticKeepAliveClientMixin {
+
+  @override
+  void initState() {
+    bgUpdateStream.stream.listen((event) async {
+      print("Bg Update Triggered");
+      await Provider.of<DatabaseProvider>(context).init();
+      setState(() {});
+    });
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer<DatabaseProvider>(
         builder: (BuildContext context, provider, _) =>
-            (provider.collections.length > 1)
+            (provider.comicCollections.length > 0 )
                 ? library(provider)
                 : emptyLibrary());
   }
 
   Widget library(DatabaseProvider provider) {
     List<Collection> collections = List.of(provider.collections);
-    collections.removeWhere((element) => element.order == 0); //Remove Default.
+    if (!provider.comicCollections.any((element) => element.collectionId == 1)){
+      // If Default Collection has no comics remove from view
+      collections.removeWhere((element) => element.id == 1); //Remove Default.
+    }
     collections.sort((a, b) => a.order.compareTo(b.order)); // Sort Order
     return DefaultTabController(
       length: collections.length,
@@ -35,20 +55,35 @@ class _LibraryHomeState extends State<LibraryHome> {
           title: Text("Library"),
           centerTitle: true,
           leading: IconButton(
-            icon: Icon(CupertinoIcons.refresh),
-            onPressed: null, // todo, check for updates
-          ),
+              icon: Icon(CupertinoIcons.refresh),
+              onPressed: () {
+                showSnackBarMessage("Checking for updates.");
+                provider.checkForUpdates().then((value) {
+                  if (value == null)
+                    showSnackBarMessage("No Update Enabled Collections.");
+                  else if (value == 0)
+                    showSnackBarMessage("No new Updates.");
+                  else
+                    showSnackBarMessage("$value new updates in your Library.");
+                });
+              }),
           actions: [
             IconButton(
               icon: Icon(CupertinoIcons.search),
-              onPressed: null, //todo, search library
+              onPressed: () => Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (_) => LibrarySearch(),
+                  fullscreenDialog: true,
+                ),
+              ),
             ),
             IconButton(
               icon: Icon(CupertinoIcons.square_favorites),
               onPressed: () => Navigator.push(
                 context,
                 CupertinoPageRoute(
-                  builder: (_) => LibrarySettings(),
+                  builder: (_) => LibraryOrderManagerPage(),
                   fullscreenDialog: true,
                 ),
               ),
@@ -74,7 +109,11 @@ class _LibraryHomeState extends State<LibraryHome> {
               (index) {
                 Collection collection = collections[index];
                 List<Comic> collectionComics =
-                    provider.getCollectionComics(collection.id);
+                    List.of(provider.getCollectionComics(collection.id));
+
+                // Sort
+                collectionComics = sortComicCollection(
+                    collection.librarySort, collectionComics);
                 // Prepare Comics
                 return Stack(
                   children: <Widget>[
@@ -97,10 +136,11 @@ class _LibraryHomeState extends State<LibraryHome> {
                                       Text(
                                         "${collectionComics.length} Comic${collectionComics.length > 1 || collectionComics.length == 0 ? "s" : ''} in Collection",
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.grey,
-                                            fontSize: 15.sp,
-                                            fontFamily: "lato"),
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey,
+                                          fontSize: 15.sp,
+                                          fontFamily: "lato",
+                                        ),
                                       ),
                                       Spacer(),
                                       IconButton(
@@ -111,7 +151,9 @@ class _LibraryHomeState extends State<LibraryHome> {
                                             // size: 35,
                                           ),
                                         ),
-                                        onPressed: null,
+                                        onPressed: () {
+                                          print(collection.order);
+                                        },
                                       ),
                                       SizedBox(width: 5.w),
                                       IconButton(
@@ -128,18 +170,22 @@ class _LibraryHomeState extends State<LibraryHome> {
                                         color: collection.updateEnabled
                                             ? Colors.green
                                             : Colors.red,
-                                        onPressed: null,
+                                        onPressed: () => provider
+                                            .toggleCollectionUpdate(collection),
                                       ),
-                                      SizedBox(width: 10.w),
+                                      SizedBox(width: 5.w),
                                       InkWell(
                                         child: Text(
-                                          "Sort",
+                                          "Sort by\n${collectionSortNames[collection.librarySort]}",
                                           style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.grey,
-                                              fontSize: 17.sp,
-                                              fontFamily: "lato"),
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                            fontSize: 15.sp,
+                                            fontFamily: "lato",
+                                          ),
+                                          textAlign: TextAlign.center,
                                         ),
+                                        onTap: () => idg(collection, provider),
                                       )
                                     ],
                                   ),
@@ -174,13 +220,66 @@ class _LibraryHomeState extends State<LibraryHome> {
         centerTitle: true,
       ),
       body: Center(
-        child: Container(
-          child: Text(
-            "Your Library is currently empty",
-            style: isEmptyFont,
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              child: Text(
+                "Your Library is currently empty.",
+                style: notInLibraryFont,
+              ),
+            ),
+            FlatButton(
+              color: Colors.purple,
+
+              onPressed: (){
+                // From MangaDex
+                // From MangaSoup Tracking
+              },
+              child: Text("Import"),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  side: BorderSide(color: Colors.grey[900])
+              ),
+
+            ),
+          ],
         ),
       ),
     );
   }
+
+  idg(Collection collection, DatabaseProvider provider) =>
+      showPlatformModalSheet(
+        context: context,
+        builder: (_) => PlatformWidget(
+          material: (_, __) => Column(
+            mainAxisSize: MainAxisSize.min,
+          ),
+          cupertino: (_, __) => CupertinoActionSheet(
+            title: Text("Collection Sort"),
+            cancelButton: CupertinoActionSheetAction(
+              child: Text("Cancel"),
+              isDestructiveAction: true,
+              onPressed: () => Navigator.pop(context),
+            ),
+            actions: List.generate(
+              Sort.values.length,
+              (index) => CupertinoActionSheetAction(
+                onPressed: () {
+                  collection.librarySort = index;
+                  provider.updateCollection(collection);
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  collectionSortNames[index],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+  @override
+  bool get wantKeepAlive => true;
 }

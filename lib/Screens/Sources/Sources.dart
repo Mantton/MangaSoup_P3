@@ -11,9 +11,9 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
-import 'package:mangasoup_prototype_3/Screens/WebViews/CloudFare.dart';
+import 'package:mangasoup_prototype_3/Screens/WebViews/cloudfare_webview.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
-import 'package:mangasoup_prototype_3/Services/test_preference.dart';
+import 'package:mangasoup_prototype_3/Services/source_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,7 +63,7 @@ class _SourcesPageState extends State<SourcesPage> {
     showLoadingDialog(context);
 
     Source full = await server.initSource(src.selector);
-    TestPreference _prefs = TestPreference();
+    SourcePreference _prefs = SourcePreference();
     await _prefs.init();
     await _prefs.setSource(full);
     await Provider.of<SourceNotifier>(context, listen: false).loadSource(full);

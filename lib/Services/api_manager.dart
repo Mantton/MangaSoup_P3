@@ -10,6 +10,7 @@ import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
+import 'package:mangasoup_prototype_3/app/data/mangadex/models/mangadex_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiManager {
@@ -125,17 +126,19 @@ class ApiManager {
   /// Get Profile
   Future<Profile> getProfile(String source, String link) async {
     Map additionalParams = await prepareAdditionalInfo(source);
-
     if (source == "mangadex") return dex.profile(link, additionalParams);
     Map data = {"selector": source, "link": link, "data": additionalParams};
     try {
       Response response = await _dio.post('/api/v1/profile', data: data);
       debugPrint(
           "Retrieval Complete : /Profile : ${response.data['title']} @$source");
-
       return Profile.fromMap(response.data);
     } on DioError catch (e) {
-      throw e.response.data['detail'];
+
+      if (e.response.statusCode == 500)
+        throw "MangaSoup Server Error";
+      else
+        throw e.response.data['detail'];
     }
   }
 
@@ -170,8 +173,8 @@ class ApiManager {
   }
 
   /// Get Tag Comics
-  Future<List<ComicHighlight>> getTagComics(String source, int page,
-      String link, String sort) async {
+  Future<List<ComicHighlight>> getTagComics(
+      String source, int page, String link, String sort) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     if (source == "mangadex")
       return dex.getTagComics(sort, page, link, additionalParams);
@@ -232,6 +235,31 @@ class ApiManager {
     return comics;
   }
 
+  Future<DexProfile> getMangadexProfile()async{
+    Map additionalParams = await prepareAdditionalInfo("mangadex");
+    return DexHub().setUserProfile(additionalParams);
+  }
+
+  Future<List<ComicHighlight>> getMangaDexUserLibrary()async{
+    Map additionalParams = await prepareAdditionalInfo("mangadex");
+    return DexHub().getUserLibrary(additionalParams);
+  }
+
+  void syncChapters(List<String> links, bool read)async{
+    Map additionalParams = await prepareAdditionalInfo("mangadex");
+    List<int> ids = List();
+    try{
+      for (String link in links){
+        String target = link.split("/").last;
+        ids.add(int.parse(target));
+      }
+      await  DexHub().markChapter(ids, read, additionalParams);
+    }catch(e){
+      print(e.response.data);
+      throw "Parsing Error";
+    }
+
+  }
   Future<List<ImageSearchResult>> imageSearch(File image) async {
     debugPrint("${image.path}");
     FormData _data = FormData.fromMap({
@@ -250,7 +278,7 @@ class ApiManager {
     return isrResults;
   }
 
-  Future<List> getImgurAlbum(String info) async {
+  Future<Map> getImgurAlbum(String info) async {
     String albumID;
 
     // Link
@@ -267,24 +295,29 @@ class ApiManager {
     // Use Imgur API
     albumID = albumID.trim();
     try {
-      Response response = await _dio.get(
-        "https://api.imgur.com/3/album/$albumID/images",
+
+      Response albumDetails = await _dio.get(
+        "https://api.imgur.com/3/album/$albumID",
         options: Options(
           headers: {"Authorization": "Client-ID d50a5c2ba38acd4"},
         ),
       );
-      // Process data
-
-      List _imgAttr = response.data['data'];
+      String title = albumDetails.data["data"]['title'];
       List images = [];
-      for (int i = 0; i < _imgAttr.length; i++) {
-        images.add(_imgAttr[i]["link"]);
+
+      for (Map map in albumDetails.data['data']['images']) {
+        images.add(map['link']);
       }
-      print(images);
-      return images;
+
+      // Process data
+      return {
+        "title": title,
+        "images": images,
+        "link": "https://api.imgur.com/3/album/$albumID"
+      };
     } catch (e) {
       print(e);
-      return null;
+      return {"title": "", "images": []};
     }
   }
 }

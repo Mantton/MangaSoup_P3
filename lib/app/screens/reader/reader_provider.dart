@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
@@ -6,11 +7,11 @@ import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
-import 'package:mangasoup_prototype_3/app/screens/reader/paged_reader/paged_view_holder.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_view_holder.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reached_end_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reader_transition_page.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ReaderProvider with ChangeNotifier {
   int comicId;
@@ -32,6 +33,7 @@ class ReaderProvider with ChangeNotifier {
   int lastPage;
   BuildContext context;
   bool reachedEnd = false;
+  bool imgur = false;
 
   Future init(
       List<Chapter> incomingChapters,
@@ -41,6 +43,7 @@ class ReaderProvider with ChangeNotifier {
       int comic_id,
       String incomingSource,
       {bool loaded = false,
+        bool imgurAlbum = false,
       ImageChapter loadedChapter}) async {
     reset();
     // Create Starting values
@@ -52,9 +55,14 @@ class ReaderProvider with ChangeNotifier {
     source = incomingSource;
     // Get Chapter being pointed to
     Chapter chapter = incomingChapters.elementAt(initialIndex);
+    imgur = imgurAlbum;
+    if (!imgur)
+      {
+        await Provider.of<DatabaseProvider>(context, listen: false)
+            .historyLogic(chapter, comicId, source, selector);
+        print("History Initialized");
+      }
 
-    await Provider.of<DatabaseProvider>(context, listen: false)
-        .historyLogic(chapter, comicId, source, selector);
 
     // Initialize Reader Chapter
     ReaderChapter firstChapter = ReaderChapter();
@@ -96,8 +104,6 @@ class ReaderProvider with ChangeNotifier {
     chapterHolder.addAll(initialEntry);
     pageDisplayCount = chapter.pages.length;
     currentChapterName = chapter.chapterName;
-
-    notifyListeners();
   }
 
   addChapterToView(ReaderChapter chapter) {
@@ -151,8 +157,7 @@ class ReaderProvider with ChangeNotifier {
     addChapterToView(readerChapter);
   }
 
-  pageChanged(int page) {
-    print(page);
+  pageChanged(int page) async {
     currentIndex =
     indexList[page]; // get the current chapter index for the page
     pageDisplayNumber = pagePositionList[page];
@@ -173,14 +178,18 @@ class ReaderProvider with ChangeNotifier {
 
     /// History Update LOGIC
     try {
-      Chapter pointer = chapters.elementAt(indexList[page]);
-      Provider.of<DatabaseProvider>(context, listen: false)
-          .updateChapterInfo(pageDisplayNumber, pointer);
-      ChapterData pointed =
-      Provider.of<DatabaseProvider>(context, listen: false)
-          .checkIfChapterMatch(pointer);
-      Provider.of<DatabaseProvider>(context, listen: false)
-          .updateHistory(comicId, pointed.id);
+
+      if (!imgur){
+        Chapter pointer = chapters.elementAt(indexList[page]);
+        Provider.of<DatabaseProvider>(context, listen: false)
+            .updateChapterInfo(pageDisplayNumber, pointer);
+        ChapterData pointed =
+        Provider.of<DatabaseProvider>(context, listen: false)
+            .checkIfChapterMatch(pointer);
+        Provider.of<DatabaseProvider>(context, listen: false)
+            .updateHistory(comicId, pointed.id);
+      }
+
     } catch (e) {
       // do nothing
     }
@@ -188,7 +197,7 @@ class ReaderProvider with ChangeNotifier {
     /// UPDATE LOGIC
     if (pageDisplayCount != null &&
         pageDisplayNumber == pageDisplayCount &&
-        page > lastPage) {
+        page > lastPage && !imgur) {
       // things to fix, going bac would cause next to be triggered
       int nextIndex = currentIndex - 1;
       print(chapterHolder.keys.toList());
@@ -202,8 +211,22 @@ class ReaderProvider with ChangeNotifier {
             true,
             source,
             selector);
-        // Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
-        //     chapters.elementAt(currentIndex), comicId, source, selector);
+        // MD Sync Logic
+        if (selector == "mangadex"){
+          SharedPreferences.getInstance().then((_prefs) async {
+            if (_prefs.getString("mangadex_cookies")!= null){
+                // Cookies containing profile exists
+              // Sync to MD
+              try{
+                print('syncing to ${chapters.elementAt(currentIndex).link} to MangaDex');
+                await ApiManager().syncChapters([chapters.elementAt(currentIndex).link], true);
+              }catch(err){
+                showSnackBarMessage(err);
+              }
+            }
+          });
+        }
+
 
         if (nextIndex < 0) {
           if (reachedEnd) {
@@ -212,7 +235,7 @@ class ReaderProvider with ChangeNotifier {
             endReached();
         } else {
           // Load Next chapter
-          loadNextChapter(nextIndex);
+          await loadNextChapter(nextIndex);
           currentIndex--;
         }
       }
@@ -248,5 +271,6 @@ class ReaderProvider with ChangeNotifier {
     source = "";
     comicId = null;
     reachedEnd = false;
+    imgur = false;
   }
 }
