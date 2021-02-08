@@ -9,9 +9,10 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Setting.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
-import 'package:mangasoup_prototype_3/Screens/Settings/MultipleSelect.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'source_multi_select.dart';
 
 class SourceSettingsPage extends StatefulWidget {
   @override
@@ -48,7 +49,7 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Settings"),
+        title: Text("Source Settings"),
         centerTitle: true,
       ),
       body: Container(

@@ -8,7 +8,6 @@ import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/enums/collection_sort.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/libary_order.dart';
-import 'package:mangasoup_prototype_3/app/screens/library/library_collection_edit.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/library_search.dart';
 import 'package:provider/provider.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
@@ -19,20 +18,24 @@ class LibraryHome extends StatefulWidget {
   _LibraryHomeState createState() => _LibraryHomeState();
 }
 
-class _LibraryHomeState extends State<LibraryHome> with AutomaticKeepAliveClientMixin{
+class _LibraryHomeState extends State<LibraryHome>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Consumer<DatabaseProvider>(
         builder: (BuildContext context, provider, _) =>
-            (provider.collections.length > 1)
+            (provider.comicCollections.length > 0 )
                 ? library(provider)
                 : emptyLibrary());
   }
 
   Widget library(DatabaseProvider provider) {
     List<Collection> collections = List.of(provider.collections);
-    collections.removeWhere((element) => element.order == 0); //Remove Default.
+    if (!provider.comicCollections.any((element) => element.collectionId == 1)){
+      // If Default Collection has no comics remove from view
+      collections.removeWhere((element) => element.id == 1); //Remove Default.
+    }
     collections.sort((a, b) => a.order.compareTo(b.order)); // Sort Order
     return DefaultTabController(
       length: collections.length,
@@ -137,15 +140,9 @@ class _LibraryHomeState extends State<LibraryHome> with AutomaticKeepAliveClient
                                             // size: 35,
                                           ),
                                         ),
-                                        onPressed: () => Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => CollectionEdit(
-                                              collectionId: collection.id,
-                                            ),
-                                            fullscreenDialog: true,
-                                          ),
-                                        ),
+                                        onPressed: () {
+                                          print(collection.order);
+                                        },
                                       ),
                                       SizedBox(width: 5.w),
                                       IconButton(
@@ -212,11 +209,30 @@ class _LibraryHomeState extends State<LibraryHome> with AutomaticKeepAliveClient
         centerTitle: true,
       ),
       body: Center(
-        child: Container(
-          child: Text(
-            "Your Library is currently empty",
-            style: isEmptyFont,
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              child: Text(
+                "Your Library is currently empty.",
+                style: isEmptyFont,
+              ),
+            ),
+            FlatButton(
+              color: Colors.purple,
+
+              onPressed: (){
+                // From MangaDex
+                // From MangaSoup Tracking
+              },
+              child: Text("Import"),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  side: BorderSide(color: Colors.grey[900])
+              ),
+
+            ),
+          ],
         ),
       ),
     );

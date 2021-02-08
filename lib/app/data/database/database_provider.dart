@@ -171,7 +171,29 @@ class DatabaseProvider with ChangeNotifier {
     else
       return true;
   }
+  clearAllCollection()async{
+    // Delete Collections
 
+    List<Collection> toDelete = collections.where((element) => element.id != 1).toList();
+    collections.removeWhere((element) => toDelete.contains(element)); // delete from provider object
+    print(collections);
+    print("Deleted Collections");
+    // Delete Comic Collections
+    List<ComicCollection>comicCollectionsToDelete = comicCollections.where((element) => toDelete.map((e) => e.id).toList().contains(element.collectionId)).toList();
+    comicCollections.removeWhere((element) => comicCollectionsToDelete.contains(element)); // remove comic collections
+    print("Deleted Comic Collections");
+    // Delete from DB
+    toDelete.forEach((element) async => await collectionManager.deleteCollection(element));
+    comicCollectionsToDelete.forEach((element) async =>await comicCollectionManager.deleteComicCollection(element));
+    print("Updated Database");
+    // Re-add Collections under default.
+    Collection defaultCollection = collections.firstWhere((element) => element.id== 1 );
+    List<Comic> lib = comics.where((element) => element.inLibrary).toList();
+    print("Retrieved favorites");
+    lib.forEach((element)async =>await batchSetComicCollection([defaultCollection], element.id));
+    print("Collection Clear Complete");
+    notifyListeners();
+  }
   updateCollectionOrder(int initial, int newIndex) async {
     initial++;
 
@@ -222,6 +244,7 @@ class DatabaseProvider with ChangeNotifier {
     newCollection.order = collections.length;
     newCollection = await collectionManager.addCollection(newCollection);
     collections.add(newCollection);
+    print("Name: ${newCollection.name},Initial Order: ${newCollection.order}");
     notifyListeners();
     return newCollection;
   }

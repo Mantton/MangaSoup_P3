@@ -102,7 +102,9 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                           : null,
                       trailing: Text(
                         chapter.date,
-                        style: readFont,
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                        ),
                       ),
                       selectedTileColor: Colors.grey[900],
                       onTap: () => onTap(chapter),
@@ -135,7 +137,12 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                       ),
                       subtitle:
                           chapter.maker.isNotEmpty ? Text(chapter.maker) : null,
-                      trailing: Text(chapter.date),
+                      trailing: Text(
+                        chapter.date,
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                        ),
+                      ),
                       selectedTileColor: Colors.grey[900],
                       onTap: () => onTap(chapter),
                     );

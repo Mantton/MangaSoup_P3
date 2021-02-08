@@ -502,20 +502,25 @@ class DexHub {
   }
 
   Future<DexProfile> setUserProfile(Map additionalInfo) async {
-    Response response = await Dio().get(
-      apiV2URL + "/user/me",
-      options: Options(headers: prepareHeaders(additionalInfo)),
-    );
-    DexProfile userProfile = DexProfile.fromMap(response.data["data"]);
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    try{
+      Response response = await Dio().get(
+        apiV2URL + "/user/me",
+        options: Options(headers: prepareHeaders(additionalInfo)),
+      );
+      DexProfile userProfile = DexProfile.fromMap(response.data["data"]);
+      SharedPreferences _prefs = await SharedPreferences.getInstance();
 
-    await _prefs.setString(
-      PreferenceKeys.MANGADEX_PROFILE,
-      jsonEncode(
-        userProfile.toMap(),
-      ),
-    );
-    return userProfile;
+      await _prefs.setString(
+        PreferenceKeys.MANGADEX_PROFILE,
+        jsonEncode(
+          userProfile.toMap(),
+        ),
+      );
+      return userProfile;
+    }on DioError catch (e) {
+      throw e.response.data;
+    }
+
   }
 
   Future<List<ComicHighlight>> getUserLibrary(Map additionalInfo) async{

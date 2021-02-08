@@ -128,25 +128,25 @@ class _MangaDexUserLibraryState extends State<MangaDexUserLibrary> {
 
   mergeLogic(
       BuildContext context, Map<String, List<ComicHighlight>> sorted) async {
-    showLoadingDialog(context);
     try {
-      DatabaseProvider provider =
-          Provider.of<DatabaseProvider>(context, listen: false);
-
-      sorted.forEach((key, value) async {
-        String collectionName = key;
-        List<ComicHighlight> highlights = value;
+      showLoadingDialog(context);
+      for (MapEntry<String, List<ComicHighlight>> entry in sorted.entries.map((e) => e)){
+        String collectionName = entry.key;
+        List<ComicHighlight> highlights = entry.value;
 
         Collection collection;
         try {
-          collection = provider.collections.firstWhere((element) =>
-              element.name.toLowerCase() == collectionName.toLowerCase());
+          collection = Provider.of<DatabaseProvider>(context, listen: false)
+              .collections
+              .firstWhere((element) =>
+          element.name.toLowerCase() == collectionName.toLowerCase());
           print("Collection matching $collectionName found");
         } catch (err) {
           print("No Collection matching $collectionName found creating new...");
-          collection = await provider.createCollection(collectionName);
+          collection =
+          await Provider.of<DatabaseProvider>(context, listen: false)
+              .createCollection(collectionName);
         }
-
         if (collection != null) {
           // Collection Exists, add comics and save to collection
           for (ComicHighlight highlight in highlights) {
@@ -162,13 +162,15 @@ class _MangaDexUserLibraryState extends State<MangaDexUserLibrary> {
                 chapterCount: 0);
 
             // Save/ Update Comic
-            int id =
-                await provider.evaluate(comic, overWriteChapterCount: false);
+            int id = await Provider.of<DatabaseProvider>(context, listen: false)
+                .evaluate(comic, overWriteChapterCount: false);
             // Set Collection
-            await provider.addToLibrary([collection], id);
+            await Provider.of<DatabaseProvider>(context, listen: false)
+                .addToLibrary([collection], id);
           }
         }
-      });
+      }
+
       Navigator.pop(context);
       showMessage(
           "Merge Complete", CupertinoIcons.folder, Duration(seconds: 1));

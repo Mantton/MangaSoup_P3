@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Screens/Settings/source_setting.dart';
+import 'package:mangasoup_prototype_3/app/screens/settings/pages/library.dart';
+import 'package:mangasoup_prototype_3/app/screens/settings/pages/source/source_setting.dart';
 
 class SettingsHome extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class _SettingsHomeState extends State<SettingsHome> {
   final List pages = [
     SourceSettingsPage(),
     SourceSettingsPage(),
-    SourceSettingsPage(),
+    LibrarySettingsPage(),
   ];
   @override
   Widget build(BuildContext context) {
