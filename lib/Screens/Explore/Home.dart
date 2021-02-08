@@ -140,7 +140,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         body: IndexedStack(
           index: _index,
           children: [
-            Container(), //todo, for you
+            Container(),
             AllComicsPage(),
             LatestPage(),
           ],

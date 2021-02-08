@@ -122,7 +122,6 @@
 //           } catch (err) {
 //             showSnackBarMessage("Unable to mark as read");
 //           }
-//           // todo, mangadex mark
 //
 //           if (oldChapter.name == newChapter.name) {
 //             debugPrint("Duplicate");
