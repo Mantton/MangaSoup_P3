@@ -9,6 +9,7 @@ import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/homepage.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:mangasoup_prototype_3/app/data/mangadex/models/mangadex_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,6 +51,19 @@ class ApiManager {
     return sources;
   }
 
+
+  Future<List<HomePage>> getHomePage() async {
+    Response response = await _dio.get('/app/sources/homepage');
+    List initial = response.data['content'];
+    debugPrint(initial.length.toString());
+    List<HomePage> pages = [];
+    for (int index = 0; index < initial.length; index++) {
+      Map test = initial[index];
+      pages.add(HomePage.fromMap(test));
+    }
+    debugPrint("HomePage Loaded");
+    return pages;
+  }
   /// Initialize Source
   Future<Source> initSource(String selector) async {
     Response response = await _dio

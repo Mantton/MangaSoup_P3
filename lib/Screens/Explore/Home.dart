@@ -8,6 +8,7 @@ import 'package:mangasoup_prototype_3/Screens/Browse/FullBrowse/BrosweHome.dart'
 import 'package:mangasoup_prototype_3/Screens/Browse/Search.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/AllComics.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/LatestComics.dart';
+import 'package:mangasoup_prototype_3/Screens/Explore/homepage.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Screens/Tags/AllTags.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
@@ -140,7 +141,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         body: IndexedStack(
           index: _index,
           children: [
-            Container(),
+            ForYouPage(),
             AllComicsPage(),
             LatestPage(),
           ],
