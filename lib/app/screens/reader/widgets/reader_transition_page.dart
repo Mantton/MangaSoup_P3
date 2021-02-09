@@ -54,17 +54,28 @@ class TransitionPage extends StatelessWidget {
             ]),
           ),
           (next.generatedNumber - current.generatedNumber > 1)
-              ? Row(
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      color: Colors.purple,
-                    ),
-                    SizedBox(
-                      width: 10.w,
-                    ),
-                    Text("There seems to be chapters missing")
-                  ],
+              ? Center(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.purple,
+                      ),
+                      SizedBox(
+                        width: 10.w,
+                      ),
+                      Text(
+                        "There seems to be missing chapters.",
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 25.sp,
+                        ),
+                      )
+                    ],
+                  ),
                 )
               : Container(),
         ]),

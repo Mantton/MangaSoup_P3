@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:mangasoup_prototype_3/app/util/generateChapterNumber.dart';
 
 class ChapterData {
   // Database
@@ -28,7 +27,6 @@ class ChapterData {
       this.source,
       this.selector,
       this.generatedChapterNumber}) {
-    id = null;
     images = List();
     read = false;
     timeAccessed = DateTime.now();

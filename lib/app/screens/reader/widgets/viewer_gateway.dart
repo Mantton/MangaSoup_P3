@@ -6,6 +6,9 @@ import 'package:provider/provider.dart';
 import '../reader_provider.dart';
 
 class ViewerGateWay extends StatefulWidget {
+  final int initialPage;
+
+  const ViewerGateWay({Key key, this.initialPage}) : super(key: key);
   @override
   _ViewerGateWayState createState() => _ViewerGateWayState();
 }
@@ -16,7 +19,7 @@ class _ViewerGateWayState extends State<ViewerGateWay> {
     return Consumer<ReaderProvider>(builder: (context, provider, _) {
       return Container(
         // child: WebToonPageAdapter(),
-        child:PagedViewAdapter(),
+        child:PagedViewAdapter(initialPage: widget.initialPage,),
       );
     });
   }
