@@ -26,6 +26,7 @@ import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Services/source_manager.dart';
 import 'package:mangasoup_prototype_3/Services/update_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/landing.dart';
 import 'package:provider/provider.dart';
@@ -142,6 +143,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => BrowseProvider()),
         ChangeNotifierProvider(create: (_) => DatabaseProvider()),
         ChangeNotifierProvider(create: (_) => ReaderProvider()),
+        ChangeNotifierProvider(create: (_) => PreferenceProvider()),
       ],
       child: App(),
     ),
@@ -260,9 +262,14 @@ class Handler extends StatefulWidget {
 class _HandlerState extends State<Handler> {
   Future<bool> initSource() async {
     debugPrint("Start Up");
+
+    // Initialize Data Providers
     await Provider.of<DatabaseProvider>(context, listen:false).init();
+    await Provider.of<PreferenceProvider>(context, listen:false).loadValues();
     SourcePreference _prefs = SourcePreference();
     await _prefs.init();
+
+    // Load Source
     Source source = await _prefs.loadSource();
     if (source == null) {
       debugPrint("Not Initialized");

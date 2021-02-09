@@ -99,15 +99,16 @@ class _ForYouPageState extends State<ForYouPage> {
                         highlights.length <= 6
                             ? ComicGrid(
                           comics: highlights,
-                          crossAxisCount: 3,
                         )
                             : Container(
                           child: CarouselSlider(
+
                             options: CarouselOptions(
                               aspectRatio: 1,
-                              height: 250.h,
+                              height: 300.h,
                               viewportFraction: .4,
                               pauseAutoPlayOnManualNavigate: true,
+
                               enlargeCenterPage: true,
                               // disableCenter: true,
                               autoPlayInterval: Duration(
@@ -115,7 +116,7 @@ class _ForYouPageState extends State<ForYouPage> {
                               ),
 
                               scrollDirection: Axis.horizontal,
-                              autoPlay: true,
+                              autoPlay: false,
                             ),
                             items: highlights
                                 .map((e) => ComicGridTile(comic: e))

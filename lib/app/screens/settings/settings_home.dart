@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mangasoup_prototype_3/app/screens/settings/pages/general.dart';
 import 'package:mangasoup_prototype_3/app/screens/settings/pages/library.dart';
 import 'package:mangasoup_prototype_3/app/screens/settings/pages/source/source_setting.dart';
 
@@ -9,11 +10,13 @@ class SettingsHome extends StatefulWidget {
 
 class _SettingsHomeState extends State<SettingsHome> {
   final List<String> names = [
+    "General Settings",
     "Source Settings",
     "Reader Settings",
     "Library Settings"
   ];
   final List pages = [
+    GeneralSettings(),
     SourceSettingsPage(),
     SourceSettingsPage(),
     LibrarySettingsPage(),

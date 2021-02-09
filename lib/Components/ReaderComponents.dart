@@ -181,8 +181,7 @@ class _VioletImageState extends State<VioletImage> with AutomaticKeepAliveClient
         }
         if (snapshot.hasError) {
           return Container(
-            height: 300,
-            color: Colors.red,
+            child: Text("${snapshot.error}"),
           );
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -213,30 +212,29 @@ class _VioletImageState extends State<VioletImage> with AutomaticKeepAliveClient
   }
 
   Future<Size> _calculateNetworkImageDimension(String uri, String ref) async {
-    Image image = new Image(
-      image: CachedNetworkImageProvider(
+    Image image =  Image(
+      image: NetworkImage(
         uri,
         headers: {"referer": ref},
       ),
     );
     Completer<Size> completer = Completer();
-    try {
-      image.image.resolve(ImageConfiguration()).addListener(
-        ImageStreamListener(
-          (ImageInfo image, bool synchronousCall) {
-            var myImage = image.image;
-            Size size = Size(
-              myImage.width.toDouble(),
-              myImage.height.toDouble(),
-            );
-            completer.complete(size);
-          },
-        ),
-      );
-    } catch (err) {
-      print("ERROR : $err");
-      completer.complete(MediaQuery.of(context).size);
-    }
+    await Future.delayed(Duration(milliseconds: 100)).then((value) {
+        image.image.resolve(ImageConfiguration()).addListener(
+          ImageStreamListener(
+                (ImageInfo image, bool _) {
+              var myImage = image.image;
+              Size size = Size(
+                myImage.width.toDouble(),
+                myImage.height.toDouble(),
+              );
+              completer.complete(size);
+            },
+          ),
+        );
+
+    });
+
 
     return completer.future;
   }

@@ -163,7 +163,6 @@ class _SearchPageState extends State<SearchPage> {
                 // color: Colors.redAccent,
                 child: ComicGrid(
                   comics: snapshot.data,
-                  crossAxisCount: 3,
                 ),
               );
             } else {

@@ -22,9 +22,10 @@ class HistoryHome extends StatefulWidget {
   _HistoryHomeState createState() => _HistoryHomeState();
 }
 
-class _HistoryHomeState extends State<HistoryHome> {
+class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer<DatabaseProvider>(
       builder: (BuildContext context, provider, _) =>
           provider.historyList.isNotEmpty ? home(provider) : emptyLibrary(),
@@ -223,4 +224,7 @@ class _HistoryHomeState extends State<HistoryHome> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
