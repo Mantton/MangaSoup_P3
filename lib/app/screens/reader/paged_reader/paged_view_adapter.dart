@@ -4,18 +4,30 @@ import 'package:preload_page_view/preload_page_view.dart';
 import 'package:provider/provider.dart';
 
 class PagedViewAdapter extends StatefulWidget {
+  final int initialPage;
+
+  const PagedViewAdapter({Key key, this.initialPage}) : super(key: key);
   @override
   _PagedViewAdapterState createState() => _PagedViewAdapterState();
 }
 
 class _PagedViewAdapterState extends State<PagedViewAdapter>
     with AutomaticKeepAliveClientMixin {
+
+  @override
+  void initState() {
+    print(widget.initialPage);
+    _controller  = PreloadPageController(initialPage: widget.initialPage);
+    super.initState();
+  }
+  PreloadPageController _controller ;
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Consumer<ReaderProvider>(builder: (context, provider, _) {
       return PreloadPageView(
         // scrollDirection: Axis.vertical,
+        controller: _controller,
         reverse: true,
         onPageChanged: provider.pageChanged,
         preloadPagesCount: 3,

@@ -20,6 +20,7 @@ class ReaderHome extends StatefulWidget {
   final bool preloaded;
   final ImageChapter preloadedChapter;
   final bool imgur;
+  final int initialPage;
 
   const ReaderHome({
     Key key,
@@ -31,6 +32,7 @@ class ReaderHome extends StatefulWidget {
     this.preloaded = false,
     this.preloadedChapter,
     this.imgur = false,
+    this.initialPage = 1,
   }) : super(key: key);
 
   @override
@@ -55,6 +57,7 @@ class _ReaderHomeState extends State<ReaderHome> {
         preloaded: widget.preloaded,
         preloadedChapter: widget.preloadedChapter,
         imgur: widget.imgur,
+        initialPage: widget.initialPage,
       );
     }
   }
@@ -69,6 +72,7 @@ class ReaderOpener extends StatefulWidget {
   final bool preloaded;
   final ImageChapter preloadedChapter;
   final bool imgur;
+  final int initialPage;
 
   const ReaderOpener(
       {Key key,
@@ -79,7 +83,8 @@ class ReaderOpener extends StatefulWidget {
       this.comicId,
       this.preloaded,
       this.preloadedChapter,
-      this.imgur})
+      this.imgur,
+      this.initialPage})
       : super(key: key);
   @override
   _ReaderOpenerState createState() => _ReaderOpenerState();
@@ -95,7 +100,8 @@ class _ReaderOpenerState extends State<ReaderOpener> {
             context, widget.comicId, widget.source,
             loaded: widget.preloaded,
             loadedChapter: widget.preloadedChapter,
-            imgurAlbum: widget.imgur);
+            imgurAlbum: widget.imgur,
+            initPage: widget.initialPage);
     super.initState();
   }
 
@@ -111,7 +117,7 @@ class _ReaderOpenerState extends State<ReaderOpener> {
           if (snapshot.hasError) {
             return Center(
               child: InkWell(
-                onTap: ()=>Navigator.pop(context),
+                onTap: () => Navigator.pop(context),
                 child: Text(
                   (snapshot.error is DioError)
                       ? "Network Error\nTap to go back home"
@@ -151,7 +157,10 @@ class _ReaderFrameState extends State<ReaderFrame> {
         child: Stack(
           children: [
             plain(),
-            ViewerGateWay(),
+            ViewerGateWay(
+              initialPage: Provider.of<ReaderProvider>(context, listen: false)
+                  .initialPageindex,
+            ),
             header(),
             footer(),
           ],

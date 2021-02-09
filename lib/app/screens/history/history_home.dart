@@ -3,12 +3,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
+import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -47,18 +52,19 @@ class _HistoryHomeState extends State<HistoryHome> {
                 print("HISTORY ERROR: $err\nID:${history.chapterId}");
                 print(provider.chapters.map((e) => e.id).toList());
               }
-              if (chapter == null)
-                return GestureDetector(
-                  onTap: () async {
-                    await provider.removeHistory(history);
-                  },
-                  child: Container(
-                    height: 110.h,
-                    child: Text("ERROR, ${comic.title}"),
-                  ),
-                );
-              else
-                return Container(
+              return GestureDetector(
+                onTap: (){
+                  print(comic.title);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProfileHome(
+                        highlight: comic.toHighlight(),
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
                   color: Color.fromRGBO(15, 15, 15, 1.0),
                   height: 110.h,
                   margin: EdgeInsets.only(bottom: 5.w),
@@ -103,8 +109,7 @@ class _HistoryHomeState extends State<HistoryHome> {
                                   AutoSizeText(
                                     "Chapter ${chapter.generatedChapterNumber}${chapter.lastPageRead == null || chapter.lastPageRead == 0 ? "" : ", Page ${chapter.lastPageRead}"}",
                                     style: TextStyle(
-                                        color: Colors.blueGrey,
-                                        fontSize: 15.sp),
+                                        color: Colors.blueGrey, fontSize: 15.sp),
                                   ),
                                   AutoSizeText(
                                     comic.source,
@@ -139,14 +144,7 @@ class _HistoryHomeState extends State<HistoryHome> {
                                   CupertinoIcons.play_arrow,
                                   color: Colors.greenAccent,
                                 ),
-                                onPressed: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => ProfileHome(
-                                      highlight: comic.toHighlight(),
-                                    ),
-                                  ),
-                                ),
+                                onPressed: () async=> await pushToReader(comic, chapter),
                               ),
                               SizedBox(
                                 width: 5.w,
@@ -166,12 +164,49 @@ class _HistoryHomeState extends State<HistoryHome> {
                       )
                     ],
                   ),
-                );
+                ),
+              );
             }),
       ),
     );
   }
+  pushToReader(Comic comic, ChapterData chapterData)async{
+    try{
+      showLoadingDialog(context);
 
+      Map data = await Provider.of<DatabaseProvider>(context, listen: false).generate(comic.toHighlight());
+      Profile profile = data['profile'];
+      int id = data['id'];
+      int index = profile.chapters.indexWhere((element) => element.link == chapterData.link);
+      ImageChapter imageChapter = ImageChapter(
+        images:  (chapterData.images)?.map((item) => item as String)?.toList(),
+        referer:profile.link,
+        link: profile.link,
+        source: profile.selector,
+        count: chapterData.images.length,
+      );
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => ReaderHome(
+              chapters:profile.chapters,
+              initialChapterIndex: index,
+              selector:profile.selector,
+              source: profile.source,
+              comicId: id,
+              preloaded: true,
+              preloadedChapter: imageChapter,
+              initialPage: chapterData.lastPageRead,
+            ),
+        ),
+      );
+    }catch(err){
+      Navigator.pop(context);
+      showSnackBarMessage(err.toString());
+    }
+
+  }
   Widget emptyLibrary() {
     return Scaffold(
       appBar: AppBar(
