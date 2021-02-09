@@ -406,9 +406,11 @@ class DatabaseProvider with ChangeNotifier {
       else
         chapters.add(obj);
     }
+
+    print(chapters.map((e) => e.id).toList());
     notifyListeners();
     // MD Sync
-    if (selector == "mangadex"){
+    if (selector == "mangadex" && read){
       SharedPreferences.getInstance().then((_prefs) async {
         if (_prefs.getString("mangadex_cookies")!= null){
           // Cookies containing profile exists
@@ -465,7 +467,6 @@ class DatabaseProvider with ChangeNotifier {
       await updateFromACS([chapter], comicId, false, source, selector);
       data = checkIfChapterMatch(chapter);
     }
-
     await updateHistory(comicId, data.id);
   }
 }

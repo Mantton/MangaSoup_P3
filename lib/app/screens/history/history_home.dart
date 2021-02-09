@@ -41,122 +41,132 @@ class _HistoryHomeState extends State<HistoryHome> {
               History history = sorted.reversed.toList()[index];
               Comic comic = provider.retrieveComic(history.comicId);
               ChapterData chapter;
-              try{
+              try {
                 chapter = provider.retrieveChapter(history.chapterId);
-              }catch(E){
-
+              } catch (err) {
+                print("HISTORY ERROR: $err\nID:${history.chapterId}");
+                print(provider.chapters.map((e) => e.id).toList());
               }
               if (chapter == null)
-                return Container();
-              else return Container(
-                color:Color.fromRGBO(15, 15, 15, 1.0),
-                height: 110.h,
-                margin: EdgeInsets.only(bottom: 5.w),
-                padding: EdgeInsets.all(5.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Container(
-                        child: Row(
-                          children: [
-                            SoupImage(
-                              url: comic.thumbnail,
-                              referer: comic.referer,
-                            ),
-                          ],
+                return GestureDetector(
+                  onTap: () async {
+                    await provider.removeHistory(history);
+                  },
+                  child: Container(
+                    height: 110.h,
+                    child: Text("ERROR, ${comic.title}"),
+                  ),
+                );
+              else
+                return Container(
+                  color: Color.fromRGBO(15, 15, 15, 1.0),
+                  height: 110.h,
+                  margin: EdgeInsets.only(bottom: 5.w),
+                  padding: EdgeInsets.all(5.w),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          child: Row(
+                            children: [
+                              SoupImage(
+                                url: comic.thumbnail,
+                                referer: comic.referer,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-
-                    Expanded(
-                      flex: 7,
-                      child: Container(
-                        margin: EdgeInsets.only(left: 2.w),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AutoSizeText(
-                              comic.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              minFontSize: 17.sp,
-                              style: TextStyle(
-                                fontFamily: "lato",
-                                fontSize: 20.sp,
+                      Expanded(
+                        flex: 7,
+                        child: Container(
+                          margin: EdgeInsets.only(left: 2.w),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AutoSizeText(
+                                comic.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                minFontSize: 17.sp,
+                                style: TextStyle(
+                                  fontFamily: "lato",
+                                  fontSize: 20.sp,
+                                ),
                               ),
-                            ),
-
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AutoSizeText(
-                                  "Chapter ${chapter.generatedChapterNumber}${chapter.lastPageRead == null || chapter.lastPageRead == 0 ? "" : ", Page ${chapter.lastPageRead}"}",
-                                  style: TextStyle(color: Colors.blueGrey, fontSize: 15.sp),
-                                ),
-                                AutoSizeText(
-                                  comic.source,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: "lato",
-                                    fontSize: 15.sp,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  AutoSizeText(
+                                    "Chapter ${chapter.generatedChapterNumber}${chapter.lastPageRead == null || chapter.lastPageRead == 0 ? "" : ", Page ${chapter.lastPageRead}"}",
+                                    style: TextStyle(
+                                        color: Colors.blueGrey,
+                                        fontSize: 15.sp),
                                   ),
-                                ),
-                                AutoSizeText(
-                                  DateFormat('yyyy-MM-dd')
-                                      .format(history.lastRead),
-                                  style: TextStyle(
-                                    color: Colors.grey[800],
+                                  AutoSizeText(
+                                    comic.source,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: "lato",
+                                      fontSize: 15.sp,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  AutoSizeText(
+                                    DateFormat('yyyy-MM-dd')
+                                        .format(history.lastRead),
+                                    style: TextStyle(
+                                      color: Colors.grey[800],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                CupertinoIcons.play_arrow,
-                                color: Colors.greenAccent,
-                              ),
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ProfileHome(
-                                    highlight: comic.toHighlight(),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  CupertinoIcons.play_arrow,
+                                  color: Colors.greenAccent,
+                                ),
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ProfileHome(
+                                      highlight: comic.toHighlight(),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              width: 5.w,
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                CupertinoIcons.delete_simple,
-                                color: Colors.redAccent,
+                              SizedBox(
+                                width: 5.w,
                               ),
-                              onPressed: ()async{
-                                await provider.removeHistory(history);
-                              } ,
-                            ),
-                          ],
+                              IconButton(
+                                icon: Icon(
+                                  CupertinoIcons.delete_simple,
+                                  color: Colors.redAccent,
+                                ),
+                                onPressed: () async {
+                                  await provider.removeHistory(history);
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    )
-                  ],
-                ),
-              );
+                      )
+                    ],
+                  ),
+                );
             }),
       ),
     );

@@ -95,7 +95,9 @@ class _AddToLibraryState extends State<AddToLibrary> {
     return Consumer<DatabaseProvider>(
         builder: (BuildContext context, provider, _) {
       List<Collection> collections = List.of(provider.collections);
-      if (collections.length >= 1) {
+      if (collections.length >= 1 &&
+          !provider.comicCollections
+              .any((element) => element.collectionId == 1)) {
         // Remove default collection
         collections.removeWhere((element) => element.order == 0);
       }
