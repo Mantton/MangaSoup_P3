@@ -34,6 +34,7 @@ class ReaderProvider with ChangeNotifier {
   BuildContext context;
   bool reachedEnd = false;
   bool imgur = false;
+  int initialPageindex = 1;
 
   Future init(
       List<Chapter> incomingChapters,
@@ -43,8 +44,9 @@ class ReaderProvider with ChangeNotifier {
       int comic_id,
       String incomingSource,
       {bool loaded = false,
-        bool imgurAlbum = false,
-      ImageChapter loadedChapter}) async {
+      bool imgurAlbum = false,
+      ImageChapter loadedChapter,
+      int initPage = 1}) async {
     reset();
     // Create Starting values
     chapters = List.of(incomingChapters);
@@ -56,14 +58,18 @@ class ReaderProvider with ChangeNotifier {
     // Get Chapter being pointed to
     Chapter chapter = incomingChapters.elementAt(initialIndex);
     imgur = imgurAlbum;
-    if (!imgur)
-      {
-        await Provider.of<DatabaseProvider>(context, listen: false)
-            .historyLogic(chapter, comicId, source, selector);
-        print("History Initialized");
-      }
 
+    // prepare initial page
+    initialPageindex = initPage - 1;
+    pageDisplayNumber = initPage;
+    if (!imgur) {
+      await Provider.of<DatabaseProvider>(context, listen: false)
+          .historyLogic(chapter, comicId, source, selector);
+      print("History Initialized");
+    }
 
+    // Debugging
+    print("Specified Initial Page Index: $initialPageindex");
     // Initialize Reader Chapter
     ReaderChapter firstChapter = ReaderChapter();
     firstChapter.chapterName = chapter.name;
@@ -74,6 +80,15 @@ class ReaderProvider with ChangeNotifier {
     ImageChapter response = !loaded
         ? await ApiManager().getImages(selector, chapter.link)
         : loadedChapter;
+    try {
+      await Provider.of<DatabaseProvider>(context, listen: false)
+          .updateChapterImages(chapter, response.images);
+      print("Images set for ${chapter.name}");
+      await Provider.of<DatabaseProvider>(context, listen: false)
+          .updateChapterInfo(1, chapter);
+    } catch (err) {
+      print("IMAGE ERROR: $err");
+    }
     int c = 0;
     for (String uri in response.images) {
       ReaderPage newPage = ReaderPage(c + 1, uri, response.referer);
@@ -141,7 +156,14 @@ class ReaderProvider with ChangeNotifier {
     readerChapter.index = nextIndex;
     // Get Images
     ImageChapter response =
-    await ApiManager().getImages(selector, chapter.link);
+        await ApiManager().getImages(selector, chapter.link);
+    try {
+      await Provider.of<DatabaseProvider>(context, listen: false)
+          .updateChapterImages(chapter, response.images);
+      print("Images set for ${chapter.name}");
+    } catch (err) {
+      print("IMAGE ERROR: $err");
+    }
     int c = 0;
     pagePositionList.add(null); // for transition page
     indexList.add(null);
@@ -159,7 +181,7 @@ class ReaderProvider with ChangeNotifier {
 
   pageChanged(int page) async {
     currentIndex =
-    indexList[page]; // get the current chapter index for the page
+        indexList[page]; // get the current chapter index for the page
     pageDisplayNumber = pagePositionList[page];
     try {
       pageDisplayCount = readerChapters
@@ -171,25 +193,21 @@ class ReaderProvider with ChangeNotifier {
     }
 
     currentChapterName =
-    indexList[page] != null ? chapters
-        .elementAt(indexList[page])
-        .name : "";
+        indexList[page] != null ? chapters.elementAt(indexList[page]).name : "";
     notifyListeners();
 
     /// History Update LOGIC
     try {
-
-      if (!imgur){
+      if (!imgur) {
         Chapter pointer = chapters.elementAt(indexList[page]);
         Provider.of<DatabaseProvider>(context, listen: false)
             .updateChapterInfo(pageDisplayNumber, pointer);
         ChapterData pointed =
-        Provider.of<DatabaseProvider>(context, listen: false)
-            .checkIfChapterMatch(pointer);
+            Provider.of<DatabaseProvider>(context, listen: false)
+                .checkIfChapterMatch(pointer);
         Provider.of<DatabaseProvider>(context, listen: false)
             .updateHistory(comicId, pointed.id);
       }
-
     } catch (e) {
       // do nothing
     }
@@ -197,7 +215,8 @@ class ReaderProvider with ChangeNotifier {
     /// UPDATE LOGIC
     if (pageDisplayCount != null &&
         pageDisplayNumber == pageDisplayCount &&
-        page > lastPage && !imgur) {
+        page > lastPage &&
+        !imgur) {
       // things to fix, going bac would cause next to be triggered
       int nextIndex = currentIndex - 1;
       print(chapterHolder.keys.toList());
@@ -212,21 +231,22 @@ class ReaderProvider with ChangeNotifier {
             source,
             selector);
         // MD Sync Logic
-        if (selector == "mangadex"){
+        if (selector == "mangadex") {
           SharedPreferences.getInstance().then((_prefs) async {
-            if (_prefs.getString("mangadex_cookies")!= null){
-                // Cookies containing profile exists
+            if (_prefs.getString("mangadex_cookies") != null) {
+              // Cookies containing profile exists
               // Sync to MD
-              try{
-                print('syncing to ${chapters.elementAt(currentIndex).link} to MangaDex');
-                await ApiManager().syncChapters([chapters.elementAt(currentIndex).link], true);
-              }catch(err){
+              try {
+                print(
+                    'syncing to ${chapters.elementAt(currentIndex).link} to MangaDex');
+                await ApiManager().syncChapters(
+                    [chapters.elementAt(currentIndex).link], true);
+              } catch (err) {
                 showSnackBarMessage(err);
               }
             }
           });
         }
-
 
         if (nextIndex < 0) {
           if (reachedEnd) {
@@ -248,7 +268,12 @@ class ReaderProvider with ChangeNotifier {
     reachedEnd = true;
     pagePositionList.add(null); // for transition page
     indexList.add(null);
-    widgetPageList.add(ReachedEndPage());
+    widgetPageList.add(
+      ReachedEndPage(
+        inLibrary: Provider.of<DatabaseProvider>(context, listen: false)
+            .retrieveComic(comicId),
+      ),
+    );
   }
 
   reset() {
@@ -272,5 +297,6 @@ class ReaderProvider with ChangeNotifier {
     comicId = null;
     reachedEnd = false;
     imgur = false;
+    initialPageindex = 1;
   }
 }

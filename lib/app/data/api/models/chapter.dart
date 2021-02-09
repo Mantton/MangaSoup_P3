@@ -8,7 +8,9 @@ class Chapter {
   bool openInBrowser;
   double generatedNumber;
 
-  Chapter(this.name, this.link, this.date, this.maker);
+  Chapter(this.name, this.link, this.date, this.maker){
+    openInBrowser = false;
+  }
 
   Chapter.fromMap(Map<String, dynamic> map, String comicTitle) {
     name = map['name'];

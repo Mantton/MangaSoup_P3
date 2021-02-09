@@ -20,7 +20,7 @@ class History{
       {
         "id": id,
         "comic_id": comicId,
-        "chapter_id": comicId,
+        "chapter_id": chapterId,
         "last_read": lastRead.microsecondsSinceEpoch
       };
 

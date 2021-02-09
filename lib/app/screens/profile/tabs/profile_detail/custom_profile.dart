@@ -291,6 +291,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                 "Chapter 1", widget.profile.link, "", widget.profile.source);
             chapter.generatedNumber = 1.0;
 
+
             Navigator.push(
               context,
               MaterialPageRoute(

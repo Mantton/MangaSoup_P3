@@ -370,6 +370,17 @@ class DatabaseProvider with ChangeNotifier {
     }
   }
 
+  updateChapterImages(Chapter chapter, List images)async{
+    ChapterData data = checkIfChapterMatch(chapter);
+    if (data != null){
+      data.images = images;
+      int d = chapters.indexWhere((element) => element.id == data.id);
+      chapters[d] = data;
+      await chapterManager.updateBatch([data]);
+      notifyListeners();
+    }
+  }
+
   bool checkSimilarRead(Chapter chapter, int comicId) {
     bool check = chapters.any((element) =>
         element.read &&
@@ -406,9 +417,11 @@ class DatabaseProvider with ChangeNotifier {
       else
         chapters.add(obj);
     }
+
+    print(chapters.map((e) => e.id).toList());
     notifyListeners();
     // MD Sync
-    if (selector == "mangadex"){
+    if (selector == "mangadex" && read){
       SharedPreferences.getInstance().then((_prefs) async {
         if (_prefs.getString("mangadex_cookies")!= null){
           // Cookies containing profile exists
@@ -465,7 +478,6 @@ class DatabaseProvider with ChangeNotifier {
       await updateFromACS([chapter], comicId, false, source, selector);
       data = checkIfChapterMatch(chapter);
     }
-
     await updateHistory(comicId, data.id);
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
-import 'package:mangasoup_prototype_3/app/dialogs/not_in_library.dart';
+import 'package:mangasoup_prototype_3/app/dialogs/library_dialog.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 class CollectionStateWidget extends StatefulWidget {
