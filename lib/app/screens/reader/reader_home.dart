@@ -130,8 +130,15 @@ class _ReaderOpenerState extends State<ReaderOpener> {
               ),
             );
           } else {
-            return Center(
-              child: LoadingIndicator(),
+            return InkWell(
+              onTap: ()=>Provider.of<ReaderProvider>(context).toggleShowControls(),
+              child: Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: Center(
+                  child: LoadingIndicator(),
+                ),
+              ),
             );
           }
         },

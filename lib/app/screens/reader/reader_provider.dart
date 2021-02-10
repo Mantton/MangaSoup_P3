@@ -155,38 +155,46 @@ class ReaderProvider with ChangeNotifier {
 
   loadNextChapter(int nextIndex) async {
     Chapter chapter = chapters.elementAt(nextIndex);
+    Chapter current = chapters.elementAt(currentIndex);
 
-    // create chapteredata object
-    Provider.of<DatabaseProvider>(context, listen: false)
-        .updateFromACS([chapter], comicId, false, source, selector);
-    // Initialize Reader Chapter
-    ReaderChapter readerChapter = ReaderChapter();
-    readerChapter.chapterName = chapter.name;
-    readerChapter.generatedNumber = chapter.generatedNumber;
-    readerChapter.index = nextIndex;
-    // Get Images
-    ImageChapter response =
-        await ApiManager().getImages(selector, chapter.link);
-    try {
-      await Provider.of<DatabaseProvider>(context, listen: false)
-          .updateChapterImages(chapter, response.images);
-      print("Images set for ${chapter.name}");
-    } catch (err) {
-      print("IMAGE ERROR: $err");
+    if (chapter.generatedNumber == current.generatedNumber){
+      await loadNextChapter(nextIndex-1);
+    }else{
+      // create chapteredata object
+      Provider.of<DatabaseProvider>(context, listen: false)
+          .updateFromACS([chapter], comicId, false, source, selector);
+      // Initialize Reader Chapter
+      ReaderChapter readerChapter = ReaderChapter();
+      readerChapter.chapterName = chapter.name;
+      readerChapter.generatedNumber = chapter.generatedNumber;
+      readerChapter.index = nextIndex;
+      // Get Images
+      ImageChapter response =
+      await ApiManager().getImages(selector, chapter.link);
+      try {
+        await Provider.of<DatabaseProvider>(context, listen: false)
+            .updateChapterImages(chapter, response.images);
+        print("Images set for ${chapter.name}");
+      } catch (err) {
+        print("IMAGE ERROR: $err");
+      }
+      int c = 0;
+      pagePositionList.add(null); // for transition page
+      indexList.add(null);
+
+      for (String uri in response.images) {
+        ReaderPage newPage = ReaderPage(c, uri, response.referer);
+        readerChapter.pages.add(newPage);
+        c++;
+        pagePositionList.add(c);
+        indexList.add(nextIndex);
+      }
+
+      addChapterToView(readerChapter);
+
     }
-    int c = 0;
-    pagePositionList.add(null); // for transition page
-    indexList.add(null);
 
-    for (String uri in response.images) {
-      ReaderPage newPage = ReaderPage(c, uri, response.referer);
-      readerChapter.pages.add(newPage);
-      c++;
-      pagePositionList.add(c);
-      indexList.add(nextIndex);
-    }
 
-    addChapterToView(readerChapter);
   }
 
   pageChanged(int page) async {
