@@ -173,10 +173,10 @@ class _TagComicsPageState extends State<TagComicsPage> {
                                         cupertino: (_, __) =>
                                             CupertinoActionSheet(
                                           title: Text("Sort by"),
-                                          cancelButton: CupertinoButton(
+                                          cancelButton: CupertinoActionSheetAction(
                                             child: Text("Cancel"),
-                                            onPressed: () =>
-                                                Navigator.pop(context),
+                                            isDestructiveAction: true,
+                                            onPressed: () => Navigator.pop(context),
                                           ),
                                           actions: List<
                                                   CupertinoActionSheetAction>.generate(

@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LibrarySettingsPage extends StatefulWidget {
   @override
@@ -21,27 +24,41 @@ class _LibrarySettingsPageState extends State<LibrarySettingsPage> {
       ),
       body: Consumer<DatabaseProvider>(
         builder: (BuildContext context, provider, _) {
+          List<Collection> collections = List.of(provider.collections);
+          collections.removeWhere((element) => element.id == 1);
           return Column(
             children: [
               Container(
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: provider.collections.length,
+                  itemCount: collections.length,
                   itemBuilder: (_, int index) => ListTile(
-                    title: Text(provider.collections[index].name),
+                    title: Text(
+                      collections[index].name,
+                      style: notInLibraryFont,
+                    ),
                     trailing: IconButton(
-                      icon: Icon(CupertinoIcons.pen),
-                      onPressed: () {
-                        // todo, open actions dialog, rename or delete
-                      },
+                      icon: Icon(
+                        CupertinoIcons.pen,
+                        color: Colors.purple,
+                      ),
+                      onPressed: () => deleteRenameDialog(),
                     ),
                   ),
                 ),
               ),
-              ListTile(
-                title: Text("Delete all Collections"),
-                onTap: () => deleteAll(),
-              )
+              collections.length != 0
+                  ? ListTile(
+                      title: Text(
+                        "Delete all Collections",
+                        style: TextStyle(
+                            color: Colors.redAccent,
+                            fontFamily: "Lato",
+                            fontSize: 20.sp),
+                      ),
+                      onTap: () => deleteAll(),
+                    )
+                  : Container(),
             ],
           );
         },
@@ -63,12 +80,13 @@ class _LibrarySettingsPageState extends State<LibrarySettingsPage> {
           ),
           PlatformDialogAction(
             child: Text("Proceed"),
-            onPressed: ()async{
+            onPressed: () async {
               Navigator.pop(context);
-              try{
+              try {
                 showLoadingDialog(context);
-                await Provider.of<DatabaseProvider>(context, listen: false).clearAllCollection();
-              }catch(err){
+                await Provider.of<DatabaseProvider>(context, listen: false)
+                    .clearAllCollection();
+              } catch (err) {
                 print(err);
                 showSnackBarMessage(err.toString());
               }
@@ -81,4 +99,47 @@ class _LibrarySettingsPageState extends State<LibrarySettingsPage> {
       ),
     );
   }
+
+  deleteRenameDialog() => showPlatformModalSheet(
+      context: context,
+      builder: (_) => PlatformWidget(
+            cupertino: (_, __) => CupertinoActionSheet(
+              title: Text(
+                "Actions",
+                style: notInLibraryFont,
+              ),
+              cancelButton: CupertinoActionSheetAction(
+                child: Text("Cancel"),
+                isDestructiveAction: true,
+                onPressed: () => Navigator.pop(context),
+              ),
+              actions: [
+                CupertinoActionSheetAction(
+                  child: Text("Rename Collection"),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                CupertinoActionSheetAction(
+                  child: Text("Delete Collection"),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            material: (_, __) => ListView(
+              children: [
+                Text(
+                  "Actions",
+                  style: notInLibraryFont,
+                ),
+                SizedBox(
+                  height: 5.h,
+                ),
+                ListTile(
+                  title: Text("Rename Collection"),
+                ),
+                ListTile(
+                  title: Text("Delete Collection"),
+                ),
+              ],
+            ),
+          ));
 }

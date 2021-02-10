@@ -188,12 +188,10 @@ class _AllComicsPageState extends State<AllComicsPage>
                                         title: Text(
                                           "Sort by",
                                         ),
-                                        cancelButton: CupertinoButton(
-                                          child: Text(
-                                            "Cancel",
-                                          ),
-                                          onPressed: () =>
-                                              Navigator.pop(context),
+                                        cancelButton: CupertinoActionSheetAction(
+                                          child: Text("Cancel"),
+                                          isDestructiveAction: true,
+                                          onPressed: () => Navigator.pop(context),
                                         ),
                                         actions: List<
                                             CupertinoActionSheetAction>.generate(
