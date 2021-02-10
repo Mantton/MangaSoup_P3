@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/widgets/comic_collection_widget.dart';
 
@@ -27,11 +29,33 @@ class ReachedEndPage extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 10.h,),
+            SizedBox(
+              height: 10.h,
+            ),
             Container(
               padding: EdgeInsets.all(8.w),
               child: CollectionStateWidget(
                 comicId: inLibrary.id,
+              ),
+            ),
+            SizedBox(
+              height: 10.h,
+            ),
+            MaterialButton(
+              height: 60.h,
+              minWidth: 120.w,
+              onPressed: () {
+                // Provider.of<PreferenceProvider>(context, listen: false)
+                //     .setReaderMode(1);
+                Navigator.pop(context);
+              },
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                  side: BorderSide(color: Colors.grey[900])),
+              color: Colors.grey[900],
+              child: Text(
+                "Exit",
+                style: notInLibraryFont,
               ),
             )
           ],

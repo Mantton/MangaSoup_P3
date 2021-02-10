@@ -3,6 +3,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:provider/provider.dart';
 
 preferenceDialog({@required BuildContext context}) {
@@ -99,6 +100,7 @@ Widget readerModeSetting() {
               value: provider.readerMode,
               onChanged: (value) {
                 provider.setReaderMode(value);
+                Provider.of<ReaderProvider>(context, listen: false).changeMode();
               },
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
@@ -147,20 +148,29 @@ class ReaderFrame extends StatefulWidget {
 class _ReaderFrameState extends State<ReaderFrame> {
   bool _showControls = false;
   @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIOverlays([]);
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+  }
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: GestureDetector(
         onTap: () {
-          setState(() {
-            _showControls = !_showControls;
-          });
+          print("tapped!");
+          Provider.of<ReaderProvider>(context, listen: false).toggleShowControls();
         },
         child: Stack(
           children: [
             plain(),
             ViewerGateWay(
               initialPage: Provider.of<ReaderProvider>(context, listen: false)
-                  .initialPageindex,
+                  .initialPageIndex,
             ),
             header(),
             footer(),
@@ -185,7 +195,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
         duration: Duration(
           milliseconds: 150,
         ),
-        top: _showControls ? 0 : -120.h,
+        top: provider.showControls ? 0 : -120.h,
         curve: Curves.easeIn,
         height: 120.h,
         width: MediaQuery.of(context).size.width,
@@ -277,7 +287,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
       return AnimatedPositioned(
         duration: Duration(milliseconds: 150),
         curve: Curves.ease,
-        bottom: _showControls ? 0 : -60.h,
+        bottom: provider.showControls ? 0 : -60.h,
         child: Container(
           height: 60.h,
           width: MediaQuery.of(context).size.width,

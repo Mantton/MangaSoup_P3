@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ReaderProvider with ChangeNotifier {
   int comicId;
   String source;
+  bool showControls = false;
 
   List<ReaderChapter> readerChapters = List(); // loaded chapters
   List<Widget> widgetPageList = List(); // Pages to be shown
@@ -23,6 +24,7 @@ class ReaderProvider with ChangeNotifier {
   List pagePositionList = List(); // the page number for each widget page
   List indexList = List(); // the chapter index for each page
 
+  int currentPage = 0;
   String selector;
   int currentIndex = 0;
   ChapterData currentChapter;
@@ -34,7 +36,7 @@ class ReaderProvider with ChangeNotifier {
   BuildContext context;
   bool reachedEnd = false;
   bool imgur = false;
-  int initialPageindex = 1;
+  int initialPageIndex = 1;
 
   Future init(
       List<Chapter> incomingChapters,
@@ -60,7 +62,7 @@ class ReaderProvider with ChangeNotifier {
     imgur = imgurAlbum;
 
     // prepare initial page
-    initialPageindex = initPage - 1;
+    initialPageIndex = initPage - 1;
     pageDisplayNumber = initPage;
     if (!imgur) {
       await Provider.of<DatabaseProvider>(context, listen: false)
@@ -69,7 +71,7 @@ class ReaderProvider with ChangeNotifier {
     }
 
     // Debugging
-    print("Specified Initial Page Index: $initialPageindex");
+    print("Specified Initial Page Index: $initialPageIndex");
     // Initialize Reader Chapter
     ReaderChapter firstChapter = ReaderChapter();
     firstChapter.chapterName = chapter.name;
@@ -120,7 +122,15 @@ class ReaderProvider with ChangeNotifier {
     pageDisplayCount = chapter.pages.length;
     currentChapterName = chapter.chapterName;
   }
+  toggleShowControls(){
+    showControls = !showControls;
+    notifyListeners();
+  }
 
+  changeMode(){
+    initialPageIndex = currentPage;
+    notifyListeners();
+  }
   addChapterToView(ReaderChapter chapter) {
     /// Adds chapters to the pagelistview
     ReaderChapter current = readerChapters.last;
@@ -180,6 +190,7 @@ class ReaderProvider with ChangeNotifier {
   }
 
   pageChanged(int page) async {
+    currentPage = page;
     currentIndex =
         indexList[page]; // get the current chapter index for the page
     pageDisplayNumber = pagePositionList[page];
@@ -297,6 +308,7 @@ class ReaderProvider with ChangeNotifier {
     comicId = null;
     reachedEnd = false;
     imgur = false;
-    initialPageindex = 1;
+    initialPageIndex = 1;
+    currentPage = 0 ;
   }
 }
