@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -279,6 +280,12 @@ class _ReaderFrameState extends State<ReaderFrame> {
                       indent: 15,
                       endIndent: 15,
                     ),
+
+                    IconButton(
+                      icon: Icon(CupertinoIcons.bookmark),
+                      color: Colors.purple,
+                      onPressed: ()=>null, // add current page to bookmark
+                    )
                   ],
                 ),
               )

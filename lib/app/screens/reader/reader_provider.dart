@@ -160,7 +160,7 @@ class ReaderProvider with ChangeNotifier {
     if (chapter.generatedNumber == current.generatedNumber){
       await loadNextChapter(nextIndex-1);
     }else{
-      // create chapteredata object
+      // create chapter data object
       Provider.of<DatabaseProvider>(context, listen: false)
           .updateFromACS([chapter], comicId, false, source, selector);
       // Initialize Reader Chapter

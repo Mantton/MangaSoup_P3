@@ -106,12 +106,7 @@ class _SourcesPageState extends State<SourcesPage> {
                 appBar: AppBar(
                   title: Text("Sources"),
                   centerTitle: true,
-                  actions: [
-                    IconButton(
-                      icon: Icon(CupertinoIcons.info),
-                      onPressed: () {},
-                    ),
-                  ],
+                  // info button can go here
                   bottom: TabBar(
                     isScrollable: true,
                     unselectedLabelColor: Colors.grey,
