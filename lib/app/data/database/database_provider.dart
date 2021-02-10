@@ -248,6 +248,14 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
     return newCollection;
   }
+  Future<Collection> updateCollection(Collection collection)async{
+    int index = collections.indexWhere((element) => element.id == collection.id);
+    collections[index] = collection;
+    await collectionManager.updateCollection(collection);
+    notifyListeners();
+    return collection;
+
+  }
 
   // Comic Collections
   batchSetComicCollection(List<Collection> collections, int comicId) async {
@@ -297,14 +305,6 @@ class DatabaseProvider with ChangeNotifier {
   toggleCollectionUpdate(Collection collection) {
     collection.updateEnabled = !collection.updateEnabled;
 
-    int target =
-        collections.indexWhere((element) => element.id == collection.id);
-    collections[target] = collection;
-    collectionManager.updateCollection(collection);
-    notifyListeners();
-  }
-
-  updateCollection(Collection collection) {
     int target =
         collections.indexWhere((element) => element.id == collection.id);
     collections[target] = collection;

@@ -6,6 +6,7 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
+import 'package:mangasoup_prototype_3/app/dialogs/collection_edit.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -42,7 +43,7 @@ class _LibrarySettingsPageState extends State<LibrarySettingsPage> {
                         CupertinoIcons.pen,
                         color: Colors.purple,
                       ),
-                      onPressed: () => deleteRenameDialog(),
+                      onPressed: () => deleteRenameDialog(collections[index]),
                     ),
                   ),
                 ),
@@ -100,46 +101,61 @@ class _LibrarySettingsPageState extends State<LibrarySettingsPage> {
     );
   }
 
-  deleteRenameDialog() => showPlatformModalSheet(
-      context: context,
-      builder: (_) => PlatformWidget(
-            cupertino: (_, __) => CupertinoActionSheet(
-              title: Text(
+  deleteRenameDialog(Collection collection) => showPlatformModalSheet(
+        context: context,
+        builder: (_) => PlatformWidget(
+          cupertino: (_, __) => CupertinoActionSheet(
+            title: Text(
+              "Actions",
+              style: notInLibraryFont,
+            ),
+            cancelButton: CupertinoActionSheetAction(
+              child: Text("Cancel"),
+              isDestructiveAction: true,
+              onPressed: () => Navigator.pop(context),
+            ),
+            actions: [
+              CupertinoActionSheetAction(
+                child: Text("Rename Collection"),
+                onPressed: () {
+                  Navigator.pop(context);
+                  collectionEditDialog(
+                    context: context,
+                    collection: collection,
+                  );
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: Text("Delete Collection"),
+                onPressed: (){
+                  Navigator.pop(context);
+                  showSnackBarMessage("Not Implemented, Contact Developer");
+                },
+              ),
+            ],
+          ),
+          material: (_, __) => ListView(
+            children: [
+              Text(
                 "Actions",
                 style: notInLibraryFont,
               ),
-              cancelButton: CupertinoActionSheetAction(
-                child: Text("Cancel"),
-                isDestructiveAction: true,
-                onPressed: () => Navigator.pop(context),
+              SizedBox(
+                height: 5.h,
               ),
-              actions: [
-                CupertinoActionSheetAction(
-                  child: Text("Rename Collection"),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                CupertinoActionSheetAction(
-                  child: Text("Delete Collection"),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-            material: (_, __) => ListView(
-              children: [
-                Text(
-                  "Actions",
-                  style: notInLibraryFont,
-                ),
-                SizedBox(
-                  height: 5.h,
-                ),
-                ListTile(
-                  title: Text("Rename Collection"),
-                ),
-                ListTile(
-                  title: Text("Delete Collection"),
-                ),
-              ],
-            ),
-          ));
+              ListTile(
+                title: Text("Rename Collection"),
+                onTap: () {
+                  Navigator.pop(context);
+                  collectionEditDialog(
+                      context: context, collection: collection);
+                },
+              ),
+              ListTile(
+                title: Text("Delete Collection"),
+              ),
+            ],
+          ),
+        ),
+      );
 }
