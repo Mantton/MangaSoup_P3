@@ -108,7 +108,7 @@ class ReaderProvider with ChangeNotifier {
     // Create Page Widgets, add to View
 
     for (ReaderPage page in chapter.pages) {
-      Widget view = WebToonViewHolder(
+      Widget view = ImageHolder(
         page: page,
       );
       widgetPageList.add(view);
@@ -131,7 +131,7 @@ class ReaderProvider with ChangeNotifier {
     widgetPageList.add(transition);
     print(pagePositionList);
     for (ReaderPage page in chapter.pages) {
-      Widget view = WebToonViewHolder(
+      Widget view = ImageHolder(
         page: page,
       );
       widgetPageList.add(view);

@@ -12,12 +12,10 @@ class _SettingsHomeState extends State<SettingsHome> {
   final List<String> names = [
     "General Settings",
     "Source Settings",
-    "Reader Settings",
     "Library Settings"
   ];
   final List pages = [
     GeneralSettings(),
-    SourceSettingsPage(),
     SourceSettingsPage(),
     LibrarySettingsPage(),
   ];

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'keys.dart';
 
@@ -20,6 +21,7 @@ class PreferenceProvider with ChangeNotifier {
         _p.getInt(PreferenceKeys.READER_SCROLL_DIRECTION) ?? 1;
     readerOrientation = _p.getInt(PreferenceKeys.MANGA_ORIENTATION) ?? 1;
     readerPadding = _p.getBool(PreferenceKeys.MANGA_PADDING) ?? true;
+    readerPageSnapping = _p.getBool(PreferenceKeys.MANGA_SNAPPING) ?? true;
     comicGridCrossAxisCount =
         _p.getInt(PreferenceKeys.COMIC_GRID_CROSS_AXIS_COUNT) ?? 3;
     notifyListeners();
@@ -40,10 +42,12 @@ class PreferenceProvider with ChangeNotifier {
   int readerScrollDirection;
   int readerOrientation;
   bool readerPadding;
+  bool readerPageSnapping;
 
   /// Reader Mode
   /// 1 - Manga
   /// 2 - Webtoon
+  Map readerModeOptions = {1: "Paged / Manga", 2: "WebToon"};
   setReaderMode(int mode) async {
     SharedPreferences p = await _preferences();
     readerMode = mode;
@@ -54,6 +58,8 @@ class PreferenceProvider with ChangeNotifier {
   /// Reader Scroll Direction
   /// 1 - LTR
   /// 2 - RTL
+  Map readerScrollDirectionOptionsHorizontal = {1: "Left to Right", 2: "Right to Left"};
+  Map readerScrollDirectionOptionsVertical = {1: "Downward Swipe", 2: "Upward Swipe"};
   setReaderScrollDirection(int mode) async {
     SharedPreferences p = await _preferences();
     readerScrollDirection = mode;
@@ -64,6 +70,7 @@ class PreferenceProvider with ChangeNotifier {
   /// Reader Orientation
   /// 1 - Horizontal
   /// 2 - Vertical
+  Map readerOrientationOptions = {1: "Horizontal", 2: "Vertical"};
   setReaderOrientation(int mode) async {
     SharedPreferences p = await _preferences();
     readerOrientation = mode;
@@ -74,10 +81,22 @@ class PreferenceProvider with ChangeNotifier {
   /// Reader Padding
   /// true - enable padding
   /// false - disable padding
+  Map readerPaddingOptions = {true: "Enabled", false: "Disabled"};
   setReaderPadding(bool padding) async {
     SharedPreferences p = await _preferences();
     readerPadding = padding;
     p.setBool(PreferenceKeys.MANGA_PADDING, padding);
+    notifyListeners();
+  }
+
+  /// Reader Snapping
+  /// true - enable padding
+  /// false - disable padding
+  Map readerPageSnappingOptions = {true: "Enabled", false: "Disabled"};
+  setReaderPageSnapping(bool padding) async {
+    SharedPreferences p = await _preferences();
+    readerPageSnapping = padding;
+    p.setBool(PreferenceKeys.MANGA_SNAPPING, padding);
     notifyListeners();
   }
 
@@ -92,4 +111,12 @@ class PreferenceProvider with ChangeNotifier {
     p.setInt(PreferenceKeys.COMIC_GRID_CROSS_AXIS_COUNT, count);
     notifyListeners();
   }
+
+  /// Functions
+  List<DropdownMenuItem> buildItems(Map pref) => pref.entries.map(
+        (e) => DropdownMenuItem(
+          child: Text(e.value),
+          value: e.key,
+        ),
+      ).toList();
 }

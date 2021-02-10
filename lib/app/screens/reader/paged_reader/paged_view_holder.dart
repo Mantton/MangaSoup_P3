@@ -13,15 +13,17 @@ class PagedViewHolder extends StatefulWidget {
 class _PagedViewHolderState extends State<PagedViewHolder> {
   @override
   Widget build(BuildContext context) {
-    return TestImage(
-      page: widget.page,
+    return Container(
+      child: PagedImage(
+        page: widget.page,
+      ),
     );
   }
 }
 
-class TestImage extends StatelessWidget {
+class PagedImage extends StatelessWidget {
   final ReaderPage page;
-  const TestImage({
+  const PagedImage({
     Key key,
     @required this.page,
   }) : super(key: key);
@@ -31,7 +33,7 @@ class TestImage extends StatelessWidget {
     return ReaderImage(
       referer: page.referer,
       url: page.imgUrl,
-      fit: BoxFit.fitWidth,
+      // fit: BoxFit.fitWidth,
     );
   }
 }

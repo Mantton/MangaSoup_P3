@@ -7,6 +7,7 @@ import 'package:mangasoup_prototype_3/Screens/WebViews/chapter_webview.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/dialogs/reader_preferences.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/viewer_gateway.dart';
 import 'package:provider/provider.dart';
@@ -223,7 +224,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
                             color: Colors.grey,
                             size: 30.sp,
                           ),
-                          onPressed: () {},
+                          onPressed: () => preferenceDialog(context: context),
                         ),
                       )
                     ],

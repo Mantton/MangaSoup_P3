@@ -7,6 +7,7 @@ import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
@@ -178,7 +179,18 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
       Map data = await Provider.of<DatabaseProvider>(context, listen: false).generate(comic.toHighlight());
       Profile profile = data['profile'];
       int id = data['id'];
-      int index = profile.chapters.indexWhere((element) => element.link == chapterData.link);
+      int index  = 0 ;
+      List<Chapter> chapters = List();
+      if (profile.chapters!= null){
+        index =  profile.chapters.indexWhere((element) => element.link == chapterData.link);
+       chapters = profile.chapters;
+      }else {
+        Chapter chapter = Chapter(
+            "Chapter 1", profile.link, "", profile.selector);
+        chapter.generatedNumber = 1.0;
+        chapters.add(chapter);
+      }
+
       ImageChapter imageChapter = ImageChapter(
         images:  (chapterData.images)?.map((item) => item as String)?.toList(),
         referer:profile.link,
@@ -191,7 +203,7 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
         context,
         MaterialPageRoute(
             builder: (_) => ReaderHome(
-              chapters:profile.chapters,
+              chapters:chapters,
               initialChapterIndex: index,
               selector:profile.selector,
               source: profile.source,

@@ -1,22 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/ReaderComponents.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
+import "package:flutter_screenutil/flutter_screenutil.dart";
 
 
-class WebToonViewHolder extends StatefulWidget {
+import 'package:provider/provider.dart';class ImageHolder extends StatefulWidget {
   final ReaderPage page;
 
-  const WebToonViewHolder({Key key, this.page}) : super(key: key);
+  const ImageHolder({Key key, this.page}) : super(key: key);
   @override
-  _WebToonViewHolderState createState() => _WebToonViewHolderState();
+  _ImageHolderState createState() => _ImageHolderState();
 }
 
-class _WebToonViewHolderState extends State<WebToonViewHolder> {
+class _ImageHolderState extends State<ImageHolder> {
   @override
   Widget build(BuildContext context) {
-    return VioletImage(
-      url: widget.page.imgUrl,
-      referrer: widget.page.referer,
+    return Consumer<PreferenceProvider>(
+      builder: (context, settings, _) {
+        return Padding(
+          padding:  EdgeInsets.all(
+           settings .readerMode == 1? settings.readerPadding ? 10.w : 0.0: 0.0,
+          ),
+          child: VioletImage(
+            url: widget.page.imgUrl,
+            referrer: widget.page.referer,
+          ),
+        );
+      }
     );
   }
 }
