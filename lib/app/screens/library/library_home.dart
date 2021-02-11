@@ -143,18 +143,18 @@ class _LibraryHomeState extends State<LibraryHome>
                                         ),
                                       ),
                                       Spacer(),
-                                      IconButton(
-                                        icon: Center(
-                                          child: Icon(
-                                            Icons.edit,
-                                            color: Colors.amber,
-                                            // size: 35,
-                                          ),
-                                        ),
-                                        onPressed: () {
-                                          print(collection.order);
-                                        },
-                                      ),
+                                      // IconButton(
+                                      //   icon: Center(
+                                      //     child: Icon(
+                                      //       Icons.edit,
+                                      //       color: Colors.amber,
+                                      //       // size: 35,
+                                      //     ),
+                                      //   ),
+                                      //   onPressed: () {
+                                      //     print(collection.order);
+                                      //   },
+                                      // ),
                                       SizedBox(width: 5.w),
                                       IconButton(
                                         icon: Center(

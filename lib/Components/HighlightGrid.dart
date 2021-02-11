@@ -19,7 +19,8 @@ class ComicGrid extends StatefulWidget {
   _ComicGridState createState() => _ComicGridState();
 }
 
-class _ComicGridState extends State<ComicGrid> with AutomaticKeepAliveClientMixin {
+class _ComicGridState extends State<ComicGrid>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -65,6 +66,7 @@ class ComicGridTile extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
+              maintainState: true,
               builder: (_) => ProfileHome(highlight: comic),
             ),
           );

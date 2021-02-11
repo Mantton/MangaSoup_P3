@@ -99,8 +99,8 @@ Widget readerModeSetting() {
               dropdownColor: Colors.grey[900],
               value: provider.readerMode,
               onChanged: (value) {
-                provider.setReaderMode(value);
                 Provider.of<ReaderProvider>(context, listen: false).changeMode();
+                provider.setReaderMode(value);
               },
             ),
           ),
