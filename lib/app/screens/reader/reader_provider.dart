@@ -4,6 +4,7 @@ import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
@@ -79,6 +80,8 @@ class ReaderProvider with ChangeNotifier {
     firstChapter.generatedNumber = chapter.generatedNumber;
     firstChapter.index = initialIndex;
 
+
+
     // Get Images
     ImageChapter response = !loaded
         ? await ApiManager().getImages(selector, chapter.link)
@@ -127,6 +130,18 @@ class ReaderProvider with ChangeNotifier {
     chapterHolder.addAll(initialEntry);
     pageDisplayCount = chapter.pages.length;
     currentChapterName = chapter.chapterName;
+
+    // Initial BookMark
+    BookMark pointer = BookMark(
+        comicId,
+        pageDisplayNumber,
+        chapters.elementAt(indexList[pageDisplayNumber]).link,
+        chapters.elementAt(indexList[pageDisplayNumber]).name);
+    if (Provider.of<DatabaseProvider>(context, listen: false)
+        .checkIfBookMarked(pointer))
+      pageBookmarked = true;
+    else
+      pageBookmarked = false;
   }
 
   toggleShowControls() {
@@ -213,6 +228,8 @@ class ReaderProvider with ChangeNotifier {
     }
   }
 
+  bool pageBookmarked = false;
+
   pageChanged(int page) async {
     currentPage = page;
     currentIndex =
@@ -230,6 +247,17 @@ class ReaderProvider with ChangeNotifier {
       currentChapterName = indexList[page] != null
           ? chapters.elementAt(indexList[page]).name
           : "";
+      // check if page is bookmarked
+      BookMark pointer = BookMark(
+          comicId,
+          pageDisplayNumber,
+          chapters.elementAt(indexList[page]).link,
+          chapters.elementAt(indexList[page]).name);
+      if (Provider.of<DatabaseProvider>(context, listen: false)
+          .checkIfBookMarked(pointer))
+        pageBookmarked = true;
+      else
+        pageBookmarked = false;
       notifyListeners();
     } catch (e) {}
 
@@ -254,7 +282,6 @@ class ReaderProvider with ChangeNotifier {
       print(chapterHolder.keys.toList());
       if (!chapterHolder.keys.contains(nextIndex)) {
         print("loading next");
-
 
         if (nextIndex < 0) {
           if (reachedEnd) {
@@ -292,6 +319,18 @@ class ReaderProvider with ChangeNotifier {
     }
 
     lastPage = page;
+  }
+
+  toggleBookMark() async {
+    pageBookmarked = !pageBookmarked;
+    notifyListeners();
+    BookMark pointer = BookMark(
+        comicId,
+        pageDisplayNumber,
+        chapters.elementAt(indexList[currentPage]).link,
+        chapters.elementAt(indexList[currentPage]).name);
+    await Provider.of<DatabaseProvider>(context, listen: false)
+        .toggleBookMark(pointer);
   }
 
   endReached() {
@@ -338,5 +377,6 @@ class ReaderProvider with ChangeNotifier {
     imgur = false;
     initialPageIndex = 1;
     currentPage = 0;
+    pageBookmarked = false;
   }
 }

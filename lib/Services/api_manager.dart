@@ -8,6 +8,7 @@ import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/homepage.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
@@ -51,7 +52,6 @@ class ApiManager {
     return sources;
   }
 
-
   Future<List<HomePage>> getHomePage() async {
     Response response = await _dio.get('/app/sources/homepage');
     List initial = response.data['content'];
@@ -64,6 +64,7 @@ class ApiManager {
     debugPrint("HomePage Loaded");
     return pages;
   }
+
   /// Initialize Source
   Future<Source> initSource(String selector) async {
     Response response = await _dio
@@ -139,156 +140,189 @@ class ApiManager {
 
   /// Get Profile
   Future<Profile> getProfile(String source, String link) async {
-    Map additionalParams = await prepareAdditionalInfo(source);
-    if (source == "mangadex") return dex.profile(link, additionalParams);
-    Map data = {"selector": source, "link": link, "data": additionalParams};
+    Profile p;
     try {
-      Response response = await _dio.post('/api/v1/profile', data: data);
-      debugPrint(
-          "Retrieval Complete : /Profile : ${response.data['title']} @$source");
-      return Profile.fromMap(response.data);
-    } on DioError catch (e) {
-
-      if (e.response.statusCode == 500)
-        throw "MangaSoup Server Error";
-      else
-        throw e.response.data['detail'];
+      Map additionalParams = await prepareAdditionalInfo(source);
+      if (source == "mangadex") return dex.profile(link, additionalParams);
+      Map data = {"selector": source, "link": link, "data": additionalParams};
+      try {
+        Response response = await _dio.post('/api/v1/profile', data: data);
+        debugPrint(
+            "Retrieval Complete : /Profile : ${response.data['title']} @$source");
+        p = Profile.fromMap(response.data);
+      } on DioError catch (e) {
+        if (e.response.statusCode == 500)
+          throw "MangaSoup Server Error";
+        else
+          throw e.response.data['detail'];
+      }
+    } catch (err) {
+      ErrorManager.analyze(err);
     }
+    return p;
   }
 
   /// Get Images
   Future<ImageChapter> getImages(String source, String link) async {
-    Map additionalParams = await prepareAdditionalInfo(source);
-    if (source == "mangadex") return dex.images(link, additionalParams);
+    ImageChapter chapter;
+    try {
+      Map additionalParams = await prepareAdditionalInfo(source);
+      if (source == "mangadex") return dex.images(link, additionalParams);
 
-    Map data = {
-      "selector": source,
-      "link": link,
-      "data": additionalParams,
-    };
-    Response response = await _dio.post('/api/v1/images', data: data);
-    ImageChapter chapter = ImageChapter.fromMap(response.data);
+      Map data = {
+        "selector": source,
+        "link": link,
+        "data": additionalParams,
+      };
+      Response response = await _dio.post('/api/v1/images', data: data);
+      chapter = ImageChapter.fromMap(response.data);
+    } catch (err) {
+      ErrorManager.analyze(err);
+    }
     return chapter;
   }
 
   /// Get Tags
   Future<List<Tag>> getTags(String source) async {
-    Map additionalParams = await prepareAdditionalInfo(source);
-    if (source == "mangadex") return dex.getTags();
-    Map data = {"selector": source, "data": additionalParams};
-    Response response = await _dio.post('/api/v1/tags', data: data);
-    List dataPoints = response.data['genres'] ?? response.data;
-    List<Tag> tags = [];
-    for (int index = 0; index < dataPoints.length; index++) {
-      tags.add(Tag.fromMap(dataPoints[index]));
+    List<Tag> tags = List();
+    try {
+      Map additionalParams = await prepareAdditionalInfo(source);
+      if (source == "mangadex") return dex.getTags();
+      Map data = {"selector": source, "data": additionalParams};
+      Response response = await _dio.post('/api/v1/tags', data: data);
+      List dataPoints = response.data['genres'] ?? response.data;
+      for (int index = 0; index < dataPoints.length; index++) {
+        tags.add(Tag.fromMap(dataPoints[index]));
+      }
+      debugPrint("Retrieval Complete : /Tags @$source");
+    } catch (err) {
+      ErrorManager.analyze(err);
     }
-    debugPrint("Retrieval Complete : /Tags @$source");
     return tags;
   }
 
   /// Get Tag Comics
   Future<List<ComicHighlight>> getTagComics(
       String source, int page, String link, String sort) async {
-    Map additionalParams = await prepareAdditionalInfo(source);
-    if (source == "mangadex")
-      return dex.getTagComics(sort, page, link, additionalParams);
+    List<ComicHighlight> comics = List();
 
-    Map data = {
-      "selector": source,
-      "page": page,
-      "link": link,
-      "sort_by": sort,
-      "data": additionalParams,
-    };
-    Response response = await _dio.post('/api/v1/tag-comics', data: data);
-    List dataPoints = response.data['comics'];
-    List<ComicHighlight> comics = [];
-    for (int index = 0; index < dataPoints.length; index++) {
-      comics.add(ComicHighlight.fromMap(dataPoints[index]));
+    try {
+      Map additionalParams = await prepareAdditionalInfo(source);
+      if (source == "mangadex")
+        return dex.getTagComics(sort, page, link, additionalParams);
+
+      Map data = {
+        "selector": source,
+        "page": page,
+        "link": link,
+        "sort_by": sort,
+        "data": additionalParams,
+      };
+      Response response = await _dio.post('/api/v1/tag-comics', data: data);
+      List dataPoints = response.data['comics'];
+      for (int index = 0; index < dataPoints.length; index++) {
+        comics.add(ComicHighlight.fromMap(dataPoints[index]));
+      }
+      debugPrint("Retrieval Complete : /tagComics @$source");
+    } catch (err) {
+      ErrorManager.analyze(err);
     }
-    debugPrint("Retrieval Complete : /tagComics @$source");
     return comics;
   }
 
   /// Search
   Future<List<ComicHighlight>> search(String source, String query) async {
-    Map additionalParams = await prepareAdditionalInfo(source);
+    List<ComicHighlight> comics = List();
 
-    if (source == "mangadex") return dex.search(query, additionalParams);
+    try {
+      Map additionalParams = await prepareAdditionalInfo(source);
 
-    Map data = {
-      "selector": source,
-      "query": query,
-      "data": additionalParams,
-    };
-    Response response = await _dio.post('/api/v1/search', data: data);
-    List dataPoints = response.data['comics'];
-    List<ComicHighlight> comics = [];
-    for (int index = 0; index < dataPoints.length; index++) {
-      comics.add(ComicHighlight.fromMap(dataPoints[index]));
+      if (source == "mangadex") return dex.search(query, additionalParams);
+
+      Map data = {
+        "selector": source,
+        "query": query,
+        "data": additionalParams,
+      };
+      Response response = await _dio.post('/api/v1/search', data: data);
+      List dataPoints = response.data['comics'];
+      for (int index = 0; index < dataPoints.length; index++) {
+        comics.add(ComicHighlight.fromMap(dataPoints[index]));
+      }
+      debugPrint("Retrieval Complete : /search @$source");
+    } catch (err) {
+      ErrorManager.analyze(err);
     }
-    debugPrint("Retrieval Complete : /search @$source");
     return comics;
   }
 
   Future<List<ComicHighlight>> browse(String source, Map query) async {
-    Map additionalParams = await prepareAdditionalInfo(source);
-    if (source == "mangadex") return dex.browse(query, additionalParams);
-    additionalParams.addAll(query);
-    Map data = {
-      "selector": source,
-      "data": additionalParams,
-    };
-    Response response = await _dio.post('/api/v1/browse', data: data);
-    List dataPoints = response.data['comics'];
-    List<ComicHighlight> comics = [];
-    for (int index = 0; index < dataPoints.length; index++) {
-      comics.add(ComicHighlight.fromMap(dataPoints[index]));
+    List<ComicHighlight> comics = List();
+
+    try {
+      Map additionalParams = await prepareAdditionalInfo(source);
+      if (source == "mangadex") return dex.browse(query, additionalParams);
+      additionalParams.addAll(query);
+      Map data = {
+        "selector": source,
+        "data": additionalParams,
+      };
+      Response response = await _dio.post('/api/v1/browse', data: data);
+      List dataPoints = response.data['comics'];
+      for (int index = 0; index < dataPoints.length; index++) {
+        comics.add(ComicHighlight.fromMap(dataPoints[index]));
+      }
+      debugPrint("Retrieval Complete : /browse @$source");
+    } catch (err) {
+      ErrorManager.analyze(err);
     }
-    debugPrint("Retrieval Complete : /browse @$source");
     return comics;
   }
 
-  Future<DexProfile> getMangadexProfile()async{
+  Future<DexProfile> getMangadexProfile() async {
     Map additionalParams = await prepareAdditionalInfo("mangadex");
     return DexHub().setUserProfile(additionalParams);
   }
 
-  Future<List<ComicHighlight>> getMangaDexUserLibrary()async{
+  Future<List<ComicHighlight>> getMangaDexUserLibrary() async {
     Map additionalParams = await prepareAdditionalInfo("mangadex");
     return DexHub().getUserLibrary(additionalParams);
   }
 
-  void syncChapters(List<String> links, bool read)async{
+  void syncChapters(List<String> links, bool read) async {
     Map additionalParams = await prepareAdditionalInfo("mangadex");
     List<int> ids = List();
-    try{
-      for (String link in links){
+    try {
+      for (String link in links) {
         String target = link.split("/").last;
         ids.add(int.parse(target));
       }
-      await  DexHub().markChapter(ids, read, additionalParams);
-    }catch(e){
+      await DexHub().markChapter(ids, read, additionalParams);
+    } catch (e) {
       print(e.response.data);
       throw "Parsing Error";
     }
-
   }
+
   Future<List<ImageSearchResult>> imageSearch(File image) async {
-    debugPrint("${image.path}");
-    FormData _data = FormData.fromMap({
-      "file": await MultipartFile.fromFile(image.path,
-          filename: image.path.split('/').last)
-    });
-
-    Response response = await _dio.post(imgSrcUrl, data: _data);
-
-    List results = response.data['results'];
     List<ImageSearchResult> isrResults = List();
-    results.forEach((element) {
-      isrResults.add(ImageSearchResult.fromMap(element));
-    });
 
+    try {
+      debugPrint("${image.path}");
+      FormData _data = FormData.fromMap({
+        "file": await MultipartFile.fromFile(image.path,
+            filename: image.path.split('/').last)
+      });
+
+      Response response = await _dio.post(imgSrcUrl, data: _data);
+
+      List results = response.data['results'];
+      results.forEach((element) {
+        isrResults.add(ImageSearchResult.fromMap(element));
+      });
+    } catch (err) {
+      ErrorManager.analyze(err);
+    }
     return isrResults;
   }
 
@@ -309,7 +343,6 @@ class ApiManager {
     // Use Imgur API
     albumID = albumID.trim();
     try {
-
       Response albumDetails = await _dio.get(
         "https://api.imgur.com/3/album/$albumID",
         options: Options(

@@ -5,13 +5,17 @@ import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/comic_rating.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/profile_bookmarks.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/tag_widget.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/widgets/content_preview.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:mangasoup_prototype_3/app/widgets/comic_collection_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 
 class GenericProfilePage extends StatefulWidget {
   final Profile profile;
@@ -209,6 +213,14 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
           // Spacer(),
           Consumer<DatabaseProvider>(
               builder: (BuildContext context, provider, _) {
+            History comicHistory;
+            try {
+              comicHistory = provider.historyList
+                  .firstWhere((element) => element.comicId == widget.comicId);
+            } catch (err) {
+              // Comic Has No History
+            }
+            bool exists = (comicHistory != null) ? true : false;
             return InkWell(
               child: Column(
                 children: [
@@ -218,10 +230,10 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                       color: Colors.purpleAccent,
                     ),
                     iconSize: 30,
-                    onPressed: () =>playContinueLogic(),
+                    onPressed: () => playContinueLogic(comicHistory),
                   ),
                   Text(
-                    true?"Read":"Continue",
+                    exists ? "Continue" : "Read",
                     textAlign: TextAlign.center,
                     style: def,
                   ),
@@ -239,7 +251,31 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                   : "${idk.length} ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}",
               null),
           Spacer(),
-          actionButton(CupertinoIcons.bookmark, "Bookmarks", null),
+          Column(
+            children: [
+              IconButton(
+                icon: Icon(
+                  CupertinoIcons.bookmark,
+                  color: Colors.purpleAccent,
+                ),
+                iconSize: 30,
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ComicBookMarksPage(
+                      comicId: widget.comicId,
+                      profile: widget.profile,
+                    ),
+                  ),
+                ),
+              ),
+              Text(
+                "Bookmarks",
+                textAlign: TextAlign.center,
+                style: def,
+              )
+            ],
+          ),
           Spacer(),
 
           comic.rating == 0
@@ -290,7 +326,47 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
       ),
     );
   }
-  playContinueLogic(){}
+
+  playContinueLogic(History history) {
+    if (history != null) {
+      // Continue
+      ChapterData pointer =
+          Provider.of<DatabaseProvider>(context, listen: false)
+              .chapters
+              .firstWhere((element) => element.id == history.chapterId);
+      int target = widget.profile.chapters
+          .indexWhere((element) => element.link == pointer.link);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ReaderHome(
+            selector: widget.profile.selector,
+            chapters: widget.profile.chapters,
+            initialChapterIndex: target,
+            comicId: widget.comicId,
+            source: widget.profile.source,
+            initialPage: pointer.lastPageRead,
+          ),
+        ),
+      );
+    } else {
+      // Start from Chapter 1
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ReaderHome(
+            selector: widget.profile.selector,
+            chapters: widget.profile.chapters,
+            initialChapterIndex:
+                widget.profile.chapters.indexOf(widget.profile.chapters.last),
+            comicId: widget.comicId,
+            source: widget.profile.source,
+          ),
+        ),
+      );
+    }
+  }
+
   Widget profileBody() {
     return Container(
       width: MediaQuery.of(context).size.width,

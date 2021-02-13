@@ -118,6 +118,7 @@ class _ReaderOpenerState extends State<ReaderOpener> {
             return ReaderFrame();
           }
           if (snapshot.hasError) {
+            print(snapshot.error.toString());
             return Center(
               child: InkWell(
                 onTap: () => Navigator.pop(context),
@@ -282,8 +283,8 @@ class _ReaderFrameState extends State<ReaderFrame> {
 
                     IconButton(
                       icon: Icon(CupertinoIcons.bookmark),
-                      color: Colors.grey[700],
-                      onPressed: ()=>null, // add current page to bookmark
+                      color: provider.pageBookmarked? Colors.green: Colors.grey[700],
+                      onPressed: ()=>provider.toggleBookMark(), // add current page to bookmark
                     )
                   ],
                 ),

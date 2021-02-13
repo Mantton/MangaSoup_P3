@@ -1,13 +1,15 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
+import 'package:mangasoup_prototype_3/app/data/database/queries/bookmark_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/chapter_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic-collection_queries.dart';
@@ -27,6 +29,7 @@ class DatabaseProvider with ChangeNotifier {
   List<History> historyList = List();
   List<ComicCollection> comicCollections = List();
   List<ChapterData> chapters = List();
+  List<BookMark> bookmarks = List();
   Database _db;
 
   // Query Managers
@@ -35,6 +38,8 @@ class DatabaseProvider with ChangeNotifier {
   CollectionQuery collectionManager;
   ComicCollectionQueries comicCollectionManager;
   ChapterQuery chapterManager;
+  BookMarkQuery bookmarkManager;
+
   // init
 
   init() async {
@@ -45,22 +50,25 @@ class DatabaseProvider with ChangeNotifier {
     collectionManager = CollectionQuery(_db);
     comicCollectionManager = ComicCollectionQueries(_db);
     chapterManager = ChapterQuery(_db);
+    bookmarkManager = BookMarkQuery(_db);
     // Load Data into Provider Variables
     comics = await comicManager.getAll();
     collections = await collectionManager.getCollections();
     historyList = await historyManager.getHistory(limit: 25);
     comicCollections = await comicCollectionManager.getAll();
     chapters = await chapterManager.getAll();
-    print("database initialization complete.");
+    bookmarks = await bookmarkManager.getAllBookMarks();
+    print("Database Provider Successfully Initialized");
     notifyListeners();
   }
 
   // GENERATE COMIC
   Future<Map<String, dynamic>> generate(ComicHighlight highlight) async {
     ApiManager _manager = ApiManager();
+    Map<String, dynamic> map = Map();
 
     /// Get Profile
-    try{
+    try {
       Profile profile = await _manager.getProfile(
         highlight.selector,
         highlight.link,
@@ -87,43 +95,40 @@ class DatabaseProvider with ChangeNotifier {
         comic = generated;
       // Evaluate
       int _id = await evaluate(comic);
-      return {"profile": profile, "id": _id};
+      map = {"profile": profile, "id": _id};
+    } catch (e) {
+      ErrorManager.analyze(e);
     }
-    catch(e){
-      if (e is DioError){
-        throw "Network Related Error";
-      }else{
-        print(e);
-        throw "Unable to Serialize";
-      }
-
-    }
-
+    return map;
   }
 
   /// COMICS
-  Future<int> evaluate(Comic comic, {bool overWriteChapterCount=true}) async {
+  Future<int> evaluate(Comic comic, {bool overWriteChapterCount = true}) async {
     // Updates OR Adds comics to db
+    int id;
+    try {
+      Comic retrieved = isComicSaved(comic);
 
-    Comic retrieved = isComicSaved(comic);
-
-    if (retrieved == null) {
-      // Save to Lib
-      comic.dateAdded = DateTime.now();
-      comic = await comicManager.addComic(comic);
-      comics.add(comic);
-    } else {
-      // Update Comic Details
-      comic.id = retrieved.id;
-      comic.dateAdded = retrieved.dateAdded;
-      if (!overWriteChapterCount)
-        comic.chapterCount = retrieved.chapterCount;
-      await comicManager.updateComic(comic);
-      int index = comics.indexOf(retrieved);
-      comics[index] = comic;
+      if (retrieved == null) {
+        // Save to Lib
+        comic.dateAdded = DateTime.now();
+        comic = await comicManager.addComic(comic);
+        comics.add(comic);
+      } else {
+        // Update Comic Details
+        comic.id = retrieved.id;
+        comic.dateAdded = retrieved.dateAdded;
+        if (!overWriteChapterCount) comic.chapterCount = retrieved.chapterCount;
+        await comicManager.updateComic(comic);
+        int index = comics.indexOf(retrieved);
+        comics[index] = comic;
+      }
+      notifyListeners();
+      id = comic.id;
+    } catch (e) {
+      ErrorManager.analyze(e);
     }
-    notifyListeners();
-    return comic.id;
+    return id;
   }
 
   List<Comic> searchLibrary(String query) {
@@ -171,29 +176,41 @@ class DatabaseProvider with ChangeNotifier {
     else
       return true;
   }
-  clearAllCollection()async{
+
+  clearAllCollection() async {
     // Delete Collections
 
-    List<Collection> toDelete = collections.where((element) => element.id != 1).toList();
-    collections.removeWhere((element) => toDelete.contains(element)); // delete from provider object
+    List<Collection> toDelete =
+        collections.where((element) => element.id != 1).toList();
+    collections.removeWhere(
+        (element) => toDelete.contains(element)); // delete from provider object
     print(collections);
     print("Deleted Collections");
     // Delete Comic Collections
-    List<ComicCollection>comicCollectionsToDelete = comicCollections.where((element) => toDelete.map((e) => e.id).toList().contains(element.collectionId)).toList();
-    comicCollections.removeWhere((element) => comicCollectionsToDelete.contains(element)); // remove comic collections
+    List<ComicCollection> comicCollectionsToDelete = comicCollections
+        .where((element) =>
+            toDelete.map((e) => e.id).toList().contains(element.collectionId))
+        .toList();
+    comicCollections.removeWhere((element) =>
+        comicCollectionsToDelete.contains(element)); // remove comic collections
     print("Deleted Comic Collections");
     // Delete from DB
-    toDelete.forEach((element) async => await collectionManager.deleteCollection(element));
-    comicCollectionsToDelete.forEach((element) async =>await comicCollectionManager.deleteComicCollection(element));
+    toDelete.forEach(
+        (element) async => await collectionManager.deleteCollection(element));
+    comicCollectionsToDelete.forEach((element) async =>
+        await comicCollectionManager.deleteComicCollection(element));
     print("Updated Database");
     // Re-add Collections under default.
-    Collection defaultCollection = collections.firstWhere((element) => element.id== 1 );
+    Collection defaultCollection =
+        collections.firstWhere((element) => element.id == 1);
     List<Comic> lib = comics.where((element) => element.inLibrary).toList();
     print("Retrieved favorites");
-    lib.forEach((element)async =>await batchSetComicCollection([defaultCollection], element.id));
+    lib.forEach((element) async =>
+        await batchSetComicCollection([defaultCollection], element.id));
     print("Collection Clear Complete");
     notifyListeners();
   }
+
   updateCollectionOrder(int initial, int newIndex) async {
     initial++;
 
@@ -248,13 +265,14 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
     return newCollection;
   }
-  Future<Collection> updateCollection(Collection collection)async{
-    int index = collections.indexWhere((element) => element.id == collection.id);
+
+  Future<Collection> updateCollection(Collection collection) async {
+    int index =
+        collections.indexWhere((element) => element.id == collection.id);
     collections[index] = collection;
     await collectionManager.updateCollection(collection);
     notifyListeners();
     return collection;
-
   }
 
   // Comic Collections
@@ -358,6 +376,18 @@ class DatabaseProvider with ChangeNotifier {
     return updateCount;
   }
 
+  clearUpdates(List<Comic> toClear) async {
+    List<Comic> targets =
+        toClear.where((element) => element.updateCount > 0).toList();
+
+    for (Comic comic in targets) {
+      int pointer = comics.indexWhere((element) => element.id == comic.id);
+      comics[pointer].updateCount = 0;
+      await comicManager.updateComic(comic);
+    }
+    notifyListeners();
+  }
+
   ChapterData checkIfChapterMatch(Chapter chapter) {
     ChapterData implied;
     try {
@@ -370,9 +400,9 @@ class DatabaseProvider with ChangeNotifier {
     }
   }
 
-  updateChapterImages(Chapter chapter, List images)async{
+  updateChapterImages(Chapter chapter, List images) async {
     ChapterData data = checkIfChapterMatch(chapter);
-    if (data != null){
+    if (data != null) {
       data.images = images;
       int d = chapters.indexWhere((element) => element.id == data.id);
       chapters[d] = data;
@@ -419,14 +449,14 @@ class DatabaseProvider with ChangeNotifier {
     }
     notifyListeners();
     // MD Sync
-    if (selector == "mangadex" && read){
+    if (selector == "mangadex" && read) {
       SharedPreferences.getInstance().then((_prefs) async {
-        if (_prefs.getString("mangadex_cookies")!= null){
+        if (_prefs.getString("mangadex_cookies") != null) {
           // Cookies containing profile exists
           // Sync to MD
-          try{
-             ApiManager().syncChapters(data.map((e) => e.link).toList(), true);
-          }catch(err){
+          try {
+            ApiManager().syncChapters(data.map((e) => e.link).toList(), true);
+          } catch (err) {
             showSnackBarMessage(err);
           }
         }
@@ -442,13 +472,13 @@ class DatabaseProvider with ChangeNotifier {
     await chapterManager.updateBatch([data]);
     notifyListeners();
   }
-  updateHistoryFromChapter(int comicId, Chapter chapter, int page){
-    updateChapterInfo(page, chapter);
-    ChapterData pointed =
-    checkIfChapterMatch(chapter);
-    updateHistory(comicId, pointed.id);
 
+  updateHistoryFromChapter(int comicId, Chapter chapter, int page) {
+    updateChapterInfo(page, chapter);
+    ChapterData pointed = checkIfChapterMatch(chapter);
+    updateHistory(comicId, pointed.id);
   }
+
   updateHistory(int comicId, int chapterId) async {
     if (historyList.any((element) => element.comicId == comicId)) {
       int targetIndex =
@@ -483,5 +513,33 @@ class DatabaseProvider with ChangeNotifier {
       data = checkIfChapterMatch(chapter);
     }
     await updateHistory(comicId, data.id);
+  }
+
+  addBookmark(BookMark mark) async {
+    mark = await bookmarkManager.addBookMark(mark);
+    bookmarks.add(mark);
+    print("bookmark added");
+    notifyListeners();
+  }
+
+  deleteBookMark(BookMark mark) async {
+    await bookmarkManager.deleteBookMark(bookmarks.firstWhere((element) =>
+        element.page == mark.page && element.chapterLink == mark.chapterLink));
+
+    bookmarks.removeWhere((element) => element.id == mark.id);
+    print("bookmark deleted");
+    notifyListeners();
+  }
+
+  toggleBookMark(BookMark mark) async {
+    if (checkIfBookMarked(mark)) {
+      await deleteBookMark(mark);
+    } else
+      await addBookmark(mark);
+  }
+
+  bool checkIfBookMarked(BookMark mark) {
+    return bookmarks.any((element) =>
+        element.page == mark.page && element.chapterLink == mark.chapterLink);
   }
 }

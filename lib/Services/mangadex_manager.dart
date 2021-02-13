@@ -362,8 +362,6 @@ class DexHub {
       var comics = document
           .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
 
-      print(comics);
-
       List<ComicHighlight> highlights = [];
       for (var comic in comics) {
         var thumbnail = baseURL +
@@ -534,7 +532,7 @@ class DexHub {
     headers.addAll({
       'Content-Type': "application/json",
     });
-    Response response = await Dio().post(apiV2URL + "/user/me/marker",
+    await Dio().post(apiV2URL + "/user/me/marker",
         options: Options(headers: headers),
         data: {"chapters": ids, "read": read});
     print("MangaDex Chapter Sync Complete");
