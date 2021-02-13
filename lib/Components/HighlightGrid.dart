@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
+import 'package:provider/provider.dart';
 import 'Images.dart';
 
 class ComicGrid extends StatefulWidget {
@@ -17,26 +19,37 @@ class ComicGrid extends StatefulWidget {
   _ComicGridState createState() => _ComicGridState();
 }
 
-class _ComicGridState extends State<ComicGrid> {
+class _ComicGridState extends State<ComicGrid>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(8.0.w),
-      child: GridView.builder(
-        physics: ScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: widget.crossAxisCount ?? 3,
-            crossAxisSpacing: 10.w,
-            mainAxisSpacing: 15.w,
-            childAspectRatio: 65 / 100),
-        shrinkWrap: true,
-        itemCount: widget.comics.length,
-        itemBuilder: (BuildContext context, index) => ComicGridTile(
-          comic: widget.comics[index],
+    super.build(context);
+    return Consumer<PreferenceProvider>(builder: (context, settings, _) {
+      return Padding(
+        padding: EdgeInsets.all(4.0),
+        child: GridView.builder(
+          physics: ScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: settings.scaleToMatchIntended ?settings.comicGridCrossAxisCount.w.toInt():MediaQuery.of(context).orientation.index == 0?
+                widget.crossAxisCount ?? settings.comicGridCrossAxisCount: 5,
+            crossAxisSpacing: 7,
+            mainAxisSpacing: 15,
+            childAspectRatio: settings.comicGridCrossAxisCount >= 4
+                ? (50 / 100)
+                : (58 / 100),
+          ),
+          shrinkWrap: true,
+          itemCount: widget.comics.length,
+          itemBuilder: (BuildContext context, index) => ComicGridTile(
+            comic: widget.comics[index],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
+
+  @override
+  bool get wantKeepAlive => false;
 }
 
 class ComicGridTile extends StatelessWidget {
@@ -53,39 +66,80 @@ class ComicGridTile extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
+              maintainState: true,
               builder: (_) => ProfileHome(highlight: comic),
             ),
           );
         },
         child: GridTile(
-          child: ClipRRect(
-            borderRadius: BorderRadius.all(
-              Radius.circular(10.0),
-            ),
-            child: Container(
-              width: 400.w,
-              height: 500.h,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10.0),
+          child: Container(
+            // color: Colors.grey,
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 7,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10.0),
+                    ),
+                    child: Container(
+                      // width: 300.w,
+                      child: SoupImage(
+                        url: comic.thumbnail,
+                        referer: comic.imageReferer,
+                        // fit: BoxFit.fitWidth,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              child: SoupImage(
-                url: comic.thumbnail,
-                referer: comic.imageReferer,
-              ),
+                Padding(
+                  padding:  EdgeInsets.all(5.0),
+                  child: SizedBox(
+                    child: AutoSizeText(
+                      comic.title,
+                      style: TextStyle(
+                        fontFamily: "Lato",
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                        shadows: <Shadow>[
+                          Shadow(
+                            offset: Offset(1.0, 1.0),
+                            blurRadius: 7.0,
+                            color: Colors.black,
+                          ),
+                          Shadow(
+                            offset: Offset(2.0, 2.0),
+                            blurRadius: 3.0,
+                            color: Colors.black,
+                          )
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      maxLines: 2,
+                      minFontSize: 12,
+                      maxFontSize: 20,
+
+                      // maxFontSize: 40,
+                      // stepGranularity: 2,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           header: comic.updateCount != null && comic.updateCount != 0
               ? Padding(
-                  padding: EdgeInsets.all(5.0.w),
+                  padding: EdgeInsets.all(5.0),
                   child: Container(
                     alignment: Alignment.topRight,
                     child: CircleAvatar(
                       backgroundColor: Colors.red[900],
                       foregroundColor: Colors.white,
                       child: Padding(
-                        padding: EdgeInsets.all(2.0.w),
+                        padding: EdgeInsets.all(2.0),
                         child: Center(
                           child: AutoSizeText(
                             "${comic.updateCount}",
@@ -97,36 +151,6 @@ class ComicGridTile extends StatelessWidget {
                   ),
                 )
               : Container(),
-          footer: Container(
-            color: Colors.black54,
-            child: Padding(
-              padding: EdgeInsets.all(8.0.w),
-              child: Text(
-                comic.title,
-                style: TextStyle(
-                    fontFamily: "Roboto",
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.sp,
-                    shadows: <Shadow>[
-                      Shadow(
-                        offset: Offset(1.0, 1.0),
-                        blurRadius: 7.0,
-                        color: Colors.black,
-                      ),
-                      Shadow(
-                        offset: Offset(2.0, 2.0),
-                        blurRadius: 3.0,
-                        color: Colors.black,
-                      )
-                    ]),
-                textAlign: TextAlign.left,
-                overflow: TextOverflow.ellipsis,
-                softWrap: true,
-                maxLines: 3,
-              ),
-            ),
-          ),
         ),
       ),
     );

@@ -80,12 +80,12 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
         children: List<Widget>.generate(settings.length, (index) {
           SourceSetting ss = SourceSetting.fromMap(settings[index]);
           return Padding(
-            padding: EdgeInsets.fromLTRB(20.w, 5.h, 20.w, 5.h),
+            padding: EdgeInsets.fromLTRB(20, 5, 20, 5),
             child: Row(
               children: [
                 Text(
                   ss.name,
-                  style: TextStyle(fontSize: 17.sp),
+                  style: TextStyle(fontSize: 17),
                 ),
                 Spacer(),
                 optionType(ss)
@@ -117,7 +117,7 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
     switch (setting.type) {
       case 1:
         return Padding(
-          padding: EdgeInsets.all(8.0.w),
+          padding: EdgeInsets.all(8.0),
           child: PlatformSwitch(
             value: SettingOption.fromMap(userSourceSettings[setting.selector])
                     .value ??
@@ -144,9 +144,9 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
             SettingOption.fromMap(userSourceSettings[setting.selector]);
         return Container(
           child: Padding(
-            padding: EdgeInsets.all(8.0.w),
+            padding: EdgeInsets.all(8.0),
             child: Container(
-              padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.0),
                   color: Colors.grey[900],
@@ -158,7 +158,7 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
                         v[0],
                     items: v,
                     dropdownColor: Colors.grey[900],
-                    style: TextStyle(fontSize: 20.sp),
+                    style: TextStyle(fontSize: 20),
                     onChanged: (value) async {
                       userSourceSettings[setting.selector] = value.toMap();
                       print(userSourceSettings);
@@ -179,7 +179,7 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
 
       case 3:
         return Padding(
-          padding: EdgeInsets.all(8.0.w),
+          padding: EdgeInsets.all(8.0),
           child: InkWell(
             onTap: () {
               List<SettingOption> newList = List();

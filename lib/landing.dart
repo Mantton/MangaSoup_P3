@@ -17,26 +17,28 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin{
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      body: IndexedStack(
-        index: _index,
-        children: [
-          Container(
-            child: Home(), // Explore
-          ),
-          Container(
-            child: LibraryHome(), // Library
-          ),
-          Container(
-            child: HistoryHome(), // View History
-          ),
-          Container(
-            color: Colors.grey[900],
-            // push to general discussions page
-          ),
-          Container(
-            child: MoreHomePage(), // More
-          )
-        ],
+      body: SafeArea(
+        child: IndexedStack(
+          index: _index,
+          children: [
+            Container(
+              child: Home(), // Explore
+            ),
+            Container(
+              child: LibraryHome(), // Library
+            ),
+            Container(
+              child: HistoryHome(), // View History
+            ),
+            Container(
+              color: Colors.grey[900],
+              // push to general discussions page
+            ),
+            Container(
+              child: MoreHomePage(), // More
+            )
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,

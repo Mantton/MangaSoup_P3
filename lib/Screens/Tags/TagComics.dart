@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
@@ -13,15 +14,17 @@ import 'package:provider/provider.dart';
 
 class TagComicsPage extends StatefulWidget {
   final Tag tag;
+  final List sorters;
 
-  const TagComicsPage({Key key,@required this.tag}) : super(key: key);
+  const TagComicsPage({Key key, @required this.tag, this.sorters})
+      : super(key: key);
 
   @override
   _TagComicsPageState createState() => _TagComicsPageState();
 }
 
 class _TagComicsPageState extends State<TagComicsPage> {
-  Map _sort = {"Name": "Default", "Selector": "default"};
+  Map _sort = {"name": "Default", "selector": ""};
   Future<List<ComicHighlight>> _futureComics;
   List<ComicHighlight> _comics;
   int _page = 1;
@@ -29,7 +32,7 @@ class _TagComicsPageState extends State<TagComicsPage> {
   bool _loadingMore = false;
 
   Future<List<ComicHighlight>> _loadComics(String sort, int page) async {
-    print("Load comics starting");
+    print(widget.tag.toMap());
     ApiManager _manager = ApiManager();
     return await _manager.getTagComics(
         widget.tag.selector, page, widget.tag.link, sort);
@@ -49,16 +52,13 @@ class _TagComicsPageState extends State<TagComicsPage> {
     super.initState();
     print("Starting");
     Source _source = Provider.of<SourceNotifier>(context, listen: false).source;
-    _sort = _source.sorters[0];
-
+    if (_source.selector == widget.tag.selector) _sort = _source.sorters[0];
     _futureComics = _loadComics(_sort["selector"], _page);
-    print("passed 2");
 
     _controller = ScrollController();
     _controller.addListener(() {
       _scrollListener();
     });
-
   }
 
   _scrollListener() async {
@@ -97,7 +97,7 @@ class _TagComicsPageState extends State<TagComicsPage> {
                   child: InkWell(
                     child: Text(
                       "An error occurred\n ${snapshot.error}\nTap to Retry",
-                      style: TextStyle(fontSize: 15.sp),
+                      style: TextStyle(fontSize: 15),
                       textAlign: TextAlign.center,
                     ),
                     onTap: () {
@@ -117,15 +117,15 @@ class _TagComicsPageState extends State<TagComicsPage> {
                     child: Column(
                       children: [
                         Padding(
-                          padding: EdgeInsets.all(8.0.w),
+                          padding: EdgeInsets.all(8.0),
                           child: Container(
                             child: Row(
                               children: [
                                 Text(
-                                  sourceProvider.source.name,
+                                  widget.tag.name,
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 20.sp,
+                                    fontSize: 20,
                                   ),
                                 ),
                                 Spacer(),
@@ -134,10 +134,12 @@ class _TagComicsPageState extends State<TagComicsPage> {
                                     // _sort['Name']
                                     _sort['name'] ?? "",
                                     style: TextStyle(
-                                        color: Colors.purple, fontSize: 20.sp),
+                                      color: Colors.purple,
+                                      fontSize: 20,
+                                    ),
                                   ),
                                   onTap: () {
-                                    showPlatformModalSheet(
+                                    (sourceProvider.source.selector == widget.tag.selector)?showPlatformModalSheet(
                                       context: context,
                                       builder: (_) => PlatformWidget(
                                         material: (_, __) => ListView.builder(
@@ -173,52 +175,49 @@ class _TagComicsPageState extends State<TagComicsPage> {
                                         cupertino: (_, __) =>
                                             CupertinoActionSheet(
                                           title: Text("Sort by"),
-                                          cancelButton: CupertinoButton(
+                                          cancelButton:
+                                              CupertinoActionSheetAction(
                                             child: Text("Cancel"),
+                                            isDestructiveAction: true,
                                             onPressed: () =>
                                                 Navigator.pop(context),
                                           ),
                                           actions: List<
-                                                  CupertinoActionSheetAction>.generate(
-                                              sourceProvider
-                                                  .source.sorters.length,
-                                              (index) =>
-                                                  CupertinoActionSheetAction(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        _sort = sourceProvider
-                                                            .source
-                                                            .sorters[index];
-                                                        _futureComics =
-                                                            _loadComics(
-                                                                _sort[
-                                                                    "selector"],
-                                                                _page);
-                                                        Navigator.pop(context);
-                                                      });
-                                                    },
-                                                    child: Row(
-                                                      children: <Widget>[
-                                                        Text(
+                                              CupertinoActionSheetAction>.generate(
+                                            sourceProvider
+                                                .source.sorters.length,
+                                            (index) =>
+                                                CupertinoActionSheetAction(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _sort = sourceProvider
+                                                      .source.sorters[index];
+                                                  _futureComics = _loadComics(
+                                                      _sort["selector"], _page);
+                                                  Navigator.pop(context);
+                                                });
+                                              },
+                                              child: Row(
+                                                children: <Widget>[
+                                                  Text(
+                                                    sourceProvider.source
+                                                        .sorters[index]['name'],
+                                                  ),
+                                                  Spacer(),
+                                                  Icon(_sort['selector'] ==
                                                           sourceProvider.source
                                                                   .sorters[
-                                                              index]['name'],
-                                                        ),
-                                                        Spacer(),
-                                                        Icon(_sort['selector'] ==
-                                                                sourceProvider
-                                                                        .source
-                                                                        .sorters[index]
-                                                                    ['selector']
-                                                            ? CupertinoIcons
-                                                                .check_mark
-                                                            : null)
-                                                      ],
-                                                    ),
-                                                  )),
+                                                              index]['selector']
+                                                      ? CupertinoIcons
+                                                          .check_mark
+                                                      : null)
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    );
+                                    ): showSnackBarMessage("Cannot View Sorters from different source");
                                   },
                                 ),
                               ],

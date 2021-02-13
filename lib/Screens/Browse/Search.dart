@@ -142,13 +142,11 @@ class _SearchPageState extends State<SearchPage> {
                       textAlign: TextAlign.center,
                       style: notInLibraryFont,
                     ),
-
-                    onTap: (){
+                    onTap: () {
                       showSnackBarMessage("Retrying");
                       setState(() {
                         _futureComics = _manager.search(
-                            Provider.of<SourceNotifier>(context,
-                                listen: false)
+                            Provider.of<SourceNotifier>(context, listen: false)
                                 .source
                                 .selector,
                             _query);
@@ -161,10 +159,13 @@ class _SearchPageState extends State<SearchPage> {
             if (snapshot.hasData) {
               return Container(
                 // color: Colors.redAccent,
-                child: ComicGrid(
-                  comics: snapshot.data,
-                  crossAxisCount: 3,
-                ),
+                child: (snapshot.data.length!=0)
+                    ? ComicGrid(
+                        comics: snapshot.data,
+                      )
+                    : Center(
+                        child: Text("No Results", style:notInLibraryFont),
+                      ),
               );
             } else {
               return Container(

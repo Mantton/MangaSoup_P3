@@ -51,6 +51,7 @@ class WebViewExampleState extends State<WebViewExample> {
     print(widget.url);
     return WebView(
       initialUrl: widget.url,
+      userAgent: "MangaSoup/0.0.2",
       javascriptMode: JavascriptMode.unrestricted,
       debuggingEnabled: true,
       onWebResourceError: (err) => {print(err.description)},
@@ -64,6 +65,7 @@ class WebViewExampleState extends State<WebViewExample> {
         _toasterJavascriptChannel(context),
       ].toSet(),
       navigationDelegate: (NavigationRequest request) {
+
         if (request.url.startsWith('https://www.youtube.com/')) {
           return NavigationDecision.prevent;
         }
@@ -71,11 +73,11 @@ class WebViewExampleState extends State<WebViewExample> {
       },
       onPageStarted: (String url) {},
       onPageFinished: (String url) {
+
         _controller.future.then((view) async {
+
           final String cookies =
               await view.evaluateJavascript('document.cookie');
-          print(cookies);
-
           if (cookies.contains("mangadex_session")) {
             /// Create Map
             List<String> listedCookies = cookies.split("; ");
@@ -85,11 +87,18 @@ class WebViewExampleState extends State<WebViewExample> {
               MapEntry entry = MapEntry(d[0], d[1]);
               encodedCookies.putIfAbsent(entry.key, () => entry.value);
             }
-            print(encodedCookies);
+            String session = encodedCookies['mangadex_session'];
+            String rememberMe = encodedCookies['mangadex_rememberme_token'];
+            Map cookie = {
+              "mangadex_session": session,
+            };
+            if (rememberMe!=null)
+              cookie.addAll({"mangadex_rememberme_token":rememberMe});
+            print(cookie.toString());
             SharedPreferences _prefs = await SharedPreferences.getInstance();
             _prefs.setString(
                   "mangadex_cookies",
-                  jsonEncode(encodedCookies));
+                  jsonEncode(cookie));
 
             Navigator.pop(context);
             showSnackBarMessage("Logged In Successfully");

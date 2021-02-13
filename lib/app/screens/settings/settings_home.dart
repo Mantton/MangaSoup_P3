@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mangasoup_prototype_3/app/screens/settings/pages/general.dart';
 import 'package:mangasoup_prototype_3/app/screens/settings/pages/library.dart';
 import 'package:mangasoup_prototype_3/app/screens/settings/pages/source/source_setting.dart';
 
@@ -9,15 +10,16 @@ class SettingsHome extends StatefulWidget {
 
 class _SettingsHomeState extends State<SettingsHome> {
   final List<String> names = [
+    "General Settings",
     "Source Settings",
-    "Reader Settings",
     "Library Settings"
   ];
   final List pages = [
-    SourceSettingsPage(),
+    GeneralSettings(),
     SourceSettingsPage(),
     LibrarySettingsPage(),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,19 +28,21 @@ class _SettingsHomeState extends State<SettingsHome> {
         centerTitle: true,
       ),
       body: Container(
-          child: ListView.builder(
-        itemCount: names.length,
-        itemBuilder: (_, int index) => ListTile(
-          title: Text(names[index]),
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_)=>pages[index]));
-          },
-          trailing: Icon(
-            Icons.arrow_forward_ios,
-            color: Colors.white,
+        child: ListView.builder(
+          itemCount: names.length,
+          itemBuilder: (_, int index) => ListTile(
+            title: Text(names[index]),
+            onTap: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => pages[index]));
+            },
+            trailing: Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+            ),
           ),
         ),
-      )),
+      ),
     );
   }
 }

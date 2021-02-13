@@ -229,8 +229,9 @@ class _AddToLibraryState extends State<AddToLibrary> {
 
 class CreateCollectionWidget extends StatefulWidget {
   final bool initialCreate;
-
-  const CreateCollectionWidget({Key key, this.initialCreate = false})
+  final bool rename;
+  final Collection toRename;
+  const CreateCollectionWidget({Key key, this.initialCreate = false, this.rename = false, this.toRename})
       : super(key: key);
   @override
   _CreateCollectionWidgetState createState() => _CreateCollectionWidgetState();
@@ -264,6 +265,21 @@ class _CreateCollectionWidgetState extends State<CreateCollectionWidget> {
       return null;
   }
 
+  Future<String> rename() async {
+    if (_formKey.currentState.validate()) {
+      // If Valid
+      print(_textController.text);
+      Collection c = widget.toRename;
+      c.name = _textController.text;
+      Collection collection =
+      await Provider.of<DatabaseProvider>(context, listen: false)
+          .updateCollection(c);
+      Navigator.pop(context);
+      return collection.name;
+    } else
+      return null;
+  }
+
   String consumerValidator(String value) {
     bool alreadyExists = Provider.of<DatabaseProvider>(context, listen: false)
         .checkIfCollectionExists(value);
@@ -291,7 +307,7 @@ class _CreateCollectionWidgetState extends State<CreateCollectionWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Create Collection",
+                  !widget.rename ?"Create Collection" : "Rename Collection",
                   style: TextStyle(
                     fontFamily: "roboto",
                     fontSize: 20,
@@ -331,22 +347,38 @@ class _CreateCollectionWidgetState extends State<CreateCollectionWidget> {
                           ),
                           InkWell(
                             child: Text(
-                              "Create",
+                              !widget.rename ?"Create": "Rename",
                               style: createCancelStyle,
                             ),
                             onTap: () async {
                               showLoadingDialog(context);
-                              String name = await create();
-                              if (name != null) {
-                                Navigator.pop(context);
-                                showMessage(
-                                  "Created $name",
-                                  Icons.check,
-                                  Duration(seconds: 1),
-                                );
-                              } else {
-                                Navigator.pop(context);
+
+                              if (!widget.rename){
+                                String name = await create();
+                                if (name != null) {
+                                  Navigator.pop(context);
+                                  showMessage(
+                                    "Created $name",
+                                    Icons.check,
+                                    Duration(seconds: 1),
+                                  );
+                                } else {
+                                  Navigator.pop(context);
+                                }
+                              }else{
+                                String name = await rename();
+                                if (name != null) {
+                                  Navigator.pop(context);
+                                  showMessage(
+                                    "Renamed to $name",
+                                    Icons.check,
+                                    Duration(seconds: 1),
+                                  );
+                                } else {
+                                  Navigator.pop(context);
+                                }
                               }
+
                             },
                           ),
                         ],

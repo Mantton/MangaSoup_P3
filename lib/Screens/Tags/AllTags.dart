@@ -17,7 +17,7 @@ class _AllTagsPageState extends State<AllTagsPage> {
 
   Future<List<Tag>> _loadComics(String source) async {
     ApiManager _manager = ApiManager();
-    return await _manager.getTags(source);
+    return  await _manager.getTags(source);
   }
 
   @override
@@ -76,14 +76,14 @@ class _AllTagsPageState extends State<AllTagsPage> {
   Widget tagGrid(List<Tag> tags) {
     return SingleChildScrollView(
       child: Padding(
-        padding:  EdgeInsets.all(10.0.w),
+        padding:  EdgeInsets.all(10.0),
         child: GridView.builder(
             physics: NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
+              crossAxisCount: 4.w.toInt(),
               crossAxisSpacing: 10,
-              mainAxisSpacing: 40,
+              mainAxisSpacing: 10,
               childAspectRatio: 1.7,
             ),
             itemCount: tags.length,

@@ -6,136 +6,71 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:photo_view/photo_view.dart';
 
 import '../Globals.dart';
 
-class OldReaderImage extends StatefulWidget {
-  final String link;
-  final String referer;
-  final BoxFit fit;
 
-  const OldReaderImage({Key key, this.link, this.referer, this.fit})
-      : super(key: key);
-
-  @override
-  _OldReaderImageState createState() => _OldReaderImageState();
-}
-
-class _OldReaderImageState extends State<OldReaderImage> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: (!widget.link.toLowerCase().contains("mangasoup"))
-          ? ReaderImage(
-              url: widget.link,
-              referer: widget.referer,
-              fit: widget.fit,
-            )
-          : Image.file(
-              File(widget.link),
-            ),
-    );
-  }
-}
-
-class ReaderImage extends StatefulWidget {
+class ReaderImage extends StatelessWidget {
   final String url;
   final BoxFit fit;
   final String referer;
   final Size imageSize;
-  final bool mangaMode;
 
-  const ReaderImage(
-      {Key key,
-      this.url,
-      this.fit = BoxFit.fitWidth,
-      this.referer,
-      this.imageSize,
-      this.mangaMode = true})
-      : super(key: key);
-
-  @override
-  _ReaderImageState createState() => _ReaderImageState();
-}
-
-class _ReaderImageState extends State<ReaderImage> {
+  const ReaderImage({Key key, this.url, this.fit=BoxFit.fitWidth, this.referer, this.imageSize}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    // double proportionalHeight = MediaQuery.of(context).size.width/imageSize.aspectRatio;
+
     return Center(
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CachedNetworkImage(
-              imageUrl: widget.url,
-              progressIndicatorBuilder: (_, url, var progress) =>
+      child: InteractiveViewer(
+        maxScale: 3.5,
+        minScale: .5,
+        panEnabled: false,
+        child: CachedNetworkImage(
+
+          imageUrl: url,
+          progressIndicatorBuilder: (_, url, var progress) =>
               progress.progress != null
                   ? Container(
-                height: (widget.mangaMode)
-                    ? MediaQuery
-                    .of(context)
-                    .size
-                    .height
-                    : widget.imageSize.height,
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
-                child: Center(
-                  child: Text(
-                    "${(progress.progress * 100).toInt()}%",
-                    style: TextStyle(
-                      color: Colors.blueGrey,
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "Lato",
-                    ),
-                  ),
-                ),
-              )
-                  : Center(
-                child: Container(
-                  height: (widget.mangaMode)
-                      ? MediaQuery
-                      .of(context)
-                      .size
-                      .height
-                      : widget.imageSize.height,
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width,
-                  child: Center(
-                    child: Text("Loading..."),
-                  ),
-                ),
-              ),
-              httpHeaders: {
-                "referer": widget.referer ?? imageHeaders(widget.url)
-              },
-              errorWidget: (context, url, error) =>
-                  Center(
-                    child: Container(
-                      height: (widget.mangaMode)
-                          ? MediaQuery
-                          .of(context)
-                          .size
-                          .height
-                          : widget.imageSize.height,
-                      width: MediaQuery
-                          .of(context)
-                          .size
-                          .width,
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
                       child: Center(
-                        child: Text("$error"),
+                        child: Text(
+                          "${(progress.progress * 100).toInt()}%",
+                          style: TextStyle(
+                            color: Colors.blueGrey,
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Lato",
+                          ),
+                        ),
+                      ),
+                    )
+                  : Center(
+                      child: Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width,
+                        child: Center(
+                          child: Text("Loading..."),
+                        ),
                       ),
                     ),
-                  ),
-              fit: widget.fit,
-              fadeInDuration: Duration(microseconds: 500),
-              fadeInCurve: Curves.easeIn,
+          httpHeaders: {
+            "referer": referer ?? imageHeaders(url)
+          },
+          errorWidget: (context, url, error) => Center(
+            child: Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: Center(
+                child: Text("$error",textAlign: TextAlign.center,),
+              ),
             ),
-          ],
+          ),
+          fit: fit,
+          fadeInDuration: Duration(microseconds: 500),
+          fadeInCurve: Curves.easeIn,
         ),
       ),
     );
@@ -153,15 +88,19 @@ class VioletImage extends StatefulWidget {
   _VioletImageState createState() => _VioletImageState();
 }
 
-class _VioletImageState extends State<VioletImage> with AutomaticKeepAliveClientMixin {
+class _VioletImageState extends State<VioletImage>
+    with AutomaticKeepAliveClientMixin {
   Future<Size> _getDimensions;
 
   @override
   void initState() {
     super.initState();
-    _getDimensions = _calculateNetworkImageDimension(widget.url, widget.referrer);
-  }
+    _getDimensions = hello();
 
+  }
+  Future<Size> hello() async {
+    return await  _calculateNetworkImageDimension(widget.url, widget.referrer);
+}
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -175,26 +114,18 @@ class _VioletImageState extends State<VioletImage> with AutomaticKeepAliveClient
               referer: widget.referrer,
               fit: widget.fit,
               imageSize: snapshot.data,
-              mangaMode: false,
             ),
           );
         }
         if (snapshot.hasError) {
           return Container(
-            height: 300,
-            color: Colors.red,
+            child: Text("${snapshot.error}"),
           );
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Container(
-            height: MediaQuery
-                .of(context)
-                .size
-                .height,
-            width: MediaQuery
-                .of(context)
-                .size
-                .width,
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
             child: Center(child: LoadingIndicator()),
           );
         } else {
@@ -213,17 +144,17 @@ class _VioletImageState extends State<VioletImage> with AutomaticKeepAliveClient
   }
 
   Future<Size> _calculateNetworkImageDimension(String uri, String ref) async {
-    Image image = new Image(
-      image: CachedNetworkImageProvider(
+    Image image = Image(
+      image: NetworkImage(
         uri,
         headers: {"referer": ref},
       ),
     );
     Completer<Size> completer = Completer();
-    try {
+
       image.image.resolve(ImageConfiguration()).addListener(
         ImageStreamListener(
-          (ImageInfo image, bool synchronousCall) {
+          (ImageInfo image, bool _) {
             var myImage = image.image;
             Size size = Size(
               myImage.width.toDouble(),
@@ -233,14 +164,11 @@ class _VioletImageState extends State<VioletImage> with AutomaticKeepAliveClient
           },
         ),
       );
-    } catch (err) {
-      print("ERROR : $err");
-      completer.complete(MediaQuery.of(context).size);
-    }
+
 
     return completer.future;
   }
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }

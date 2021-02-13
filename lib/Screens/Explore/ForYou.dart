@@ -84,14 +84,14 @@ class _ForYouPageState extends State<ForYouPage> {
                       children: [
                         Text(
                           sourcePages[index].header,
-                          style: TextStyle(fontSize: 30.sp),
+                          style: TextStyle(fontSize: 30),
                         ),
                         SizedBox(
                           height: 3.h,
                         ),
                         Text(
                           sourcePages[index].subHeader,
-                          style: TextStyle(fontSize: 20.sp, color: Colors.grey),
+                          style: TextStyle(fontSize: 20, color: Colors.grey),
                         ),
                         SizedBox(
                           height: 10.h,
@@ -99,15 +99,16 @@ class _ForYouPageState extends State<ForYouPage> {
                         highlights.length <= 6
                             ? ComicGrid(
                           comics: highlights,
-                          crossAxisCount: 3,
                         )
                             : Container(
                           child: CarouselSlider(
+
                             options: CarouselOptions(
                               aspectRatio: 1,
-                              height: 250.h,
+                              height: 300.h,
                               viewportFraction: .4,
                               pauseAutoPlayOnManualNavigate: true,
+
                               enlargeCenterPage: true,
                               // disableCenter: true,
                               autoPlayInterval: Duration(
@@ -115,7 +116,7 @@ class _ForYouPageState extends State<ForYouPage> {
                               ),
 
                               scrollDirection: Axis.horizontal,
-                              autoPlay: true,
+                              autoPlay: false,
                             ),
                             items: highlights
                                 .map((e) => ComicGridTile(comic: e))

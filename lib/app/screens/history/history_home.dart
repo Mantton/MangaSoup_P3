@@ -7,6 +7,7 @@ import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
@@ -22,9 +23,10 @@ class HistoryHome extends StatefulWidget {
   _HistoryHomeState createState() => _HistoryHomeState();
 }
 
-class _HistoryHomeState extends State<HistoryHome> {
+class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer<DatabaseProvider>(
       builder: (BuildContext context, provider, _) =>
           provider.historyList.isNotEmpty ? home(provider) : emptyLibrary(),
@@ -93,14 +95,13 @@ class _HistoryHomeState extends State<HistoryHome> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AutoSizeText(
+                              Text(
                                 comic.title,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                minFontSize: 17.sp,
                                 style: TextStyle(
                                   fontFamily: "lato",
-                                  fontSize: 20.sp,
+                                  fontSize: 20,
                                 ),
                               ),
                               Column(
@@ -109,7 +110,7 @@ class _HistoryHomeState extends State<HistoryHome> {
                                   AutoSizeText(
                                     "Chapter ${chapter.generatedChapterNumber}${chapter.lastPageRead == null || chapter.lastPageRead == 0 ? "" : ", Page ${chapter.lastPageRead}"}",
                                     style: TextStyle(
-                                        color: Colors.blueGrey, fontSize: 15.sp),
+                                        color: Colors.blueGrey, fontSize: 15),
                                   ),
                                   AutoSizeText(
                                     comic.source,
@@ -117,7 +118,7 @@ class _HistoryHomeState extends State<HistoryHome> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontFamily: "lato",
-                                      fontSize: 15.sp,
+                                      fontSize: 15,
                                     ),
                                   ),
                                   AutoSizeText(
@@ -177,7 +178,18 @@ class _HistoryHomeState extends State<HistoryHome> {
       Map data = await Provider.of<DatabaseProvider>(context, listen: false).generate(comic.toHighlight());
       Profile profile = data['profile'];
       int id = data['id'];
-      int index = profile.chapters.indexWhere((element) => element.link == chapterData.link);
+      int index  = 0 ;
+      List<Chapter> chapters = List();
+      if (profile.chapters!= null){
+        index =  profile.chapters.indexWhere((element) => element.link == chapterData.link);
+       chapters = profile.chapters;
+      }else {
+        Chapter chapter = Chapter(
+            "Chapter 1", profile.link, "", profile.selector);
+        chapter.generatedNumber = 1.0;
+        chapters.add(chapter);
+      }
+
       ImageChapter imageChapter = ImageChapter(
         images:  (chapterData.images)?.map((item) => item as String)?.toList(),
         referer:profile.link,
@@ -190,7 +202,7 @@ class _HistoryHomeState extends State<HistoryHome> {
         context,
         MaterialPageRoute(
             builder: (_) => ReaderHome(
-              chapters:profile.chapters,
+              chapters:chapters,
               initialChapterIndex: index,
               selector:profile.selector,
               source: profile.source,
@@ -223,4 +235,7 @@ class _HistoryHomeState extends State<HistoryHome> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

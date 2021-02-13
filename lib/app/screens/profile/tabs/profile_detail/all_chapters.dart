@@ -252,7 +252,7 @@ class _ChapterListState extends State<ChapterList> {
 
   selectAll() {
     setState(() {
-      _selectedChapters = widget.chapterList;
+      _selectedChapters = List.of(widget.chapterList);
     });
     Navigator.pop(context);
   }
@@ -316,6 +316,7 @@ class _ChapterListState extends State<ChapterList> {
 
   markAsRead() async {
     showLoadingDialog(context);
+    print(_selectedChapters.length);
     await Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
         _selectedChapters,
         widget.comicId,

@@ -248,6 +248,14 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
     return newCollection;
   }
+  Future<Collection> updateCollection(Collection collection)async{
+    int index = collections.indexWhere((element) => element.id == collection.id);
+    collections[index] = collection;
+    await collectionManager.updateCollection(collection);
+    notifyListeners();
+    return collection;
+
+  }
 
   // Comic Collections
   batchSetComicCollection(List<Collection> collections, int comicId) async {
@@ -297,14 +305,6 @@ class DatabaseProvider with ChangeNotifier {
   toggleCollectionUpdate(Collection collection) {
     collection.updateEnabled = !collection.updateEnabled;
 
-    int target =
-        collections.indexWhere((element) => element.id == collection.id);
-    collections[target] = collection;
-    collectionManager.updateCollection(collection);
-    notifyListeners();
-  }
-
-  updateCollection(Collection collection) {
     int target =
         collections.indexWhere((element) => element.id == collection.id);
     collections[target] = collection;
@@ -417,8 +417,6 @@ class DatabaseProvider with ChangeNotifier {
       else
         chapters.add(obj);
     }
-
-    print(chapters.map((e) => e.id).toList());
     notifyListeners();
     // MD Sync
     if (selector == "mangadex" && read){
@@ -444,7 +442,13 @@ class DatabaseProvider with ChangeNotifier {
     await chapterManager.updateBatch([data]);
     notifyListeners();
   }
+  updateHistoryFromChapter(int comicId, Chapter chapter, int page){
+    updateChapterInfo(page, chapter);
+    ChapterData pointed =
+    checkIfChapterMatch(chapter);
+    updateHistory(comicId, pointed.id);
 
+  }
   updateHistory(int comicId, int chapterId) async {
     if (historyList.any((element) => element.comicId == comicId)) {
       int targetIndex =

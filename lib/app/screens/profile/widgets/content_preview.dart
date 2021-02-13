@@ -42,7 +42,7 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                   (!widget.profile.containsBooks) ? "Chapters" : "Books",
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 30.sp,
+                    fontSize: 30,
                   ),
                 ),
                 Spacer(),
@@ -53,7 +53,7 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                         },
                         icon: Icon(
                           CupertinoIcons.cloud_download,
-                          size: 30.w,
+                          size: 30,
                           color: Colors.purple,
                         ),
                       )
@@ -83,7 +83,7 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: displayChapters(widget.profile.chapterCount),
                 itemBuilder: (BuildContext context, int index) {
-                  Chapter chapter = widget.profile.chapters[index];
+                  Chapter chapter = List.of(widget.profile.chapters)[index];
                   ChapterData data = provider.checkIfChapterMatch(chapter);
                   bool similarRead =
                       provider.checkSimilarRead(chapter, widget.comicId);
@@ -180,7 +180,7 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                       child: Text(
                         'View all Chapters',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.purple, fontSize: 20.sp),
+                        style: TextStyle(color: Colors.purple, fontSize: 20),
                       ),
                     ),
                   )
@@ -195,7 +195,7 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.redAccent,
-                          fontSize: 20.sp,
+                          fontSize: 20,
                         ),
                       ),
                     ),

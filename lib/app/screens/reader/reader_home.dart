@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
@@ -7,6 +9,7 @@ import 'package:mangasoup_prototype_3/Screens/WebViews/chapter_webview.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/dialogs/reader_preferences.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/viewer_gateway.dart';
 import 'package:provider/provider.dart';
@@ -128,8 +131,15 @@ class _ReaderOpenerState extends State<ReaderOpener> {
               ),
             );
           } else {
-            return Center(
-              child: LoadingIndicator(),
+            return InkWell(
+              onTap: ()=>Provider.of<ReaderProvider>(context).toggleShowControls(),
+              child: Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: Center(
+                  child: LoadingIndicator(),
+                ),
+              ),
             );
           }
         },
@@ -146,20 +156,28 @@ class ReaderFrame extends StatefulWidget {
 class _ReaderFrameState extends State<ReaderFrame> {
   bool _showControls = false;
   @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIOverlays([]);
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+  }
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: GestureDetector(
         onTap: () {
-          setState(() {
-            _showControls = !_showControls;
-          });
+          Provider.of<ReaderProvider>(context, listen: false).toggleShowControls();
         },
         child: Stack(
           children: [
             plain(),
             ViewerGateWay(
               initialPage: Provider.of<ReaderProvider>(context, listen: false)
-                  .initialPageindex,
+                  .initialPageIndex,
             ),
             header(),
             footer(),
@@ -184,18 +202,18 @@ class _ReaderFrameState extends State<ReaderFrame> {
         duration: Duration(
           milliseconds: 150,
         ),
-        top: _showControls ? 0 : -120.h,
+        top: provider.showControls ? 0 : -120,
         curve: Curves.easeIn,
-        height: 120.h,
+        height: 120,
         width: MediaQuery.of(context).size.width,
         child: Container(
           alignment: Alignment.topCenter,
           color: Colors.black,
-          height: 120.h,
+          height: 120,
           child: Column(
             children: <Widget>[
               Container(
-                height: 55.h,
+                height: 55,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -209,7 +227,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
                             'Close',
                             style: TextStyle(
                               color: Colors.grey,
-                              fontSize: 20.sp,
+                              fontSize: 20,
                             ),
                           ),
                         ),
@@ -221,9 +239,9 @@ class _ReaderFrameState extends State<ReaderFrame> {
                           child: Icon(
                             Icons.more_horiz,
                             color: Colors.grey,
-                            size: 30.sp,
+                            size: 30,
                           ),
-                          onPressed: () {},
+                          onPressed: () => preferenceDialog(context: context),
                         ),
                       )
                     ],
@@ -232,7 +250,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
               ),
               Divider(
                 thickness: 2.w,
-                height: 3.h,
+                height: 3,
                 color: Colors.grey[900],
               ),
               Container(
@@ -249,7 +267,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
                                 "${provider.currentChapterName}",
                                 style: TextStyle(
                                   color: Colors.grey,
-                                  fontSize: 18.sp,
+                                  fontSize: 18,
                                 ),
                               )
                             : Container(),
@@ -261,6 +279,12 @@ class _ReaderFrameState extends State<ReaderFrame> {
                       indent: 15,
                       endIndent: 15,
                     ),
+
+                    IconButton(
+                      icon: Icon(CupertinoIcons.bookmark),
+                      color: Colors.grey[700],
+                      onPressed: ()=>null, // add current page to bookmark
+                    )
                   ],
                 ),
               )
@@ -276,9 +300,9 @@ class _ReaderFrameState extends State<ReaderFrame> {
       return AnimatedPositioned(
         duration: Duration(milliseconds: 150),
         curve: Curves.ease,
-        bottom: _showControls ? 0 : -60.h,
+        bottom: provider.showControls ? 0 : -60,
         child: Container(
-          height: 60.h,
+          height: 60,
           width: MediaQuery.of(context).size.width,
           color: Colors.black,
           child: Padding(
@@ -298,7 +322,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
                         "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20.sp,
+                          fontSize: 20,
                           fontFamily: 'Lato',
                           color: Colors.grey,
                         ),

@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 StreamController<String> sourcesStream = StreamController.broadcast();
 StreamController<String> bgUpdateStream = StreamController.broadcast();
-TextStyle isEmptyFont = TextStyle(fontSize: 20.sp, fontFamily: "Lato");
+TextStyle isEmptyFont = TextStyle(fontSize: 20, fontFamily: "Lato");
 
 Map<String, String> imageHeaders(String link) {
   if (link.contains("mangahasu"))

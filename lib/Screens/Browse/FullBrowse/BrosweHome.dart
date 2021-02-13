@@ -61,7 +61,7 @@ class _BrowsePageState extends State<BrowsePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text("Browse"),
           centerTitle: true,
@@ -254,13 +254,13 @@ class _BrowsePageState extends State<BrowsePage> {
                 children: [
                   Text(
                     "Filters",
-                    style: TextStyle(fontFamily: "Roboto", fontSize: 30.sp),
+                    style: TextStyle(fontFamily: "Roboto", fontSize: 30),
                   ),
                   Spacer(),
                   IconButton(
                     icon: Icon(
                       Icons.cancel_outlined,
-                      size: 30.w,
+                      size: 30,
                       color: Colors.red,
                     ),
                     onPressed: () => Navigator.pop(context),
@@ -268,7 +268,7 @@ class _BrowsePageState extends State<BrowsePage> {
                 ],
               ),
               SizedBox(
-                height: 20.h,
+                height: 20,
               ),
               Column(
                 mainAxisSize: MainAxisSize.min,
@@ -295,8 +295,8 @@ class _BrowsePageState extends State<BrowsePage> {
                   Padding(
                     padding: EdgeInsets.all(8.0.w),
                     child: MaterialButton(
-                      height: 50.h,
-                      minWidth: 100.w,
+                      height: 50,
+                      minWidth: 100,
                       onPressed: () {
                         Navigator.pop(context);
                         queryMap =

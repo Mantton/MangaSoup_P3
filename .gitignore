@@ -39,3 +39,4 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+/ios/Flutter/App 2.framework/

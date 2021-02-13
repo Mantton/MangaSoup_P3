@@ -32,7 +32,7 @@ class _CollectionStateWidgetState extends State<CollectionStateWidget> {
     onTap: () => libraryDialog(context: context, comicId: comic.id),
     child: Container(
       margin: EdgeInsets.only(left: 10.w),
-      height: 50.h,
+      height: 50,
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -52,7 +52,7 @@ class _CollectionStateWidgetState extends State<CollectionStateWidget> {
             Spacer(),
             Text(
               "Tap to Edit",
-              style: TextStyle(color: Colors.grey[700], fontSize: 15.sp),
+              style: TextStyle(color: Colors.grey[700], fontSize: 15),
             ),
           ],
         ),
@@ -63,7 +63,7 @@ class _CollectionStateWidgetState extends State<CollectionStateWidget> {
     onTap: () => libraryDialog(context: context, comicId: comic.id),
     child: Container(
       margin: EdgeInsets.only(left: 10),
-      height: 50.h,
+      height: 50,
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,

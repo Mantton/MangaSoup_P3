@@ -131,7 +131,7 @@ class _AllComicsPageState extends State<AllComicsPage>
                                 sourceProvider.source.name,
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20.sp,
+                                  fontSize: 20,
                                 ),
                               ),
                               Spacer(),
@@ -141,7 +141,7 @@ class _AllComicsPageState extends State<AllComicsPage>
                                   _sort['name'] ?? "",
                                   style: TextStyle(
                                     color: Colors.purple,
-                                    fontSize: 20.sp,
+                                    fontSize: 20,
                                   ),
                                 ),
                                 onTap: () {
@@ -188,12 +188,10 @@ class _AllComicsPageState extends State<AllComicsPage>
                                         title: Text(
                                           "Sort by",
                                         ),
-                                        cancelButton: CupertinoButton(
-                                          child: Text(
-                                            "Cancel",
-                                          ),
-                                          onPressed: () =>
-                                              Navigator.pop(context),
+                                        cancelButton: CupertinoActionSheetAction(
+                                          child: Text("Cancel"),
+                                          isDestructiveAction: true,
+                                          onPressed: () => Navigator.pop(context),
                                         ),
                                         actions: List<
                                             CupertinoActionSheetAction>.generate(
@@ -265,5 +263,5 @@ class _AllComicsPageState extends State<AllComicsPage>
   }
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }

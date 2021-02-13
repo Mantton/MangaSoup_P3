@@ -26,8 +26,8 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
   final picker = ImagePicker();
   Future<List<ImageSearchResult>> results;
   ApiManager _manager = ApiManager();
-  TextStyle def = TextStyle(fontSize: 18.sp, fontFamily: "Lato");
-  TextStyle chapterTitleFont = TextStyle(fontSize: 21.sp, fontFamily: "Lato");
+  TextStyle def = TextStyle(fontSize: 18, fontFamily: "Lato");
+  TextStyle chapterTitleFont = TextStyle(fontSize: 21, fontFamily: "Lato");
 
   @override
   Widget build(BuildContext context) {
@@ -71,8 +71,8 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
               InkWell(
                 onTap: getImage,
                 child: Container(
-                  height: 150.h,
-                  width: 100.w,
+                  height: 150,
+                  width: 100,
                   color: Colors.grey[900],
                   child: _image == null
                       ? Container(
@@ -90,7 +90,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
             ],
           ),
           SizedBox(
-            height: 15.h,
+            height: 15,
           ),
           Center(
             child: Container(
@@ -174,7 +174,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                           return Container(
                             color: Colors.grey[900],
                             margin: EdgeInsets.only(
-                              bottom: 25.h,
+                              bottom: 25,
                             ),
                             padding: EdgeInsets.all(
                               10.w,
@@ -314,7 +314,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                   );
           } else {
             return Container(
-              height: 300.h,
+              height: 300,
               child: Center(
                 child: Text(
                   "Awaiting the Image",
