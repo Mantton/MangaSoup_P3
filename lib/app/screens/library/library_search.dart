@@ -17,7 +17,7 @@ class _LibrarySearchState extends State<LibrarySearch> {
   @override
   void initState() {
     super.initState();
-    searchLibrary("");
+    // searchLibrary("");
   }
   @override
   Widget build(BuildContext context) {
