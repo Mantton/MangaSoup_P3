@@ -51,10 +51,10 @@ preferenceBuilder(BuildContext context) => Dialog(
             ),
 
             SizedBox(
-              height: 8.h,
+              height: 8,
             ),
             MaterialButton(
-              height: 50.h,
+              height: 50,
               minWidth: 100.w,
               onPressed: () => Navigator.pop(context),
               child: Text(
@@ -78,11 +78,11 @@ Widget readerModeSetting() {
         "Reader Mode",
         style: TextStyle(
           color: Colors.grey,
-          fontSize: 20.sp,
+          fontSize: 20,
         ),
       ),
       SizedBox(
-        width: 10.h,
+        width: 10,
       ),
       Spacer(),
       Consumer<PreferenceProvider>(builder: (context, provider, _) {
@@ -112,7 +112,7 @@ Widget readerModeSetting() {
 
 Widget mangaModeOptions() {
   return Container(
-    margin: EdgeInsets.only(top: 15.h),
+    margin: EdgeInsets.only(top: 15),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -137,11 +137,11 @@ Widget mangaModeOptions() {
               "Orientation",
               style: TextStyle(
                 color: Colors.grey,
-                fontSize: 20.sp,
+                fontSize: 20,
               ),
             ),
             SizedBox(
-              width: 25.h,
+              width: 25,
             ),
             Spacer(),
             Consumer<PreferenceProvider>(builder: (context, provider, _) {
@@ -167,7 +167,7 @@ Widget mangaModeOptions() {
           ],
         ),
         SizedBox(
-          height: 5.h,
+          height: 5,
         ),
 
         /// Scroll Direction
@@ -179,11 +179,11 @@ Widget mangaModeOptions() {
                   "Scroll Direction",
                   style: TextStyle(
                     color: Colors.grey,
-                    fontSize: 20.sp,
+                    fontSize: 20,
                   ),
                 ),
                 SizedBox(
-                  width: 9.h,
+                  width: 9,
                 ),
                 Spacer(),
                 Consumer<PreferenceProvider>(builder: (context, provider, _) {
@@ -215,7 +215,7 @@ Widget mangaModeOptions() {
         ),
 
         SizedBox(
-          height: 5.h,
+          height: 5,
         ),
 
         /// Page Snapping
@@ -227,11 +227,11 @@ Widget mangaModeOptions() {
                   "Page Padding",
                   style: TextStyle(
                     color: Colors.grey,
-                    fontSize: 20.sp,
+                    fontSize: 20,
                   ),
                 ),
                 SizedBox(
-                  width: 9.h,
+                  width: 9,
                 ),
                 Spacer(),
                 Consumer<PreferenceProvider>(builder: (context, provider, _) {
@@ -258,11 +258,11 @@ Widget mangaModeOptions() {
                   "Page Snapping",
                   style: TextStyle(
                     color: Colors.grey,
-                    fontSize: 20.sp,
+                    fontSize: 20,
                   ),
                 ),
                 SizedBox(
-                  width: 9.h,
+                  width: 9,
                 ),
                 Spacer(),
                 Consumer<PreferenceProvider>(builder: (context, provider, _) {

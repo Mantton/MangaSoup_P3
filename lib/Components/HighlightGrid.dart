@@ -26,17 +26,17 @@ class _ComicGridState extends State<ComicGrid>
     super.build(context);
     return Consumer<PreferenceProvider>(builder: (context, settings, _) {
       return Padding(
-        padding: EdgeInsets.all(8.0.w),
+        padding: EdgeInsets.all(4.0),
         child: GridView.builder(
           physics: ScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount:
-                widget.crossAxisCount ?? settings.comicGridCrossAxisCount,
-            crossAxisSpacing: 10.w,
-            mainAxisSpacing: 15.w,
-            childAspectRatio: settings.comicGridCrossAxisCount == 3
-                ? (53 / 100)
-                : (58 / 100), // 60 for 2, 53 for 3
+            crossAxisCount: settings.scaleToMatchIntended ?settings.comicGridCrossAxisCount.w.toInt():MediaQuery.of(context).orientation.index == 0?
+                widget.crossAxisCount ?? settings.comicGridCrossAxisCount: 5,
+            crossAxisSpacing: 7,
+            mainAxisSpacing: 15,
+            childAspectRatio: settings.comicGridCrossAxisCount >= 4
+                ? (50 / 100)
+                : (58 / 100),
           ),
           shrinkWrap: true,
           itemCount: widget.comics.length,
@@ -49,7 +49,7 @@ class _ComicGridState extends State<ComicGrid>
   }
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }
 
 class ComicGridTile extends StatelessWidget {
@@ -77,12 +77,13 @@ class ComicGridTile extends StatelessWidget {
             child: Column(
               children: [
                 Expanded(
+                  flex: 7,
                   child: ClipRRect(
                     borderRadius: BorderRadius.all(
                       Radius.circular(10.0),
                     ),
                     child: Container(
-                      width: 300.w,
+                      // width: 300.w,
                       child: SoupImage(
                         url: comic.thumbnail,
                         referer: comic.imageReferer,
@@ -91,43 +92,38 @@ class ComicGridTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(
-                  color: Colors.black54,
-                  height: 59.h,
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0.w),
-                      child: AutoSizeText(
-                        comic.title,
-                        style: TextStyle(
-                          fontFamily: "Lato",
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          // fontSize: 17.sp,
-                          shadows: <Shadow>[
-                            Shadow(
-                              offset: Offset(1.0, 1.0),
-                              blurRadius: 7.0,
-                              color: Colors.black,
-                            ),
-                            Shadow(
-                              offset: Offset(2.0, 2.0),
-                              blurRadius: 3.0,
-                              color: Colors.black,
-                            )
-                          ],
-                        ),
-                        textAlign: TextAlign.left,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                        maxLines: 2,
-
-                        minFontSize: Provider.of<PreferenceProvider>(context)
-                                    .comicGridCrossAxisCount ==
-                                3
-                            ? 17.sp
-                            : 20.sp, //17 for 3, 20 for 2
+                Padding(
+                  padding:  EdgeInsets.all(5.0),
+                  child: SizedBox(
+                    child: AutoSizeText(
+                      comic.title,
+                      style: TextStyle(
+                        fontFamily: "Lato",
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                        shadows: <Shadow>[
+                          Shadow(
+                            offset: Offset(1.0, 1.0),
+                            blurRadius: 7.0,
+                            color: Colors.black,
+                          ),
+                          Shadow(
+                            offset: Offset(2.0, 2.0),
+                            blurRadius: 3.0,
+                            color: Colors.black,
+                          )
+                        ],
                       ),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      maxLines: 2,
+                      minFontSize: 12,
+                      maxFontSize: 20,
+
+                      // maxFontSize: 40,
+                      // stepGranularity: 2,
                     ),
                   ),
                 ),
@@ -136,14 +132,14 @@ class ComicGridTile extends StatelessWidget {
           ),
           header: comic.updateCount != null && comic.updateCount != 0
               ? Padding(
-                  padding: EdgeInsets.all(5.0.w),
+                  padding: EdgeInsets.all(5.0),
                   child: Container(
                     alignment: Alignment.topRight,
                     child: CircleAvatar(
                       backgroundColor: Colors.red[900],
                       foregroundColor: Colors.white,
                       child: Padding(
-                        padding: EdgeInsets.all(2.0.w),
+                        padding: EdgeInsets.all(2.0),
                         child: Center(
                           child: AutoSizeText(
                             "${comic.updateCount}",

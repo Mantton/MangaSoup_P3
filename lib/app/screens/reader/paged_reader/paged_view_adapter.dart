@@ -28,6 +28,7 @@ class _PagedViewAdapterState extends State<PagedViewAdapter>
     return Consumer<ReaderProvider>(builder: (context, provider, _) {
       return Consumer<PreferenceProvider>(builder: (context, settings, _) {
         return PreloadPageView(
+
           scrollDirection: settings.readerOrientation == 1
               ? Axis.horizontal
               : Axis.vertical,
@@ -43,5 +44,5 @@ class _PagedViewAdapterState extends State<PagedViewAdapter>
   }
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }

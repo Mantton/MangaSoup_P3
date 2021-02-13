@@ -32,7 +32,7 @@ class _MultiSelectDialogState extends State<MultiSelectDialog> {
       ),
       child: Container(
         padding: EdgeInsets.all(10),
-        height: 660.h,
+        height: 660,
         child: Column(
           children: [
             Row(
@@ -55,7 +55,7 @@ class _MultiSelectDialogState extends State<MultiSelectDialog> {
               color: Colors.grey[800],
             ),
             Container(
-              height: 500.h,
+              height: 500,
               child: ListView(
                 shrinkWrap: true,
                 children: widget.setting.options
@@ -89,11 +89,11 @@ class _MultiSelectDialogState extends State<MultiSelectDialog> {
               ),
             ),
             SizedBox(
-              height: 10.h,
+              height: 10,
             ),
             MaterialButton(
-              height: 50.h,
-              minWidth: 100.w,
+              height: 50,
+              minWidth: 100,
               onPressed: () {
                 List processedValue =
                     currentItems.map((e) => e.toMap()).toList();

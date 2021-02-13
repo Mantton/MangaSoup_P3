@@ -55,7 +55,7 @@ class _LibrarySettingsPageState extends State<LibrarySettingsPage> {
                         style: TextStyle(
                             color: Colors.redAccent,
                             fontFamily: "Lato",
-                            fontSize: 20.sp),
+                            fontSize: 20,),
                       ),
                       onTap: () => deleteAll(),
                     )

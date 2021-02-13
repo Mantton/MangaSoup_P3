@@ -65,7 +65,7 @@ class TesterFilter extends StatelessWidget {
                 value: filter.options[x],
                 items: buildDropDownMenuItems(filter.options),
                 dropdownColor: Colors.grey[800],
-                style: TextStyle(fontSize: 20.sp),
+                style: TextStyle(fontSize: 20),
                 onChanged: (value) {
                   Provider.of<BrowseProvider>(context, listen: false)
                       .save(filter.selector, filter.type, value);
@@ -133,7 +133,7 @@ class TesterFilter extends StatelessWidget {
                     : "${Provider.of<BrowseProvider>(context).data["$selector"].map((element) => element.name).join(", ")}",
                 style: TextStyle(
                   color: Colors.purple,
-                  fontSize: 20.sp,
+                  fontSize: 20,
                 ),
                 softWrap: true,
               ),

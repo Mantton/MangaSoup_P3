@@ -95,14 +95,13 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AutoSizeText(
+                              Text(
                                 comic.title,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                minFontSize: 17.sp,
                                 style: TextStyle(
                                   fontFamily: "lato",
-                                  fontSize: 20.sp,
+                                  fontSize: 20,
                                 ),
                               ),
                               Column(
@@ -111,7 +110,7 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
                                   AutoSizeText(
                                     "Chapter ${chapter.generatedChapterNumber}${chapter.lastPageRead == null || chapter.lastPageRead == 0 ? "" : ", Page ${chapter.lastPageRead}"}",
                                     style: TextStyle(
-                                        color: Colors.blueGrey, fontSize: 15.sp),
+                                        color: Colors.blueGrey, fontSize: 15),
                                   ),
                                   AutoSizeText(
                                     comic.source,
@@ -119,7 +118,7 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontFamily: "lato",
-                                      fontSize: 15.sp,
+                                      fontSize: 15,
                                     ),
                                   ),
                                   AutoSizeText(

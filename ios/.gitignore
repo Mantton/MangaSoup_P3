@@ -16,12 +16,16 @@ xcuserdata
 **/.generated/
 Flutter/App.framework
 Flutter/Flutter.framework
+Flutter/Flutter 2.framework
 Flutter/Flutter.podspec
+Flutter/Flutter 2.podspec
 Flutter/Generated.xcconfig
+Flutter/Generated 2.xcconfig
 Flutter/app.flx
 Flutter/app.zip
 Flutter/flutter_assets/
 Flutter/flutter_export_environment.sh
+Flutter/flutter_export_environment 2.sh
 ServiceDefinitions.json
 Runner/GeneratedPluginRegistrant.*
 
@@ -30,3 +34,4 @@ Runner/GeneratedPluginRegistrant.*
 !default.mode2v3
 !default.pbxuser
 !default.perspectivev3
+/Flutter/Flutter 2.framework/

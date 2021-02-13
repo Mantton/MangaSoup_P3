@@ -28,7 +28,7 @@ class CustomProfilePage extends StatefulWidget {
 class _CustomProfilePageState extends State<CustomProfilePage> {
   TextStyle def = TextStyle(
     color: Colors.white,
-    fontSize: 15.sp,
+    fontSize: 15,
   );
 
   @override
@@ -76,7 +76,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
       children: [
         Container(
           margin: EdgeInsets.only(top: 10.h),
-          width: 150.h,
+          width: 150.w,
           height: 250.h,
           child: SoupImage(url: widget.profile.thumbnail),
         ),
@@ -97,7 +97,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                   style: TextStyle(
                     color: Colors.white,
                     fontFamily: 'Lato',
-                    fontSize: 20.sp,
+                    fontSize: 20,
                   ),
                   // maxLines: 2,
                 ),
@@ -119,13 +119,13 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                       "#${widget.profile.galleryId ?? ""}",
                       style: TextStyle(
                         color: Colors.amberAccent,
-                        fontSize: 17.sp,
+                        fontSize: 17,
                       ),
                     ),
                   ),
                 ),
                 SizedBox(
-                  height: 10.h,
+                  height: 10,
                 ),
                 FittedBox(
                   child: Text(
@@ -134,7 +134,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                   ),
                 ),
                 SizedBox(
-                  height: 10.h,
+                  height: 10,
                 ),
                 FittedBox(
                   child: Text(
@@ -143,7 +143,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                   ),
                 ),
                 SizedBox(
-                  height: 10.h,
+                  height: 10,
                 ),
                 FittedBox(
                   child: Text(
@@ -180,15 +180,15 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                         property.name,
                         style: TextStyle(
                           color: Colors.grey,
-                          fontSize: 17.sp,
+                          fontSize: 17,
                         ),
                       ),
                       SizedBox(
-                        height: 4.h,
+                        height: 4,
                       ),
                       GridView.builder(
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,
+                          crossAxisCount: 5.w.toInt(),
                           crossAxisSpacing: 0,
                           mainAxisSpacing: 0,
                           childAspectRatio: 1.7,
@@ -217,7 +217,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
           "Preview",
           style: TextStyle(
             color: Colors.grey,
-            fontSize: 25.sp,
+            fontSize: 25,
           ),
         ),
         Divider(

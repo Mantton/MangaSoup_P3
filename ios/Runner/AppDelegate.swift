@@ -20,8 +20,6 @@ import shared_preferences
     }
     UIApplication.shared.setMinimumBackgroundFetchInterval(TimeInterval(60*60))
     WorkmanagerPlugin.setPluginRegistrantCallback { registry in
-        // registry in this case is the FlutterEngine that is created in Workmanager's performFetchWithCompletionHandler
-        // This will make other plugins available during a background fetch
         GeneratedPluginRegistrant.register(with: registry)
         FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin")!)
         FLTSharedPreferencesPlugin.register(with: registry.registrar(forPlugin: "io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin")!)

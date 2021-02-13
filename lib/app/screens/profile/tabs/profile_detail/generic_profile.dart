@@ -42,7 +42,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
 
   Widget homeView({@required Comic comic}) => SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(8.0.w),
+          padding: EdgeInsets.all(8.0),
           child: Container(
             color: Colors.black,
             child: Column(
@@ -54,9 +54,9 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                     children: [
                       profileHeader(comic),
                       Divider(
-                        height: 5.h,
-                        indent: 5.w,
-                        endIndent: 5.w,
+                        height: 5,
+                        indent: 5,
+                        endIndent: 5,
                         color: Colors.white12,
                         thickness: 2,
                       ),
@@ -84,22 +84,22 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
   Widget profileHeader(Comic comic) => Row(
         children: [
           Container(
-            margin: EdgeInsets.only(top: 10.h, left: 10.w),
-            width: 180.h,
-            height: 250.h,
+            margin: EdgeInsets.only(top: 10, left: 10),
+            width: 180,
+            height: 250,
             child: SoupImage(
               url: widget.profile.thumbnail,
               referer: comic.referer,
             ),
           ),
           SizedBox(
-            width: 10.w,
+            width: 10,
           ),
           Expanded(
             child: Container(
               // height: 220.h,
-              padding: EdgeInsets.all(10.w),
-              margin: EdgeInsets.only(top: 10.h),
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.only(top: 10),
 //                                          color: Colors.white12,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,7 +109,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                     widget.profile.title,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 25.sp,
+                      fontSize: 25,
                       fontFamily: 'Lato',
                     ),
                     // maxLines: 3,
@@ -127,7 +127,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                         style: def),
                   ),
                   SizedBox(
-                    height: 10.h,
+                    height: 10,
                   ),
                   FittedBox(
                     child: Text(
@@ -142,12 +142,12 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                                     .contains("on"))
                                 ? Colors.blue
                                 : Colors.redAccent,
-                        fontSize: 18.sp,
+                        fontSize: 18,
                       ),
                     ),
                   ),
                   SizedBox(
-                    height: 10.h,
+                    height: 10,
                   ),
                   Text(
                     "Art by " +
@@ -158,7 +158,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                     style: def,
                   ),
                   SizedBox(
-                    height: 10.h,
+                    height: 10,
                   ),
                   FittedBox(
                     child: Text(
@@ -181,7 +181,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
             icon,
             color: Colors.purpleAccent,
           ),
-          iconSize: 30.w,
+          iconSize: 30,
           onPressed: () => action,
         ),
         Text(
@@ -203,11 +203,32 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
     }
 
     return Container(
-      padding: EdgeInsets.all(8.w),
+      padding: EdgeInsets.all(8),
       child: Row(
         children: [
           // Spacer(),
-          actionButton(CupertinoIcons.play, "Read", null),
+          Consumer<DatabaseProvider>(
+              builder: (BuildContext context, provider, _) {
+            return InkWell(
+              child: Column(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      CupertinoIcons.play,
+                      color: Colors.purpleAccent,
+                    ),
+                    iconSize: 30,
+                    onPressed: () =>playContinueLogic(),
+                  ),
+                  Text(
+                    true?"Read":"Continue",
+                    textAlign: TextAlign.center,
+                    style: def,
+                  ),
+                ],
+              ),
+            );
+          }),
           Spacer(),
           actionButton(
               widget.profile.containsBooks
@@ -229,7 +250,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                         CupertinoIcons.chart_bar_square,
                         color: Colors.purpleAccent,
                       ),
-                      iconSize: 30.w,
+                      iconSize: 30,
                       onPressed: () =>
                           comicRatingDialog(context: context, comic: comic),
                     ),
@@ -250,11 +271,11 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                         "${comic.rating}/5",
                         style: TextStyle(
                           color: Colors.purple,
-                          fontSize: 30.sp,
+                          fontSize: 30,
                         ),
                       ),
                       SizedBox(
-                        height: 10.h,
+                        height: 10,
                       ),
                       Text(
                         "Rating",
@@ -269,12 +290,12 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
       ),
     );
   }
-
+  playContinueLogic(){}
   Widget profileBody() {
     return Container(
       width: MediaQuery.of(context).size.width,
       child: Padding(
-        padding: EdgeInsets.all(8.0.w),
+        padding: EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -285,7 +306,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
               children: [
                 Text(
                   'Description',
-                  style: TextStyle(color: Colors.white, fontSize: 25.sp),
+                  style: TextStyle(color: Colors.white, fontSize: 25),
                 ),
                 Spacer(),
                 FlatButton(
@@ -317,18 +338,18 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                 ConstrainedBox(
                   constraints: isExpanded
                       ? BoxConstraints()
-                      : BoxConstraints(maxHeight: 50.0.h),
+                      : BoxConstraints(maxHeight: 50.0),
                   child: Text(
                     widget.profile.description,
                     softWrap: true,
                     overflow: TextOverflow.fade,
-                    style: TextStyle(color: Colors.grey, fontSize: 15.sp),
+                    style: TextStyle(color: Colors.grey, fontSize: 15),
                   ),
                 ),
               ],
             ),
             SizedBox(
-              height: 5.h,
+              height: 5,
             ),
             Text(
               'Genres',
@@ -341,7 +362,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 5,
+                  crossAxisCount: 5.w.toInt(),
                   crossAxisSpacing: 0,
                   childAspectRatio: 1.7,
                 ),

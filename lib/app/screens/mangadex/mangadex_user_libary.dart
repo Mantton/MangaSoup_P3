@@ -6,6 +6,7 @@ import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:collection/collection.dart';
@@ -29,6 +30,7 @@ class _MangaDexUserLibraryState extends State<MangaDexUserLibrary> {
   void initState() {
     userLibrary = init();
     super.initState();
+    print("done");
   }
 
   @override
@@ -81,14 +83,17 @@ class _MangaDexUserLibraryState extends State<MangaDexUserLibrary> {
             ),
           );
         } else if (snapshot.hasError)
-          return Center(
-            child: InkWell(
-              child: Text(
-                "An Error Occurred\nTap to go back\n${snapshot.error}",
-                style: notInLibraryFont,
-                textAlign: TextAlign.center,
+
+          return Scaffold(
+            body: Center(
+              child: InkWell(
+                child: Text(
+                  "An Error Occurred\nTap to go back\n${snapshot.error}",
+                  style: notInLibraryFont,
+                  textAlign: TextAlign.center,
+                ),
+                onTap: () => Navigator.pop(context),
               ),
-              onTap: () => Navigator.pop(context),
             ),
           );
         else
@@ -153,9 +158,7 @@ class _MangaDexUserLibraryState extends State<MangaDexUserLibrary> {
             Comic comic = Comic(
                 title: highlight.title,
                 link: highlight.link,
-                thumbnail: highlight.selector != "hasu"
-                    ? highlight.thumbnail
-                    : highlight.thumbnail,
+                thumbnail: highlight.thumbnail,
                 referer: highlight.imageReferer,
                 source: highlight.source,
                 sourceSelector: highlight.selector,

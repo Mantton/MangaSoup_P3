@@ -62,24 +62,19 @@ class WebViewExampleState extends State<WebViewExample> {
       ].toSet(),
       navigationDelegate: (NavigationRequest request) {
         if (request.url.startsWith('https://www.youtube.com/')) {
-          print('blocking navigation to $request}');
           return NavigationDecision.prevent;
         }
-        print('allowing navigation to $request');
         return NavigationDecision.navigate;
       },
       onPageStarted: (String url) {
-        print('Page started loading: $url');
       },
       onPageFinished: (String url){
         _controller.future.then((view) async {
-          final String cookies =
-          await view.evaluateJavascript('document.cookie');
-          print("Retrieved Cookies");
-          print(cookies);
+
         });
       },
       gestureNavigationEnabled: true,
+
     );
   }
 

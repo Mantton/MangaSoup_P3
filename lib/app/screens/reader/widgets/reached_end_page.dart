@@ -22,7 +22,7 @@ class ReachedEndPage extends StatelessWidget {
               "That was the last available chapter.\n"
               "${inLibrary.inLibrary ? "This comic is in your library, you will be notified when a new chapter is available" : "Add this comic to your library to be updated when more chapters are released!"}",
               style: TextStyle(
-                fontSize: 25.sp,
+                fontSize: 25,
                 fontWeight: FontWeight.bold,
                 fontFamily: "Lato",
                 color: Colors.grey[700],
@@ -30,20 +30,20 @@ class ReachedEndPage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(
-              height: 10.h,
+              height: 10,
             ),
             Container(
-              padding: EdgeInsets.all(8.w),
+              padding: EdgeInsets.all(8),
               child: CollectionStateWidget(
                 comicId: inLibrary.id,
               ),
             ),
             SizedBox(
-              height: 10.h,
+              height: 10,
             ),
             MaterialButton(
-              height: 60.h,
-              minWidth: 120.w,
+              height: 60,
+              minWidth: 120,
               onPressed: () {
                 // Provider.of<PreferenceProvider>(context, listen: false)
                 //     .setReaderMode(1);

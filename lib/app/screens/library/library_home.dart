@@ -92,8 +92,8 @@ class _LibraryHomeState extends State<LibraryHome>
           bottom: TabBar(
             indicatorColor: Colors.purpleAccent,
             isScrollable: true,
-            unselectedLabelStyle: TextStyle(fontSize: 19.sp),
-            labelStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
+            unselectedLabelStyle: TextStyle(fontSize: 19),
+            labelStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             tabs: List<Widget>.generate(collections.length, (index) {
               return Tab(
                 text: collections[index].name,
@@ -128,7 +128,7 @@ class _LibraryHomeState extends State<LibraryHome>
                             bottom: PreferredSize(
                               preferredSize: Size(0, 10),
                               child: Padding(
-                                padding: EdgeInsets.all(8.w),
+                                padding: EdgeInsets.all(8),
                                 child: Center(
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -138,7 +138,7 @@ class _LibraryHomeState extends State<LibraryHome>
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.grey,
-                                          fontSize: 15.sp,
+                                          fontSize: 15,
                                           fontFamily: "lato",
                                         ),
                                       ),
@@ -180,7 +180,7 @@ class _LibraryHomeState extends State<LibraryHome>
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.blue,
-                                            fontSize: 15.sp,
+                                            fontSize: 15,
                                             fontFamily: "lato",
                                           ),
                                           textAlign: TextAlign.center,
@@ -233,8 +233,13 @@ class _LibraryHomeState extends State<LibraryHome>
               color: Colors.purple,
 
               onPressed: (){
-                // From MangaDex
-                // From MangaSoup Tracking
+                showPlatformDialog(context: context, builder: (_)=>PlatformAlertDialog(
+                  title: Text("Import Library"),
+                  content: Text("You can import your MDList Library by going to\nMangaDex Home>View Library>Merge Into Local"),
+                  actions: [
+                    PlatformDialogAction(child: Text("OK"), onPressed: ()=>Navigator.pop(context)),
+                  ],
+                ));
               },
               child: Text("Import"),
               shape: RoundedRectangleBorder(

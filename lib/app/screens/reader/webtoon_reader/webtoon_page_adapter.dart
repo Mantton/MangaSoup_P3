@@ -41,7 +41,6 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter>
           .widgetPageList
           .length;
       if (max != lastPage && max > 0 && max < itemCount) {
-        print("MAX: $max ... MIN:$min");
         Provider.of<ReaderProvider>(context, listen: false)
             .pageChanged(max);
         lastPage = max;
@@ -56,13 +55,17 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter>
   Widget build(BuildContext context) {
     return
        Consumer<ReaderProvider>(builder: (context, provider, _) {
-        return ScrollablePositionedList.builder(
-          itemBuilder: (_, index) => provider.widgetPageList[index],
-          itemCount: provider.widgetPageList.length,
-          itemScrollController: itemScrollController,
-          itemPositionsListener: itemPositionsListener,
-          initialScrollIndex: widget.initialPage,
+        return Container(
+          height: MediaQuery.of(context).size.height,
+          child: ScrollablePositionedList.builder(
+            addAutomaticKeepAlives: false,
+            itemBuilder: (_, index) => provider.widgetPageList[index],
+            itemCount: provider.widgetPageList.length,
+            itemScrollController: itemScrollController,
+            itemPositionsListener: itemPositionsListener,
+            initialScrollIndex: widget.initialPage != 0? widget.initialPage-1:widget.initialPage,
 
+          ),
         );
       });
 

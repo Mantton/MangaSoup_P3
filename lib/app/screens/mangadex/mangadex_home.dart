@@ -61,8 +61,21 @@ class _DexHubHomeState extends State<DexHubHome> {
                 child: LoadingIndicator(),
               );
             else if (snapshot.hasError)
-              return Center(
-                child: Text("An Unknown Error Occurred\n${snapshot.error}"),
+              return Scaffold(
+                body: Center(
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        profile = ApiManager().getMangadexProfile();
+                      });
+                    },
+                    child: Text(
+                      "An Error Occurred\n${snapshot.error}\nTap to Retry",
+                      style: notInLibraryFont,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
               );
             else if (snapshot.hasData)
               return Container(
@@ -110,6 +123,18 @@ class _DexHubHomeState extends State<DexHubHome> {
                           ),
                         ),
                       ),
+                    ),
+                    ListTile(
+                      title: Text("Refresh"),
+                      trailing: Icon(
+                        Icons.refresh,
+                        color: Colors.purple,
+                      ),
+                      onTap: () {
+                        setState(() {
+                          profile = ApiManager().getMangadexProfile();
+                        });
+                      },
                     )
                   ],
                 ),
@@ -134,12 +159,11 @@ class _DexHubHomeState extends State<DexHubHome> {
                             builder: (_) => MangaDexLogin(),
                           ),
                         ).then(
-                          (value){
+                          (value) {
                             setState(() {
                               profile = get();
                             });
-                          }
-                          ,
+                          },
                         ),
                       ),
                     ],

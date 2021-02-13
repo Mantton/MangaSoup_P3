@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
-import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:html_unescape/html_unescape.dart';
@@ -112,29 +112,17 @@ class DexHub {
   }
 
   Map<String, dynamic> prepareHeaders(Map info) {
-    Map cookies = info['cookies'];
+    Map cookies = info['cookies'] ?? Map<String, dynamic>();
 
-    if (cookies == null) {
-      throw MissingMangaDexSession;
-    }
     Map<String, dynamic> data = Map();
     data.addAll(cookies);
     data['mangadex_h_toggle'] = info['nsfw'];
     String encodedCookies = stringifyCookies(data);
     Map<String, dynamic> browseHeaders = {
-      "Cookie": encodedCookies,
-      "authority": "mangadex.org",
-      'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E217',
-      "accept":
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-      // "pragma": "no-cache",
+      "Cookie": "$encodedCookies",
+      "User-Agent": "MangaSoup/0.0.2",
       "Access-Control-Allow-Origin": "*",
-      "referer": "https://mangadex.org/search?title=",
-      // "sec-fetch-dest": "document",
-      // "sec-fetch-mode": "navigate",
-      // "sec-fetch-site": "same-origin",
-      // "upgrade-insecure-requests": 1,
+      "referer": "https://mangadex.org",
     };
     return browseHeaders;
   }
@@ -144,31 +132,10 @@ class DexHub {
 
   Future<List<ComicHighlight>> get(
       String sort, int page, Map additionalInfo) async {
-    Map cookies = additionalInfo['cookies'] ?? {};
-    Map data = Map();
-    data.addAll(cookies);
-    data['mangadex_h_toggle'] = additionalInfo['nsfw'];
-    // print(data);
 
     String url = baseURL + '/titles/9/$page/?s=$sort#listing';
     Dio _dio = Dio();
-    String encodedCookies = stringifyCookies(data);
-    // print(encodedCookies);
-    Map<String, dynamic> browseHeaders = {
-      "Cookie": encodedCookies,
-      "authority": "mangadex.org",
-      'user-agent': 'MangaSoup-DexHub-Client/1.0.0',
-      'accept-language': 'en-US,en;q=0.9,tr-TR;q=0.8,tr;q=0.7',
-      "accept":
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-      "pragma": "no-cache",
-      "Access-Control-Allow-Origin": "*",
-      "referer": "https://mangadex.org/search?title=",
-      "sec-fetch-dest": "document",
-      "sec-fetch-mode": "navigate",
-      "sec-fetch-site": "same-origin",
-      "upgrade-insecure-requests": 1,
-    };
+    Map<String, dynamic> browseHeaders = prepareHeaders(additionalInfo);
     Response response = await _dio.get(
       url, //
       options: Options(headers: browseHeaders),
@@ -203,31 +170,12 @@ class DexHub {
 
   Future<List<ComicHighlight>> getTagComics(
       String sort, int page, var link, Map additionalInfo) async {
-    Map cookies = additionalInfo['cookies'] ?? {};
-    Map data = Map();
-    data.addAll(cookies);
-    data['mangadex_h_toggle'] = additionalInfo['nsfw'];
 
     String url = baseURL +
-        '/genre/$link/${tagsDict[link].toString().replaceAll(" ", "-")}/$sort/$page';
+        '/genre/$link/${tagsDict[link].toString().replaceAll(" ", "-")}/${sort.isNotEmpty ? sort : "9"}/$page';
 
     Dio _dio = Dio();
-    String encodedCookies = stringifyCookies(data);
-    Map<String, dynamic> browseHeaders = {
-      "Cookie": encodedCookies,
-      "authority": "mangadex.org",
-      'user-agent': 'MangaSoup-DexHub-Client/1.0.0',
-      'accept-language': 'en-US,en;q=0.9,tr-TR;q=0.8,tr;q=0.7',
-      "accept":
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-      "pragma": "no-cache",
-      "Access-Control-Allow-Origin": "*",
-      "referer": "https://mangadex.org/search?title=",
-      "sec-fetch-dest": "document",
-      "sec-fetch-mode": "navigate",
-      "sec-fetch-site": "same-origin",
-      "upgrade-insecure-requests": 1,
-    };
+    Map<String, dynamic> browseHeaders = prepareHeaders(additionalInfo);
     Response response = await _dio.get(
       url, //
       options: Options(headers: browseHeaders),
@@ -366,6 +314,7 @@ class DexHub {
   }
 
   String replaceThumbnail(String initial) => initial.replaceAll(".large.", ".");
+
   String _emoji(String country) {
     country = country.toUpperCase();
     int flagOffset = 0x1F1E6;
@@ -401,11 +350,19 @@ class DexHub {
         //
         options: Options(headers: prepareHeaders(additionalInfo)),
       );
-
-      // print(response.headers);
+      String responseHeaders = response.headers.map.toString();
+      if (responseHeaders.contains("mangadex_session=deleted")) {
+        SharedPreferences _prefs = await SharedPreferences.getInstance();
+        _prefs
+            .setString("mangadex_cookies", null)
+            .then((value) => showSnackBarMessage("MangaDex Session Revoked"));
+        throw "MangaDex Authorization Error";
+      }
       var document = parse(response.data);
       var comics = document
           .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
+
+      print(comics);
 
       List<ComicHighlight> highlights = [];
       for (var comic in comics) {
@@ -430,7 +387,7 @@ class DexHub {
       debugPrint("Retrieval Complete : /all @$source");
       return highlights;
     } on DioError catch (e) {
-      throw e.response.data;
+      throw "${e.response.statusMessage}";
     }
   }
 
@@ -502,7 +459,7 @@ class DexHub {
   }
 
   Future<DexProfile> setUserProfile(Map additionalInfo) async {
-    try{
+    try {
       Response response = await Dio().get(
         apiV2URL + "/user/me",
         options: Options(headers: prepareHeaders(additionalInfo)),
@@ -516,42 +473,70 @@ class DexHub {
           userProfile.toMap(),
         ),
       );
+      print(response.headers.toString());
       return userProfile;
-    }on DioError catch (e) {
-      throw e.response.data;
+    } on DioError catch (e) {
+      if (e.response.statusCode == 403) {
+        if (e.response.headers
+            .toString()
+            .contains("mangadex_session=deleted")) {
+          SharedPreferences _prefs = await SharedPreferences.getInstance();
+          _prefs
+              .setString("mangadex_cookies", null)
+              .then((value) => showSnackBarMessage("MangaDex Session Revoked"));
+        }
+        throw "${e.response.statusCode}, Authorization Error";
+      } else if (e.response.statusCode == 500) {
+        throw "${e.response.statusCode}, MangaDex Servers are currently down";
+      } else if (e.response.statusCode == 502) {
+        throw "${e.response.statusCode}, MangaDex is under heavy load, try again.";
+      } else
+        throw e.response.statusMessage;
     }
-
   }
 
-  Future<List<ComicHighlight>> getUserLibrary(Map additionalInfo) async{
-    Response response = await Dio().get(
-      apiV2URL + "/user/me/followed-manga",
-      options: Options(headers: prepareHeaders(additionalInfo)),
-    );
-    
-    List data = response.data['data'];
-    List<ComicHighlight> comics = List();
-    for (Map d in data){
-      comics.add(ComicHighlight.fromMangaDex(d));
+  Future<List<ComicHighlight>> getUserLibrary(Map additionalInfo) async {
+    var headers = prepareHeaders(additionalInfo);
+    try {
+      Response response = await Dio().get(
+        apiV2URL + "/user/me/followed-manga",
+        options: Options(headers: headers),
+      );
+
+      List data = response.data['data'];
+      List<ComicHighlight> comics = List();
+      for (Map d in data) {
+        comics.add(ComicHighlight.fromMangaDex(d));
+      }
+      return comics;
+    } on DioError catch (e) {
+      if (e.response.statusCode == 403) {
+        if (e.response.headers
+            .toString()
+            .contains("mangadex_session=deleted")) {
+          SharedPreferences _prefs = await SharedPreferences.getInstance();
+          _prefs
+              .setString("mangadex_cookies", null)
+              .then((value) => showSnackBarMessage("MangaDex Session Revoked"));
+        }
+        throw "${e.response.statusCode}, Authorization Error";
+      } else if (e.response.statusCode == 500) {
+        throw "${e.response.statusCode}, MangaDex Servers are currently down";
+      } else if (e.response.statusCode == 502) {
+        throw "${e.response.statusCode}, MangaDex is under heavy load, try again.";
+      } else
+        throw e.response.statusMessage;
     }
-    return comics;
   }
 
   Future<void> markChapter(List<int> ids, bool read, Map additionalInfo) async {
     var headers = prepareHeaders(additionalInfo);
     headers.addAll({
-     'Content-Type': "application/json",
+      'Content-Type': "application/json",
     });
-    Response response = await Dio().post(
-      apiV2URL + "/user/me/marker",
-      options: Options(headers: headers),
-      data: {
-        "chapters":ids,
-        "read": read
-      }
-    );
-    print(response.data);
+    Response response = await Dio().post(apiV2URL + "/user/me/marker",
+        options: Options(headers: headers),
+        data: {"chapters": ids, "read": read});
     print("MangaDex Chapter Sync Complete");
-
   }
 }

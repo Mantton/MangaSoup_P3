@@ -117,7 +117,7 @@ class _SourcesPageState extends State<SourcesPage> {
                       (index) => Tab(
                         child: Text(
                           keys[index],
-                          style: TextStyle(fontSize: 17.sp),
+                          style: TextStyle(fontSize: 17),
                         ),
                         // text: ,
                       ),
@@ -134,7 +134,7 @@ class _SourcesPageState extends State<SourcesPage> {
                         child: GridView.builder(
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
+                              crossAxisCount: 3.w.toInt(),
                               crossAxisSpacing: ScreenUtil().setWidth(10),
                               mainAxisSpacing: ScreenUtil().setWidth(10),
                               childAspectRatio: .77, // 77/100
@@ -170,17 +170,20 @@ class _SourcesPageState extends State<SourcesPage> {
                                                 : Colors.purple),
                                   ),
                                   child: GridTile(
-                                    child: SoupImage(
-                                      url: source.thumbnail,
-                                      referer: source.url,
-                                      fit: BoxFit.fitWidth,
+                                    child: Padding(
+                                      padding:  EdgeInsets.all(8.0),
+                                      child: SoupImage(
+                                        url: source.thumbnail,
+                                        referer: source.url,
+                                        fit: BoxFit.fitWidth,
+                                      ),
                                     ),
                                     footer: Center(
                                       child: FittedBox(
                                         child: Text(
                                           source.name,
                                           style: TextStyle(
-                                            fontSize: 17.sp,
+                                            fontSize: 17,
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -237,7 +240,7 @@ class _SourcesPageState extends State<SourcesPage> {
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 20.sp),
+                            fontSize: 20,),
                         textAlign: TextAlign.center,
                       ),
                       onTap: () {

@@ -22,6 +22,7 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
   Future<Map<String, dynamic>> _profile;
 
   Future<Map<String, dynamic>> getProfile() async {
+    await Future.delayed(Duration(milliseconds: 60)).then((value) => null);
     return await Provider.of<DatabaseProvider>(context, listen: false)
         .generate(widget.highlight);
   }

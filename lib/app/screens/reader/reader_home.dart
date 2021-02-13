@@ -170,7 +170,6 @@ class _ReaderFrameState extends State<ReaderFrame> {
     return SafeArea(
       child: GestureDetector(
         onTap: () {
-          print("tapped!");
           Provider.of<ReaderProvider>(context, listen: false).toggleShowControls();
         },
         child: Stack(
@@ -203,18 +202,18 @@ class _ReaderFrameState extends State<ReaderFrame> {
         duration: Duration(
           milliseconds: 150,
         ),
-        top: provider.showControls ? 0 : -120.h,
+        top: provider.showControls ? 0 : -120,
         curve: Curves.easeIn,
-        height: 120.h,
+        height: 120,
         width: MediaQuery.of(context).size.width,
         child: Container(
           alignment: Alignment.topCenter,
           color: Colors.black,
-          height: 120.h,
+          height: 120,
           child: Column(
             children: <Widget>[
               Container(
-                height: 55.h,
+                height: 55,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -228,7 +227,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
                             'Close',
                             style: TextStyle(
                               color: Colors.grey,
-                              fontSize: 20.sp,
+                              fontSize: 20,
                             ),
                           ),
                         ),
@@ -240,7 +239,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
                           child: Icon(
                             Icons.more_horiz,
                             color: Colors.grey,
-                            size: 30.sp,
+                            size: 30,
                           ),
                           onPressed: () => preferenceDialog(context: context),
                         ),
@@ -251,7 +250,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
               ),
               Divider(
                 thickness: 2.w,
-                height: 3.h,
+                height: 3,
                 color: Colors.grey[900],
               ),
               Container(
@@ -268,7 +267,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
                                 "${provider.currentChapterName}",
                                 style: TextStyle(
                                   color: Colors.grey,
-                                  fontSize: 18.sp,
+                                  fontSize: 18,
                                 ),
                               )
                             : Container(),
@@ -283,7 +282,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
 
                     IconButton(
                       icon: Icon(CupertinoIcons.bookmark),
-                      color: Colors.purple,
+                      color: Colors.grey[700],
                       onPressed: ()=>null, // add current page to bookmark
                     )
                   ],
@@ -301,9 +300,9 @@ class _ReaderFrameState extends State<ReaderFrame> {
       return AnimatedPositioned(
         duration: Duration(milliseconds: 150),
         curve: Curves.ease,
-        bottom: provider.showControls ? 0 : -60.h,
+        bottom: provider.showControls ? 0 : -60,
         child: Container(
-          height: 60.h,
+          height: 60,
           width: MediaQuery.of(context).size.width,
           color: Colors.black,
           child: Padding(
@@ -323,7 +322,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
                         "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20.sp,
+                          fontSize: 20,
                           fontFamily: 'Lato',
                           color: Colors.grey,
                         ),

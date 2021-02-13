@@ -10,118 +10,67 @@ import 'package:photo_view/photo_view.dart';
 
 import '../Globals.dart';
 
-class OldReaderImage extends StatefulWidget {
-  final String link;
-  final String referer;
-  final BoxFit fit;
 
-  const OldReaderImage({Key key, this.link, this.referer, this.fit})
-      : super(key: key);
-
-  @override
-  _OldReaderImageState createState() => _OldReaderImageState();
-}
-
-class _OldReaderImageState extends State<OldReaderImage> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: (!widget.link.toLowerCase().contains("mangasoup"))
-          ? ReaderImage(
-              url: widget.link,
-              referer: widget.referer,
-              fit: widget.fit,
-            )
-          : Image.file(
-              File(widget.link),
-            ),
-    );
-  }
-}
-
-class ReaderImage extends StatefulWidget {
+class ReaderImage extends StatelessWidget {
   final String url;
   final BoxFit fit;
   final String referer;
   final Size imageSize;
 
-  const ReaderImage({
-    Key key,
-    this.url,
-    this.fit = BoxFit.fitWidth,
-    this.referer,
-    this.imageSize,
-  }) : super(key: key);
-
-  @override
-  _ReaderImageState createState() => _ReaderImageState();
-}
-
-class _ReaderImageState extends State<ReaderImage> {
+  const ReaderImage({Key key, this.url, this.fit=BoxFit.fitWidth, this.referer, this.imageSize}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    double proportionalHeight = MediaQuery.of(context).size.width/widget.imageSize.aspectRatio;
+    // double proportionalHeight = MediaQuery.of(context).size.width/imageSize.aspectRatio;
+
     return Center(
-      child: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: proportionalHeight,
-                child: PhotoView.customChild(
-                  minScale: 0.7,
-                  maxScale: 2.0,
-                  initialScale: 1.0,
-                  tightMode: true,
-                  child: CachedNetworkImage(
-                    imageUrl: widget.url,
-                    progressIndicatorBuilder: (_, url, var progress) =>
-                        progress.progress != null
-                            ? Container(
-                                height: proportionalHeight,
-                                width: MediaQuery.of(context).size.width,
-                                child: Center(
-                                  child: Text(
-                                    "${(progress.progress * 100).toInt()}%",
-                                    style: TextStyle(
-                                      color: Colors.blueGrey,
-                                      fontSize: 20.sp,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: "Lato",
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : Center(
-                                child: Container(
-                                  height: proportionalHeight,
-                                  width: MediaQuery.of(context).size.width,
-                                  child: Center(
-                                    child: Text("Loading..."),
-                                  ),
-                                ),
-                              ),
-                    httpHeaders: {
-                      "referer": widget.referer ?? imageHeaders(widget.url)
-                    },
-                    errorWidget: (context, url, error) => Center(
+      child: InteractiveViewer(
+        maxScale: 3.5,
+        minScale: .5,
+        panEnabled: false,
+        child: CachedNetworkImage(
+
+          imageUrl: url,
+          progressIndicatorBuilder: (_, url, var progress) =>
+              progress.progress != null
+                  ? Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      child: Center(
+                        child: Text(
+                          "${(progress.progress * 100).toInt()}%",
+                          style: TextStyle(
+                            color: Colors.blueGrey,
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Lato",
+                          ),
+                        ),
+                      ),
+                    )
+                  : Center(
                       child: Container(
-                        height: proportionalHeight,
+                        height: MediaQuery.of(context).size.height,
                         width: MediaQuery.of(context).size.width,
                         child: Center(
-                          child: Text("$error"),
+                          child: Text("Loading..."),
                         ),
                       ),
                     ),
-                    fit: widget.fit,
-                    fadeInDuration: Duration(microseconds: 500),
-                    fadeInCurve: Curves.easeIn,
-                  ),
-                ),
-              )
-            ],
+          httpHeaders: {
+            "referer": referer ?? imageHeaders(url)
+          },
+          errorWidget: (context, url, error) => Center(
+            child: Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: Center(
+                child: Text("$error",textAlign: TextAlign.center,),
+              ),
+            ),
           ),
+          fit: fit,
+          fadeInDuration: Duration(microseconds: 500),
+          fadeInCurve: Curves.easeIn,
         ),
       ),
     );
@@ -202,7 +151,7 @@ class _VioletImageState extends State<VioletImage>
       ),
     );
     Completer<Size> completer = Completer();
-    await Future.delayed(Duration(milliseconds: 25)).then((value) {
+
       image.image.resolve(ImageConfiguration()).addListener(
         ImageStreamListener(
           (ImageInfo image, bool _) {
@@ -215,11 +164,11 @@ class _VioletImageState extends State<VioletImage>
           },
         ),
       );
-    });
+
 
     return completer.future;
   }
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }

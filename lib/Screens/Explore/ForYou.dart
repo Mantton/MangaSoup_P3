@@ -84,14 +84,14 @@ class _ForYouPageState extends State<ForYouPage> {
                       children: [
                         Text(
                           sourcePages[index].header,
-                          style: TextStyle(fontSize: 30.sp),
+                          style: TextStyle(fontSize: 30),
                         ),
                         SizedBox(
                           height: 3.h,
                         ),
                         Text(
                           sourcePages[index].subHeader,
-                          style: TextStyle(fontSize: 20.sp, color: Colors.grey),
+                          style: TextStyle(fontSize: 20, color: Colors.grey),
                         ),
                         SizedBox(
                           height: 10.h,

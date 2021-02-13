@@ -12,6 +12,7 @@ class TagWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         // push to tag page
+        print(tag.selector);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -22,14 +23,14 @@ class TagWidget extends StatelessWidget {
         );
       },
       child: Padding(
-        padding: EdgeInsets.all(4.0.w),
+        padding: EdgeInsets.all(4.0),
         child: Container(
           decoration: BoxDecoration(
             color: Colors.grey[900],
-            borderRadius: BorderRadius.circular(5.w),),
+            borderRadius: BorderRadius.circular(5),),
           child: Center(
             child: Padding(
-              padding: EdgeInsets.all(3.w),
+              padding: EdgeInsets.all(3),
               child: AutoSizeText(
                 tag.name,
                 maxLines: 2,

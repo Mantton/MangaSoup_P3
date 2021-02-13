@@ -131,5 +131,5 @@ class _LatestPageState extends State<LatestPage>  with AutomaticKeepAliveClientM
   }
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }

@@ -24,6 +24,7 @@ class PreferenceProvider with ChangeNotifier {
     readerPageSnapping = _p.getBool(PreferenceKeys.MANGA_SNAPPING) ?? true;
     comicGridCrossAxisCount =
         _p.getInt(PreferenceKeys.COMIC_GRID_CROSS_AXIS_COUNT) ?? 3;
+    scaleToMatchIntended = _p.getBool(PreferenceKeys.SCALE_GRID_TO_MATCH_INTENDED) ?? true;
     notifyListeners();
     return true;
   }
@@ -109,6 +110,15 @@ class PreferenceProvider with ChangeNotifier {
     SharedPreferences p = await _preferences();
     comicGridCrossAxisCount = count;
     p.setInt(PreferenceKeys.COMIC_GRID_CROSS_AXIS_COUNT, count);
+    notifyListeners();
+  }
+
+  /// SCALE TO MATCH INTENDED LOOL
+  bool scaleToMatchIntended;
+  setSTMI(bool stmi) async {
+    SharedPreferences p = await _preferences();
+    scaleToMatchIntended = stmi;
+    p.setBool(PreferenceKeys.SCALE_GRID_TO_MATCH_INTENDED, stmi);
     notifyListeners();
   }
 

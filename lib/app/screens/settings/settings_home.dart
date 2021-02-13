@@ -19,6 +19,7 @@ class _SettingsHomeState extends State<SettingsHome> {
     SourceSettingsPage(),
     LibrarySettingsPage(),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,19 +28,21 @@ class _SettingsHomeState extends State<SettingsHome> {
         centerTitle: true,
       ),
       body: Container(
-          child: ListView.builder(
-        itemCount: names.length,
-        itemBuilder: (_, int index) => ListTile(
-          title: Text(names[index]),
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_)=>pages[index]));
-          },
-          trailing: Icon(
-            Icons.arrow_forward_ios,
-            color: Colors.white,
+        child: ListView.builder(
+          itemCount: names.length,
+          itemBuilder: (_, int index) => ListTile(
+            title: Text(names[index]),
+            onTap: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => pages[index]));
+            },
+            trailing: Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+            ),
           ),
         ),
-      )),
+      ),
     );
   }
 }

@@ -94,12 +94,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             ),
           ],
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(30.h),
+            preferredSize: Size.fromHeight(45),
             child: PlatformWidget(
               cupertino: (_, __) => Container(
                 width: MediaQuery.of(context).size.width,
                 child: Padding(
-                  padding: EdgeInsets.all(8.0.w),
+                  padding: EdgeInsets.all(8.0),
                   child: CupertinoSlidingSegmentedControl(
                       groupValue: _index,
                       thumbColor: Colors.purple,

@@ -15,6 +15,7 @@ class PreferenceKeys {
 
   /// GENERAL KEYS
   static const COMIC_GRID_CROSS_AXIS_COUNT = "cgcac";
+  static const SCALE_GRID_TO_MATCH_INTENDED = "stmi";
 
 
 

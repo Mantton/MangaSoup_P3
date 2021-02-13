@@ -22,6 +22,8 @@ class SoupImage extends StatelessWidget {
         imageUrl: (!url.contains("https:https:"))
             ? url
             : url.replaceFirst("https:", ""),
+        // memCacheHeight: 150,
+        // memCacheWidth: 100,
         httpHeaders: {"referer": referer ?? imageHeaders(url)},
         placeholder: (context, url) => Center(
           child: CupertinoActivityIndicator(
