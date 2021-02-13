@@ -1,15 +1,12 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
-import 'package:photo_view/photo_view.dart';
 
 import '../Globals.dart';
-
 
 class ReaderImage extends StatelessWidget {
   final String url;
@@ -17,7 +14,14 @@ class ReaderImage extends StatelessWidget {
   final String referer;
   final Size imageSize;
 
-  const ReaderImage({Key key, this.url, this.fit=BoxFit.fitWidth, this.referer, this.imageSize}) : super(key: key);
+  const ReaderImage(
+      {Key key,
+      this.url,
+      this.fit = BoxFit.fitWidth,
+      this.referer,
+      this.imageSize})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     // double proportionalHeight = MediaQuery.of(context).size.width/imageSize.aspectRatio;
@@ -28,7 +32,6 @@ class ReaderImage extends StatelessWidget {
         minScale: .5,
         panEnabled: false,
         child: CachedNetworkImage(
-
           imageUrl: url,
           progressIndicatorBuilder: (_, url, var progress) =>
               progress.progress != null
@@ -56,16 +59,16 @@ class ReaderImage extends StatelessWidget {
                         ),
                       ),
                     ),
-          httpHeaders: {
-            "referer": referer ?? imageHeaders(url)
-          },
+          httpHeaders: {"referer": referer ?? imageHeaders(url)},
           errorWidget: (context, url, error) => Center(
             child: Container(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               child: Center(
-                child: Text("$error",textAlign: TextAlign.center,),
-              ),
+                  child: Icon(
+                Icons.error_outline,
+                color: Colors.purple,
+              )),
             ),
           ),
           fit: fit,
@@ -84,6 +87,7 @@ class VioletImage extends StatefulWidget {
 
   const VioletImage({Key key, this.url, this.referrer, this.fit})
       : super(key: key);
+
   @override
   _VioletImageState createState() => _VioletImageState();
 }
@@ -96,11 +100,12 @@ class _VioletImageState extends State<VioletImage>
   void initState() {
     super.initState();
     _getDimensions = hello();
-
   }
+
   Future<Size> hello() async {
-    return await  _calculateNetworkImageDimension(widget.url, widget.referrer);
-}
+    return await _calculateNetworkImageDimension(widget.url, widget.referrer);
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -152,19 +157,18 @@ class _VioletImageState extends State<VioletImage>
     );
     Completer<Size> completer = Completer();
 
-      image.image.resolve(ImageConfiguration()).addListener(
-        ImageStreamListener(
-          (ImageInfo image, bool _) {
-            var myImage = image.image;
-            Size size = Size(
-              myImage.width.toDouble(),
-              myImage.height.toDouble(),
-            );
-            completer.complete(size);
-          },
-        ),
-      );
-
+    image.image.resolve(ImageConfiguration()).addListener(
+      ImageStreamListener(
+        (ImageInfo image, bool _) {
+          var myImage = image.image;
+          Size size = Size(
+            myImage.width.toDouble(),
+            myImage.height.toDouble(),
+          );
+          completer.complete(size);
+        },
+      ),
+    );
 
     return completer.future;
   }

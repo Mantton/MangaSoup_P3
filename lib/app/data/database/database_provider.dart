@@ -1,8 +1,8 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
@@ -58,7 +58,7 @@ class DatabaseProvider with ChangeNotifier {
   // GENERATE COMIC
   Future<Map<String, dynamic>> generate(ComicHighlight highlight) async {
     ApiManager _manager = ApiManager();
-
+    Map<String, dynamic> map  = Map();
     /// Get Profile
     try{
       Profile profile = await _manager.getProfile(
@@ -87,43 +87,44 @@ class DatabaseProvider with ChangeNotifier {
         comic = generated;
       // Evaluate
       int _id = await evaluate(comic);
-      return {"profile": profile, "id": _id};
+      map =  {"profile": profile, "id": _id};
     }
     catch(e){
-      if (e is DioError){
-        throw "Network Related Error";
-      }else{
-        print(e);
-        throw "Unable to Serialize";
-      }
-
+      ErrorManager.analyze(e);
     }
+    return map;
 
   }
 
   /// COMICS
   Future<int> evaluate(Comic comic, {bool overWriteChapterCount=true}) async {
     // Updates OR Adds comics to db
+    int id;
+    try{
+      Comic retrieved = isComicSaved(comic);
 
-    Comic retrieved = isComicSaved(comic);
-
-    if (retrieved == null) {
-      // Save to Lib
-      comic.dateAdded = DateTime.now();
-      comic = await comicManager.addComic(comic);
-      comics.add(comic);
-    } else {
-      // Update Comic Details
-      comic.id = retrieved.id;
-      comic.dateAdded = retrieved.dateAdded;
-      if (!overWriteChapterCount)
-        comic.chapterCount = retrieved.chapterCount;
-      await comicManager.updateComic(comic);
-      int index = comics.indexOf(retrieved);
-      comics[index] = comic;
+      if (retrieved == null) {
+        // Save to Lib
+        comic.dateAdded = DateTime.now();
+        comic = await comicManager.addComic(comic);
+        comics.add(comic);
+      } else {
+        // Update Comic Details
+        comic.id = retrieved.id;
+        comic.dateAdded = retrieved.dateAdded;
+        if (!overWriteChapterCount)
+          comic.chapterCount = retrieved.chapterCount;
+        await comicManager.updateComic(comic);
+        int index = comics.indexOf(retrieved);
+        comics[index] = comic;
+      }
+      notifyListeners();
+      id =  comic.id;
+    }catch(e) {
+      ErrorManager.analyze(e);
     }
-    notifyListeners();
-    return comic.id;
+    return id;
+
   }
 
   List<Comic> searchLibrary(String query) {
@@ -356,6 +357,17 @@ class DatabaseProvider with ChangeNotifier {
     print("---DONE CHECKING FOR UPDATE---");
     notifyListeners();
     return updateCount;
+  }
+
+  clearUpdates(List<Comic> toClear)async{
+    List<Comic> targets = toClear.where((element) => element.updateCount>0).toList();
+
+    for (Comic comic in targets){
+      int pointer = comics.indexWhere((element) => element.id == comic.id);
+      comics[pointer].updateCount = 0;
+      await comicManager.updateComic(comic);
+    }
+    notifyListeners();
   }
 
   ChapterData checkIfChapterMatch(Chapter chapter) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
+import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
@@ -21,7 +22,6 @@ class LibraryHome extends StatefulWidget {
 
 class _LibraryHomeState extends State<LibraryHome>
     with AutomaticKeepAliveClientMixin {
-
   @override
   void initState() {
     bgUpdateStream.stream.listen((event) async {
@@ -31,19 +31,21 @@ class _LibraryHomeState extends State<LibraryHome>
     });
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Consumer<DatabaseProvider>(
         builder: (BuildContext context, provider, _) =>
-            (provider.comicCollections.length > 0 )
+            (provider.comicCollections.length > 0)
                 ? library(provider)
                 : emptyLibrary());
   }
 
   Widget library(DatabaseProvider provider) {
     List<Collection> collections = List.of(provider.collections);
-    if (!provider.comicCollections.any((element) => element.collectionId == 1)){
+    if (!provider.comicCollections
+        .any((element) => element.collectionId == 1)) {
       // If Default Collection has no comics remove from view
       collections.removeWhere((element) => element.id == 1); //Remove Default.
     }
@@ -143,19 +145,22 @@ class _LibraryHomeState extends State<LibraryHome>
                                         ),
                                       ),
                                       Spacer(),
-                                      // IconButton(
-                                      //   icon: Center(
-                                      //     child: Icon(
-                                      //       Icons.edit,
-                                      //       color: Colors.amber,
-                                      //       // size: 35,
-                                      //     ),
-                                      //   ),
-                                      //   onPressed: () {
-                                      //     print(collection.order);
-                                      //   },
-                                      // ),
-                                      SizedBox(width: 5.w),
+                                      // Clear Updates
+                                      (collectionComics.any((element) =>
+                                              element.updateCount > 0))
+                                          ? IconButton(
+                                              icon: Center(
+                                                child: Icon(
+                                                  CupertinoIcons.clear_circled,
+                                                  color: Colors.purple,
+                                                  // size: 35,
+                                                ),
+                                              ),
+                                              onPressed: () =>
+                                                  showClearUpdateDialog(collectionComics),
+                                            )
+                                          : Container(),
+                                      SizedBox(width: 5),
                                       IconButton(
                                         icon: Center(
                                           child: Icon(
@@ -231,28 +236,63 @@ class _LibraryHomeState extends State<LibraryHome>
             ),
             FlatButton(
               color: Colors.purple,
-
-              onPressed: (){
-                showPlatformDialog(context: context, builder: (_)=>PlatformAlertDialog(
-                  title: Text("Import Library"),
-                  content: Text("You can import your MDList Library by going to\nMangaDex Home>View Library>Merge Into Local"),
-                  actions: [
-                    PlatformDialogAction(child: Text("OK"), onPressed: ()=>Navigator.pop(context)),
-                  ],
-                ));
+              onPressed: () {
+                showPlatformDialog(
+                    context: context,
+                    builder: (_) => PlatformAlertDialog(
+                          title: Text("Import Library"),
+                          content: Text(
+                              "You can import your MDList Library by going to\nMangaDex Home>View Library>Merge Into Local"),
+                          actions: [
+                            PlatformDialogAction(
+                                child: Text("OK"),
+                                onPressed: () => Navigator.pop(context)),
+                          ],
+                        ));
               },
               child: Text("Import"),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
-                  side: BorderSide(color: Colors.grey[900])
-              ),
-
+                  side: BorderSide(color: Colors.grey[900])),
             ),
           ],
         ),
       ),
     );
   }
+
+  void showClearUpdateDialog(List<Comic> comics) {
+    showPlatformDialog(
+      context: context,
+      builder: (_) => PlatformAlertDialog(
+        title: Text("Clear Updates."),
+        content: Text(
+            "Are you sure you want to clear all updates in this collection?"),
+        actions: [
+          PlatformDialogAction(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          PlatformDialogAction(
+            child: Text("Proceed"),
+            onPressed: ()async{
+              Navigator.pop(context);
+              try{
+                showLoadingDialog(context);
+                await Provider.of<DatabaseProvider>(context, listen: false).clearUpdates(comics);
+              }catch(err){
+                print(err.toString());
+                showSnackBarMessage("Error");
+              }
+              Navigator.pop(context);
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+
 
   idg(Collection collection, DatabaseProvider provider) =>
       showPlatformModalSheet(
