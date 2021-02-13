@@ -117,98 +117,10 @@ class _LibraryHomeState extends State<LibraryHome>
                 collectionComics = sortComicCollection(
                     collection.librarySort, collectionComics);
                 // Prepare Comics
-                return Stack(
-                  children: <Widget>[
-                    NestedScrollView(
-                      headerSliverBuilder:
-                          (BuildContext context, bool innerBoxIsScrolled) {
-                        return <Widget>[
-                          SliverAppBar(
-                            floating: true,
-                            snap: false,
-                            pinned: false,
-                            bottom: PreferredSize(
-                              preferredSize: Size(0, 10),
-                              child: Padding(
-                                padding: EdgeInsets.all(8),
-                                child: Center(
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        "${collectionComics.length} Comic${collectionComics.length > 1 || collectionComics.length == 0 ? "s" : ''} in Collection",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey,
-                                          fontSize: 15,
-                                          fontFamily: "lato",
-                                        ),
-                                      ),
-                                      Spacer(),
-                                      // Clear Updates
-                                      (collectionComics.any((element) =>
-                                              element.updateCount > 0))
-                                          ? IconButton(
-                                              icon: Center(
-                                                child: Icon(
-                                                  CupertinoIcons.clear_circled,
-                                                  color: Colors.purple,
-                                                  // size: 35,
-                                                ),
-                                              ),
-                                              onPressed: () =>
-                                                  showClearUpdateDialog(collectionComics),
-                                            )
-                                          : Container(),
-                                      SizedBox(width: 5),
-                                      IconButton(
-                                        icon: Center(
-                                          child: Icon(
-                                            collection.updateEnabled
-                                                ? Icons
-                                                    .notifications_active_outlined
-                                                : Icons
-                                                    .notifications_off_outlined,
-                                            // size: 35,
-                                          ),
-                                        ),
-                                        color: collection.updateEnabled
-                                            ? Colors.green
-                                            : Colors.red,
-                                        onPressed: () => provider
-                                            .toggleCollectionUpdate(collection),
-                                      ),
-                                      SizedBox(width: 5.w),
-                                      InkWell(
-                                        child: Text(
-                                          "Sort by\n${collectionSortNames[collection.librarySort]}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue,
-                                            fontSize: 15,
-                                            fontFamily: "lato",
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        onTap: () => idg(collection, provider),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ];
-                      },
-                      body: Container(
-                        child: ComicGrid(
-                          comics: collectionComics
-                              .map((e) => e.toHighlight())
-                              .toList(),
-                        ),
-                      ),
-                    ),
-                  ],
+                return TabPage(
+                  collection: collection,
+                  collectionComics: collectionComics,
+                  provider: provider,
                 );
               },
             ),
@@ -261,6 +173,119 @@ class _LibraryHomeState extends State<LibraryHome>
     );
   }
 
+  @override
+  bool get wantKeepAlive => true;
+}
+
+class TabPage extends StatefulWidget {
+  final Collection collection;
+  final List<Comic> collectionComics;
+  final DatabaseProvider provider;
+
+  const TabPage(
+      {Key key, this.collection, this.collectionComics, this.provider})
+      : super(key: key);
+
+  @override
+  _TabPageState createState() => _TabPageState();
+}
+
+class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return Stack(
+      children: <Widget>[
+        NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return <Widget>[
+              SliverAppBar(
+                floating: true,
+                snap: false,
+                pinned: false,
+                bottom: PreferredSize(
+                  preferredSize: Size(0, 10),
+                  child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "${widget.collectionComics.length} Comic${widget.collectionComics.length > 1 || widget.collectionComics.length == 0 ? "s" : ''} in Collection",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                              fontSize: 15,
+                              fontFamily: "lato",
+                            ),
+                          ),
+                          Spacer(),
+                          // Clear Updates
+                          (widget.collectionComics
+                                  .any((element) => element.updateCount > 0))
+                              ? IconButton(
+                                  icon: Center(
+                                    child: Icon(
+                                      CupertinoIcons.clear_circled,
+                                      color: Colors.purple,
+                                      // size: 35,
+                                    ),
+                                  ),
+                                  onPressed: () => showClearUpdateDialog(
+                                      widget.collectionComics),
+                                )
+                              : Container(),
+                          SizedBox(width: 5),
+                          IconButton(
+                            icon: Center(
+                              child: Icon(
+                                widget.collection.updateEnabled
+                                    ? Icons.notifications_active_outlined
+                                    : Icons.notifications_off_outlined,
+                                // size: 35,
+                              ),
+                            ),
+                            color: widget.collection.updateEnabled
+                                ? Colors.green
+                                : Colors.red,
+                            onPressed: () => widget.provider
+                                .toggleCollectionUpdate(widget.collection),
+                          ),
+                          SizedBox(width: 5.w),
+                          InkWell(
+                            child: Text(
+                              "Sort by\n${collectionSortNames[widget.collection.librarySort]}",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                                fontSize: 15,
+                                fontFamily: "lato",
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            onTap: () =>
+                                idg(widget.collection, widget.provider),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ];
+          },
+          body: Container(
+            child: ComicGrid(
+              comics:
+                  widget.collectionComics.map((e) => e.toHighlight()).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   void showClearUpdateDialog(List<Comic> comics) {
     showPlatformDialog(
       context: context,
@@ -275,12 +300,13 @@ class _LibraryHomeState extends State<LibraryHome>
           ),
           PlatformDialogAction(
             child: Text("Proceed"),
-            onPressed: ()async{
+            onPressed: () async {
               Navigator.pop(context);
-              try{
+              try {
                 showLoadingDialog(context);
-                await Provider.of<DatabaseProvider>(context, listen: false).clearUpdates(comics);
-              }catch(err){
+                await Provider.of<DatabaseProvider>(context, listen: false)
+                    .clearUpdates(comics);
+              } catch (err) {
                 print(err.toString());
                 showSnackBarMessage("Error");
               }
@@ -291,8 +317,6 @@ class _LibraryHomeState extends State<LibraryHome>
       ),
     );
   }
-
-
 
   idg(Collection collection, DatabaseProvider provider) =>
       showPlatformModalSheet(

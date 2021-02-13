@@ -287,6 +287,7 @@ class _HandlerState extends State<Handler> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     firstLaunch = initSource();
   }
 
