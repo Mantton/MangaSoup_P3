@@ -8,6 +8,7 @@ import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/comic_rating.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/profile_bookmarks.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/tag_widget.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/widgets/content_preview.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
@@ -43,8 +44,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
     );
   }
 
-  Widget homeView({@required Comic comic}) =>
-      SingleChildScrollView(
+  Widget homeView({@required Comic comic}) => SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(8.0),
           child: Container(
@@ -53,10 +53,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width,
+                  width: MediaQuery.of(context).size.width,
                   child: Column(
                     children: [
                       profileHeader(comic),
@@ -88,8 +85,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
         ),
       );
 
-  Widget profileHeader(Comic comic) =>
-      Row(
+  Widget profileHeader(Comic comic) => Row(
         children: [
           Container(
             margin: EdgeInsets.only(top: 10, left: 10),
@@ -131,8 +127,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                   ),
                   FittedBox(
                     child: Text(
-                        "By ${widget.profile.author.toString().replaceAll(
-                            "[", "").replaceAll("]", '')}",
+                        "By ${widget.profile.author.toString().replaceAll("[", "").replaceAll("]", '')}",
                         style: def),
                   ),
                   SizedBox(
@@ -143,14 +138,14 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                       widget.profile.status,
                       style: TextStyle(
                         color: (widget.profile.status
-                            .toLowerCase()
-                            .contains("complete"))
+                                .toLowerCase()
+                                .contains("complete"))
                             ? Colors.green
                             : (widget.profile.status
-                            .toLowerCase()
-                            .contains("on"))
-                            ? Colors.blue
-                            : Colors.redAccent,
+                                    .toLowerCase()
+                                    .contains("on"))
+                                ? Colors.blue
+                                : Colors.redAccent,
                         fontSize: 18,
                       ),
                     ),
@@ -218,95 +213,114 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
           // Spacer(),
           Consumer<DatabaseProvider>(
               builder: (BuildContext context, provider, _) {
-                History comicHistory;
-                try {
-                  comicHistory =
-                      provider.historyList.firstWhere((element) => element
-                          .comicId == widget.comicId);
-                } catch (err) {
-                  // Comic Has No History
-                }
-                bool exists = (comicHistory != null) ? true : false;
-                return InkWell(
-                  child: Column(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          CupertinoIcons.play,
-                          color: Colors.purpleAccent,
-                        ),
-                        iconSize: 30,
-                        onPressed: () => playContinueLogic(comicHistory),
-                      ),
-                      Text(
-                        exists ? "Continue" : "Read",
-                        textAlign: TextAlign.center,
-                        style: def,
-                      ),
-                    ],
+            History comicHistory;
+            try {
+              comicHistory = provider.historyList
+                  .firstWhere((element) => element.comicId == widget.comicId);
+            } catch (err) {
+              // Comic Has No History
+            }
+            bool exists = (comicHistory != null) ? true : false;
+            return InkWell(
+              child: Column(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      CupertinoIcons.play,
+                      color: Colors.purpleAccent,
+                    ),
+                    iconSize: 30,
+                    onPressed: () => playContinueLogic(comicHistory),
                   ),
-                );
-              }),
+                  Text(
+                    exists ? "Continue" : "Read",
+                    textAlign: TextAlign.center,
+                    style: def,
+                  ),
+                ],
+              ),
+            );
+          }),
           Spacer(),
           actionButton(
               widget.profile.containsBooks
                   ? CupertinoIcons.collections
                   : CupertinoIcons.book,
               widget.profile.containsBooks
-                  ? "${widget.profile.bookCount} ${widget.profile.bookCount > 1
-                  ? "Books"
-                  : "Book"}"
-                  : "${idk.length} ${idk.length > 1 || idk.length == 0
-                  ? "Chapters"
-                  : "Chapter"}",
+                  ? "${widget.profile.bookCount} ${widget.profile.bookCount > 1 ? "Books" : "Book"}"
+                  : "${idk.length} ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}",
               null),
           Spacer(),
-          actionButton(CupertinoIcons.bookmark, "Bookmarks", null),
-          Spacer(),
-
-          comic.rating == 0
-              ? Column(
+          Column(
             children: [
               IconButton(
                 icon: Icon(
-                  CupertinoIcons.chart_bar_square,
+                  CupertinoIcons.bookmark,
                   color: Colors.purpleAccent,
                 ),
                 iconSize: 30,
-                onPressed: () =>
-                    comicRatingDialog(context: context, comic: comic),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ComicBookMarksPage(
+                      comicId: widget.comicId,
+                      profile: widget.profile,
+                    ),
+                  ),
+                ),
               ),
               Text(
-                "Rate",
+                "Bookmarks",
                 textAlign: TextAlign.center,
                 style: def,
               )
             ],
-          )
+          ),
+          Spacer(),
+
+          comic.rating == 0
+              ? Column(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        CupertinoIcons.chart_bar_square,
+                        color: Colors.purpleAccent,
+                      ),
+                      iconSize: 30,
+                      onPressed: () =>
+                          comicRatingDialog(context: context, comic: comic),
+                    ),
+                    Text(
+                      "Rate",
+                      textAlign: TextAlign.center,
+                      style: def,
+                    )
+                  ],
+                )
               : InkWell(
-            onTap: () =>
-                comicRatingDialog(context: context, comic: comic),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "${comic.rating}/5",
-                  style: TextStyle(
-                    color: Colors.purple,
-                    fontSize: 30,
+                  onTap: () =>
+                      comicRatingDialog(context: context, comic: comic),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "${comic.rating}/5",
+                        style: TextStyle(
+                          color: Colors.purple,
+                          fontSize: 30,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "Rating",
+                        textAlign: TextAlign.center,
+                        style: def,
+                      )
+                    ],
                   ),
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  "Rating",
-                  textAlign: TextAlign.center,
-                  style: def,
-                )
-              ],
-            ),
-          ),
           // Spacer()
         ],
       ),
@@ -316,23 +330,23 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
   playContinueLogic(History history) {
     if (history != null) {
       // Continue
-      ChapterData pointer = Provider
-          .of<DatabaseProvider>(context, listen: false)
-          .chapters
-          .firstWhere((element) => element.id == history.chapterId);
-      int target = widget.profile.chapters.indexWhere((element) => element.link == pointer.link);
+      ChapterData pointer =
+          Provider.of<DatabaseProvider>(context, listen: false)
+              .chapters
+              .firstWhere((element) => element.id == history.chapterId);
+      int target = widget.profile.chapters
+          .indexWhere((element) => element.link == pointer.link);
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) =>
-              ReaderHome(
-                selector: widget.profile.selector,
-                chapters: widget.profile.chapters,
-                initialChapterIndex: target,
-                comicId: widget.comicId,
-                source: widget.profile.source,
-                initialPage: pointer.lastPageRead,
-              ),
+          builder: (_) => ReaderHome(
+            selector: widget.profile.selector,
+            chapters: widget.profile.chapters,
+            initialChapterIndex: target,
+            comicId: widget.comicId,
+            source: widget.profile.source,
+            initialPage: pointer.lastPageRead,
+          ),
         ),
       );
     } else {
@@ -340,15 +354,14 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) =>
-              ReaderHome(
-                selector: widget.profile.selector,
-                chapters: widget.profile.chapters,
-                initialChapterIndex: widget.profile.chapters.indexOf(
-                    widget.profile.chapters.last),
-                comicId: widget.comicId,
-                source: widget.profile.source,
-              ),
+          builder: (_) => ReaderHome(
+            selector: widget.profile.selector,
+            chapters: widget.profile.chapters,
+            initialChapterIndex:
+                widget.profile.chapters.indexOf(widget.profile.chapters.last),
+            comicId: widget.comicId,
+            source: widget.profile.source,
+          ),
         ),
       );
     }
@@ -356,10 +369,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
 
   Widget profileBody() {
     return Container(
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
+      width: MediaQuery.of(context).size.width,
       child: Padding(
         padding: EdgeInsets.all(8.0),
         child: Column(
