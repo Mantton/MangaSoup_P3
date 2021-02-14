@@ -263,5 +263,5 @@ class _AllComicsPageState extends State<AllComicsPage>
   }
 
   @override
-  bool get wantKeepAlive => false;
+  bool get wantKeepAlive => true;
 }

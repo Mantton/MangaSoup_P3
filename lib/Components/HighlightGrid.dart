@@ -49,7 +49,7 @@ class _ComicGridState extends State<ComicGrid>
   }
 
   @override
-  bool get wantKeepAlive => false;
+  bool get wantKeepAlive => true;
 }
 
 class ComicGridTile extends StatelessWidget {

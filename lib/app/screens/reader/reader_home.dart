@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -118,14 +117,11 @@ class _ReaderOpenerState extends State<ReaderOpener> {
             return ReaderFrame();
           }
           if (snapshot.hasError) {
-            print(snapshot.error.toString());
             return Center(
               child: InkWell(
                 onTap: () => Navigator.pop(context),
                 child: Text(
-                  (snapshot.error is DioError)
-                      ? "Network Error\nTap to go back home"
-                      : "Internal Serialization Error\nTap to return to profile",
+                  "${snapshot.error}\nTap to return to profile",
                   style: notInLibraryFont,
                   textAlign: TextAlign.center,
                 ),

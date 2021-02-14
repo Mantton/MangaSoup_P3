@@ -150,13 +150,13 @@ Future<void> main() async {
   );
 }
 
-class App extends StatefulWidget {
-  @override
-  _AppState createState() => _AppState();
-}
+// class App extends StatefulWidget {
+//   @override
+//   _AppState createState() => _AppState();
+// }
 
-class _AppState extends State<App> {
-  Brightness brightness = Brightness.dark;
+class App extends StatelessWidget {
+  final Brightness brightness = Brightness.dark;
 
   @override
   Widget build(BuildContext context) {
@@ -171,20 +171,12 @@ class _AppState extends State<App> {
     final cupertinoTheme = CupertinoThemeData(
       brightness: brightness, // if null will use the system theme
       primaryColor: CupertinoDynamicColor.withBrightness(
-        color: Colors.blue,
-        darkColor: Colors.blue,
+        color: Colors.purple,
+        darkColor: Colors.purple,
       ),
       scaffoldBackgroundColor: Colors.black,
     );
 
-    // Example of optionally setting the platform upfront.
-    //final initialPlatform = TargetPlatform.iOS;
-
-    // If you mix material and cupertino widgets together then you cam
-    // set this setting. Will mean ios darmk mode to not to work properly
-    //final settings = PlatformSettingsData(iosUsesMaterialWidgets: true);
-
-    // This theme is required since icons light/dark mode will look for it
     return Theme(
       data: brightness == Brightness.light ? materialTheme : materialDarkTheme,
       child: PlatformProvider(

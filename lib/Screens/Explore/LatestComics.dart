@@ -73,6 +73,7 @@ class _LatestPageState extends State<LatestPage>  with AutomaticKeepAliveClientM
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer<SourceNotifier>(
       builder: (context, sourceProvider, _) => FutureBuilder(
           future: _futureComics,
@@ -131,5 +132,5 @@ class _LatestPageState extends State<LatestPage>  with AutomaticKeepAliveClientM
   }
 
   @override
-  bool get wantKeepAlive => false;
+  bool get wantKeepAlive => true;
 }
