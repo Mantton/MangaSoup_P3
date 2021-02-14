@@ -30,13 +30,15 @@ class _ComicGridState extends State<ComicGrid>
         child: GridView.builder(
           physics: ScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: settings.scaleToMatchIntended ?settings.comicGridCrossAxisCount.w.toInt():MediaQuery.of(context).orientation.index == 0?
-                widget.crossAxisCount ?? settings.comicGridCrossAxisCount: 5,
+            crossAxisCount: settings.scaleToMatchIntended
+                ? settings.comicGridCrossAxisCount.w.toInt()
+                : MediaQuery.of(context).orientation.index == 0
+                    ? widget.crossAxisCount ?? settings.comicGridCrossAxisCount
+                    : 5,
             crossAxisSpacing: 7,
             mainAxisSpacing: 15,
-            childAspectRatio: settings.comicGridCrossAxisCount >= 4
-                ? (50 / 100)
-                : (58 / 100),
+            childAspectRatio:
+                settings.comicGridCrossAxisCount >= 4 ? (50 / 100) : (58 / 100),
           ),
           shrinkWrap: true,
           itemCount: widget.comics.length,
@@ -93,7 +95,7 @@ class ComicGridTile extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.all(5.0),
+                  padding: EdgeInsets.all(5.0),
                   child: SizedBox(
                     child: AutoSizeText(
                       comic.title,

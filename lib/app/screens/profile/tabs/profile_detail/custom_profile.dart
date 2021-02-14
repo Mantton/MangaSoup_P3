@@ -75,9 +75,9 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
     return Row(
       children: [
         Container(
-          margin: EdgeInsets.only(top: 10.h),
-          width: 150.w,
-          height: 250.h,
+          margin: EdgeInsets.only(top: 10, left: 10),
+          width: 200,
+          height: 250,
           child: SoupImage(url: widget.profile.thumbnail),
         ),
         SizedBox(

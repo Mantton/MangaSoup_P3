@@ -89,7 +89,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
         children: [
           Container(
             margin: EdgeInsets.only(top: 10, left: 10),
-            width: 180,
+            width: 200,
             height: 250,
             child: SoupImage(
               url: widget.profile.thumbnail,
