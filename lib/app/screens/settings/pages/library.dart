@@ -127,9 +127,20 @@ class _LibrarySettingsPageState extends State<LibrarySettingsPage> {
               ),
               CupertinoActionSheetAction(
                 child: Text("Delete Collection"),
-                onPressed: (){
+                onPressed: () async {
                   Navigator.pop(context);
-                  showSnackBarMessage("Not Implemented, Contact Developer");
+                  try {
+                    String name = collection.name;
+                    showLoadingDialog(context);
+                    await Provider.of<DatabaseProvider>(context, listen: false)
+                        .deleteCollection(collection);
+                    Navigator.pop(context);
+                    showSnackBarMessage("$name has been deleted");
+                  } catch (err) {
+                    print(err);
+                    Navigator.pop(context);
+                    showSnackBarMessage("An Error Occurred");
+                  }
                 },
               ),
             ],

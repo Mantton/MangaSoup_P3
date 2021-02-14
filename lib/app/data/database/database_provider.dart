@@ -542,4 +542,35 @@ class DatabaseProvider with ChangeNotifier {
     return bookmarks.any((element) =>
         element.page == mark.page && element.chapterLink == mark.chapterLink);
   }
+
+  deleteCollection(Collection collection) async {
+    // Get Comic collections where it matches
+    List<ComicCollection> pointers = comicCollections
+        .where((element) => element.collectionId == collection.id)
+        .toList();
+
+    for (ComicCollection pointer in pointers) {
+      // Check if this is the only collection attributed to the comic
+      if (comicCollections
+              .where((element) => element.comicId == pointer.comicId)
+              .length >
+          1) {
+        // Comic is in multiple collections, safe to delete
+        comicCollections.remove(pointer);
+        await comicCollectionManager.deleteComicCollection(pointer);
+      } else {
+        // Move Comic to default.
+        pointer.collectionId = 1;
+        int target =
+            comicCollections.indexWhere((element) => element.id == pointer.id);
+        comicCollections[target] = pointer;
+        await comicCollectionManager.updateComicCollection(pointer);
+      }
+    }
+
+    // Delete from Provider Object
+    collections.removeWhere((element) => element.id == collection.id);
+    await collectionManager.deleteCollection(collection);
+    notifyListeners();
+  }
 }
