@@ -308,7 +308,16 @@ class _ReaderFrameState extends State<ReaderFrame> {
             child: Row(
               children: [
                 IconButton(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    try {
+                      showLoadingDialog(context);
+                      await provider.moveToChapter(next: false);
+                      Navigator.pop(context);
+                    } catch (err) {
+                      print(err);
+                      Navigator.pop(context);
+                    }
+                  },
                   icon: Icon(
                     Icons.arrow_back_ios,
                     color: Colors.grey,
@@ -328,7 +337,16 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     : Container(),
                 Spacer(),
                 IconButton(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    try {
+                      showLoadingDialog(context);
+                      await provider.moveToChapter();
+                      Navigator.pop(context);
+                    } catch (err) {
+                      print(err);
+                      Navigator.pop(context);
+                    }
+                  },
                   icon: Icon(
                     Icons.arrow_forward_ios,
                     color: Colors.grey,

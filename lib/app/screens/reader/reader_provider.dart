@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
@@ -357,6 +358,48 @@ class ReaderProvider with ChangeNotifier {
     widgetPageList.add(
       EmptyResponsePage(),
     );
+  }
+
+  moveToChapter({bool next = true, int index}) async {
+    if (index == null) {
+      index = currentIndex;
+    }
+    // Might have to reinitialize entire reader
+    int target;
+    if (next) {
+      // Move to Next chapter
+      target = index - 1;
+    } else {
+      // Move to Previous Chapter
+      target = index + 1;
+    }
+
+    if (target < 0) {
+      // no chapter after it.
+      showMessage("This is the Last chapter", Icons.skip_next_outlined,
+          Duration(seconds: 1));
+    } else if (target >= chapters.length) {
+      // no chapters before it
+      showMessage("This is the First Chapter", Icons.skip_previous_outlined,
+          Duration(seconds: 1));
+    } else {
+      // Check for duplicates
+      Chapter chapter = chapters.elementAt(target);
+      Chapter current = chapters.elementAt(currentIndex);
+
+      if (chapter.generatedNumber == current.generatedNumber) {
+        // print("match at index: $target, ${chapter.generatedNumber} == ${current.generatedNumber}");
+        await moveToChapter(next: next, index: target);
+      } else {
+        print("Changing Chapters");
+        var c = List.of(chapters);
+        var s = selector;
+        var ctx = context;
+        var id = comicId;
+        var src = source;
+        await init(c, target, s, ctx, id, src);
+      }
+    }
   }
 
   reset() {
