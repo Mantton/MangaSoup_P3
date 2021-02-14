@@ -129,7 +129,8 @@ class _ReaderOpenerState extends State<ReaderOpener> {
             );
           } else {
             return InkWell(
-              onTap: ()=>Provider.of<ReaderProvider>(context).toggleShowControls(),
+              onTap: () => Provider.of<ReaderProvider>(context, listen: false)
+                  .toggleShowControls(),
               child: Container(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,

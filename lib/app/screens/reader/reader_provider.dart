@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
@@ -80,12 +81,16 @@ class ReaderProvider with ChangeNotifier {
     firstChapter.generatedNumber = chapter.generatedNumber;
     firstChapter.index = initialIndex;
 
+    ImageChapter response;
+    try {
+      // Get Images
+      response = !loaded
+          ? await ApiManager().getImages(selector, chapter.link)
+          : loadedChapter;
+    } catch (err) {
+      ErrorManager.analyze(err);
+    }
 
-
-    // Get Images
-    ImageChapter response = !loaded
-        ? await ApiManager().getImages(selector, chapter.link)
-        : loadedChapter;
     try {
       await Provider.of<DatabaseProvider>(context, listen: false)
           .updateChapterImages(chapter, response.images);

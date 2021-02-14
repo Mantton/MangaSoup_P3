@@ -54,5 +54,5 @@ class _ProfileHomeState extends State<ProfileHome>
   }
 
   @override
-  bool get wantKeepAlive => false;
+  bool get wantKeepAlive => true;
 }
