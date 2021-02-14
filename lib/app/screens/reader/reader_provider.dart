@@ -376,12 +376,12 @@ class ReaderProvider with ChangeNotifier {
 
     if (target < 0) {
       // no chapter after it.
-      showMessage("This is the Last chapter", Icons.skip_next_outlined,
-          Duration(seconds: 1));
+      showMessage(
+          "Last chapter", Icons.skip_next_outlined, Duration(seconds: 1));
     } else if (target >= chapters.length) {
       // no chapters before it
-      showMessage("This is the First Chapter", Icons.skip_previous_outlined,
-          Duration(seconds: 1));
+      showMessage(
+          "First Chapter", Icons.skip_previous_outlined, Duration(seconds: 1));
     } else {
       // Check for duplicates
       Chapter chapter = chapters.elementAt(target);
