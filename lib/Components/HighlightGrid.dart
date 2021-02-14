@@ -84,49 +84,44 @@ class ComicGridTile extends StatelessWidget {
                     borderRadius: BorderRadius.all(
                       Radius.circular(10.0),
                     ),
-                    child: Container(
-                      // width: 300.w,
-                      child: SoupImage(
-                        url: comic.thumbnail,
-                        referer: comic.imageReferer,
-                        // fit: BoxFit.fitWidth,
-                      ),
+                    child: SoupImage(
+                      url: comic.thumbnail,
+                      referer: comic.imageReferer,
+                      // fit: BoxFit.fitWidth,
                     ),
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(5.0),
-                  child: SizedBox(
-                    child: AutoSizeText(
-                      comic.title,
-                      style: TextStyle(
-                        fontFamily: "Lato",
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                        shadows: <Shadow>[
-                          Shadow(
-                            offset: Offset(1.0, 1.0),
-                            blurRadius: 7.0,
-                            color: Colors.black,
-                          ),
-                          Shadow(
-                            offset: Offset(2.0, 2.0),
-                            blurRadius: 3.0,
-                            color: Colors.black,
-                          )
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
-                      maxLines: 2,
-                      minFontSize: 12,
-                      maxFontSize: 20,
-
-                      // maxFontSize: 40,
-                      // stepGranularity: 2,
+                  child: AutoSizeText(
+                    comic.title,
+                    style: TextStyle(
+                      fontFamily: "Lato",
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      // fontSize: 17,
+                      shadows: <Shadow>[
+                        Shadow(
+                          offset: Offset(1.0, 1.0),
+                          blurRadius: 7.0,
+                          color: Colors.black,
+                        ),
+                        Shadow(
+                          offset: Offset(2.0, 2.0),
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                        )
+                      ],
                     ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    maxLines: 2,
+
+                    presetFontSizes: [17, 15],
+
+                    // maxFontSize: 40,
+                    // stepGranularity: 2,
                   ),
                 ),
               ],
