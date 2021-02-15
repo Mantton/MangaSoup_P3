@@ -171,8 +171,8 @@ class App extends StatelessWidget {
     final cupertinoTheme = CupertinoThemeData(
       brightness: brightness, // if null will use the system theme
       primaryColor: CupertinoDynamicColor.withBrightness(
-        color: Colors.purple,
-        darkColor: Colors.purple,
+        color: Colors.blue,
+        darkColor: Colors.blue,
       ),
       scaffoldBackgroundColor: Colors.black,
     );
