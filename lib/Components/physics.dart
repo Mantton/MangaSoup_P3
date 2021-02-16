@@ -114,7 +114,7 @@ class NoMomentumScrollPhysics extends ScrollPhysics {
   }
 
   @override
-  double get maxFlingVelocity => 2500.0;
+  double get maxFlingVelocity => 5000.0;
 
   @override
   double carriedMomentum(double existingVelocity) {
