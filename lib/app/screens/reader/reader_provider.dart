@@ -293,7 +293,14 @@ class ReaderProvider with ChangeNotifier {
           if (reachedEnd) {
             print("reached end, do nothing");
           } else
-            endReached();
+            // Add to Read
+            Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
+                [chapters.elementAt(currentIndex)],
+                comicId,
+                true,
+                source,
+                selector);
+          endReached();
         } else {
           // Load Next chapter
           // Add to Read
@@ -349,6 +356,7 @@ class ReaderProvider with ChangeNotifier {
             .retrieveComic(comicId),
       ),
     );
+    notifyListeners();
   }
 
   emptyResponse() {
