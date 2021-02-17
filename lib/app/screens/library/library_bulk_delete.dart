@@ -24,7 +24,9 @@ class _LibraryBulkDeletePageState extends State<LibraryBulkDeletePage> {
         actions: [
           _selectedItems.length > 0
               ? IconButton(
-                  icon: Icon(CupertinoIcons.delete), onPressed: () => delete())
+                  icon: Icon(CupertinoIcons.delete),
+                  onPressed: () => delete(),
+                )
               : Container()
         ],
       ),

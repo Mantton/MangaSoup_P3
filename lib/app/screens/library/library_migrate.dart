@@ -13,6 +13,9 @@ class _LibraryMigratePageState extends State<LibraryMigratePage> {
         title: Text("Migrate"),
         centerTitle: true,
       ),
+      body: Center(
+        child: Text("Migrations Coming in Version 0.0.4"),
+      ),
     );
   }
 }
