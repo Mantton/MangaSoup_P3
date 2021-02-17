@@ -19,4 +19,6 @@ class PreferenceKeys {
   /// GENERAL KEYS
   static const COMIC_GRID_CROSS_AXIS_COUNT = "cgcac";
   static const SCALE_GRID_TO_MATCH_INTENDED = "stmi";
+  static const LIBRARY_VIEW_TYPE = "library_view_type";
+  static const LIBRARY_SHOW_UNREAD_COUNT = "library_show_unread_count";
 }

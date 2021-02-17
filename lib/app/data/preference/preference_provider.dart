@@ -27,6 +27,9 @@ class PreferenceProvider with ChangeNotifier {
     scaleToMatchIntended =
         _p.getBool(PreferenceKeys.SCALE_GRID_TO_MATCH_INTENDED) ?? true;
     maxScrollVelocity = _p.getDouble(PreferenceKeys.WEBTOON_MSV) ?? 8500.0;
+    showUnreadCount =
+        _p.getBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT) ?? false;
+    libraryViewMode = _p.getInt(PreferenceKeys.LIBRARY_VIEW_TYPE) ?? 1;
     notifyListeners();
     return true;
   }
@@ -132,13 +135,33 @@ class PreferenceProvider with ChangeNotifier {
     6500.0: "6500",
     8500.0: "8500",
   };
-
   double maxScrollVelocity;
 
   setMSV(double v) async {
     SharedPreferences p = await _preferences();
     maxScrollVelocity = v;
     p.setDouble(PreferenceKeys.WEBTOON_MSV, v);
+    notifyListeners();
+  }
+
+  /// Library View Type
+  int libraryViewMode;
+
+  setLibraryViewMode(int mode) async {
+    SharedPreferences p = await _preferences();
+    libraryViewMode = mode;
+    p.setInt(PreferenceKeys.LIBRARY_VIEW_TYPE, mode);
+    notifyListeners();
+  }
+
+  /// SHOW UNREAD CHAPTER COUNT
+  bool showUnreadCount;
+
+  setSURCM(bool surcm) async {
+    // SURCM = Show UnRead Count Mode
+    SharedPreferences p = await _preferences();
+    scaleToMatchIntended = surcm;
+    p.setBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT, surcm);
     notifyListeners();
   }
 
