@@ -239,7 +239,7 @@ class _AllComicsPageState extends State<AllComicsPage>
                           ),
                         ),
                       ),
-                      ComicGrid(comics: _comics),
+                      RepaintBoundary(child: ComicGrid(comics: _comics)),
                       SizedBox(
                         height: 10.h,
                       ),

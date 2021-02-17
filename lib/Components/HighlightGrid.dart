@@ -8,7 +8,7 @@ import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
 import 'package:provider/provider.dart';
 import 'Images.dart';
 
-class ComicGrid extends StatelessWidget {
+class ComicGrid extends StatefulWidget {
   final List<ComicHighlight> comics;
   final int crossAxisCount;
 
@@ -16,33 +16,46 @@ class ComicGrid extends StatelessWidget {
       : super(key: key);
 
   @override
+  _ComicGridState createState() => _ComicGridState();
+}
+
+class _ComicGridState extends State<ComicGrid>
+    with AutomaticKeepAliveClientMixin {
+  @override
   Widget build(BuildContext context) {
-    return Consumer<PreferenceProvider>(builder: (context, settings, _) {
-      return Padding(
-        padding: EdgeInsets.all(4.0),
-        child: GridView.builder(
-          physics: ScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: settings.scaleToMatchIntended
-                ? settings.comicGridCrossAxisCount.w.toInt()
-                : MediaQuery.of(context).orientation.index == 0
-                    ? crossAxisCount ?? settings.comicGridCrossAxisCount
-                    : 5,
-            crossAxisSpacing: 7,
-            mainAxisSpacing: 15,
-            childAspectRatio:
-                settings.comicGridCrossAxisCount >= 4 ? (50 / 100) : (58 / 100),
+    super.build(context);
+    return RepaintBoundary(
+      child: Consumer<PreferenceProvider>(builder: (context, settings, _) {
+        return Padding(
+          padding: EdgeInsets.all(4.0),
+          child: GridView.builder(
+            physics: ScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: settings.scaleToMatchIntended
+                  ? settings.comicGridCrossAxisCount.w.toInt()
+                  : MediaQuery.of(context).orientation.index == 0
+                      ? widget.crossAxisCount ??
+                          settings.comicGridCrossAxisCount
+                      : 5,
+              crossAxisSpacing: 7,
+              mainAxisSpacing: 15,
+              childAspectRatio: settings.comicGridCrossAxisCount >= 4
+                  ? (50 / 100)
+                  : (58 / 100),
+            ),
+            shrinkWrap: true,
+            itemCount: widget.comics.length,
+            itemBuilder: (BuildContext context, index) => ComicGridTile(
+              comic: widget.comics[index],
+            ),
           ),
-          shrinkWrap: true,
-          itemCount: comics.length,
-          itemBuilder: (BuildContext context, index) => ComicGridTile(
-            comic: comics[index],
-          ),
-        ),
-      );
-    });
+        );
+      }),
+    );
   }
 
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class ComicGridTile extends StatelessWidget {
