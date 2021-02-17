@@ -37,7 +37,7 @@ class NoMomentumScrollPhysics extends ScrollPhysics {
   /// bounds of the content..
   final double velocityT;
 
-  const NoMomentumScrollPhysics({ScrollPhysics parent, this.velocityT})
+  const NoMomentumScrollPhysics({ScrollPhysics parent, this.velocityT = 7500})
       : super(parent: parent);
 
   @override
@@ -114,10 +114,10 @@ class NoMomentumScrollPhysics extends ScrollPhysics {
   }
 
   @override
-  double get maxFlingVelocity => 5000.0;
+  double get maxFlingVelocity => velocityT;
 
   @override
   double carriedMomentum(double existingVelocity) {
-    return super.carriedMomentum(0); // carry no momentum over
+    return super.carriedMomentum(10); // carry little momentum over
   }
 }

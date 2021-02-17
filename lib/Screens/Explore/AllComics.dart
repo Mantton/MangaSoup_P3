@@ -9,6 +9,7 @@ import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:provider/provider.dart';
 
 class AllComicsPage extends StatefulWidget {
@@ -28,7 +29,13 @@ class _AllComicsPageState extends State<AllComicsPage>
   Future<List<ComicHighlight>> _loadComics(
       String source, String sortBy, int page, Map info) async {
     ApiManager _manager = ApiManager();
-    return await _manager.getAll(source, sortBy, page);
+    List<ComicHighlight> c;
+    try {
+      c = await _manager.getAll(source, sortBy, page);
+    } catch (err) {
+      ErrorManager.analyze(err);
+    }
+    return c;
   }
 
   Future<List<ComicHighlight>> paginate() {
@@ -117,7 +124,6 @@ class _AllComicsPageState extends State<AllComicsPage>
               return SingleChildScrollView(
                 controller: _controller,
                 child: Container(
-
                   padding: EdgeInsets.only(left: 10, right: 10),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -185,13 +191,15 @@ class _AllComicsPageState extends State<AllComicsPage>
                                       ),
                                       cupertino: (_, __) =>
                                           CupertinoActionSheet(
-                                        title: Text(
+                                            title: Text(
                                           "Sort by",
                                         ),
-                                        cancelButton: CupertinoActionSheetAction(
+                                        cancelButton:
+                                            CupertinoActionSheetAction(
                                           child: Text("Cancel"),
                                           isDestructiveAction: true,
-                                          onPressed: () => Navigator.pop(context),
+                                          onPressed: () =>
+                                              Navigator.pop(context),
                                         ),
                                         actions: List<
                                             CupertinoActionSheetAction>.generate(

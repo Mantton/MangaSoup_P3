@@ -7,6 +7,7 @@ import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:provider/provider.dart';
 
 import '../../Globals.dart';
@@ -25,7 +26,13 @@ class _LatestPageState extends State<LatestPage>  with AutomaticKeepAliveClientM
 
   Future<List<ComicHighlight>> _loadComics(String source, int page) async {
     ApiManager _manager = ApiManager();
-    return await _manager.getLatest(source, page);
+    List<ComicHighlight> c;
+    try {
+      c = await _manager.getLatest(source, page);
+    } catch (err) {
+      ErrorManager.analyze(err);
+    }
+    return c;
   }
 
   Future<List<ComicHighlight>> paginate() {

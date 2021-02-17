@@ -251,13 +251,13 @@ class Handler extends StatefulWidget {
   _HandlerState createState() => _HandlerState();
 }
 
-class _HandlerState extends State<Handler> {
+class _HandlerState extends State<Handler> with AutomaticKeepAliveClientMixin {
   Future<bool> initSource() async {
     debugPrint("Start Up");
 
     // Initialize Data Providers
-    await Provider.of<DatabaseProvider>(context, listen:false).init();
-    await Provider.of<PreferenceProvider>(context, listen:false).loadValues();
+    await Provider.of<DatabaseProvider>(context, listen: false).init();
+    await Provider.of<PreferenceProvider>(context, listen: false).loadValues();
     SourcePreference _prefs = SourcePreference();
     await _prefs.init();
 
@@ -308,4 +308,7 @@ class _HandlerState extends State<Handler> {
             );
         });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

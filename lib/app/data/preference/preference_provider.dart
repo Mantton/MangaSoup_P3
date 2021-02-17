@@ -24,7 +24,9 @@ class PreferenceProvider with ChangeNotifier {
     readerPageSnapping = _p.getBool(PreferenceKeys.MANGA_SNAPPING) ?? true;
     comicGridCrossAxisCount =
         _p.getInt(PreferenceKeys.COMIC_GRID_CROSS_AXIS_COUNT) ?? 3;
-    scaleToMatchIntended = _p.getBool(PreferenceKeys.SCALE_GRID_TO_MATCH_INTENDED) ?? true;
+    scaleToMatchIntended =
+        _p.getBool(PreferenceKeys.SCALE_GRID_TO_MATCH_INTENDED) ?? true;
+    maxScrollVelocity = _p.getDouble(PreferenceKeys.WEBTOON_MSV) ?? 8500.0;
     notifyListeners();
     return true;
   }
@@ -115,6 +117,7 @@ class PreferenceProvider with ChangeNotifier {
 
   /// SCALE TO MATCH INTENDED LOOL
   bool scaleToMatchIntended;
+
   setSTMI(bool stmi) async {
     SharedPreferences p = await _preferences();
     scaleToMatchIntended = stmi;
@@ -122,11 +125,30 @@ class PreferenceProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// WEBTOON READER SCROLL VELOCITY
+  Map webtoonMaxScrollVelocityOption = {
+    2500.0: "2500",
+    4500.0: "4500",
+    6500.0: "6500",
+    8500.0: "8500",
+  };
+
+  double maxScrollVelocity;
+
+  setMSV(double v) async {
+    SharedPreferences p = await _preferences();
+    maxScrollVelocity = v;
+    p.setDouble(PreferenceKeys.WEBTOON_MSV, v);
+    notifyListeners();
+  }
+
   /// Functions
-  List<DropdownMenuItem> buildItems(Map pref) => pref.entries.map(
+  List<DropdownMenuItem> buildItems(Map pref) => pref.entries
+      .map(
         (e) => DropdownMenuItem(
           child: Text(e.value),
           value: e.key,
         ),
-      ).toList();
+      )
+      .toList();
 }
