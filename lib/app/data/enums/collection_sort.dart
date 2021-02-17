@@ -4,7 +4,7 @@ enum Sort {
   date_added,
   name,
   update_count,
-  // recently_updated,
+  // unread_count,
   chapter_count,
   rating,
 }
@@ -13,7 +13,7 @@ List collectionSortNames = [
   "Date Added",
   "Name",
   "Update Count",
-  // "Recently Updated",
+  // "Unread Chapter Count",
   "Chapter Count",
   "Rating"
 ];

@@ -8,7 +8,7 @@ import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
 import 'package:provider/provider.dart';
 import 'Images.dart';
 
-class ComicGrid extends StatefulWidget {
+class ComicGrid extends StatelessWidget {
   final List<ComicHighlight> comics;
   final int crossAxisCount;
 
@@ -16,14 +16,7 @@ class ComicGrid extends StatefulWidget {
       : super(key: key);
 
   @override
-  _ComicGridState createState() => _ComicGridState();
-}
-
-class _ComicGridState extends State<ComicGrid>
-    with AutomaticKeepAliveClientMixin {
-  @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Consumer<PreferenceProvider>(builder: (context, settings, _) {
       return Padding(
         padding: EdgeInsets.all(4.0),
@@ -33,7 +26,7 @@ class _ComicGridState extends State<ComicGrid>
             crossAxisCount: settings.scaleToMatchIntended
                 ? settings.comicGridCrossAxisCount.w.toInt()
                 : MediaQuery.of(context).orientation.index == 0
-                    ? widget.crossAxisCount ?? settings.comicGridCrossAxisCount
+                    ? crossAxisCount ?? settings.comicGridCrossAxisCount
                     : 5,
             crossAxisSpacing: 7,
             mainAxisSpacing: 15,
@@ -41,17 +34,15 @@ class _ComicGridState extends State<ComicGrid>
                 settings.comicGridCrossAxisCount >= 4 ? (50 / 100) : (58 / 100),
           ),
           shrinkWrap: true,
-          itemCount: widget.comics.length,
+          itemCount: comics.length,
           itemBuilder: (BuildContext context, index) => ComicGridTile(
-            comic: widget.comics[index],
+            comic: comics[index],
           ),
         ),
       );
     });
   }
 
-  @override
-  bool get wantKeepAlive => true;
 }
 
 class ComicGridTile extends StatelessWidget {

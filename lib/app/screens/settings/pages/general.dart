@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +30,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
       value: 5,
     )
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,51 +43,72 @@ class _GeneralSettingsState extends State<GeneralSettings> {
             padding: EdgeInsets.all(8.0.w),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Comic Grid",
-                      style: notInLibraryFont,
-                    ),
-                    Divider(),
-
-                    ListTile(
-                      title: Text(
-                        "Comic Grid Column Count",
-                        style: notInLibraryFont,
-                      ),
-                      subtitle: Text(
-                        "Number of comics in a row"
-                      ),
-                      trailing: Container(
-                        padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            color: Colors.grey[900],
-                            border: Border.all()),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton(
-                            value: List.of(cgcacItems)
-                                .singleWhere((element) =>
-                            element.value ==
+                Text(
+                  "Comic Grid",
+                  style: notInLibraryFont,
+                ),
+                Divider(),
+                ListTile(
+                  title: Text(
+                    "Comic Grid Column Count",
+                    style: notInLibraryFont,
+                  ),
+                  subtitle: Text("Number of comics in a row"),
+                  trailing: Container(
+                    padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: Colors.grey[900],
+                        border: Border.all()),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton(
+                        value: List.of(cgcacItems)
+                            .singleWhere((element) =>
+                                element.value ==
                                 settings.comicGridCrossAxisCount)
-                                .value,
-                            items: cgcacItems,
-                            onChanged: (p) => settings.setCrossAxisCount(p),
-                          ),
-                        ),
+                            .value,
+                        items: cgcacItems,
+                        onChanged: (p) => settings.setCrossAxisCount(p),
                       ),
                     ),
-                    SwitchListTile.adaptive(
-                      title: Text("Scale Grid to match intended look", style: notInLibraryFont,),
-                      subtitle: Text("This would automatically scale the cross axis count to match the intended look of the app\nThis would override the Grid Count"),
-                      value: settings.scaleToMatchIntended,
-                      onChanged:(v)=>
-                          settings.setSTMI(v),
+                  ),
+                ),
+                SwitchListTile.adaptive(
+                  title: Text(
+                    "Scale Grid to match intended look",
+                    style: notInLibraryFont,
+                  ),
+                  subtitle: Text(
+                      "This would automatically scale the cross axis count to match the intended look of the app\nThis would override the Grid Count"),
+                  value: settings.scaleToMatchIntended,
+                  onChanged: (v) => settings.setSTMI(v),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Image Cache",
+                  style: notInLibraryFont,
+                ),
+                Divider(),
+                ListTile(
+                  title: Text(
+                    "Clear Image Cache",
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 17,
+                      fontFamily: "Lato",
                     ),
-                  ],
+                  ),
+                  onTap: () {
+                    DefaultCacheManager manager = DefaultCacheManager();
+                    setState(() {
+                      manager.emptyCache(); //clears all data in cache.
+                      showSnackBarMessage("Image Cache Cleared!");
+                    });
+                  },
                 )
               ],
             ),
