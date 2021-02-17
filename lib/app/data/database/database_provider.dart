@@ -297,6 +297,24 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  deleteFromLibrary(List<Comic> toDelete) async {
+    // delete comic collections object
+    // update comic collection database
+    await comicCollectionManager.deleteForComic(toDelete);
+    comicCollections = await comicCollectionManager.getAll();
+    // update comic object
+
+    // update comic database
+    for (Comic comic in toDelete) {
+      comic.inLibrary = false;
+      comic.updateCount = 0;
+      await comicManager.updateComic(comic);
+      int pointer = comics.indexWhere((element) => element.id == comic.id);
+      comics[pointer] = comic;
+    }
+    notifyListeners();
+  }
+
   List<int> getSpecificComicCollectionIds(int comicId) {
     List<ComicCollection> retrieved = comicCollections
         .where((element) => element.comicId == comicId)

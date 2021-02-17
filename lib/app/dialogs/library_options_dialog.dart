@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/libary_order.dart';
+import 'package:mangasoup_prototype_3/app/screens/library/library_bulk_delete.dart';
+import 'package:mangasoup_prototype_3/app/screens/library/library_migrate.dart';
 import 'package:provider/provider.dart';
 
 libraryOptionsDialog({@required BuildContext context, int comicId}) {
@@ -78,7 +79,12 @@ class LibraryOptions extends StatelessWidget {
               CupertinoIcons.arrow_up_bin,
               color: Colors.purple,
             ),
-            onTap: () => showSnackBarMessage("Not Implemented"),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => LibraryMigratePage(),
+              ),
+            ),
           ),
           ListTile(
             title: Text(
@@ -89,7 +95,12 @@ class LibraryOptions extends StatelessWidget {
               CupertinoIcons.delete,
               color: Colors.purple,
             ),
-            onTap: () => showSnackBarMessage('Not Implemented'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => LibraryBulkDeletePage(),
+              ),
+            ),
           ),
           ListTile(
               title: Text(
