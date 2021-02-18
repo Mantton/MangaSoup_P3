@@ -21,4 +21,6 @@ class PreferenceKeys {
   static const SCALE_GRID_TO_MATCH_INTENDED = "stmi";
   static const LIBRARY_VIEW_TYPE = "library_view_type";
   static const LIBRARY_SHOW_UNREAD_COUNT = "library_show_unread_count";
+  static const MAL_AUTH = "mal_auth_body";
+  static const MAL_AUTO_SYNC = "mal_auto_sync";
 }

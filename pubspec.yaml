@@ -63,6 +63,9 @@ dependencies:
       path: packages/scrollable_positioned_list
   flutter_rating_bar: ^3.2.0+1
   cupertino_icons: ^1.0.0
+  crypto: ^2.1.5
+  uuid: ^2.2.2
+
 dependency_overrides:
   collection: ^1.14.13
 dev_dependencies:

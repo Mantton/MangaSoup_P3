@@ -106,7 +106,7 @@ class _DexHubHomeState extends State<DexHubHome> {
                           snapshot.data.username,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 40.sp,
+                            fontSize: 40,
                             fontFamily: "lato",
                           ),
                         ),
