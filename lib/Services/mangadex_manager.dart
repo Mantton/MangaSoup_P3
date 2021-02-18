@@ -132,7 +132,6 @@ class DexHub {
 
   Future<List<ComicHighlight>> get(
       String sort, int page, Map additionalInfo) async {
-
     String url = baseURL + '/titles/9/$page/?s=$sort#listing';
     Dio _dio = Dio();
     Map<String, dynamic> browseHeaders = prepareHeaders(additionalInfo);
@@ -170,7 +169,6 @@ class DexHub {
 
   Future<List<ComicHighlight>> getTagComics(
       String sort, int page, var link, Map additionalInfo) async {
-
     String url = baseURL +
         '/genre/$link/${tagsDict[link].toString().replaceAll(" ", "-")}/${sort.isNotEmpty ? sort : "9"}/$page';
 
@@ -425,12 +423,20 @@ class DexHub {
     int saverMode = info['saver'];
     String imageAPI = "https://mangadex.org/api/v2/chapter/";
     // print(imageAPI + link);
-
     /// https://mangadex.org/api/v2//chapter/1100871?saver=1
-    Response response = await _dio.get(
-      imageAPI + link,
-      queryParameters: {"saver": saverMode},
-    );
+    Response response;
+    try {
+      response = await _dio.get(imageAPI + link,
+          queryParameters: {"saver": saverMode},
+          options: Options(headers: prepareHeaders(info)));
+    } catch (err) {
+      if (err is DioError) {
+        DioError e = err;
+        print(e.response.data);
+        throw "Restricted Manga\nContact MangaDex Staff or Discord for more information";
+      } else
+        throw "Restricted Manga\nContact MangaDex Staff or Discord for more information";
+    }
 
     // Variables
     List<String> images = List();
