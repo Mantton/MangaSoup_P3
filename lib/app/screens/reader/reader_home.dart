@@ -8,6 +8,7 @@ import 'package:mangasoup_prototype_3/Screens/WebViews/chapter_webview.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/reader_preferences.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/viewer_gateway.dart';
@@ -88,6 +89,7 @@ class ReaderOpener extends StatefulWidget {
       this.imgur,
       this.initialPage})
       : super(key: key);
+
   @override
   _ReaderOpenerState createState() => _ReaderOpenerState();
 }
@@ -153,22 +155,26 @@ class ReaderFrame extends StatefulWidget {
 
 class _ReaderFrameState extends State<ReaderFrame> {
   bool _showControls = false;
+
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIOverlays([]);
   }
+
   @override
   void dispose() {
     super.dispose();
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: GestureDetector(
         onTap: () {
-          Provider.of<ReaderProvider>(context, listen: false).toggleShowControls();
+          Provider.of<ReaderProvider>(context, listen: false)
+              .toggleShowControls();
         },
         child: Stack(
           children: [
@@ -186,12 +192,25 @@ class _ReaderFrameState extends State<ReaderFrame> {
   }
 
   Widget plain() => GestureDetector(
-        onTap: () {
+    onTap: () {
           setState(() {
             _showControls = !_showControls;
           });
         },
-        child: Container(),
+        child: Consumer<PreferenceProvider>(builder: (context, provider, _) {
+          int p = provider.readerBGColor;
+          return Container(
+            color: p == 0
+                ? Colors.black
+                : p == 1
+                    ? Colors.white
+                    : p == 2
+                        ? Colors.grey
+                        : p == 3
+                            ? Colors.grey[900]
+                            : Colors.purple,
+          );
+        }),
       );
 
   Widget header() {
@@ -277,11 +296,13 @@ class _ReaderFrameState extends State<ReaderFrame> {
                       indent: 15,
                       endIndent: 15,
                     ),
-
                     IconButton(
                       icon: Icon(CupertinoIcons.bookmark),
-                      color: provider.pageBookmarked? Colors.green: Colors.grey[700],
-                      onPressed: ()=>provider.toggleBookMark(), // add current page to bookmark
+                      color: provider.pageBookmarked
+                          ? Colors.green
+                          : Colors.grey[700],
+                      onPressed: () => provider
+                          .toggleBookMark(), // add current page to bookmark
                     )
                   ],
                 ),

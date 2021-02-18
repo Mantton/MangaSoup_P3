@@ -74,41 +74,80 @@ preferenceBuilder(BuildContext context) => Dialog(
     );
 
 Widget readerModeSetting() {
-  return Row(
+  return Column(
     children: [
-      Text(
-        "Reader Mode",
-        style: TextStyle(
-          color: Colors.grey,
-          fontSize: 20,
-        ),
-      ),
-      SizedBox(
-        width: 10,
-      ),
-      Spacer(),
-      Consumer<PreferenceProvider>(builder: (context, provider, _) {
-        return Container(
-          padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            color: Colors.grey[900],
-            border: Border.all(),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton(
-              items: provider.buildItems(provider.readerModeOptions),
-              dropdownColor: Colors.grey[900],
-              value: provider.readerMode,
-              onChanged: (value) {
-                Provider.of<ReaderProvider>(context, listen: false)
-                    .changeMode();
-                provider.setReaderMode(value);
-              },
+      Row(
+        children: [
+          Text(
+            "Reader Mode",
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 20,
             ),
           ),
-        );
-      })
+          SizedBox(
+            width: 10,
+          ),
+          Spacer(),
+          Consumer<PreferenceProvider>(builder: (context, provider, _) {
+            return Container(
+              padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                color: Colors.grey[900],
+                border: Border.all(),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                  items: provider.buildItems(provider.readerModeOptions),
+                  dropdownColor: Colors.grey[900],
+                  value: provider.readerMode,
+                  onChanged: (value) {
+                    Provider.of<ReaderProvider>(context, listen: false)
+                        .changeMode();
+                    provider.setReaderMode(value);
+                  },
+                ),
+              ),
+            );
+          })
+        ],
+      ),
+      Row(
+        children: [
+          Text(
+            "Background Color",
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 20,
+            ),
+          ),
+          SizedBox(
+            width: 9,
+          ),
+          Spacer(),
+          Consumer<PreferenceProvider>(builder: (context, provider, _) {
+            return Container(
+              padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                color: Colors.grey[900],
+                border: Border.all(),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                  items: provider.buildItems(provider.readerBGColorOptions),
+                  dropdownColor: Colors.grey[900],
+                  value: provider.readerBGColor,
+                  onChanged: (value) {
+                    provider.setReaderBGColor(value);
+                  },
+                ),
+              ),
+            );
+          })
+        ],
+      ),
     ],
   );
 }

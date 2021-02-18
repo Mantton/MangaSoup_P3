@@ -23,4 +23,5 @@ class PreferenceKeys {
   static const LIBRARY_SHOW_UNREAD_COUNT = "library_show_unread_count";
   static const MAL_AUTH = "mal_auth_body";
   static const MAL_AUTO_SYNC = "mal_auto_sync";
+  static const READER_BG_COLOR = "reader_bg_color";
 }

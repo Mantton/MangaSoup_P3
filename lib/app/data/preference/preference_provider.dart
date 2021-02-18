@@ -30,6 +30,7 @@ class PreferenceProvider with ChangeNotifier {
     showUnreadCount =
         _p.getBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT) ?? false;
     libraryViewMode = _p.getInt(PreferenceKeys.LIBRARY_VIEW_TYPE) ?? 1;
+    readerBGColor = _p.getInt(PreferenceKeys.READER_BG_COLOR) ?? 0;
     notifyListeners();
     return true;
   }
@@ -88,6 +89,7 @@ class PreferenceProvider with ChangeNotifier {
   /// true - enable padding
   /// false - disable padding
   Map readerPaddingOptions = {true: "Enabled", false: "Disabled"};
+
   setReaderPadding(bool padding) async {
     SharedPreferences p = await preferences();
     readerPadding = padding;
@@ -95,10 +97,27 @@ class PreferenceProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Map readerBGColorOptions = {
+    0: "Black",
+    1: "White",
+    2: "Grey",
+    3: "Dark Grey",
+    4: "Purple"
+  };
+  int readerBGColor;
+
+  setReaderBGColor(int option) async {
+    SharedPreferences p = await preferences();
+    readerBGColor = option;
+    p.setInt(PreferenceKeys.READER_BG_COLOR, option);
+    notifyListeners();
+  }
+
   /// Reader Snapping
   /// true - enable padding
   /// false - disable padding
   Map readerPageSnappingOptions = {true: "Enabled", false: "Disabled"};
+
   setReaderPageSnapping(bool padding) async {
     SharedPreferences p = await preferences();
     readerPageSnapping = padding;
