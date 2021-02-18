@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:mangasoup_prototype_3/Services/generator.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/mal_track_result.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/mal_user.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -87,5 +88,32 @@ class MALManager {
       return MALUser.fromMap(response.data);
     } else
       return null;
+  }
+
+  Future<List<MALTrackResult>> queryMAL(String query) async {
+    final String url = "https://api.myanimelist.net/v2/manga";
+    SharedPreferences _p = await SharedPreferences.getInstance();
+    String raw = _p.getString(PreferenceKeys.MAL_AUTH);
+    String accessToken = jsonDecode(raw)['access_token'];
+
+    Map<String, dynamic> headers = Map.of(requestHeader);
+    headers.putIfAbsent("Authorization", () => "Bearer $accessToken");
+
+    List<MALTrackResult> results = List();
+    String fields = 'id,title,main_picture,synopsis,status,num_chapters';
+    try {
+      Response response = await dio.get(url,
+          options: Options(headers: headers),
+          queryParameters: {"q": query, "fields": fields});
+      print(response.data['data']);
+      for (Map d in response.data['data']) {
+        var c = d['node'];
+        results.add(MALTrackResult.fromMap(c));
+      }
+      return results;
+    } catch (err) {
+      print(err);
+      throw err;
+    }
   }
 }

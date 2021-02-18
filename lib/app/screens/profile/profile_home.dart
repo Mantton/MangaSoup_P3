@@ -46,7 +46,9 @@ class _ProfileHomeState extends State<ProfileHome>
               children: [
                 ProfileGateWay(widget.highlight),
                 DiscussionHome(),
-                TrackingHome(),
+                TrackingHome(
+                  highlight: widget.highlight,
+                ),
               ],
             ),
           ),

@@ -1,29 +1,38 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
+import 'package:mangasoup_prototype_3/app/dialogs/mal_search_dialog.dart';
 import 'package:mangasoup_prototype_3/app/screens/track/mal/mal_screen.dart';
 import 'package:provider/provider.dart';
 
 class TrackingHome extends StatelessWidget {
+  final ComicHighlight highlight;
+
+  const TrackingHome({Key key, @required this.highlight}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: Column(
-      children: [
-        MALTrackingWidget(),
-      ],
-    ));
+      child: Column(
+        children: [
+          MALTrackingWidget(
+            highlight: highlight,
+          ),
+        ],
+      ),
+    );
   }
 }
 
 class MALTrackingWidget extends StatelessWidget {
-  final int comicId;
+  final ComicHighlight highlight;
 
-  const MALTrackingWidget({Key key, this.comicId}) : super(key: key);
+  const MALTrackingWidget({Key key, this.highlight}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -65,21 +74,30 @@ class MALTrackingWidget extends StatelessWidget {
                       child: Provider.of<DatabaseProvider>(context)
                               .comicTrackers
                               .any((element) =>
-                                  element.comicId == comicId &&
+                      element.trackingUrl == highlight.link &&
                                   element.trackerType == 2)
                           ? Container(
                               child: EditTrack(
                                 tracker: Provider.of<DatabaseProvider>(context)
                                     .comicTrackers
                                     .firstWhere((element) =>
-                                        element.comicId == comicId &&
+                                element.trackingUrl == highlight.link &&
                                         element.trackerType == 2),
                               ),
                             )
                           : Center(
                               child: CupertinoButton(
                                 child: Text("Add"),
-                                onPressed: null,
+                                onPressed: () => malSearchDialog(
+                                  context: context,
+                                  initialQuery: Provider.of<DatabaseProvider>(
+                                          context,
+                                          listen: false)
+                                      .comics
+                                      .firstWhere((element) =>
+                                          element.link == highlight.link)
+                                      .title,
+                                ),
                               ),
                             ),
                     )

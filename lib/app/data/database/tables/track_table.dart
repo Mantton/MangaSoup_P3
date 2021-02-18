@@ -22,7 +22,7 @@ class TrackTable {
             $COL_MEDIA_ID INTEGER,
             $COL_TRACK_TYPE INTEGER NOT NULL,
             $COL_SYNC_ID INTEGER,
-            $COL_SCORE INTEGER NOT NULL,
+            $COL_SCORE INTEGER,
             $COL_TOTAL_CHAPTER INTEGER NOT NULL,
             $COL_END_DATE INTEGER,
             $COL_START_DATE INTEGER,
