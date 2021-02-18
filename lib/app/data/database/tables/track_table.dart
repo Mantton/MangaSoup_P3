@@ -6,6 +6,7 @@ class TrackTable {
   static const COL_COMIC_ID = "comic_id";
   static const COL_TRACK_TYPE = "tracker_type";
   static const COL_COMIC_TITLE = "comic_title";
+  static const COL_STATUS = "status";
 
   static const COL_MEDIA_ID = "media_id";
   static const COL_SYNC_ID = "sync_id";
@@ -27,7 +28,8 @@ class TrackTable {
             $COL_END_DATE INTEGER,
             $COL_START_DATE INTEGER,
             $COL_COMIC_TITLE TEXT NOT NULL,
-            $COL_LAST_READ TEXT,
+            $COL_STATUS TEXT,
+            $COL_LAST_READ INTEGER,
             FOREIGN KEY($COL_COMIC_ID) REFERENCES ${ComicTable.TABLE} (${ComicTable.COL_ID})
             ON DELETE CASCADE
             )""";

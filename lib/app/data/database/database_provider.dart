@@ -5,6 +5,7 @@ import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/mal_track_result.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
@@ -17,6 +18,7 @@ import 'package:mangasoup_prototype_3/app/data/database/queries/comic-collection
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/history_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/track_queries.dart';
+import 'package:mangasoup_prototype_3/app/data/enums/mal.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -595,5 +597,38 @@ class DatabaseProvider with ChangeNotifier {
     collections.removeWhere((element) => element.id == collection.id);
     await collectionManager.deleteCollection(collection);
     notifyListeners();
+  }
+
+  /// TRACKER
+  addTracker(var result, int comicID) async {
+    Tracker tracker = Tracker(comicId: comicID);
+    print("$comicID is the incoming comic id");
+    tracker.comicId = comicID;
+
+    if (result is MALDetailedTrackResult) {
+      print("MAL TRACKER");
+      MALDetailedTrackResult r = result;
+      // MY ANIME LIST
+      tracker.trackerType = 2; // 2 for MAL
+      tracker.title = r.title;
+      tracker.mediaId = r.id;
+      tracker.totalChapters = r.chapterCount;
+      if (r.userStatus != null) {
+        tracker.lastChapterRead = r.userStatus.chaptersRead;
+        tracker.dateEnded = DateTime.parse(r.userStatus.endDate);
+        tracker.dateStarted = DateTime.parse(r.userStatus.startDate);
+        tracker.status = getMALStatus(r.status);
+        tracker.score = r.userStatus.score;
+      } else {
+        tracker.status = MALTrackStatus.reading;
+        tracker.dateStarted = DateTime.now();
+      }
+    }
+    print("saving & adding");
+    tracker = await trackerManager.addTracker(tracker);
+    comicTrackers.add(tracker);
+    notifyListeners();
+    print("done");
+    print(tracker.toMap());
   }
 }
