@@ -13,7 +13,7 @@ class PreferenceProvider with ChangeNotifier {
 
   Future<bool> loadValues() async {
     // Initialize Values or Load Defaults
-    SharedPreferences _p = await _preferences();
+    SharedPreferences _p = await preferences();
 
     /// READER
     readerMode = _p.getInt(PreferenceKeys.READER_MODE) ?? 1;
@@ -34,7 +34,7 @@ class PreferenceProvider with ChangeNotifier {
     return true;
   }
 
-  Future<SharedPreferences> _preferences() async {
+  Future<SharedPreferences> preferences() async {
     if (_prefs != null)
       return _prefs;
     else {
@@ -55,7 +55,7 @@ class PreferenceProvider with ChangeNotifier {
   /// 2 - Webtoon
   Map readerModeOptions = {1: "Paged / Manga", 2: "WebToon"};
   setReaderMode(int mode) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     readerMode = mode;
     p.setInt(PreferenceKeys.READER_MODE, mode);
     notifyListeners();
@@ -67,7 +67,7 @@ class PreferenceProvider with ChangeNotifier {
   Map readerScrollDirectionOptionsHorizontal = {1: "Left to Right", 2: "Right to Left"};
   Map readerScrollDirectionOptionsVertical = {1: "Downward Swipe", 2: "Upward Swipe"};
   setReaderScrollDirection(int mode) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     readerScrollDirection = mode;
     p.setInt(PreferenceKeys.READER_SCROLL_DIRECTION, mode);
     notifyListeners();
@@ -78,7 +78,7 @@ class PreferenceProvider with ChangeNotifier {
   /// 2 - Vertical
   Map readerOrientationOptions = {1: "Horizontal", 2: "Vertical"};
   setReaderOrientation(int mode) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     readerOrientation = mode;
     p.setInt(PreferenceKeys.MANGA_ORIENTATION, mode);
     notifyListeners();
@@ -89,7 +89,7 @@ class PreferenceProvider with ChangeNotifier {
   /// false - disable padding
   Map readerPaddingOptions = {true: "Enabled", false: "Disabled"};
   setReaderPadding(bool padding) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     readerPadding = padding;
     p.setBool(PreferenceKeys.MANGA_PADDING, padding);
     notifyListeners();
@@ -100,7 +100,7 @@ class PreferenceProvider with ChangeNotifier {
   /// false - disable padding
   Map readerPageSnappingOptions = {true: "Enabled", false: "Disabled"};
   setReaderPageSnapping(bool padding) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     readerPageSnapping = padding;
     p.setBool(PreferenceKeys.MANGA_SNAPPING, padding);
     notifyListeners();
@@ -112,7 +112,7 @@ class PreferenceProvider with ChangeNotifier {
   int comicGridCrossAxisCount;
 
   setCrossAxisCount(int count) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     comicGridCrossAxisCount = count;
     p.setInt(PreferenceKeys.COMIC_GRID_CROSS_AXIS_COUNT, count);
     notifyListeners();
@@ -122,7 +122,7 @@ class PreferenceProvider with ChangeNotifier {
   bool scaleToMatchIntended;
 
   setSTMI(bool stmi) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     scaleToMatchIntended = stmi;
     p.setBool(PreferenceKeys.SCALE_GRID_TO_MATCH_INTENDED, stmi);
     notifyListeners();
@@ -138,7 +138,7 @@ class PreferenceProvider with ChangeNotifier {
   double maxScrollVelocity;
 
   setMSV(double v) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     maxScrollVelocity = v;
     p.setDouble(PreferenceKeys.WEBTOON_MSV, v);
     notifyListeners();
@@ -148,7 +148,7 @@ class PreferenceProvider with ChangeNotifier {
   int libraryViewMode;
 
   setLibraryViewMode(int mode) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     libraryViewMode = mode;
     p.setInt(PreferenceKeys.LIBRARY_VIEW_TYPE, mode);
     notifyListeners();
@@ -159,7 +159,7 @@ class PreferenceProvider with ChangeNotifier {
 
   setSURCM(bool surcm) async {
     // SURCM = Show UnRead Count Mode
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     scaleToMatchIntended = surcm;
     p.setBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT, surcm);
     notifyListeners();

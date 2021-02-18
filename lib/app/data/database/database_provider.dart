@@ -9,12 +9,14 @@ import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/bookmark_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/chapter_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic-collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/history_queries.dart';
+import 'package:mangasoup_prototype_3/app/data/database/queries/track_queries.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -30,6 +32,7 @@ class DatabaseProvider with ChangeNotifier {
   List<ComicCollection> comicCollections = List();
   List<ChapterData> chapters = List();
   List<BookMark> bookmarks = List();
+  List<Tracker> comicTrackers = List();
   Database _db;
 
   // Query Managers
@@ -39,6 +42,7 @@ class DatabaseProvider with ChangeNotifier {
   ComicCollectionQueries comicCollectionManager;
   ChapterQuery chapterManager;
   BookMarkQuery bookmarkManager;
+  TrackQuery trackerManager;
 
   // init
 
@@ -51,6 +55,7 @@ class DatabaseProvider with ChangeNotifier {
     comicCollectionManager = ComicCollectionQueries(_db);
     chapterManager = ChapterQuery(_db);
     bookmarkManager = BookMarkQuery(_db);
+    trackerManager = TrackQuery(_db);
     // Load Data into Provider Variables
     comics = await comicManager.getAll();
     collections = await collectionManager.getCollections();
