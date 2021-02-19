@@ -199,7 +199,7 @@ class _MultiSelectState extends State<MultiSelect> {
                   },
                 ),
                 SizedBox(
-                  width: 10.w,
+                  width: 10,
                 ),
                 InkWell(
                   child: Center(

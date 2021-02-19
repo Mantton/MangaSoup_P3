@@ -333,13 +333,17 @@ class DexHub {
     List exc = userQuery['excluded_tags'] ?? [];
     String included = inc.map((e) => "$e").join(",");
     String excluded = exc.map((e) => "-$e").join(",");
+    int sort = userQuery['sort_type'] ?? 9;
+    int ascDesc = userQuery['sort_order'] ?? 0;
+    sort = sort - ascDesc; // See API docs to understand this better
     Map<String, dynamic> params = {
       "title": userQuery['title'],
       "artist": userQuery['artist'],
       "author": userQuery['author'],
       "tag_mode_exc": "any",
       "tag_mode_inc": "any",
-      "tags": included + excluded
+      "tags": included + excluded,
+      "s": sort,
     };
     String url = baseURL + '/search';
     Dio _dio = Dio();
@@ -351,6 +355,8 @@ class DexHub {
         //
         options: Options(headers: prepareHeaders(additionalInfo)),
       );
+
+      // print(response.request.uri);
       String responseHeaders = response.headers.map.toString();
       // Session
       if (responseHeaders.contains("mangadex_session=deleted")) {
@@ -361,7 +367,6 @@ class DexHub {
         throw "MangaDex Authorization Error";
       }
       var document = parse(response.data);
-      print(response.data);
       var comics = document
           .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
 
