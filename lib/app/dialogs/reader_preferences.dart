@@ -23,16 +23,18 @@ preferenceBuilder(BuildContext context) => Dialog(
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: Container(
-        margin: EdgeInsets.all(10.w),
-        padding: EdgeInsets.all(7.w),
+        margin: EdgeInsets.all(10),
+        padding: EdgeInsets.all(5),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              "Settings",
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 22,
+            Flexible(
+              child: Text(
+                "Settings",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 20,
+                ),
               ),
             ),
             Divider(
@@ -41,31 +43,43 @@ preferenceBuilder(BuildContext context) => Dialog(
               indent: 10,
               endIndent: 10,
             ),
-            // Reading Mode
-            /// Options
-            ///
-            readerModeSetting(),
-            Consumer<PreferenceProvider>(
-              builder: (BuildContext context, provider, _) =>
-                  provider.readerMode == 1
-                      ? mangaModeOptions()
-                      : webToonModeOptions(),
-            ),
 
-            SizedBox(
-              height: 8,
-            ),
-            MaterialButton(
-              height: 50,
-              minWidth: 100.w,
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                "Close",
-                style: notInLibraryFont,
+            /// Options
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: readerModeSetting(),
+                    ),
+                    Flexible(
+                      child: Consumer<PreferenceProvider>(
+                        builder: (BuildContext context, provider, _) =>
+                            provider.readerMode == 1
+                                ? mangaModeOptions()
+                                : webToonModeOptions(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              color: Colors.grey[900],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+            ),
+            SizedBox(
+              height: 3,
+            ),
+            Flexible(
+              child: MaterialButton(
+                minWidth: 100,
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Close",
+                  style: notInLibraryFont,
+                ),
+                color: Colors.grey[900],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
               ),
             ),
           ],
