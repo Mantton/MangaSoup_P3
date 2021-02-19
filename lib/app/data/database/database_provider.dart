@@ -65,6 +65,7 @@ class DatabaseProvider with ChangeNotifier {
     comicCollections = await comicCollectionManager.getAll();
     chapters = await chapterManager.getAll();
     bookmarks = await bookmarkManager.getAllBookMarks();
+    comicTrackers = await trackerManager.getTrackers();
     print("Database Provider Successfully Initialized");
     notifyListeners();
   }

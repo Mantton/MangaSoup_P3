@@ -12,6 +12,8 @@ import 'package:mangasoup_prototype_3/app/dialogs/mal_search_dialog.dart';
 import 'package:mangasoup_prototype_3/app/screens/track/mal/mal_screen.dart';
 import 'package:provider/provider.dart';
 
+import 'mal_pickers/pickers.dart';
+
 class TrackingHome extends StatelessWidget {
   final ComicHighlight highlight;
 
@@ -113,6 +115,8 @@ class MALTrackingWidget extends StatelessWidget {
                 });
               } else {
                 return Card(
+                  color: Colors.grey[900],
+                  margin: EdgeInsets.all(7),
                   child: Column(
                     children: [
                       Container(
@@ -197,7 +201,7 @@ class EditTrack extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   MaterialButton(
-                    onPressed: () => print("status"),
+                    onPressed: () => statusPickerDialog(context: context),
                     child: Text(
                       convertToPresentatble(tracker.status),
                       style: def,
@@ -234,7 +238,7 @@ class EditTrack extends StatelessWidget {
                     thickness: 2,
                   ),
                   MaterialButton(
-                    onPressed: () => print("score"),
+                    onPressed: () => scorePickerDialog(context: context),
                     child: Text(
                       tracker.score != null ? "${tracker.score}" : "-",
                       style: def,
@@ -252,18 +256,24 @@ class EditTrack extends StatelessWidget {
           Row(
             children: [
               Spacer(),
-              Text(
-                tracker.dateStarted != null
-                    ? "${DateFormat('yyyy-MM-dd').format(tracker.dateStarted)}"
-                    : "-",
-                style: def,
+              MaterialButton(
+                onPressed: () => datePickerDialog(context: context),
+                child: Text(
+                  tracker.dateStarted != null
+                      ? "${DateFormat('yyyy-MM-dd').format(tracker.dateStarted)}"
+                      : "-",
+                  style: def,
+                ),
               ),
               Spacer(),
-              Text(
-                tracker.dateEnded != null
-                    ? "${DateFormat('yyyy-MM-dd').format(tracker.dateEnded)}"
-                    : "-",
-                style: def,
+              MaterialButton(
+                onPressed: () => datePickerDialog(context: context),
+                child: Text(
+                  tracker.dateEnded != null
+                      ? "${DateFormat('yyyy-MM-dd').format(tracker.dateEnded)}"
+                      : "-",
+                  style: def,
+                ),
               ),
               Spacer(),
             ],

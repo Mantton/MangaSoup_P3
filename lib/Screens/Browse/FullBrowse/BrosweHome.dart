@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
@@ -244,58 +243,71 @@ class _BrowsePageState extends State<BrowsePage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0),
         ),
-        child: Padding(
-          padding: EdgeInsets.all(10.0.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    "Filters",
-                    style: TextStyle(fontFamily: "Roboto", fontSize: 30),
-                  ),
-                  Spacer(),
-                  IconButton(
-                    icon: Icon(
-                      Icons.cancel_outlined,
-                      size: 30,
-                      color: Colors.red,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: List.generate(
-                      Provider.of<SourceNotifier>(context)
-                          .source
-                          .filters
-                          .length,
-                      (index) => TesterFilter(
-                        filter: SourceSetting.fromMap(
-                          Provider.of<SourceNotifier>(context)
-                              .source
-                              .filters[index],
-                        ),
+        child: Container(
+          height: 500,
+          child: Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text(
+                        "Filters",
+                        style: TextStyle(fontFamily: "Roboto", fontSize: 30),
                       ),
+                      Spacer(),
+                      IconButton(
+                        icon: Icon(
+                          Icons.cancel_outlined,
+                          size: 30,
+                          color: Colors.red,
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Expanded(
+                  flex: 7,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(
+                            Provider.of<SourceNotifier>(context)
+                                .source
+                                .filters
+                                .length,
+                            (index) => TesterFilter(
+                              filter: SourceSetting.fromMap(
+                                Provider.of<SourceNotifier>(context)
+                                    .source
+                                    .filters[index],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(
-                    height: 5.h,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(8.0.w),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: EdgeInsets.all(3.0),
                     child: MaterialButton(
-                      height: 50,
+                      // height: 40,
                       minWidth: 100,
                       onPressed: () {
                         Navigator.pop(context);
@@ -319,9 +331,9 @@ class _BrowsePageState extends State<BrowsePage> {
                       ),
                     ),
                   ),
-                ],
-              )
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       );

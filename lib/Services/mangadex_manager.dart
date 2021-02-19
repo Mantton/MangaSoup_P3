@@ -1,16 +1,18 @@
 import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
+import 'package:html_unescape/html_unescape.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
-import 'package:html_unescape/html_unescape.dart';
 import 'package:mangasoup_prototype_3/app/data/mangadex/models/mangadex_profile.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -326,6 +328,7 @@ class DexHub {
   }
 
   Future<List<ComicHighlight>> browse(Map userQuery, Map additionalInfo) async {
+    if (additionalInfo["cookies"] == null) throw MissingMangaDexSession;
     List inc = userQuery['included_tags'] ?? [];
     List exc = userQuery['excluded_tags'] ?? [];
     String included = inc.map((e) => "$e").join(",");
@@ -349,6 +352,7 @@ class DexHub {
         options: Options(headers: prepareHeaders(additionalInfo)),
       );
       String responseHeaders = response.headers.map.toString();
+      // Session
       if (responseHeaders.contains("mangadex_session=deleted")) {
         SharedPreferences _prefs = await SharedPreferences.getInstance();
         _prefs
@@ -357,6 +361,7 @@ class DexHub {
         throw "MangaDex Authorization Error";
       }
       var document = parse(response.data);
+      print(response.data);
       var comics = document
           .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
 
