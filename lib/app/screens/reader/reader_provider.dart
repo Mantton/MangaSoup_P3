@@ -69,8 +69,12 @@ class ReaderProvider with ChangeNotifier {
     initialPageIndex = initPage - 1;
     pageDisplayNumber = initPage;
     if (!imgur) {
-      await Provider.of<DatabaseProvider>(context, listen: false)
-          .historyLogic(chapter, comicId, source, selector);
+      await Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
+        chapter,
+        comicId,
+        source,
+        selector,
+      );
       print("History Initialized");
     }
 
@@ -97,7 +101,7 @@ class ReaderProvider with ChangeNotifier {
           .updateChapterImages(chapter, response.images);
       print("Images set for ${chapter.name}");
       await Provider.of<DatabaseProvider>(context, listen: false)
-          .updateChapterInfo(1, chapter);
+          .updateChapterInfo(initPage, chapter);
     } catch (err) {
       print("IMAGE ERROR: $err");
     }

@@ -7,16 +7,20 @@ import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/all_chapters.dart';
-import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/chapter_tile.dart';
 import 'package:provider/provider.dart';
 
 class ProfileContentPreview extends StatefulWidget {
   final Profile profile;
   final int comicId;
+  final History history;
 
-  const ProfileContentPreview({Key key, @required this.profile, this.comicId})
+  const ProfileContentPreview(
+      {Key key, @required this.profile, this.comicId, this.history})
       : super(key: key);
+
   @override
   _ProfileContentPreviewState createState() => _ProfileContentPreviewState();
 }
@@ -87,66 +91,14 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                   ChapterData data = provider.checkIfChapterMatch(chapter);
                   bool similarRead =
                       provider.checkSimilarRead(chapter, widget.comicId);
-                  if (data != null) {
-                    TextStyle readFont = TextStyle(
-                      color: data.read ? Colors.grey[800] : Colors.white,
-                    );
-                    // It is Store
-                    return ListTile(
-                      title: Text(chapter.name, style: readFont),
-                      subtitle: chapter.maker.isNotEmpty
-                          ? Text(
-                              chapter.maker,
-                              style: readFont,
-                            )
-                          : null,
-                      trailing: Text(
-                        chapter.date,
-                        style: TextStyle(
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      selectedTileColor: Colors.grey[900],
-                      onTap: () => onTap(chapter),
-                    );
-                  }
-                  if (similarRead) {
-                    return ListTile(
-                      title: Text(
-                        chapter.name,
-                        style: TextStyle(color: Colors.grey[800]),
-                      ),
-                      subtitle: chapter.maker.isNotEmpty
-                          ? Text(
-                              chapter.maker,
-                              style: TextStyle(color: Colors.grey[800]),
-                            )
-                          : null,
-                      trailing: Text(
-                        "SR",
-                        style: TextStyle(color: Colors.blueGrey[800]),
-                      ),
-                      selectedTileColor: Colors.grey[900],
-                      onTap: () => onTap(chapter),
-                    );
-                  } else {
-                    return ListTile(
-                      title: Text(
-                        chapter.name,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      subtitle:
-                          chapter.maker.isNotEmpty ? Text(chapter.maker) : null,
-                      trailing: Text(
-                        chapter.date,
-                        style: TextStyle(
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      selectedTileColor: Colors.grey[900],
-                      onTap: () => onTap(chapter),
-                    );
-                  }
+                  return ChapterTile(
+                    comicID: widget.comicId,
+                    profile: widget.profile,
+                    data: data,
+                    similarRead: similarRead,
+                    chapter: chapter,
+                    history: widget.history,
+                  );
                 }),
           ),
           Divider(
@@ -165,6 +117,8 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                     comicId: widget.comicId,
                     selector: widget.profile.selector,
                     source: widget.profile.source,
+                    profile: widget.profile,
+                    history: widget.history,
                   ),
                 ),
               );
@@ -204,24 +158,6 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
         ],
       );
     });
-  }
-
-  onTap(Chapter chapter) async {
-    // print("${widget.comicId}, ${widget.profile.source},${widget.profile.selector}, ${chapter.name}, ${chapter.generatedNumber}");
-    // print("${widget.profile.chapters.indexOf(chapter)}");
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ReaderHome(
-          selector: widget.profile.selector,
-          chapters: widget.profile.chapters,
-          initialChapterIndex: widget.profile.chapters.indexOf(chapter),
-          comicId: widget.comicId,
-          source: widget.profile.source,
-        ),
-      ),
-    );
   }
 
   Widget containsBooks() {

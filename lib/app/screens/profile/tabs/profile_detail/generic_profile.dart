@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
@@ -7,6 +8,7 @@ import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/comic_rating.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/profile_bookmarks.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/tag_widget.dart';
@@ -14,8 +16,6 @@ import 'package:mangasoup_prototype_3/app/screens/profile/widgets/content_previe
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:mangasoup_prototype_3/app/widgets/comic_collection_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 
 class GenericProfilePage extends StatefulWidget {
   final Profile profile;
@@ -72,6 +72,11 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                       ProfileContentPreview(
                         profile: widget.profile,
                         comicId: widget.comicId,
+                        history: Provider.of<DatabaseProvider>(context)
+                            .historyList
+                            .firstWhere(
+                                (element) => element.comicId == widget.comicId,
+                                orElse: () => null),
                       )
                       // (profile.altTitles != null)
                       //     ? alternativeTitles()

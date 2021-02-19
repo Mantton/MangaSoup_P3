@@ -5,8 +5,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:provider/provider.dart';
 
@@ -15,10 +17,19 @@ class ChapterList extends StatefulWidget {
   final int comicId;
   final String source;
   final String selector;
+  final Profile profile;
+  final History history;
 
   const ChapterList(
-      {Key key, this.chapterList, this.comicId, this.source, this.selector})
+      {Key key,
+      this.chapterList,
+      this.comicId,
+      this.source,
+      this.selector,
+      this.history,
+      this.profile})
       : super(key: key);
+
   @override
   _ChapterListState createState() => _ChapterListState();
 }
@@ -27,7 +38,9 @@ class _ChapterListState extends State<ChapterList> {
   List<Chapter> _selectedChapters = List();
 
   bool editMode() => _selectedChapters.isNotEmpty;
+
   bool isSelected(Chapter chapter) => _selectedChapters.contains(chapter);
+
   void longPress(Chapter chapter) {
     // Enable Edit mode
     setState(() {
@@ -39,7 +52,7 @@ class _ChapterListState extends State<ChapterList> {
     });
   }
 
-  Future<void> onTap(Chapter chapter) async {
+  Future<void> onTap(Chapter chapter, ChapterData data) async {
     // toggle chapter selection
     if (editMode()) {
       if (_selectedChapters.contains(chapter))
@@ -60,6 +73,7 @@ class _ChapterListState extends State<ChapterList> {
             initialChapterIndex: widget.chapterList.indexOf(chapter),
             comicId: widget.comicId,
             source: widget.source,
+            initialPage: data != null ? data.lastPageRead : 1,
           ),
         ),
       );
@@ -104,7 +118,10 @@ class _ChapterListState extends State<ChapterList> {
               ChapterData data = provider.checkIfChapterMatch(chapter);
               bool similarRead =
                   provider.checkSimilarRead(chapter, widget.comicId);
+              bool historyTarget = false;
               if (data != null) {
+                if (widget.history != null)
+                  historyTarget = (widget.history.chapterId == data.id);
                 TextStyle readFont = TextStyle(
                   color: data.read ? Colors.grey[800] : Colors.white,
                 );
@@ -117,49 +134,75 @@ class _ChapterListState extends State<ChapterList> {
                           style: readFont,
                         )
                       : null,
-                  selected: isSelected(chapter),
-                  trailing: Text(
-                    chapter.date,
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                    ),
-                  ),
+                  trailing: historyTarget
+                      ? fittedBox(data)
+                      : Text(
+                          chapter.date,
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                          ),
+                        ),
                   selectedTileColor: Colors.grey[900],
+                  selected: isSelected(chapter),
                   onLongPress: () => longPress(chapter),
-                  onTap: () => onTap(chapter),
+                  onTap: () => onTap(chapter, data),
                 );
               }
               if (similarRead) {
                 return ListTile(
-                  title: Text(chapter.name,
-                      style: TextStyle(color: Colors.grey[800])),
-                  subtitle: chapter.maker.isNotEmpty
-                      ? Text(chapter.maker,
-                          style: TextStyle(color: Colors.grey[800]))
+                  leading: historyTarget
+                      ? Icon(
+                          Icons.play_arrow,
+                          color: Colors.purple,
+                        )
                       : null,
-                  selected: isSelected(chapter),
-                  trailing:
-                      Text("SR", style: TextStyle(color: Colors.blueGrey[800])),
+                  title: Text(
+                    chapter.name,
+                    style: TextStyle(color: Colors.grey[800]),
+                  ),
+                  subtitle: chapter.maker.isNotEmpty
+                      ? Text(
+                          chapter.maker,
+                          style: TextStyle(color: Colors.grey[800]),
+                        )
+                      : null,
+                  trailing: historyTarget
+                      ? fittedBox(data)
+                      : Text(
+                          "SR",
+                          style: TextStyle(color: Colors.blueGrey[800]),
+                        ),
                   selectedTileColor: Colors.grey[900],
+                  selected: isSelected(chapter),
                   onLongPress: () => longPress(chapter),
-                  onTap: () => onTap(chapter),
+                  onTap: () => onTap(chapter, data),
                 );
               } else {
                 return ListTile(
-                  title:
-                      Text(chapter.name, style: TextStyle(color: Colors.white)),
+                  leading: historyTarget
+                      ? Icon(
+                          Icons.play_arrow,
+                          color: Colors.purple,
+                        )
+                      : null,
+                  title: Text(
+                    chapter.name,
+                    style: TextStyle(color: Colors.white),
+                  ),
                   subtitle:
                       chapter.maker.isNotEmpty ? Text(chapter.maker) : null,
-                  selected: isSelected(chapter),
-                  trailing: Text(
-                    chapter.date,
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                    ),
-                  ),
+                  trailing: historyTarget
+                      ? fittedBox(data)
+                      : Text(
+                          chapter.date,
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                          ),
+                        ),
                   selectedTileColor: Colors.grey[900],
+                  selected: isSelected(chapter),
                   onLongPress: () => longPress(chapter),
-                  onTap: () => onTap(chapter),
+                  onTap: () => onTap(chapter, data),
                 );
               }
             });
@@ -179,6 +222,31 @@ class _ChapterListState extends State<ChapterList> {
               ),
             )
           : null,
+    );
+  }
+
+  FittedBox fittedBox(ChapterData data) {
+    return FittedBox(
+      child: Row(
+        children: [
+          Icon(
+            Icons.play_arrow,
+            color: Colors.purple,
+          ),
+          SizedBox(
+            width: 2,
+          ),
+          Text(
+            "Page ${data.lastPageRead}",
+            style: TextStyle(
+              color: Colors.grey[700],
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+              fontFamily: "Lato",
+            ),
+          )
+        ],
+      ),
     );
   }
 
