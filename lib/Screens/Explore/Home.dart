@@ -42,7 +42,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     return DefaultTabController(
       length: 3,
-      initialIndex: 1,
+      initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(

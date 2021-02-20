@@ -48,6 +48,7 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
     return Consumer<ReaderProvider>(builder: (context, provider, _) {
       return Container(
         height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
         child: ScrollablePositionedList.builder(
           addAutomaticKeepAlives: false,
           physics: NewCustomScrollPhysics(

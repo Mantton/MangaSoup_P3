@@ -58,8 +58,8 @@ preferenceBuilder(BuildContext context) => Dialog(
                       child: Consumer<PreferenceProvider>(
                         builder: (BuildContext context, provider, _) =>
                             provider.readerMode == 1
-                            ? mangaModeOptions()
-                            : webToonModeOptions(),
+                                ? mangaModeOptions()
+                                : webToonModeOptions(),
                       ),
                     ),
                   ],
@@ -160,8 +160,22 @@ Widget readerModeSetting() {
                 ),
               ),
             );
-          })
+          }),
         ],
+      ),
+      Consumer<PreferenceProvider>(
+        builder: (context, provider, _) => SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.all(0),
+          title: Text(
+            "Override Width Constraints",
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 20,
+            ),
+          ),
+          value: provider.readerMaxWidth,
+          onChanged: (v) => provider.setReaderMaxWidth(v),
+        ),
       ),
     ],
   );

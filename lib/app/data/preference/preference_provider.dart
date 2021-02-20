@@ -33,6 +33,7 @@ class PreferenceProvider with ChangeNotifier {
     libraryViewMode = _p.getInt(PreferenceKeys.LIBRARY_VIEW_TYPE) ?? 1;
     readerBGColor = _p.getInt(PreferenceKeys.READER_BG_COLOR) ?? 0;
     malAutoSync = _p.getBool(PreferenceKeys.MAL_AUTO_SYNC) ?? true;
+    readerMaxWidth = _p.getBool(PreferenceKeys.READER_MAX_WIDTH) ?? false;
     notifyListeners();
     return true;
   }
@@ -124,6 +125,16 @@ class PreferenceProvider with ChangeNotifier {
     SharedPreferences p = await preferences();
     readerPageSnapping = padding;
     p.setBool(PreferenceKeys.MANGA_SNAPPING, padding);
+    notifyListeners();
+  }
+
+  /// REAder MAx WIdth
+  bool readerMaxWidth;
+
+  setReaderMaxWidth(bool max) async {
+    SharedPreferences p = await preferences();
+    readerMaxWidth = max;
+    p.setBool(PreferenceKeys.READER_MAX_WIDTH, max);
     notifyListeners();
   }
 
