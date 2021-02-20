@@ -235,9 +235,7 @@ class ReaderProvider with ChangeNotifier {
             pagePositionList.add(c);
             indexList.add(nextIndex);
           }
-          print("appending to view");
           addChapterToView(readerChapter);
-          print("done");
         }
       }
     }
@@ -263,16 +261,21 @@ class ReaderProvider with ChangeNotifier {
           ? chapters.elementAt(indexList[page]).name
           : "";
       // check if page is bookmarked
-      BookMark pointer = BookMark(
-          comicId,
-          pageDisplayNumber,
-          chapters.elementAt(indexList[page]).link,
-          chapters.elementAt(indexList[page]).name);
-      if (Provider.of<DatabaseProvider>(context, listen: false)
-          .checkIfBookMarked(pointer))
-        pageBookmarked = true;
-      else
+      if (indexList[page] != null) {
+        BookMark pointer = BookMark(
+            comicId,
+            pageDisplayNumber,
+            chapters.elementAt(indexList[page]).link,
+            chapters.elementAt(indexList[page]).name);
+        if (Provider.of<DatabaseProvider>(context, listen: false)
+            .checkIfBookMarked(pointer))
+          pageBookmarked = true;
+        else
+          pageBookmarked = false;
+      } else {
         pageBookmarked = false;
+      }
+
       notifyListeners();
     } catch (e) {}
 
@@ -309,6 +312,8 @@ class ReaderProvider with ChangeNotifier {
                 true,
                 source,
                 selector);
+          print("huh1");
+
           endReached();
         } else {
           // Load Next chapter
@@ -366,28 +371,32 @@ class ReaderProvider with ChangeNotifier {
   }
 
   toggleBookMark() async {
-    pageBookmarked = !pageBookmarked;
-    notifyListeners();
-    BookMark pointer = BookMark(
-        comicId,
-        pageDisplayNumber,
-        chapters.elementAt(indexList[currentPage]).link,
-        chapters.elementAt(indexList[currentPage]).name);
-    await Provider.of<DatabaseProvider>(context, listen: false)
-        .toggleBookMark(pointer);
+    if (indexList[currentPage] != null) {
+      pageBookmarked = !pageBookmarked;
+      notifyListeners();
+      BookMark pointer = BookMark(
+          comicId,
+          pageDisplayNumber,
+          chapters.elementAt(indexList[currentPage]).link,
+          chapters.elementAt(indexList[currentPage]).name);
+      await Provider.of<DatabaseProvider>(context, listen: false)
+          .toggleBookMark(pointer);
+    }
   }
 
   endReached() {
-    reachedEnd = true;
-    pagePositionList.add(null); // for transition page
-    indexList.add(null);
-    widgetPageList.add(
-      ReachedEndPage(
-        inLibrary: Provider.of<DatabaseProvider>(context, listen: false)
-            .retrieveComic(comicId),
-      ),
-    );
-    notifyListeners();
+    if (!reachedEnd) {
+      reachedEnd = true;
+      pagePositionList.add(null); // for transition page
+      indexList.add(null);
+      widgetPageList.add(
+        ReachedEndPage(
+          inLibrary: Provider.of<DatabaseProvider>(context, listen: false)
+              .retrieveComic(comicId),
+        ),
+      );
+      notifyListeners();
+    }
   }
 
   emptyResponse() {
