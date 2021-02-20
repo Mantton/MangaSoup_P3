@@ -421,7 +421,8 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                       ? BoxConstraints()
                       : BoxConstraints(maxHeight: 50.0),
                   child: Text(
-                    widget.profile.description,
+                    widget.profile.description +
+                        "\nALTERNATE TITLES: ${widget.profile.altTitles.toString()}",
                     softWrap: true,
                     overflow: TextOverflow.fade,
                     style: TextStyle(color: Colors.grey, fontSize: 15),
