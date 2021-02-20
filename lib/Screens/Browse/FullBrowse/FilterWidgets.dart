@@ -15,8 +15,8 @@ class TesterFilter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10.h),
-      margin: EdgeInsets.only(bottom: 10.h),
+      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.only(bottom: 5),
       child: Column(
         children: [
           filterGroups(context),
@@ -106,16 +106,17 @@ class TesterFilter extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          flex: 3,
+          flex: 4,
           child: Text(
             "$title",
             style: notInLibraryFont,
+            // maxLines: 1,
           ),
         ),
         Expanded(
-          flex: 7,
+          flex: 6,
           child: Container(
-            alignment: Alignment.centerRight,
+            // alignment: Alignment.centerRight,
             child: InkWell(
               onTap: () => Navigator.push(
                 context,
@@ -127,7 +128,9 @@ class TesterFilter extends StatelessWidget {
                 ),
               ),
               child: Text(
-                (Provider.of<BrowseProvider>(context).data["$selector"].length ==
+                (Provider.of<BrowseProvider>(context)
+                            .data["$selector"]
+                            .length ==
                         0)
                     ? "Select"
                     : "${Provider.of<BrowseProvider>(context).data["$selector"].map((element) => element.name).join(", ")}",
@@ -135,6 +138,7 @@ class TesterFilter extends StatelessWidget {
                   color: Colors.purple,
                   fontSize: 20,
                 ),
+                textAlign: TextAlign.end,
                 softWrap: true,
               ),
             ),
@@ -195,7 +199,7 @@ class _MultiSelectState extends State<MultiSelect> {
                   },
                 ),
                 SizedBox(
-                  width: 10.w,
+                  width: 10,
                 ),
                 InkWell(
                   child: Center(

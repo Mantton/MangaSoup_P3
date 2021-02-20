@@ -22,9 +22,8 @@ class SoupImage extends StatelessWidget {
         imageUrl: (!url.contains("https:https:"))
             ? url
             : url.replaceFirst("https:", ""),
-        // memCacheHeight: 150,
-        // memCacheWidth: 100,
-        httpHeaders: {"referer": referer ?? imageHeaders(url)},
+        httpHeaders:
+            referer != null ? {"referer": referer ?? imageHeaders(url)} : null,
         placeholder: (context, url) => Center(
           child: CupertinoActivityIndicator(
             radius: 10.w,
@@ -43,34 +42,30 @@ class SoupImage extends StatelessWidget {
   }
 }
 
-class GalleryViewer extends StatefulWidget {
+class GalleryViewer extends StatelessWidget {
   final List images;
 
   const GalleryViewer({Key key, this.images}) : super(key: key);
 
-  @override
-  _GalleryViewerState createState() => _GalleryViewerState();
-}
-
-class _GalleryViewerState extends State<GalleryViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Preview"),
         centerTitle: true,
+        backgroundColor: Colors.black45,
       ),
       body: Container(
         child: PhotoViewGallery.builder(
           // scrollPhysics:  BouncingScrollPhysics(),
           builder: (BuildContext context, int index) {
             return PhotoViewGalleryPageOptions(
-              imageProvider: CachedNetworkImageProvider(widget.images[index]),
+              imageProvider: CachedNetworkImageProvider(images[index]),
               initialScale: PhotoViewComputedScale.covered * 0.8,
               heroAttributes: PhotoViewHeroAttributes(tag: "MangaSoup"),
             );
           },
-          itemCount: widget.images.length,
+          itemCount: images.length,
           loadingBuilder: (context, event) => Center(
             child: Container(
               width: 40.0.w,

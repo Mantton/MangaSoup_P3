@@ -30,6 +30,12 @@ class ComicCollectionQueries {
     return collections;
   }
 
+  updateComicCollection(ComicCollection collection) async {
+    await db.update(ComicCollectionTable.TABLE, collection.toMap(),
+        where: "${ComicCollectionTable.COL_ID} = ?",
+        whereArgs: [collection.id]);
+  }
+
   // for specific collection
   Future<List<ComicCollection>> getForCollection({int id}) async {
     List<Map> queryMap = await db.query(ComicCollectionTable.TABLE,

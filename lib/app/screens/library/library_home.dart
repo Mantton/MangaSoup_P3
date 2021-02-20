@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
+import 'package:mangasoup_prototype_3/Components/HighlightList.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
@@ -9,7 +10,8 @@ import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/enums/collection_sort.dart';
-import 'package:mangasoup_prototype_3/app/screens/library/libary_order.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
+import 'package:mangasoup_prototype_3/app/dialogs/library_options_dialog.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/library_search.dart';
 import 'package:provider/provider.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
@@ -81,14 +83,8 @@ class _LibraryHomeState extends State<LibraryHome>
               ),
             ),
             IconButton(
-              icon: Icon(CupertinoIcons.square_favorites),
-              onPressed: () => Navigator.push(
-                context,
-                CupertinoPageRoute(
-                  builder: (_) => LibraryOrderManagerPage(),
-                  fullscreenDialog: true,
-                ),
-              ),
+              icon: Icon(CupertinoIcons.square_stack_3d_up),
+              onPressed: () => libraryOptionsDialog(context: context),
             ),
           ],
           bottom: TabBar(
@@ -265,23 +261,30 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
                               textAlign: TextAlign.center,
                             ),
                             onTap: () =>
-                                idg(widget.collection, widget.provider),
-                          )
-                        ],
+                                  idg(widget.collection, widget.provider),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ];
-          },
-          body: Container(
-            child: ComicGrid(
-              comics:
-                  widget.collectionComics.map((e) => e.toHighlight()).toList(),
-            ),
-          ),
-        ),
+              ];
+            },
+            body: Container(
+              child:
+                  Provider.of<PreferenceProvider>(context).libraryViewMode == 1
+                      ? ComicGrid(
+                          comics: widget.collectionComics
+                              .map((e) => e.toHighlight())
+                              .toList(),
+                        )
+                      : ComicList(
+                          comics: widget.collectionComics
+                              .map((e) => e.toHighlight())
+                              .toList(),
+                        ),
+            )),
       ],
     );
   }

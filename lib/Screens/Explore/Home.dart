@@ -72,6 +72,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       context,
                       MaterialPageRoute(
                         builder: (_) => AllTagsPage(),
+                        maintainState: true,
                       ),
                     )),
             IconButton(
@@ -80,6 +81,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 context,
                 MaterialPageRoute(
                   builder: (_) => BrowsePage(),
+                  maintainState: true,
                 ),
               ),
             ),
@@ -89,6 +91,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 context,
                 MaterialPageRoute(
                   builder: (_) => SearchPage(),
+                  maintainState: true,
                 ),
               ),
             ),
@@ -123,6 +126,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     _index = value;
                   });
                 },
+                isScrollable: false,
                 tabs: <Widget>[
                   Tab(
                     text: "For You",
@@ -138,8 +142,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             ),
           ),
         ),
-        body: IndexedStack(
-          index: _index,
+        body: TabBarView(
+          controller: _controller,
+          physics: NeverScrollableScrollPhysics(),
           children: [
             ForYouPage(),
             AllComicsPage(),

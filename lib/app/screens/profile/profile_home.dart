@@ -46,7 +46,9 @@ class _ProfileHomeState extends State<ProfileHome>
               children: [
                 ProfileGateWay(widget.highlight),
                 DiscussionHome(),
-                TrackingHome(),
+                TrackingHome(
+                  highlight: widget.highlight,
+                ),
               ],
             ),
           ),
@@ -54,5 +56,5 @@ class _ProfileHomeState extends State<ProfileHome>
   }
 
   @override
-  bool get wantKeepAlive => false;
+  bool get wantKeepAlive => true;
 }

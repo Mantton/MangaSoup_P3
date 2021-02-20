@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
@@ -7,6 +8,7 @@ import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/comic_rating.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/profile_bookmarks.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/tag_widget.dart';
@@ -14,8 +16,6 @@ import 'package:mangasoup_prototype_3/app/screens/profile/widgets/content_previe
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:mangasoup_prototype_3/app/widgets/comic_collection_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 
 class GenericProfilePage extends StatefulWidget {
   final Profile profile;
@@ -72,6 +72,11 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                       ProfileContentPreview(
                         profile: widget.profile,
                         comicId: widget.comicId,
+                        history: Provider.of<DatabaseProvider>(context)
+                            .historyList
+                            .firstWhere(
+                                (element) => element.comicId == widget.comicId,
+                                orElse: () => null),
                       )
                       // (profile.altTitles != null)
                       //     ? alternativeTitles()
@@ -89,7 +94,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
         children: [
           Container(
             margin: EdgeInsets.only(top: 10, left: 10),
-            width: 180,
+            width: 200,
             height: 250,
             child: SoupImage(
               url: widget.profile.thumbnail,
@@ -416,7 +421,8 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                       ? BoxConstraints()
                       : BoxConstraints(maxHeight: 50.0),
                   child: Text(
-                    widget.profile.description,
+                    widget.profile.description +
+                        "\nALTERNATE TITLES: ${widget.profile.altTitles.toString()}",
                     softWrap: true,
                     overflow: TextOverflow.fade,
                     style: TextStyle(color: Colors.grey, fontSize: 15),

@@ -5,16 +5,21 @@ import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/mal_track_result.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/bookmark_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/chapter_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic-collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/history_queries.dart';
+import 'package:mangasoup_prototype_3/app/data/database/queries/track_queries.dart';
+import 'package:mangasoup_prototype_3/app/data/enums/mal.dart';
+import 'package:mangasoup_prototype_3/app/services/track/myanimelist/mal_api_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -30,6 +35,7 @@ class DatabaseProvider with ChangeNotifier {
   List<ComicCollection> comicCollections = List();
   List<ChapterData> chapters = List();
   List<BookMark> bookmarks = List();
+  List<Tracker> comicTrackers = List();
   Database _db;
 
   // Query Managers
@@ -39,6 +45,7 @@ class DatabaseProvider with ChangeNotifier {
   ComicCollectionQueries comicCollectionManager;
   ChapterQuery chapterManager;
   BookMarkQuery bookmarkManager;
+  TrackQuery trackerManager;
 
   // init
 
@@ -51,6 +58,7 @@ class DatabaseProvider with ChangeNotifier {
     comicCollectionManager = ComicCollectionQueries(_db);
     chapterManager = ChapterQuery(_db);
     bookmarkManager = BookMarkQuery(_db);
+    trackerManager = TrackQuery(_db);
     // Load Data into Provider Variables
     comics = await comicManager.getAll();
     collections = await collectionManager.getCollections();
@@ -58,6 +66,7 @@ class DatabaseProvider with ChangeNotifier {
     comicCollections = await comicCollectionManager.getAll();
     chapters = await chapterManager.getAll();
     bookmarks = await bookmarkManager.getAllBookMarks();
+    comicTrackers = await trackerManager.getTrackers();
     print("Database Provider Successfully Initialized");
     notifyListeners();
   }
@@ -294,6 +303,24 @@ class DatabaseProvider with ChangeNotifier {
     int index = comics.indexOf(retrieved);
     comics[index] = retrieved;
     // Notify
+    notifyListeners();
+  }
+
+  deleteFromLibrary(List<Comic> toDelete) async {
+    // delete comic collections object
+    // update comic collection database
+    await comicCollectionManager.deleteForComic(toDelete);
+    comicCollections = await comicCollectionManager.getAll();
+    // update comic object
+
+    // update comic database
+    for (Comic comic in toDelete) {
+      comic.inLibrary = false;
+      comic.updateCount = 0;
+      await comicManager.updateComic(comic);
+      int pointer = comics.indexWhere((element) => element.id == comic.id);
+      comics[pointer] = comic;
+    }
     notifyListeners();
   }
 
@@ -541,5 +568,101 @@ class DatabaseProvider with ChangeNotifier {
   bool checkIfBookMarked(BookMark mark) {
     return bookmarks.any((element) =>
         element.page == mark.page && element.chapterLink == mark.chapterLink);
+  }
+
+  deleteCollection(Collection collection) async {
+    // Get Comic collections where it matches
+    List<ComicCollection> pointers = comicCollections
+        .where((element) => element.collectionId == collection.id)
+        .toList();
+
+    for (ComicCollection pointer in pointers) {
+      // Check if this is the only collection attributed to the comic
+      if (comicCollections
+              .where((element) => element.comicId == pointer.comicId)
+              .length >
+          1) {
+        // Comic is in multiple collections, safe to delete
+        comicCollections.remove(pointer);
+        await comicCollectionManager.deleteComicCollection(pointer);
+      } else {
+        // Move Comic to default.
+        pointer.collectionId = 1;
+        int target =
+            comicCollections.indexWhere((element) => element.id == pointer.id);
+        comicCollections[target] = pointer;
+        await comicCollectionManager.updateComicCollection(pointer);
+      }
+    }
+
+    // Delete from Provider Object
+    collections.removeWhere((element) => element.id == collection.id);
+    await collectionManager.deleteCollection(collection);
+    notifyListeners();
+  }
+
+  /// TRACKER
+  addTracker(var result, int comicID) async {
+    Tracker tracker = Tracker(comicId: comicID);
+    print("$comicID is the incoming comic id");
+    tracker.comicId = comicID;
+
+    if (result is MALDetailedTrackResult) {
+      print("MAL TRACKER");
+      MALDetailedTrackResult r = result;
+      // MY ANIME LIST
+      tracker.trackerType = 2; // 2 for MAL
+      tracker.title = r.title;
+      tracker.mediaId = r.id;
+      tracker.totalChapters = r.chapterCount;
+      if (r.userStatus != null) {
+        tracker.lastChapterRead = r.userStatus.chaptersRead;
+        tracker.status = getMALStatus(r.status);
+        tracker.score = r.userStatus.score;
+
+        try {
+          tracker.dateEnded = DateTime.parse(r.userStatus.endDate);
+          tracker.dateStarted = DateTime.parse(r.userStatus.startDate);
+        } catch (err) {}
+      } else {
+        tracker.status = MALTrackStatus.reading;
+      }
+    }
+    print("saving & adding");
+    tracker = await trackerManager.addTracker(tracker);
+    comicTrackers.add(tracker);
+    notifyListeners();
+    print("done");
+    print(tracker.toMap());
+  }
+
+  Future<void> deleteTracker(Tracker tracker) async {
+    await trackerManager.deleteTracker(tracker);
+    comicTrackers.remove(tracker);
+    notifyListeners();
+  }
+
+  Future<void> updateTracker(Tracker tracker) async {
+    if (tracker.trackerType == 2) {
+      /// MAL
+      try {
+        // API UPDATE
+        await MALManager().updateTracker(tracker);
+        trackerManager.updateTracker(tracker);
+        int target =
+            comicTrackers.indexWhere((element) => element.id == tracker.id);
+        comicTrackers[target] = tracker;
+        notifyListeners();
+      } catch (err) {
+        ErrorManager.analyze(err);
+      }
+    }
+  }
+
+  Future<void> deleteAllTrackers() async {
+    for (Tracker t in comicTrackers) {
+      await trackerManager.deleteTracker(t);
+    }
+    comicTrackers.clear();
   }
 }

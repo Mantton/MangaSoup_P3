@@ -16,14 +16,14 @@ import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HistoryHome extends StatefulWidget {
   @override
   _HistoryHomeState createState() => _HistoryHomeState();
 }
 
-class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClientMixin {
+class _HistoryHomeState extends State<HistoryHome>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -55,7 +55,7 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
                 print(provider.chapters.map((e) => e.id).toList());
               }
               return GestureDetector(
-                onTap: (){
+                onTap: () {
                   print(comic.title);
                   Navigator.push(
                     context,
@@ -63,14 +63,15 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
                       builder: (_) => ProfileHome(
                         highlight: comic.toHighlight(),
                       ),
+                      maintainState: true,
                     ),
                   );
                 },
                 child: Container(
                   color: Color.fromRGBO(15, 15, 15, 1.0),
-                  height: 110.h,
-                  margin: EdgeInsets.only(bottom: 5.w),
-                  padding: EdgeInsets.all(5.w),
+                  height: 115,
+                  margin: EdgeInsets.only(bottom: 5),
+                  padding: EdgeInsets.all(5),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -90,7 +91,7 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
                       Expanded(
                         flex: 7,
                         child: Container(
-                          margin: EdgeInsets.only(left: 2.w),
+                          margin: EdgeInsets.only(left: 2),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,7 +111,9 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
                                   AutoSizeText(
                                     "Chapter ${chapter.generatedChapterNumber}${chapter.lastPageRead == null || chapter.lastPageRead == 0 ? "" : ", Page ${chapter.lastPageRead}"}",
                                     style: TextStyle(
-                                        color: Colors.blueGrey, fontSize: 15),
+                                      color: Colors.blueGrey,
+                                      fontSize: 15,
+                                    ),
                                   ),
                                   AutoSizeText(
                                     comic.source,
@@ -145,10 +148,11 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
                                   CupertinoIcons.play_arrow,
                                   color: Colors.greenAccent,
                                 ),
-                                onPressed: () async=> await pushToReader(comic, chapter),
+                                onPressed: () async =>
+                                    await pushToReader(comic, chapter),
                               ),
                               SizedBox(
-                                width: 5.w,
+                                width: 5,
                               ),
                               IconButton(
                                 icon: Icon(
@@ -171,28 +175,31 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
       ),
     );
   }
-  pushToReader(Comic comic, ChapterData chapterData)async{
-    try{
+
+  pushToReader(Comic comic, ChapterData chapterData) async {
+    try {
       showLoadingDialog(context);
 
-      Map data = await Provider.of<DatabaseProvider>(context, listen: false).generate(comic.toHighlight());
+      Map data = await Provider.of<DatabaseProvider>(context, listen: false)
+          .generate(comic.toHighlight());
       Profile profile = data['profile'];
       int id = data['id'];
-      int index  = 0 ;
+      int index = 0;
       List<Chapter> chapters = List();
-      if (profile.chapters!= null){
-        index =  profile.chapters.indexWhere((element) => element.link == chapterData.link);
-       chapters = profile.chapters;
-      }else {
-        Chapter chapter = Chapter(
-            "Chapter 1", profile.link, "", profile.selector);
+      if (profile.chapters != null) {
+        index = profile.chapters
+            .indexWhere((element) => element.link == chapterData.link);
+        chapters = profile.chapters;
+      } else {
+        Chapter chapter =
+            Chapter("Chapter 1", profile.link, "", profile.selector);
         chapter.generatedNumber = 1.0;
         chapters.add(chapter);
       }
 
       ImageChapter imageChapter = ImageChapter(
-        images:  (chapterData.images)?.map((item) => item as String)?.toList(),
-        referer:profile.link,
+        images: (chapterData.images)?.map((item) => item as String)?.toList(),
+        referer: profile.link,
         link: profile.link,
         source: profile.selector,
         count: chapterData.images.length,
@@ -201,24 +208,24 @@ class _HistoryHomeState extends State<HistoryHome> with AutomaticKeepAliveClient
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_) => ReaderHome(
-              chapters:chapters,
-              initialChapterIndex: index,
-              selector:profile.selector,
-              source: profile.source,
-              comicId: id,
-              preloaded: true,
-              preloadedChapter: imageChapter,
-              initialPage: chapterData.lastPageRead,
-            ),
+          builder: (_) => ReaderHome(
+            chapters: chapters,
+            initialChapterIndex: index,
+            selector: profile.selector,
+            source: profile.source,
+            comicId: id,
+            preloaded: true,
+            preloadedChapter: imageChapter,
+            initialPage: chapterData.lastPageRead,
+          ),
         ),
       );
-    }catch(err){
+    } catch (err) {
       Navigator.pop(context);
       showSnackBarMessage(err.toString());
     }
-
   }
+
   Widget emptyLibrary() {
     return Scaffold(
       appBar: AppBar(

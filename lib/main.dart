@@ -150,13 +150,13 @@ Future<void> main() async {
   );
 }
 
-class App extends StatefulWidget {
-  @override
-  _AppState createState() => _AppState();
-}
+// class App extends StatefulWidget {
+//   @override
+//   _AppState createState() => _AppState();
+// }
 
-class _AppState extends State<App> {
-  Brightness brightness = Brightness.dark;
+class App extends StatelessWidget {
+  final Brightness brightness = Brightness.dark;
 
   @override
   Widget build(BuildContext context) {
@@ -177,14 +177,6 @@ class _AppState extends State<App> {
       scaffoldBackgroundColor: Colors.black,
     );
 
-    // Example of optionally setting the platform upfront.
-    //final initialPlatform = TargetPlatform.iOS;
-
-    // If you mix material and cupertino widgets together then you cam
-    // set this setting. Will mean ios darmk mode to not to work properly
-    //final settings = PlatformSettingsData(iosUsesMaterialWidgets: true);
-
-    // This theme is required since icons light/dark mode will look for it
     return Theme(
       data: brightness == Brightness.light ? materialTheme : materialDarkTheme,
       child: PlatformProvider(
@@ -259,13 +251,13 @@ class Handler extends StatefulWidget {
   _HandlerState createState() => _HandlerState();
 }
 
-class _HandlerState extends State<Handler> {
+class _HandlerState extends State<Handler> with AutomaticKeepAliveClientMixin {
   Future<bool> initSource() async {
     debugPrint("Start Up");
 
     // Initialize Data Providers
-    await Provider.of<DatabaseProvider>(context, listen:false).init();
-    await Provider.of<PreferenceProvider>(context, listen:false).loadValues();
+    await Provider.of<DatabaseProvider>(context, listen: false).init();
+    await Provider.of<PreferenceProvider>(context, listen: false).loadValues();
     SourcePreference _prefs = SourcePreference();
     await _prefs.init();
 
@@ -316,4 +308,7 @@ class _HandlerState extends State<Handler> {
             );
         });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

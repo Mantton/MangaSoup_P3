@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'keys.dart';
 
 class PreferenceProvider with ChangeNotifier {
@@ -13,7 +14,7 @@ class PreferenceProvider with ChangeNotifier {
 
   Future<bool> loadValues() async {
     // Initialize Values or Load Defaults
-    SharedPreferences _p = await _preferences();
+    SharedPreferences _p = await preferences();
 
     /// READER
     readerMode = _p.getInt(PreferenceKeys.READER_MODE) ?? 1;
@@ -24,12 +25,19 @@ class PreferenceProvider with ChangeNotifier {
     readerPageSnapping = _p.getBool(PreferenceKeys.MANGA_SNAPPING) ?? true;
     comicGridCrossAxisCount =
         _p.getInt(PreferenceKeys.COMIC_GRID_CROSS_AXIS_COUNT) ?? 3;
-    scaleToMatchIntended = _p.getBool(PreferenceKeys.SCALE_GRID_TO_MATCH_INTENDED) ?? true;
+    scaleToMatchIntended =
+        _p.getBool(PreferenceKeys.SCALE_GRID_TO_MATCH_INTENDED) ?? true;
+    maxScrollVelocity = _p.getDouble(PreferenceKeys.WEBTOON_MSV) ?? 8500.0;
+    showUnreadCount =
+        _p.getBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT) ?? false;
+    libraryViewMode = _p.getInt(PreferenceKeys.LIBRARY_VIEW_TYPE) ?? 1;
+    readerBGColor = _p.getInt(PreferenceKeys.READER_BG_COLOR) ?? 0;
+    malAutoSync = _p.getBool(PreferenceKeys.MAL_AUTO_SYNC) ?? true;
     notifyListeners();
     return true;
   }
 
-  Future<SharedPreferences> _preferences() async {
+  Future<SharedPreferences> preferences() async {
     if (_prefs != null)
       return _prefs;
     else {
@@ -50,7 +58,7 @@ class PreferenceProvider with ChangeNotifier {
   /// 2 - Webtoon
   Map readerModeOptions = {1: "Paged / Manga", 2: "WebToon"};
   setReaderMode(int mode) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     readerMode = mode;
     p.setInt(PreferenceKeys.READER_MODE, mode);
     notifyListeners();
@@ -62,7 +70,7 @@ class PreferenceProvider with ChangeNotifier {
   Map readerScrollDirectionOptionsHorizontal = {1: "Left to Right", 2: "Right to Left"};
   Map readerScrollDirectionOptionsVertical = {1: "Downward Swipe", 2: "Upward Swipe"};
   setReaderScrollDirection(int mode) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     readerScrollDirection = mode;
     p.setInt(PreferenceKeys.READER_SCROLL_DIRECTION, mode);
     notifyListeners();
@@ -73,7 +81,7 @@ class PreferenceProvider with ChangeNotifier {
   /// 2 - Vertical
   Map readerOrientationOptions = {1: "Horizontal", 2: "Vertical"};
   setReaderOrientation(int mode) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     readerOrientation = mode;
     p.setInt(PreferenceKeys.MANGA_ORIENTATION, mode);
     notifyListeners();
@@ -83,10 +91,27 @@ class PreferenceProvider with ChangeNotifier {
   /// true - enable padding
   /// false - disable padding
   Map readerPaddingOptions = {true: "Enabled", false: "Disabled"};
+
   setReaderPadding(bool padding) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     readerPadding = padding;
     p.setBool(PreferenceKeys.MANGA_PADDING, padding);
+    notifyListeners();
+  }
+
+  Map readerBGColorOptions = {
+    0: "Black",
+    1: "White",
+    2: "Grey",
+    3: "Dark Grey",
+    4: "Purple"
+  };
+  int readerBGColor;
+
+  setReaderBGColor(int option) async {
+    SharedPreferences p = await preferences();
+    readerBGColor = option;
+    p.setInt(PreferenceKeys.READER_BG_COLOR, option);
     notifyListeners();
   }
 
@@ -94,8 +119,9 @@ class PreferenceProvider with ChangeNotifier {
   /// true - enable padding
   /// false - disable padding
   Map readerPageSnappingOptions = {true: "Enabled", false: "Disabled"};
+
   setReaderPageSnapping(bool padding) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     readerPageSnapping = padding;
     p.setBool(PreferenceKeys.MANGA_SNAPPING, padding);
     notifyListeners();
@@ -107,7 +133,7 @@ class PreferenceProvider with ChangeNotifier {
   int comicGridCrossAxisCount;
 
   setCrossAxisCount(int count) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     comicGridCrossAxisCount = count;
     p.setInt(PreferenceKeys.COMIC_GRID_CROSS_AXIS_COUNT, count);
     notifyListeners();
@@ -115,18 +141,68 @@ class PreferenceProvider with ChangeNotifier {
 
   /// SCALE TO MATCH INTENDED LOOL
   bool scaleToMatchIntended;
+
   setSTMI(bool stmi) async {
-    SharedPreferences p = await _preferences();
+    SharedPreferences p = await preferences();
     scaleToMatchIntended = stmi;
     p.setBool(PreferenceKeys.SCALE_GRID_TO_MATCH_INTENDED, stmi);
     notifyListeners();
   }
 
+  /// WEBTOON READER SCROLL VELOCITY
+  Map webtoonMaxScrollVelocityOption = {
+    2500.0: "2500",
+    4500.0: "4500",
+    6500.0: "6500",
+    8500.0: "8500",
+  };
+  double maxScrollVelocity;
+
+  setMSV(double v) async {
+    SharedPreferences p = await preferences();
+    maxScrollVelocity = v;
+    p.setDouble(PreferenceKeys.WEBTOON_MSV, v);
+    notifyListeners();
+  }
+
+  /// Library View Type
+  int libraryViewMode;
+
+  setLibraryViewMode(int mode) async {
+    SharedPreferences p = await preferences();
+    libraryViewMode = mode;
+    p.setInt(PreferenceKeys.LIBRARY_VIEW_TYPE, mode);
+    notifyListeners();
+  }
+
+  /// SHOW UNREAD CHAPTER COUNT
+  bool showUnreadCount;
+
+  setSURCM(bool surcm) async {
+    // SURCM = Show UnRead Count Mode
+    SharedPreferences p = await preferences();
+    scaleToMatchIntended = surcm;
+    p.setBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT, surcm);
+    notifyListeners();
+  }
+
+  bool malAutoSync;
+
+  setMALAutoSync(bool sync) async {
+    // SURCM = Show UnRead Count Mode
+    SharedPreferences p = await preferences();
+    malAutoSync = sync;
+    p.setBool(PreferenceKeys.MAL_AUTO_SYNC, sync);
+    notifyListeners();
+  }
+
   /// Functions
-  List<DropdownMenuItem> buildItems(Map pref) => pref.entries.map(
+  List<DropdownMenuItem> buildItems(Map pref) => pref.entries
+      .map(
         (e) => DropdownMenuItem(
           child: Text(e.value),
           value: e.key,
         ),
-      ).toList();
+      )
+      .toList();
 }

@@ -1,16 +1,18 @@
 import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
+import 'package:html_unescape/html_unescape.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
-import 'package:html_unescape/html_unescape.dart';
 import 'package:mangasoup_prototype_3/app/data/mangadex/models/mangadex_profile.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -132,7 +134,6 @@ class DexHub {
 
   Future<List<ComicHighlight>> get(
       String sort, int page, Map additionalInfo) async {
-
     String url = baseURL + '/titles/9/$page/?s=$sort#listing';
     Dio _dio = Dio();
     Map<String, dynamic> browseHeaders = prepareHeaders(additionalInfo);
@@ -170,7 +171,6 @@ class DexHub {
 
   Future<List<ComicHighlight>> getTagComics(
       String sort, int page, var link, Map additionalInfo) async {
-
     String url = baseURL +
         '/genre/$link/${tagsDict[link].toString().replaceAll(" ", "-")}/${sort.isNotEmpty ? sort : "9"}/$page';
 
@@ -328,17 +328,22 @@ class DexHub {
   }
 
   Future<List<ComicHighlight>> browse(Map userQuery, Map additionalInfo) async {
+    if (additionalInfo["cookies"] == null) throw MissingMangaDexSession;
     List inc = userQuery['included_tags'] ?? [];
     List exc = userQuery['excluded_tags'] ?? [];
     String included = inc.map((e) => "$e").join(",");
     String excluded = exc.map((e) => "-$e").join(",");
+    int sort = userQuery['sort_type'] ?? 9;
+    int ascDesc = userQuery['sort_order'] ?? 0;
+    sort = sort - ascDesc; // See API docs to understand this better
     Map<String, dynamic> params = {
       "title": userQuery['title'],
       "artist": userQuery['artist'],
       "author": userQuery['author'],
       "tag_mode_exc": "any",
       "tag_mode_inc": "any",
-      "tags": included + excluded
+      "tags": included + excluded,
+      "s": sort,
     };
     String url = baseURL + '/search';
     Dio _dio = Dio();
@@ -350,7 +355,10 @@ class DexHub {
         //
         options: Options(headers: prepareHeaders(additionalInfo)),
       );
+
+      // print(response.request.uri);
       String responseHeaders = response.headers.map.toString();
+      // Session
       if (responseHeaders.contains("mangadex_session=deleted")) {
         SharedPreferences _prefs = await SharedPreferences.getInstance();
         _prefs
@@ -425,12 +433,20 @@ class DexHub {
     int saverMode = info['saver'];
     String imageAPI = "https://mangadex.org/api/v2/chapter/";
     // print(imageAPI + link);
-
     /// https://mangadex.org/api/v2//chapter/1100871?saver=1
-    Response response = await _dio.get(
-      imageAPI + link,
-      queryParameters: {"saver": saverMode},
-    );
+    Response response;
+    try {
+      response = await _dio.get(imageAPI + link,
+          queryParameters: {"saver": saverMode},
+          options: Options(headers: prepareHeaders(info)));
+    } catch (err) {
+      if (err is DioError) {
+        DioError e = err;
+        print(e.response.data);
+        throw "Restricted Manga\nContact MangaDex Staff or Discord for more information";
+      } else
+        throw "Restricted Manga\nContact MangaDex Staff or Discord for more information";
+    }
 
     // Variables
     List<String> images = List();
@@ -535,6 +551,5 @@ class DexHub {
     await Dio().post(apiV2URL + "/user/me/marker",
         options: Options(headers: headers),
         data: {"chapters": ids, "read": read});
-    print("MangaDex Chapter Sync Complete");
   }
 }

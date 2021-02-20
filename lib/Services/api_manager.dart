@@ -289,7 +289,7 @@ class ApiManager {
     return DexHub().getUserLibrary(additionalParams);
   }
 
-  void syncChapters(List<String> links, bool read) async {
+  Future<void> syncChapters(List<String> links, bool read) async {
     Map additionalParams = await prepareAdditionalInfo("mangadex");
     List<int> ids = List();
     try {

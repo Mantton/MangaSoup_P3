@@ -24,32 +24,38 @@ class _ComicGridState extends State<ComicGrid>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Consumer<PreferenceProvider>(builder: (context, settings, _) {
-      return Padding(
-        padding: EdgeInsets.all(4.0),
-        child: GridView.builder(
-          physics: ScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: settings.scaleToMatchIntended ?settings.comicGridCrossAxisCount.w.toInt():MediaQuery.of(context).orientation.index == 0?
-                widget.crossAxisCount ?? settings.comicGridCrossAxisCount: 5,
-            crossAxisSpacing: 7,
-            mainAxisSpacing: 15,
-            childAspectRatio: settings.comicGridCrossAxisCount >= 4
-                ? (50 / 100)
-                : (58 / 100),
+    return RepaintBoundary(
+      child: Consumer<PreferenceProvider>(builder: (context, settings, _) {
+        return Padding(
+          padding: EdgeInsets.all(4.0),
+          child: GridView.builder(
+            physics: ScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: settings.scaleToMatchIntended
+                  ? settings.comicGridCrossAxisCount.w.toInt()
+                  : MediaQuery.of(context).orientation.index == 0
+                      ? widget.crossAxisCount ??
+                          settings.comicGridCrossAxisCount
+                      : 5,
+              crossAxisSpacing: 7,
+              mainAxisSpacing: 15,
+              childAspectRatio: settings.comicGridCrossAxisCount >= 4
+                  ? (50 / 100)
+                  : (58 / 100),
+            ),
+            shrinkWrap: true,
+            itemCount: widget.comics.length,
+            itemBuilder: (BuildContext context, index) => ComicGridTile(
+              comic: widget.comics[index],
+            ),
           ),
-          shrinkWrap: true,
-          itemCount: widget.comics.length,
-          itemBuilder: (BuildContext context, index) => ComicGridTile(
-            comic: widget.comics[index],
-          ),
-        ),
-      );
-    });
+        );
+      }),
+    );
   }
 
   @override
-  bool get wantKeepAlive => false;
+  bool get wantKeepAlive => true;
 }
 
 class ComicGridTile extends StatelessWidget {
@@ -82,49 +88,44 @@ class ComicGridTile extends StatelessWidget {
                     borderRadius: BorderRadius.all(
                       Radius.circular(10.0),
                     ),
-                    child: Container(
-                      // width: 300.w,
-                      child: SoupImage(
-                        url: comic.thumbnail,
-                        referer: comic.imageReferer,
-                        // fit: BoxFit.fitWidth,
-                      ),
+                    child: SoupImage(
+                      url: comic.thumbnail,
+                      referer: comic.imageReferer,
+                      // fit: BoxFit.fitWidth,
                     ),
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.all(5.0),
-                  child: SizedBox(
-                    child: AutoSizeText(
-                      comic.title,
-                      style: TextStyle(
-                        fontFamily: "Lato",
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                        shadows: <Shadow>[
-                          Shadow(
-                            offset: Offset(1.0, 1.0),
-                            blurRadius: 7.0,
-                            color: Colors.black,
-                          ),
-                          Shadow(
-                            offset: Offset(2.0, 2.0),
-                            blurRadius: 3.0,
-                            color: Colors.black,
-                          )
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
-                      maxLines: 2,
-                      minFontSize: 12,
-                      maxFontSize: 20,
-
-                      // maxFontSize: 40,
-                      // stepGranularity: 2,
+                  padding: EdgeInsets.all(5.0),
+                  child: AutoSizeText(
+                    comic.title,
+                    style: TextStyle(
+                      fontFamily: "Lato",
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      // fontSize: 17,
+                      shadows: <Shadow>[
+                        Shadow(
+                          offset: Offset(1.0, 1.0),
+                          blurRadius: 7.0,
+                          color: Colors.black,
+                        ),
+                        Shadow(
+                          offset: Offset(2.0, 2.0),
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                        )
+                      ],
                     ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    maxLines: 2,
+
+                    presetFontSizes: [17, 15],
+
+                    // maxFontSize: 40,
+                    // stepGranularity: 2,
                   ),
                 ),
               ],

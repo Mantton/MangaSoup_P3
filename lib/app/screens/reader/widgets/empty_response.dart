@@ -7,14 +7,14 @@ class EmptyResponsePage extends StatelessWidget {
     return Container(
       child: Center(
         child: InkWell(
-          onTap: ()=>Navigator.pop(context),
+          onTap: () => Navigator.pop(context),
           child: Text(
-            "An Error Occurred\nMangaSoup Returned No Images with a successful response\nTap to close reader"
-                ,
+            "An Error Occurred\nMangaSoup returned no images with a successful"
+            " response, contact devs for help\nTap to close reader",
             style: notInLibraryFont,
+            textAlign: TextAlign.center,
           ),
         ),
-
       ),
     );
   }

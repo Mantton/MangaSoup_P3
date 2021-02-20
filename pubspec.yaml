@@ -54,7 +54,8 @@ dependencies:
   webview_flutter: ^1.0.7
   html_unescape: ^1.0.2
   flutter_launcher_icons: ^0.8.1
-#  scrollable_positioned_list: ^0.1.9
+  flutter_cache_manager: ^2.1.1
+  #  scrollable_positioned_list: ^0.1.9
   scrollable_positioned_list:
     git:
       url: https://github.com/mig35/flutter.widgets
@@ -62,6 +63,8 @@ dependencies:
       path: packages/scrollable_positioned_list
   flutter_rating_bar: ^3.2.0+1
   cupertino_icons: ^1.0.0
+  crypto: ^2.1.5
+
 dependency_overrides:
   collection: ^1.14.13
 dev_dependencies:

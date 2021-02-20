@@ -25,7 +25,8 @@ class ForYouPage extends StatefulWidget {
   _ForYouPageState createState() => _ForYouPageState();
 }
 
-class _ForYouPageState extends State<ForYouPage> {
+class _ForYouPageState extends State<ForYouPage>
+    with AutomaticKeepAliveClientMixin {
   Future<List<HomePage>> pages;
 
   Future<List<HomePage>> getPages() async {
@@ -134,4 +135,7 @@ class _ForYouPageState extends State<ForYouPage> {
           }
         });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

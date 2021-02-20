@@ -1,11 +1,16 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_view_holder.dart';
@@ -39,6 +44,7 @@ class ReaderProvider with ChangeNotifier {
   bool reachedEnd = false;
   bool imgur = false;
   int initialPageIndex = 1;
+  bool chapterSynced = false;
 
   Future init(
       List<Chapter> incomingChapters,
@@ -67,8 +73,12 @@ class ReaderProvider with ChangeNotifier {
     initialPageIndex = initPage - 1;
     pageDisplayNumber = initPage;
     if (!imgur) {
-      await Provider.of<DatabaseProvider>(context, listen: false)
-          .historyLogic(chapter, comicId, source, selector);
+      await Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
+        chapter,
+        comicId,
+        source,
+        selector,
+      );
       print("History Initialized");
     }
 
@@ -80,18 +90,22 @@ class ReaderProvider with ChangeNotifier {
     firstChapter.generatedNumber = chapter.generatedNumber;
     firstChapter.index = initialIndex;
 
+    ImageChapter response;
+    try {
+      // Get Images
+      response = !loaded
+          ? await ApiManager().getImages(selector, chapter.link)
+          : loadedChapter;
+    } catch (err) {
+      ErrorManager.analyze(err);
+    }
 
-
-    // Get Images
-    ImageChapter response = !loaded
-        ? await ApiManager().getImages(selector, chapter.link)
-        : loadedChapter;
     try {
       await Provider.of<DatabaseProvider>(context, listen: false)
           .updateChapterImages(chapter, response.images);
       print("Images set for ${chapter.name}");
       await Provider.of<DatabaseProvider>(context, listen: false)
-          .updateChapterInfo(1, chapter);
+          .updateChapterInfo(initPage, chapter);
     } catch (err) {
       print("IMAGE ERROR: $err");
     }
@@ -124,6 +138,7 @@ class ReaderProvider with ChangeNotifier {
       );
       widgetPageList.add(view);
     }
+
     readerChapters.add(chapter);
 
     Map initialEntry = {chapter.index: chapter.pages.length};
@@ -135,8 +150,8 @@ class ReaderProvider with ChangeNotifier {
     BookMark pointer = BookMark(
         comicId,
         pageDisplayNumber,
-        chapters.elementAt(indexList[pageDisplayNumber]).link,
-        chapters.elementAt(indexList[pageDisplayNumber]).name);
+        chapters.elementAt(indexList[initialPageIndex]).link,
+        chapters.elementAt(indexList[initialPageIndex]).name);
     if (Provider.of<DatabaseProvider>(context, listen: false)
         .checkIfBookMarked(pointer))
       pageBookmarked = true;
@@ -220,9 +235,7 @@ class ReaderProvider with ChangeNotifier {
             pagePositionList.add(c);
             indexList.add(nextIndex);
           }
-          print("appending to view");
           addChapterToView(readerChapter);
-          print("done");
         }
       }
     }
@@ -248,16 +261,21 @@ class ReaderProvider with ChangeNotifier {
           ? chapters.elementAt(indexList[page]).name
           : "";
       // check if page is bookmarked
-      BookMark pointer = BookMark(
-          comicId,
-          pageDisplayNumber,
-          chapters.elementAt(indexList[page]).link,
-          chapters.elementAt(indexList[page]).name);
-      if (Provider.of<DatabaseProvider>(context, listen: false)
-          .checkIfBookMarked(pointer))
-        pageBookmarked = true;
-      else
+      if (indexList[page] != null) {
+        BookMark pointer = BookMark(
+            comicId,
+            pageDisplayNumber,
+            chapters.elementAt(indexList[page]).link,
+            chapters.elementAt(indexList[page]).name);
+        if (Provider.of<DatabaseProvider>(context, listen: false)
+            .checkIfBookMarked(pointer))
+          pageBookmarked = true;
+        else
+          pageBookmarked = false;
+      } else {
         pageBookmarked = false;
+      }
+
       notifyListeners();
     } catch (e) {}
 
@@ -287,7 +305,16 @@ class ReaderProvider with ChangeNotifier {
           if (reachedEnd) {
             print("reached end, do nothing");
           } else
-            endReached();
+            // Add to Read
+            Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
+                [chapters.elementAt(currentIndex)],
+                comicId,
+                true,
+                source,
+                selector);
+          print("huh1");
+
+          endReached();
         } else {
           // Load Next chapter
           // Add to Read
@@ -304,11 +331,33 @@ class ReaderProvider with ChangeNotifier {
                 // Cookies containing profile exists
                 // Sync to MD
                 try {
-                  ApiManager().syncChapters(
+                  await ApiManager().syncChapters(
                       [chapters.elementAt(currentIndex).link], true);
                 } catch (err) {
                   showSnackBarMessage(err);
                 }
+              }
+              try {
+                if (_prefs.get(PreferenceKeys.MAL_AUTH) != null &&
+                    Provider.of<PreferenceProvider>(context, listen: false)
+                        .malAutoSync) {
+                  // Sync to MAL
+
+                  Tracker t =
+                      Provider.of<DatabaseProvider>(context, listen: false)
+                          .comicTrackers
+                          .firstWhere((element) => element.comicId == comicId);
+                  t.lastChapterRead = chapters
+                      .elementAt(indexList[page])
+                      .generatedNumber
+                      .toInt();
+                  print(t.lastChapterRead);
+                  await Provider.of<DatabaseProvider>(context, listen: false)
+                      .updateTracker(t);
+                }
+              } catch (err) {
+                print(err);
+                showSnackBarMessage("Failed to sync to MAL");
               }
             });
           }
@@ -322,27 +371,32 @@ class ReaderProvider with ChangeNotifier {
   }
 
   toggleBookMark() async {
-    pageBookmarked = !pageBookmarked;
-    notifyListeners();
-    BookMark pointer = BookMark(
-        comicId,
-        pageDisplayNumber,
-        chapters.elementAt(indexList[currentPage]).link,
-        chapters.elementAt(indexList[currentPage]).name);
-    await Provider.of<DatabaseProvider>(context, listen: false)
-        .toggleBookMark(pointer);
+    if (indexList[currentPage] != null) {
+      pageBookmarked = !pageBookmarked;
+      notifyListeners();
+      BookMark pointer = BookMark(
+          comicId,
+          pageDisplayNumber,
+          chapters.elementAt(indexList[currentPage]).link,
+          chapters.elementAt(indexList[currentPage]).name);
+      await Provider.of<DatabaseProvider>(context, listen: false)
+          .toggleBookMark(pointer);
+    }
   }
 
   endReached() {
-    reachedEnd = true;
-    pagePositionList.add(null); // for transition page
-    indexList.add(null);
-    widgetPageList.add(
-      ReachedEndPage(
-        inLibrary: Provider.of<DatabaseProvider>(context, listen: false)
-            .retrieveComic(comicId),
-      ),
-    );
+    if (!reachedEnd) {
+      reachedEnd = true;
+      pagePositionList.add(null); // for transition page
+      indexList.add(null);
+      widgetPageList.add(
+        ReachedEndPage(
+          inLibrary: Provider.of<DatabaseProvider>(context, listen: false)
+              .retrieveComic(comicId),
+        ),
+      );
+      notifyListeners();
+    }
   }
 
   emptyResponse() {
@@ -352,6 +406,48 @@ class ReaderProvider with ChangeNotifier {
     widgetPageList.add(
       EmptyResponsePage(),
     );
+  }
+
+  moveToChapter({bool next = true, int index}) async {
+    if (index == null) {
+      index = currentIndex;
+    }
+    // Might have to reinitialize entire reader
+    int target;
+    if (next) {
+      // Move to Next chapter
+      target = index - 1;
+    } else {
+      // Move to Previous Chapter
+      target = index + 1;
+    }
+
+    if (target < 0) {
+      // no chapter after it.
+      showMessage(
+          "Last chapter", Icons.skip_next_outlined, Duration(seconds: 1));
+    } else if (target >= chapters.length) {
+      // no chapters before it
+      showMessage(
+          "First Chapter", Icons.skip_previous_outlined, Duration(seconds: 1));
+    } else {
+      // Check for duplicates
+      Chapter chapter = chapters.elementAt(target);
+      Chapter current = chapters.elementAt(currentIndex);
+
+      if (chapter.generatedNumber == current.generatedNumber) {
+        // print("match at index: $target, ${chapter.generatedNumber} == ${current.generatedNumber}");
+        await moveToChapter(next: next, index: target);
+      } else {
+        print("Changing Chapters");
+        var c = List.of(chapters);
+        var s = selector;
+        var ctx = context;
+        var id = comicId;
+        var src = source;
+        await init(c, target, s, ctx, id, src);
+      }
+    }
   }
 
   reset() {
