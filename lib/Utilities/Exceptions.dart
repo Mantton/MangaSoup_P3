@@ -29,8 +29,12 @@ class ErrorManager{
   static analyze(var error){
     if (error is DioError){
       DioError err = error;
-      if (err.response.statusCode != null) if (err.response.statusCode == 400)
+      if (err.response.statusCode != null) if (err.response.statusCode == 400) {
+        print(err.response.data);
+        print(err.request.data);
         throw "Bad Request";
+      }
+
       if (err.response.statusCode == 401) throw "Unauthorized Request";
       if (err.response.statusCode == 403) throw "Unauthorized Request";
       if (err.response.statusCode == 404) throw "Resource not Fount";

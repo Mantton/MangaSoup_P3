@@ -36,8 +36,7 @@ class Tracker {
         : null;
   }
 
-  toMap() =>
-      {
+  Map<String, dynamic> toMap() => {
         "id": id,
         "tracker_type": trackerType,
         "comic_id": comicId,
@@ -52,5 +51,13 @@ class Tracker {
         "date_ended":
             dateEnded != null ? dateEnded.microsecondsSinceEpoch : null,
         "status": getMALStatusString(status),
+      };
+
+  Map<String, dynamic> toMALUpdateFormat() => {
+        "status": getMALStatusString(status),
+        "score": score,
+        "num_chapters_read": lastChapterRead,
+        // "start_date": dateStarted!= null? dateStarted.toIso8601String():null,
+        // "end_date": dateEnded!=null? dateEnded.toIso8601String().toString():null,
       };
 }

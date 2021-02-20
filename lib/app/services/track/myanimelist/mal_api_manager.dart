@@ -1,9 +1,11 @@
 import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:mangasoup_prototype_3/Services/generator.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/mal_track_result.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/mal_user.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -136,5 +138,31 @@ class MALManager {
       ErrorManager.analyze(err);
     }
     return results;
+  }
+
+  Future<void> updateTracker(Tracker tracker) async {
+    final String url =
+        "https://api.myanimelist.net/v2/manga/${tracker.mediaId}/my_list_status";
+
+    SharedPreferences _p = await SharedPreferences.getInstance();
+    String raw = _p.getString(PreferenceKeys.MAL_AUTH);
+    if (raw != null) {
+      String accessToken = jsonDecode(raw)['access_token'];
+      Map<String, dynamic> headers = Map.of(requestHeader);
+      headers.putIfAbsent("Authorization", () => "Bearer $accessToken");
+
+      try {
+        Map<String, dynamic> t = tracker.toMALUpdateFormat();
+        print(t);
+        await Dio().patch(url,
+            data: t,
+            options: Options(
+                headers: headers,
+                contentType: "application/x-www-form-urlencoded"));
+        print("done");
+      } catch (err) {
+        ErrorManager.analyze(err);
+      }
+    }
   }
 }

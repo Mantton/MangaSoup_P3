@@ -19,6 +19,7 @@ import 'package:mangasoup_prototype_3/app/data/database/queries/comic_queries.da
 import 'package:mangasoup_prototype_3/app/data/database/queries/history_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/track_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/enums/mal.dart';
+import 'package:mangasoup_prototype_3/app/services/track/myanimelist/mal_api_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -631,5 +632,22 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
     print("done");
     print(tracker.toMap());
+  }
+
+  Future<void> updateTracker(Tracker tracker) async {
+    if (tracker.trackerType == 2) {
+      /// MAL
+      try {
+        // API UPDATE
+        await MALManager().updateTracker(tracker);
+        trackerManager.updateTracker(tracker);
+        int target =
+            comicTrackers.indexWhere((element) => element.id == tracker.id);
+        comicTrackers[target] = tracker;
+        notifyListeners();
+      } catch (err) {
+        ErrorManager.analyze(err);
+      }
+    }
   }
 }

@@ -201,7 +201,8 @@ class EditTrack extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   MaterialButton(
-                    onPressed: () => statusPickerDialog(context: context),
+                    onPressed: () =>
+                        statusPickerDialog(context: context, t: tracker),
                     child: Text(
                       convertToPresentatble(tracker.status),
                       style: def,
@@ -212,7 +213,8 @@ class EditTrack extends StatelessWidget {
                     thickness: 5,
                   ),
                   MaterialButton(
-                      onPressed: () => print("last read"),
+                      onPressed: () => chapterPickerDialog(
+                          context: context, tracker: tracker),
                       child: RichText(
                         text: TextSpan(
                           children: <TextSpan>[
@@ -238,7 +240,8 @@ class EditTrack extends StatelessWidget {
                     thickness: 2,
                   ),
                   MaterialButton(
-                    onPressed: () => scorePickerDialog(context: context),
+                    onPressed: () =>
+                        scorePickerDialog(context: context, t: tracker),
                     child: Text(
                       tracker.score != null ? "${tracker.score}" : "-",
                       style: def,
