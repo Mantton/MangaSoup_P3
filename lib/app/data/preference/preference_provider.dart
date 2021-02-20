@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'keys.dart';
 
 class PreferenceProvider with ChangeNotifier {
@@ -31,6 +32,7 @@ class PreferenceProvider with ChangeNotifier {
         _p.getBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT) ?? false;
     libraryViewMode = _p.getInt(PreferenceKeys.LIBRARY_VIEW_TYPE) ?? 1;
     readerBGColor = _p.getInt(PreferenceKeys.READER_BG_COLOR) ?? 0;
+    malAutoSync = _p.getBool(PreferenceKeys.MAL_AUTO_SYNC) ?? true;
     notifyListeners();
     return true;
   }
@@ -181,6 +183,16 @@ class PreferenceProvider with ChangeNotifier {
     SharedPreferences p = await preferences();
     scaleToMatchIntended = surcm;
     p.setBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT, surcm);
+    notifyListeners();
+  }
+
+  bool malAutoSync;
+
+  setMALAutoSync(bool sync) async {
+    // SURCM = Show UnRead Count Mode
+    SharedPreferences p = await preferences();
+    malAutoSync = sync;
+    p.setBool(PreferenceKeys.MAL_AUTO_SYNC, sync);
     notifyListeners();
   }
 

@@ -658,4 +658,11 @@ class DatabaseProvider with ChangeNotifier {
       }
     }
   }
+
+  Future<void> deleteAllTrackers() async {
+    for (Tracker t in comicTrackers) {
+      await trackerManager.deleteTracker(t);
+    }
+    comicTrackers.clear();
+  }
 }

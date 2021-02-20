@@ -5,8 +5,11 @@ import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Screens/WebViews/mal_login.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/mal_user.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/services/track/myanimelist/mal_api_manager.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MALHome extends StatefulWidget {
@@ -73,6 +76,14 @@ class _MALHomeState extends State<MALHome> {
                         ],
                       ),
                     ),
+                    SwitchListTile.adaptive(
+                      title: Text("Auto Sync Progress"),
+                      onChanged: (v) => Provider.of<PreferenceProvider>(context,
+                              listen: false)
+                          .setMALAutoSync(v),
+                      value:
+                          Provider.of<PreferenceProvider>(context).malAutoSync,
+                    ),
                     ListTile(
                       title: Text(
                         "Log Out",
@@ -88,6 +99,9 @@ class _MALHomeState extends State<MALHome> {
                       ),
                       onTap: () async {
                         showLoadingDialog(context);
+                        await Provider.of<DatabaseProvider>(context,
+                                listen: false)
+                            .deleteAllTrackers();
                         try {
                           SharedPreferences _p =
                               await SharedPreferences.getInstance();

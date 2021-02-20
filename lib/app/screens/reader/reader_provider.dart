@@ -10,6 +10,7 @@ import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_view_holder.dart';
@@ -43,6 +44,7 @@ class ReaderProvider with ChangeNotifier {
   bool reachedEnd = false;
   bool imgur = false;
   int initialPageIndex = 1;
+  bool chapterSynced = false;
 
   Future init(
       List<Chapter> incomingChapters,
@@ -136,6 +138,7 @@ class ReaderProvider with ChangeNotifier {
       );
       widgetPageList.add(view);
     }
+
     readerChapters.add(chapter);
 
     Map initialEntry = {chapter.index: chapter.pages.length};
@@ -147,8 +150,8 @@ class ReaderProvider with ChangeNotifier {
     BookMark pointer = BookMark(
         comicId,
         pageDisplayNumber,
-        chapters.elementAt(indexList[pageDisplayNumber]).link,
-        chapters.elementAt(indexList[pageDisplayNumber]).name);
+        chapters.elementAt(indexList[initialPageIndex]).link,
+        chapters.elementAt(indexList[initialPageIndex]).name);
     if (Provider.of<DatabaseProvider>(context, listen: false)
         .checkIfBookMarked(pointer))
       pageBookmarked = true;
@@ -323,17 +326,18 @@ class ReaderProvider with ChangeNotifier {
                 // Cookies containing profile exists
                 // Sync to MD
                 try {
-                  ApiManager().syncChapters(
+                  await ApiManager().syncChapters(
                       [chapters.elementAt(currentIndex).link], true);
                 } catch (err) {
                   showSnackBarMessage(err);
                 }
               }
+              try {
+                if (_prefs.get(PreferenceKeys.MAL_AUTH) != null &&
+                    Provider.of<PreferenceProvider>(context, listen: false)
+                        .malAutoSync) {
+                  // Sync to MAL
 
-              if (_prefs.get(PreferenceKeys.MAL_AUTH) != null &&
-                  _prefs.getBool(PreferenceKeys.MAL_AUTO_SYNC)) {
-                // Sync to MAL
-                try {
                   Tracker t =
                       Provider.of<DatabaseProvider>(context, listen: false)
                           .comicTrackers
@@ -342,11 +346,13 @@ class ReaderProvider with ChangeNotifier {
                       .elementAt(indexList[page])
                       .generatedNumber
                       .toInt();
-                  Provider.of<DatabaseProvider>(context, listen: false)
+                  print(t.lastChapterRead);
+                  await Provider.of<DatabaseProvider>(context, listen: false)
                       .updateTracker(t);
-                } catch (err) {
-                  showSnackBarMessage("Failed to sync to MAL");
                 }
+              } catch (err) {
+                print(err);
+                showSnackBarMessage("Failed to sync to MAL");
               }
             });
           }

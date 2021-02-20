@@ -551,6 +551,5 @@ class DexHub {
     await Dio().post(apiV2URL + "/user/me/marker",
         options: Options(headers: headers),
         data: {"chapters": ids, "read": read});
-    print("MangaDex Chapter Sync Complete");
   }
 }
