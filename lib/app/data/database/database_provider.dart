@@ -617,13 +617,15 @@ class DatabaseProvider with ChangeNotifier {
       tracker.totalChapters = r.chapterCount;
       if (r.userStatus != null) {
         tracker.lastChapterRead = r.userStatus.chaptersRead;
-        tracker.dateEnded = DateTime.parse(r.userStatus.endDate);
-        tracker.dateStarted = DateTime.parse(r.userStatus.startDate);
         tracker.status = getMALStatus(r.status);
         tracker.score = r.userStatus.score;
+
+        try {
+          tracker.dateEnded = DateTime.parse(r.userStatus.endDate);
+          tracker.dateStarted = DateTime.parse(r.userStatus.startDate);
+        } catch (err) {}
       } else {
         tracker.status = MALTrackStatus.reading;
-        tracker.dateStarted = DateTime.now();
       }
     }
     print("saving & adding");
@@ -632,6 +634,12 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
     print("done");
     print(tracker.toMap());
+  }
+
+  Future<void> deleteTracker(Tracker tracker) async {
+    await trackerManager.deleteTracker(tracker);
+    comicTrackers.remove(tracker);
+    notifyListeners();
   }
 
   Future<void> updateTracker(Tracker tracker) async {

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
@@ -33,11 +34,16 @@ class TrackingHome extends StatelessWidget {
   }
 }
 
-class MALTrackingWidget extends StatelessWidget {
+class MALTrackingWidget extends StatefulWidget {
   final ComicHighlight highlight;
 
   const MALTrackingWidget({Key key, this.highlight}) : super(key: key);
 
+  @override
+  _MALTrackingWidgetState createState() => _MALTrackingWidgetState();
+}
+
+class _MALTrackingWidgetState extends State<MALTrackingWidget> {
   @override
   Widget build(BuildContext context) {
     return Consumer<PreferenceProvider>(builder: (context, provider, _) {
@@ -56,7 +62,7 @@ class MALTrackingWidget extends StatelessWidget {
                             element.comicId ==
                                 p.comics
                                     .firstWhere((element) =>
-                                        element.link == highlight.link)
+                                        element.link == widget.highlight.link)
                                     .id &&
                             element.trackerType == 2)
                         ? Container(
@@ -65,7 +71,8 @@ class MALTrackingWidget extends StatelessWidget {
                                   element.comicId ==
                                       p.comics
                                           .firstWhere((element) =>
-                                              element.link == highlight.link)
+                                              element.link ==
+                                              widget.highlight.link)
                                           .id &&
                                   element.trackerType == 2),
                             ),
@@ -100,11 +107,13 @@ class MALTrackingWidget extends StatelessWidget {
                                         context: context,
                                         initialQuery: p.comics
                                             .firstWhere((element) =>
-                                                element.link == highlight.link)
+                                                element.link ==
+                                                widget.highlight.link)
                                             .title,
                                         comicId: p.comics
                                             .firstWhere((element) =>
-                                                element.link == highlight.link)
+                                                element.link ==
+                                                widget.highlight.link)
                                             .id),
                                   ),
                                 ),
@@ -145,7 +154,11 @@ class MALTrackingWidget extends StatelessWidget {
                             MaterialPageRoute(
                               builder: (_) => MALHome(),
                             ),
-                          ).then((value) {}),
+                          ).then((value) {
+                            setState(() {
+                              // rebuild
+                            });
+                          }),
                         ),
                       ),
                     ],
@@ -187,6 +200,41 @@ class EditTrack extends StatelessWidget {
                   tracker.title,
                   style: notInLibraryFont,
                 ),
+                Spacer(),
+                IconButton(
+                  icon: Icon(
+                    Icons.clear,
+                    color: Colors.redAccent,
+                  ),
+                  onPressed: () async {
+                    showPlatformDialog(
+                      context: context,
+                      builder: (_) => PlatformAlertDialog(
+                        title: Text("Delete Local Tracker"),
+                        content: Text(
+                          "This would delete the tracker locally, This is useful when re-syncing your Library",
+                        ),
+                        actions: [
+                          PlatformDialogAction(
+                            child: Text("Cancel"),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          PlatformDialogAction(
+                            cupertino: (_, __) => CupertinoDialogActionData(
+                                isDestructiveAction: true),
+                            child: Text("Proceed"),
+                            onPressed: () {
+                              Provider.of<DatabaseProvider>(context,
+                                      listen: false)
+                                  .deleteTracker(tracker)
+                                  .then((value) => Navigator.pop(context));
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                )
               ],
             ),
           ),
@@ -243,7 +291,7 @@ class EditTrack extends StatelessWidget {
                     onPressed: () =>
                         scorePickerDialog(context: context, t: tracker),
                     child: Text(
-                      tracker.score != null ? "${tracker.score}" : "-",
+                      tracker.score != null ? "${tracker.score}/10" : "-/10",
                       style: def,
                     ),
                   ),
@@ -262,9 +310,11 @@ class EditTrack extends StatelessWidget {
               MaterialButton(
                 onPressed: () => datePickerDialog(context: context),
                 child: Text(
-                  tracker.dateStarted != null
-                      ? "${DateFormat('yyyy-MM-dd').format(tracker.dateStarted)}"
-                      : "-",
+                  (tracker.dateStarted != null
+                          ? "${DateFormat('yyyy-MM-dd').format(tracker.dateStarted)}"
+                          : "-") +
+                      "\nStart Date",
+                  textAlign: TextAlign.center,
                   style: def,
                 ),
               ),
@@ -272,9 +322,11 @@ class EditTrack extends StatelessWidget {
               MaterialButton(
                 onPressed: () => datePickerDialog(context: context),
                 child: Text(
-                  tracker.dateEnded != null
-                      ? "${DateFormat('yyyy-MM-dd').format(tracker.dateEnded)}"
-                      : "-",
+                  (tracker.dateEnded != null
+                          ? "${DateFormat('yyyy-MM-dd').format(tracker.dateEnded)}"
+                          : "-") +
+                      "\nEnd Date",
+                  textAlign: TextAlign.center,
                   style: def,
                 ),
               ),

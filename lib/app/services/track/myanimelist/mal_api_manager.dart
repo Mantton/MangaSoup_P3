@@ -128,12 +128,13 @@ class MALManager {
     headers.putIfAbsent("Authorization", () => "Bearer $accessToken");
 
     MALDetailedTrackResult results;
-    String fields = 'id,title,main_picture,synopsis,status,num_chapters';
+    String fields = 'id,title,main_picture,status,num_chapters,my_list_status';
     try {
       Response response = await dio.get(url,
           options: Options(headers: headers),
           queryParameters: {"fields": fields});
       results = MALDetailedTrackResult.fromMap(response.data);
+      print(response.data);
     } catch (err) {
       ErrorManager.analyze(err);
     }

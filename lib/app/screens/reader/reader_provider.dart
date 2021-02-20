@@ -8,6 +8,8 @@ import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_view_holder.dart';
@@ -325,6 +327,25 @@ class ReaderProvider with ChangeNotifier {
                       [chapters.elementAt(currentIndex).link], true);
                 } catch (err) {
                   showSnackBarMessage(err);
+                }
+              }
+
+              if (_prefs.get(PreferenceKeys.MAL_AUTH) != null &&
+                  _prefs.getBool(PreferenceKeys.MAL_AUTO_SYNC)) {
+                // Sync to MAL
+                try {
+                  Tracker t =
+                      Provider.of<DatabaseProvider>(context, listen: false)
+                          .comicTrackers
+                          .firstWhere((element) => element.comicId == comicId);
+                  t.lastChapterRead = chapters
+                      .elementAt(indexList[page])
+                      .generatedNumber
+                      .toInt();
+                  Provider.of<DatabaseProvider>(context, listen: false)
+                      .updateTracker(t);
+                } catch (err) {
+                  showSnackBarMessage("Failed to sync to MAL");
                 }
               }
             });
