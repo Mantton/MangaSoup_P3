@@ -1,11 +1,14 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/homepage.dart';
+
 class MangaSoupHomePage extends StatefulWidget {
   @override
   _MangaSoupHomePageState createState() => _MangaSoupHomePageState();
@@ -14,9 +17,7 @@ class MangaSoupHomePage extends StatefulWidget {
 class _MangaSoupHomePageState extends State<MangaSoupHomePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
-    );
+    return Scaffold();
   }
 }
 
@@ -31,7 +32,13 @@ class _ForYouPageState extends State<ForYouPage>
 
   Future<List<HomePage>> getPages() async {
     ApiManager _manager = ApiManager();
-    return await _manager.getHomePage();
+    List<HomePage> l = List();
+    try {
+      l = await _manager.getHomePage();
+    } catch (err) {
+      ErrorManager.analyze(err);
+    }
+    return l;
   }
 
   @override
@@ -42,6 +49,7 @@ class _ForYouPageState extends State<ForYouPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
         future: pages,
         builder: (BuildContext context, snapshot) {
@@ -60,8 +68,9 @@ class _ForYouPageState extends State<ForYouPage>
                     });
                   },
                   child: Text(
-                    "An Error Occured\n ${snapshot.error}\n Tap to Retry",
+                    "${snapshot.error}\n Tap to Retry",
                     textAlign: TextAlign.center,
+                    style: notInLibraryFont,
                   ),
                 ),
               ),

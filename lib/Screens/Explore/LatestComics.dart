@@ -8,6 +8,7 @@ import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../Globals.dart';
@@ -94,8 +95,8 @@ class _LatestPageState extends State<LatestPage>  with AutomaticKeepAliveClientM
               return Center(
                 child: InkWell(
                   child: Text(
-                    "An error occurred\n Tap to Retry",
-                    style: TextStyle(fontSize: 15.sp),
+                    "${snapshot.error}\nTap to Retry",
+                    style: notInLibraryFont,
                     textAlign: TextAlign.center,
                   ),
                   onTap: () {

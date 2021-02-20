@@ -7,8 +7,8 @@ import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/FullBrowse/BrosweHome.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/Search.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/AllComics.dart';
-import 'package:mangasoup_prototype_3/Screens/Explore/LatestComics.dart';
 import 'package:mangasoup_prototype_3/Screens/Explore/ForYou.dart';
+import 'package:mangasoup_prototype_3/Screens/Explore/LatestComics.dart';
 import 'package:mangasoup_prototype_3/Screens/Sources/Sources.dart';
 import 'package:mangasoup_prototype_3/Screens/Tags/AllTags.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
@@ -21,7 +21,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with TickerProviderStateMixin {
   List<Source> sources = [];
-  int _index = 1;
+  int _index = 0;
   final Map<int, Widget> myTabs = const <int, Widget>{
     0: Text("For You"),
     1: Text("Home"),
@@ -31,7 +31,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    _controller = TabController(length: 3, vsync: this, initialIndex: 1);
+    _controller = TabController(length: 3, vsync: this, initialIndex: 0);
     super.initState();
   }
 
@@ -119,7 +119,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 indicatorColor: Colors.transparent,
                 labelColor: Colors.purple,
                 unselectedLabelColor: Colors.grey,
-                labelStyle: TextStyle(fontSize: 17.sp),
+                labelStyle: TextStyle(fontSize: 17),
                 controller: _controller,
                 onTap: (value) {
                   setState(() {

@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:provider/provider.dart';
 
 import '../Globals.dart';
 
@@ -25,57 +28,83 @@ class ReaderImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // double proportionalHeight = MediaQuery.of(context).size.width/imageSize.aspectRatio;
-
     return Center(
-      child: InteractiveViewer(
-        maxScale: 3.5,
-        minScale: .5,
-        panEnabled: false,
-        child: CachedNetworkImage(
-          imageUrl: url,
-          progressIndicatorBuilder: (_, url, var progress) =>
-              progress.progress != null
-                  ? Container(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      child: Center(
-                        child: Text(
-                          "${(progress.progress * 100).toInt()}%",
-                          style: TextStyle(
-                            color: Colors.blueGrey,
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Lato",
-                          ),
-                        ),
-                      ),
-                    )
-                  : Center(
-                      child: Container(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: Center(
-                          child: Text("Loading..."),
-                        ),
+      child: Consumer<PreferenceProvider>(
+        builder: (BuildContext c, provider, _) => provider.readerMode == 1
+            ? PhotoView.customChild(
+                minScale: 1.0,
+                maxScale: 3.5,
+                tightMode: true,
+                child: MainImageWidget(url: url, referer: referer, fit: fit),
+              )
+            : InteractiveViewer(
+                maxScale: 3.5,
+                minScale: .5,
+                panEnabled: false,
+                child: MainImageWidget(url: url, referer: referer, fit: fit),
+              ),
+      ),
+    );
+  }
+}
+
+class MainImageWidget extends StatelessWidget {
+  const MainImageWidget({
+    Key key,
+    @required this.url,
+    @required this.referer,
+    @required this.fit,
+  }) : super(key: key);
+
+  final String url;
+  final String referer;
+  final BoxFit fit;
+
+  @override
+  Widget build(BuildContext context) {
+    return CachedNetworkImage(
+      imageUrl: url,
+      progressIndicatorBuilder: (_, url, var progress) =>
+          progress.progress != null
+              ? Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: Text(
+                      "${(progress.progress * 100).toInt()}%",
+                      style: TextStyle(
+                        color: Colors.blueGrey,
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Lato",
                       ),
                     ),
-          httpHeaders: {"referer": referer ?? imageHeaders(url)},
-          errorWidget: (context, url, error) => Center(
-            child: Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              child: Center(
-                  child: Icon(
-                Icons.error_outline,
-                color: Colors.purple,
-              )),
-            ),
-          ),
-          fit: fit,
-          fadeInDuration: Duration(microseconds: 500),
-          fadeInCurve: Curves.easeIn,
+                  ),
+                )
+              : Center(
+                  child: Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    child: Center(
+                      child: Text("Loading..."),
+                    ),
+                  ),
+                ),
+      httpHeaders: {"referer": referer ?? imageHeaders(url)},
+      errorWidget: (context, url, error) => Center(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: Center(
+              child: Icon(
+            Icons.error_outline,
+            color: Colors.purple,
+          )),
         ),
       ),
+      fit: fit,
+      fadeInDuration: Duration(microseconds: 500),
+      fadeInCurve: Curves.easeIn,
     );
   }
 }
