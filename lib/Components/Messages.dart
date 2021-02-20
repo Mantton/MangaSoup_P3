@@ -1,7 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 showMessage(String info, IconData img, Duration duration) {
   BotToast.showEnhancedWidget(
@@ -9,8 +8,8 @@ showMessage(String info, IconData img, Duration duration) {
       ignoring: true,
       child: Center(
         child: Container(
-          height: 150.h,
-          width: 150.w,
+          height: 150,
+          width: 150,
           decoration: BoxDecoration(
             color: Colors.black87,
             borderRadius: BorderRadius.circular(20),
@@ -24,17 +23,17 @@ showMessage(String info, IconData img, Duration duration) {
                   Icon(
                     img,
                     color: Colors.white,
-                    size: 60.w,
+                    size: 60,
                   ),
                   SizedBox(
-                    height: 5.h,
+                    height: 5,
                   ),
                   AutoSizeText(
                     info,
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 15.sp,
+                      fontSize: 15,
                     ),
                     textAlign: TextAlign.center,
                   )
@@ -49,14 +48,14 @@ showMessage(String info, IconData img, Duration duration) {
   );
 }
 
-showSnackBarMessage(String msg){
+showSnackBarMessage(String msg, {bool error = false}) {
   BotToast.showText(
-      duration: Duration(milliseconds: 1500),
-      text: msg,
-      textStyle: TextStyle(color: Colors.black),
-      contentColor: Colors.white,
-
+    duration: Duration(milliseconds: 1500),
+    text: msg,
+    textStyle: TextStyle(
+        color: !error ? Colors.black : Colors.white,
+        fontWeight: FontWeight.bold,
+        fontFamily: "Lato"),
+    contentColor: !error ? Colors.white : Colors.redAccent,
   );
-
-
 }

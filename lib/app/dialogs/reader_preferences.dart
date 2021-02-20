@@ -23,8 +23,8 @@ preferenceBuilder(BuildContext context) => Dialog(
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: Container(
-        margin: EdgeInsets.all(10),
-        padding: EdgeInsets.all(5),
+        // margin: EdgeInsets.all(10),
+        padding: EdgeInsets.all(10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -46,6 +46,7 @@ preferenceBuilder(BuildContext context) => Dialog(
 
             /// Options
             Flexible(
+              flex: 8,
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -57,8 +58,8 @@ preferenceBuilder(BuildContext context) => Dialog(
                       child: Consumer<PreferenceProvider>(
                         builder: (BuildContext context, provider, _) =>
                             provider.readerMode == 1
-                                ? mangaModeOptions()
-                                : webToonModeOptions(),
+                            ? mangaModeOptions()
+                            : webToonModeOptions(),
                       ),
                     ),
                   ],

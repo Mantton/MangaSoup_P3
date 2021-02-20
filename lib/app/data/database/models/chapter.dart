@@ -31,7 +31,7 @@ class ChapterData {
     read = false;
     timeAccessed = DateTime.now();
     bookmarked = false;
-    lastPageRead = 0;
+    lastPageRead = 1;
   }
 
   ChapterData.fromMap(Map<String, dynamic> map) {
