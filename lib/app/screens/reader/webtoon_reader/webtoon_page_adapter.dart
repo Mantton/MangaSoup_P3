@@ -50,9 +50,10 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
         height: MediaQuery.of(context).size.height,
         child: ScrollablePositionedList.builder(
           addAutomaticKeepAlives: false,
-          physics: NoMomentumScrollPhysics(
-              velocityT:
-                  Provider.of<PreferenceProvider>(context).maxScrollVelocity),
+          physics: NewCustomScrollPhysics(
+            velocityT:
+                Provider.of<PreferenceProvider>(context).maxScrollVelocity,
+          ),
           itemBuilder: (_, index) => provider.widgetPageList[index],
           itemCount: provider.widgetPageList.length,
           itemScrollController: itemScrollController,

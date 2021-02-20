@@ -71,7 +71,13 @@ class ReaderProvider with ChangeNotifier {
 
     // prepare initial page
     initialPageIndex = initPage - 1;
-    pageDisplayNumber = initPage;
+    // code below should hopefully solve some issues
+    if (initialPageIndex < 0) {
+      initialPageIndex = 0;
+      pageDisplayNumber = 1;
+    } else {
+      pageDisplayNumber = initPage;
+    }
     if (!imgur) {
       await Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
         chapter,
