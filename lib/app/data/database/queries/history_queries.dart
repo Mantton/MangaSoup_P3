@@ -1,11 +1,10 @@
+import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/history_table.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../manager.dart';
-import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
-
 class HistoryQuery {
   Database db;
+
   HistoryQuery(this.db);
 
   Future<History> addHistory(History history) async {
@@ -19,8 +18,8 @@ class HistoryQuery {
   }
 
   Future<List<History>> getHistory({int limit}) async {
-    List<Map> queryMap = await db.query(HistoryTable.TABLE,
-        limit: limit, orderBy: HistoryTable.COL_LAST_READ);
+    List<Map> queryMap =
+        await db.query(HistoryTable.TABLE, orderBy: HistoryTable.COL_LAST_READ);
 
     List<History> history = queryMap.map((e) => History.fromMap(e)).toList();
     return history;

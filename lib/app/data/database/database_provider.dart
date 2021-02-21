@@ -62,7 +62,7 @@ class DatabaseProvider with ChangeNotifier {
     // Load Data into Provider Variables
     comics = await comicManager.getAll();
     collections = await collectionManager.getCollections();
-    historyList = await historyManager.getHistory(limit: 25);
+    historyList = await historyManager.getHistory();
     comicCollections = await comicCollectionManager.getAll();
     chapters = await chapterManager.getAll();
     bookmarks = await bookmarkManager.getAllBookMarks();
