@@ -348,18 +348,23 @@ class ReaderProvider with ChangeNotifier {
                     Provider.of<PreferenceProvider>(context, listen: false)
                         .malAutoSync) {
                   // Sync to MAL
-
-                  Tracker t =
-                      Provider.of<DatabaseProvider>(context, listen: false)
-                          .comicTrackers
-                          .firstWhere((element) => element.comicId == comicId);
-                  t.lastChapterRead = chapters
-                      .elementAt(indexList[page])
-                      .generatedNumber
-                      .toInt();
-                  print(t.lastChapterRead);
-                  await Provider.of<DatabaseProvider>(context, listen: false)
-                      .updateTracker(t);
+                  Tracker t;
+                  try {
+                    t = Provider.of<DatabaseProvider>(context, listen: false)
+                        .comicTrackers
+                        .firstWhere((element) => element.comicId == comicId);
+                  } catch (err) {
+                    // do nothing, no element was found
+                  }
+                  if (t != null) {
+                    t.lastChapterRead = chapters
+                        .elementAt(indexList[page])
+                        .generatedNumber
+                        .toInt();
+                    print(t.lastChapterRead);
+                    await Provider.of<DatabaseProvider>(context, listen: false)
+                        .updateTracker(t);
+                  }
                 }
               } catch (err) {
                 print(err);
