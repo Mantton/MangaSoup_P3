@@ -94,7 +94,8 @@ class MainImageWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-        httpHeaders: {"referer": referer ?? imageHeaders(url)},
+        httpHeaders:
+            referer != null ? {"referer": referer ?? imageHeaders(url)} : null,
         errorWidget: (context, url, error) => Center(
           child: Container(
             height: MediaQuery.of(context).size.height,

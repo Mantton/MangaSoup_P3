@@ -348,6 +348,22 @@ Widget mangaModeOptions() {
           height: 5,
         ),
 
+        /// DOUBLE MODE
+        Consumer<PreferenceProvider>(
+          builder: (context, provider, _) => SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.all(0),
+            title: Text(
+              "Double Paged",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 20,
+              ),
+            ),
+            value: provider.readerDoublePagedMode,
+            onChanged: (v) => provider.setDoublePagedMode(v),
+          ),
+        ),
+
         /// Page Padding
         Column(
           children: [
@@ -366,7 +382,6 @@ Widget mangaModeOptions() {
                 Spacer(),
                 Consumer<PreferenceProvider>(builder: (context, provider, _) {
                   return Container(
-                    padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
                     child: PlatformSwitch(
                       value: provider.readerPadding,
                       onChanged: (v) =>
@@ -397,7 +412,6 @@ Widget mangaModeOptions() {
                 Spacer(),
                 Consumer<PreferenceProvider>(builder: (context, provider, _) {
                   return Container(
-                    padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
                     child: PlatformSwitch(
                       value: provider.readerPageSnapping,
                       onChanged: (v) => provider

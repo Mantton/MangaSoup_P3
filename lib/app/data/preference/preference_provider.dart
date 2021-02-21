@@ -34,6 +34,8 @@ class PreferenceProvider with ChangeNotifier {
     readerBGColor = _p.getInt(PreferenceKeys.READER_BG_COLOR) ?? 0;
     malAutoSync = _p.getBool(PreferenceKeys.MAL_AUTO_SYNC) ?? true;
     readerMaxWidth = _p.getBool(PreferenceKeys.READER_MAX_WIDTH) ?? false;
+    readerDoublePagedMode =
+        _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
     notifyListeners();
     return true;
   }
@@ -204,6 +206,15 @@ class PreferenceProvider with ChangeNotifier {
     SharedPreferences p = await preferences();
     malAutoSync = sync;
     p.setBool(PreferenceKeys.MAL_AUTO_SYNC, sync);
+    notifyListeners();
+  }
+
+  bool readerDoublePagedMode;
+
+  setDoublePagedMode(bool mode) async {
+    SharedPreferences p = await preferences();
+    readerDoublePagedMode = mode;
+    p.setBool(PreferenceKeys.MAL_AUTO_SYNC, mode);
     notifyListeners();
   }
 
