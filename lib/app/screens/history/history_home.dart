@@ -218,6 +218,7 @@ class _HistoryHomeState extends State<HistoryHome>
             preloadedChapter: imageChapter,
             initialPage: chapterData.lastPageRead,
           ),
+          fullscreenDialog: true,
         ),
       );
     } catch (err) {

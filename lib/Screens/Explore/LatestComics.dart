@@ -2,12 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../Globals.dart';
@@ -17,7 +19,8 @@ class LatestPage extends StatefulWidget {
   _LatestPageState createState() => _LatestPageState();
 }
 
-class _LatestPageState extends State<LatestPage>  with AutomaticKeepAliveClientMixin{
+class _LatestPageState extends State<LatestPage>
+    with AutomaticKeepAliveClientMixin {
   Future<List<ComicHighlight>> _futureComics;
   List<ComicHighlight> _comics;
   int _page = 1;
@@ -35,15 +38,26 @@ class _LatestPageState extends State<LatestPage>  with AutomaticKeepAliveClientM
     return c;
   }
 
-  Future<List<ComicHighlight>> paginate() {
+  Future<void> paginate() async {
     if (_loadingMore == true) return null;
     _page++;
     setState(() {
       _loadingMore = true;
     });
-    return _loadComics(
-        Provider.of<SourceNotifier>(context, listen: false).source.selector,
-        _page);
+    List<ComicHighlight> t = List();
+    try {
+      t = await _loadComics(
+          Provider.of<SourceNotifier>(context, listen: false).source.selector,
+          _page);
+      if (t != null) {
+        setState(() {
+          _comics.addAll(t);
+          _loadingMore = false;
+        });
+      }
+    } catch (err) {
+      showSnackBarMessage("Unable to Paginate");
+    }
   }
 
   @override
@@ -68,13 +82,7 @@ class _LatestPageState extends State<LatestPage>  with AutomaticKeepAliveClientM
     double currentScroll = _controller.position.pixels;
     double delta = MediaQuery.of(context).size.height * .65;
     if (maxScroll - currentScroll < delta) {
-      List<ComicHighlight> y = await paginate();
-      if (y != null) {
-        setState(() {
-          _comics.addAll(y);
-          _loadingMore = false;
-        });
-      }
+      await paginate();
     }
   }
 
@@ -94,8 +102,8 @@ class _LatestPageState extends State<LatestPage>  with AutomaticKeepAliveClientM
               return Center(
                 child: InkWell(
                   child: Text(
-                    "An error occurred\n Tap to Retry",
-                    style: TextStyle(fontSize: 15.sp),
+                    "${snapshot.error}\nTap to Retry",
+                    style: notInLibraryFont,
                     textAlign: TextAlign.center,
                   ),
                   onTap: () {
@@ -119,7 +127,12 @@ class _LatestPageState extends State<LatestPage>  with AutomaticKeepAliveClientM
                       SizedBox(
                         height: 10.h,
                       ),
-                      (_loadingMore) ? LoadingIndicator() : Container(),
+                      (_loadingMore)
+                          ? LoadingIndicator()
+                          : CupertinoButton(
+                              child: Text("Load More"),
+                              onPressed: () => paginate(),
+                            ),
                     ],
                   ),
                 ),

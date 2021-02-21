@@ -1,11 +1,12 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/homepage.dart';
+
 class MangaSoupHomePage extends StatefulWidget {
   @override
   _MangaSoupHomePageState createState() => _MangaSoupHomePageState();
@@ -14,9 +15,7 @@ class MangaSoupHomePage extends StatefulWidget {
 class _MangaSoupHomePageState extends State<MangaSoupHomePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
-    );
+    return Scaffold();
   }
 }
 
@@ -31,7 +30,13 @@ class _ForYouPageState extends State<ForYouPage>
 
   Future<List<HomePage>> getPages() async {
     ApiManager _manager = ApiManager();
-    return await _manager.getHomePage();
+    List<HomePage> l = List();
+    try {
+      l = await _manager.getHomePage();
+    } catch (err) {
+      ErrorManager.analyze(err);
+    }
+    return l;
   }
 
   @override
@@ -42,6 +47,7 @@ class _ForYouPageState extends State<ForYouPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
         future: pages,
         builder: (BuildContext context, snapshot) {
@@ -60,8 +66,9 @@ class _ForYouPageState extends State<ForYouPage>
                     });
                   },
                   child: Text(
-                    "An Error Occured\n ${snapshot.error}\n Tap to Retry",
+                    "${snapshot.error}\n Tap to Retry",
                     textAlign: TextAlign.center,
+                    style: notInLibraryFont,
                   ),
                 ),
               ),
@@ -88,40 +95,34 @@ class _ForYouPageState extends State<ForYouPage>
                           style: TextStyle(fontSize: 30),
                         ),
                         SizedBox(
-                          height: 3.h,
+                          height: 3,
                         ),
                         Text(
                           sourcePages[index].subHeader,
                           style: TextStyle(fontSize: 20, color: Colors.grey),
                         ),
                         SizedBox(
-                          height: 10.h,
+                          height: 10,
                         ),
-                        highlights.length <= 6
-                            ? ComicGrid(
-                          comics: highlights,
-                        )
-                            : Container(
-                          child: CarouselSlider(
-
-                            options: CarouselOptions(
-                              aspectRatio: 1,
-                              height: 300.h,
-                              viewportFraction: .4,
-                              pauseAutoPlayOnManualNavigate: true,
-
-                              enlargeCenterPage: true,
-                              // disableCenter: true,
-                              autoPlayInterval: Duration(
-                                seconds: 10,
-                              ),
-
-                              scrollDirection: Axis.horizontal,
-                              autoPlay: false,
+                        Container(
+                          height: 250,
+                          child: GridView.builder(
+                            physics: ScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 1,
+                              childAspectRatio: 1.58,
+                              mainAxisSpacing: 5,
+                              crossAxisSpacing: 0,
                             ),
-                            items: highlights
-                                .map((e) => ComicGridTile(comic: e))
-                                .toList(),
+                            shrinkWrap: true,
+                            cacheExtent: MediaQuery.of(context).size.width,
+                            itemCount: highlights.length,
+                            itemBuilder: (BuildContext context, index) =>
+                                ComicGridTile(
+                              comic: highlights[index],
+                            ),
                           ),
                         ),
                       ],

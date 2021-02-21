@@ -5,10 +5,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:mangasoup_prototype_3/app/util/generateChapterNumber.dart';
 import 'package:mangasoup_prototype_3/app/widgets/textfields.dart';
-import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 
 class ImgurAlbumPage extends StatefulWidget {
   @override
@@ -91,6 +91,7 @@ class _ImgurAlbumPageState extends State<ImgurAlbumPage> {
                             preloaded: true,
                             preloadedChapter: imageChapter,
                           ),
+                          fullscreenDialog: true,
                         ),
                       );
                     } else {

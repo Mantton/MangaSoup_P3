@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Screens/WebViews/chapter_webview.dart';
@@ -111,38 +111,45 @@ class _ReaderOpenerState extends State<ReaderOpener> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder(
-        future: providerInitializer,
-        builder: (_, snapshot) {
-          if (snapshot.hasData) {
-            return ReaderFrame();
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: InkWell(
-                onTap: () => Navigator.pop(context),
-                child: Text(
-                  "${snapshot.error}\nTap to return to profile",
-                  style: notInLibraryFont,
-                  textAlign: TextAlign.center,
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: Scaffold(
+        // extendBodyBehindAppBar: true,
+        extendBody: true,
+
+        body: FutureBuilder(
+          future: providerInitializer,
+          builder: (_, snapshot) {
+            if (snapshot.hasData) {
+              return ReaderFrame();
+            }
+            if (snapshot.hasError) {
+              return Center(
+                child: InkWell(
+                  onTap: () => Navigator.pop(context),
+                  child: Text(
+                    "${snapshot.error}\nTap to return to profile",
+                    style: notInLibraryFont,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              ),
-            );
-          } else {
-            return InkWell(
-              onTap: () => Provider.of<ReaderProvider>(context, listen: false)
-                  .toggleShowControls(),
-              child: Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child: Center(
-                  child: LoadingIndicator(),
+              );
+            } else {
+              return InkWell(
+                onTap: () => Provider.of<ReaderProvider>(context, listen: false)
+                    .toggleShowControls(),
+                child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: LoadingIndicator(),
+                  ),
                 ),
-              ),
-            );
-          }
-        },
+              );
+            }
+          },
+        ),
       ),
     );
   }
@@ -170,23 +177,21 @@ class _ReaderFrameState extends State<ReaderFrame> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: GestureDetector(
-        onTap: () {
-          Provider.of<ReaderProvider>(context, listen: false)
-              .toggleShowControls();
-        },
-        child: Stack(
-          children: [
-            plain(),
-            ViewerGateWay(
-              initialPage: Provider.of<ReaderProvider>(context, listen: false)
-                  .initialPageIndex,
-            ),
-            header(),
-            footer(),
-          ],
-        ),
+    return GestureDetector(
+      onTap: () {
+        Provider.of<ReaderProvider>(context, listen: false)
+            .toggleShowControls();
+      },
+      child: Stack(
+        children: [
+          plain(),
+          ViewerGateWay(
+            initialPage: Provider.of<ReaderProvider>(context, listen: false)
+                .initialPageIndex,
+          ),
+          header(),
+          footer(),
+        ],
       ),
     );
   }
@@ -225,14 +230,14 @@ class _ReaderFrameState extends State<ReaderFrame> {
         width: MediaQuery.of(context).size.width,
         child: Container(
           alignment: Alignment.topCenter,
-          color: Colors.black,
+          color: Color.fromRGBO(0, 0, 0, .95),
+          padding: EdgeInsets.all(7),
           height: 120,
           child: Column(
             children: <Widget>[
-              Container(
-                height: 55,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+              Expanded(
+                child: Container(
+                  height: 55,
                   child: Row(
                     children: <Widget>[
                       Container(
@@ -251,60 +256,68 @@ class _ReaderFrameState extends State<ReaderFrame> {
                       ),
                       Spacer(),
                       Container(
-                        width: 50.w,
-                        child: FlatButton(
-                          child: Icon(
-                            Icons.more_horiz,
-                            color: Colors.grey,
-                            size: 30,
-                          ),
-                          onPressed: () => preferenceDialog(context: context),
-                        ),
-                      )
+                          width: 50,
+                          child: IconButton(
+                            icon: Icon(
+                              CupertinoIcons.settings,
+                              color: Colors.grey,
+                            ),
+                            onPressed: () => preferenceDialog(context: context),
+                          ))
                     ],
                   ),
                 ),
               ),
               Divider(
-                thickness: 2.w,
+                thickness: 2,
                 height: 3,
                 color: Colors.grey[900],
               ),
-              Container(
-                height: 60,
-                padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: Row(
-                  children: <Widget>[
-                    Flexible(
-                      flex: 7,
-                      fit: FlexFit.tight,
-                      child: Container(
-                        child: provider.currentChapterName != null
-                            ? Text(
-                                "${provider.currentChapterName}",
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 18,
-                                ),
-                              )
-                            : Container(),
+              Expanded(
+                child: Container(
+                  height: 60,
+                  child: Row(
+                    children: <Widget>[
+                      Flexible(
+                        flex: 7,
+                        fit: FlexFit.tight,
+                        child: Container(
+                          child: provider.currentChapterName != null
+                              ? Text(
+                                  "${provider.currentChapterName}",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 18,
+                                  ),
+                                )
+                              : Container(),
+                        ),
                       ),
-                    ),
-                    VerticalDivider(
-                      color: Colors.grey[900],
-                      thickness: 2,
-                      indent: 15,
-                      endIndent: 15,
-                    ),
-                    IconButton(
-                      icon: Icon(CupertinoIcons.bookmark),
-                      color: provider.pageBookmarked
-                          ? Colors.green
-                          : Colors.grey[700],
-                      onPressed: () => provider
-                          .toggleBookMark(), // add current page to bookmark
-                    )
-                  ],
+                      VerticalDivider(
+                        color: Colors.grey[900],
+                        thickness: 2,
+                        indent: 15,
+                        endIndent: 15,
+                      ),
+                      IconButton(
+                        icon: Icon(CupertinoIcons.bookmark),
+                        color: provider.pageBookmarked
+                            ? Colors.green
+                            : Colors.grey[700],
+                        onPressed: () => provider
+                            .toggleBookMark(), // add current page to bookmark
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          CupertinoIcons.bubble_left_bubble_right,
+                          color: Colors.purple,
+                        ),
+                        onPressed: () => showSnackBarMessage(
+                            "Comments Coming soon!",
+                            error: true),
+                      ),
+                    ],
+                  ),
                 ),
               )
             ],
@@ -323,54 +336,64 @@ class _ReaderFrameState extends State<ReaderFrame> {
         child: Container(
           height: 60,
           width: MediaQuery.of(context).size.width,
-          color: Colors.black,
+          color: Color.fromRGBO(0, 0, 0, .95),
           child: Padding(
             padding: EdgeInsets.all(8.0),
             child: Row(
               children: [
-                IconButton(
-                  onPressed: () async {
-                    try {
-                      showLoadingDialog(context);
-                      await provider.moveToChapter(next: false);
-                      Navigator.pop(context);
-                    } catch (err) {
-                      print(err);
-                      Navigator.pop(context);
-                    }
-                  },
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.grey,
+                Expanded(
+                  flex: 1,
+                  child: IconButton(
+                    onPressed: () async {
+                      try {
+                        showLoadingDialog(context);
+                        await provider.moveToChapter(next: false);
+                        Navigator.pop(context);
+                      } catch (err) {
+                        print(err);
+                        Navigator.pop(context);
+                      }
+                    },
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
-                Spacer(),
-                provider.pageDisplayNumber != null
-                    ? Text(
-                        "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          fontFamily: 'Lato',
-                          color: Colors.grey,
-                        ),
-                      )
-                    : Container(),
-                Spacer(),
-                IconButton(
-                  onPressed: () async {
-                    try {
-                      showLoadingDialog(context);
-                      await provider.moveToChapter();
-                      Navigator.pop(context);
-                    } catch (err) {
-                      print(err);
-                      Navigator.pop(context);
-                    }
-                  },
-                  icon: Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.grey,
+                // Spacer(),
+                Expanded(
+                  flex: 8,
+                  child: provider.pageDisplayNumber != null
+                      ? Text(
+                          "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            fontFamily: 'Lato',
+                            color: Colors.grey,
+                          ),
+                          textAlign: TextAlign.center,
+                        )
+                      : Container(),
+                ),
+
+                Expanded(
+                  flex: 1,
+                  child: IconButton(
+                    onPressed: () async {
+                      try {
+                        showLoadingDialog(context);
+                        await provider.moveToChapter();
+                        Navigator.pop(context);
+                      } catch (err) {
+                        print(err);
+                        Navigator.pop(context);
+                      }
+                    },
+                    icon: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
               ],

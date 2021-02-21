@@ -23,8 +23,8 @@ preferenceBuilder(BuildContext context) => Dialog(
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: Container(
-        margin: EdgeInsets.all(10),
-        padding: EdgeInsets.all(5),
+        // margin: EdgeInsets.all(10),
+        padding: EdgeInsets.all(10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -46,6 +46,7 @@ preferenceBuilder(BuildContext context) => Dialog(
 
             /// Options
             Flexible(
+              flex: 8,
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -159,8 +160,22 @@ Widget readerModeSetting() {
                 ),
               ),
             );
-          })
+          }),
         ],
+      ),
+      Consumer<PreferenceProvider>(
+        builder: (context, provider, _) => SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.all(0),
+          title: Text(
+            "Override Width Constraints",
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 20,
+            ),
+          ),
+          value: provider.readerMaxWidth,
+          onChanged: (v) => provider.setReaderMaxWidth(v),
+        ),
       ),
     ],
   );
@@ -333,6 +348,22 @@ Widget mangaModeOptions() {
           height: 5,
         ),
 
+        /// DOUBLE MODE
+        Consumer<PreferenceProvider>(
+          builder: (context, provider, _) => SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.all(0),
+            title: Text(
+              "Double Paged",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 20,
+              ),
+            ),
+            value: provider.readerDoublePagedMode,
+            onChanged: (v) => provider.setDoublePagedMode(v),
+          ),
+        ),
+
         /// Page Padding
         Column(
           children: [
@@ -351,7 +382,6 @@ Widget mangaModeOptions() {
                 Spacer(),
                 Consumer<PreferenceProvider>(builder: (context, provider, _) {
                   return Container(
-                    padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
                     child: PlatformSwitch(
                       value: provider.readerPadding,
                       onChanged: (v) =>
@@ -382,7 +412,6 @@ Widget mangaModeOptions() {
                 Spacer(),
                 Consumer<PreferenceProvider>(builder: (context, provider, _) {
                   return Container(
-                    padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
                     child: PlatformSwitch(
                       value: provider.readerPageSnapping,
                       onChanged: (v) => provider

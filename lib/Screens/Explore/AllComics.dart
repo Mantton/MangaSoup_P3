@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
@@ -10,6 +11,7 @@ import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:provider/provider.dart';
 
 class AllComicsPage extends StatefulWidget {
@@ -38,16 +40,25 @@ class _AllComicsPageState extends State<AllComicsPage>
     return c;
   }
 
-  Future<List<ComicHighlight>> paginate() {
+  Future<void> paginate() async {
     if (_loadingMore == true) return null;
     _page++;
     setState(() {
       _loadingMore = true;
     });
-    return _loadComics(
-        Provider.of<SourceNotifier>(context, listen: false).source.selector,
-        _sort['selector'],
-        _page, {});
+    List<ComicHighlight> t = List();
+    try {
+      t = await _loadComics(
+          Provider.of<SourceNotifier>(context, listen: false).source.selector,
+          _sort['selector'],
+          _page, {});
+      setState(() {
+        _comics.addAll(t);
+        _loadingMore = false;
+      });
+    } catch (err) {
+      showSnackBarMessage("Failed to load more");
+    }
   }
 
   @override
@@ -78,13 +89,7 @@ class _AllComicsPageState extends State<AllComicsPage>
     double currentScroll = _controller.position.pixels;
     double delta = MediaQuery.of(context).size.height * .65;
     if (maxScroll - currentScroll < delta) {
-      List<ComicHighlight> y = await paginate();
-      if (y != null) {
-        setState(() {
-          _comics.addAll(y);
-          _loadingMore = false;
-        });
-      }
+      await paginate();
     }
   }
 
@@ -104,8 +109,8 @@ class _AllComicsPageState extends State<AllComicsPage>
               return Center(
                 child: InkWell(
                   child: Text(
-                    "An error occurred\n ${snapshot.error}\nTap to Retry",
-                    style: TextStyle(fontSize: 15.sp),
+                    "${snapshot.error}\nTap to Retry",
+                    style: notInLibraryFont,
                     textAlign: TextAlign.center,
                   ),
                   onTap: () {
@@ -123,6 +128,7 @@ class _AllComicsPageState extends State<AllComicsPage>
               _comics = snapshot.data;
               return SingleChildScrollView(
                 controller: _controller,
+                physics: BouncingScrollPhysics(),
                 child: Container(
                   padding: EdgeInsets.only(left: 10, right: 10),
                   child: Column(
@@ -247,11 +253,18 @@ class _AllComicsPageState extends State<AllComicsPage>
                           ),
                         ),
                       ),
-                      RepaintBoundary(child: ComicGrid(comics: _comics)),
-                      SizedBox(
-                        height: 10.h,
+                      RepaintBoundary(
+                        child: ComicGrid(comics: _comics),
                       ),
-                      (_loadingMore) ? LoadingIndicator() : Container(),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      (_loadingMore)
+                          ? LoadingIndicator()
+                          : CupertinoButton(
+                              child: Text("Load More"),
+                              onPressed: () => paginate(),
+                            ),
                     ],
                   ),
                 ),

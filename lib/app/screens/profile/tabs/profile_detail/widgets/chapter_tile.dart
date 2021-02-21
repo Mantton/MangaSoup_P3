@@ -152,6 +152,7 @@ class ChapterTile extends StatelessWidget {
           source: profile.source,
           initialPage: data != null ? data.lastPageRead : 1,
         ),
+        fullscreenDialog: true,
       ),
     );
   }

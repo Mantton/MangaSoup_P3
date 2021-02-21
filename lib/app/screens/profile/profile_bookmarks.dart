@@ -65,6 +65,7 @@ class ComicBookMarksPage extends StatelessWidget {
                         source: profile.source,
                         initialPage: bookmarks[index].page,
                       ),
+                      fullscreenDialog: true,
                     ),
                   ),
                   subtitle: Text("Page ${bookmarks[index].page}"),

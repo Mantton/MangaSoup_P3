@@ -71,7 +71,13 @@ class ReaderProvider with ChangeNotifier {
 
     // prepare initial page
     initialPageIndex = initPage - 1;
-    pageDisplayNumber = initPage;
+    // code below should hopefully solve some issues
+    if (initialPageIndex < 0) {
+      initialPageIndex = 0;
+      pageDisplayNumber = 1;
+    } else {
+      pageDisplayNumber = initPage;
+    }
     if (!imgur) {
       await Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
         chapter,
@@ -312,7 +318,7 @@ class ReaderProvider with ChangeNotifier {
                 true,
                 source,
                 selector);
-          print("huh1");
+          print("End Reached for First time");
 
           endReached();
         } else {
@@ -342,18 +348,23 @@ class ReaderProvider with ChangeNotifier {
                     Provider.of<PreferenceProvider>(context, listen: false)
                         .malAutoSync) {
                   // Sync to MAL
-
-                  Tracker t =
-                      Provider.of<DatabaseProvider>(context, listen: false)
-                          .comicTrackers
-                          .firstWhere((element) => element.comicId == comicId);
-                  t.lastChapterRead = chapters
-                      .elementAt(indexList[page])
-                      .generatedNumber
-                      .toInt();
-                  print(t.lastChapterRead);
-                  await Provider.of<DatabaseProvider>(context, listen: false)
-                      .updateTracker(t);
+                  Tracker t;
+                  try {
+                    t = Provider.of<DatabaseProvider>(context, listen: false)
+                        .comicTrackers
+                        .firstWhere((element) => element.comicId == comicId);
+                  } catch (err) {
+                    // do nothing, no element was found
+                  }
+                  if (t != null) {
+                    t.lastChapterRead = chapters
+                        .elementAt(indexList[page])
+                        .generatedNumber
+                        .toInt();
+                    print(t.lastChapterRead);
+                    await Provider.of<DatabaseProvider>(context, listen: false)
+                        .updateTracker(t);
+                  }
                 }
               } catch (err) {
                 print(err);

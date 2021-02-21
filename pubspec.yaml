@@ -50,7 +50,6 @@ dependencies:
   connectivity: ^2.0.1
   image_picker: ^0.6.7+12
   preload_page_view: ^0.1.4
-  carousel_slider: ^2.3.1
   webview_flutter: ^1.0.7
   html_unescape: ^1.0.2
   flutter_launcher_icons: ^0.8.1
@@ -64,6 +63,7 @@ dependencies:
   flutter_rating_bar: ^3.2.0+1
   cupertino_icons: ^1.0.0
   crypto: ^2.1.5
+  percent_indicator: ^2.1.7+2
 
 dependency_overrides:
   collection: ^1.14.13

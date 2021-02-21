@@ -291,20 +291,20 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                 "Chapter 1", widget.profile.link, "", widget.profile.source);
             chapter.generatedNumber = 1.0;
 
-
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (_) => ReaderHome(
-                        chapters: [chapter],
-                        initialChapterIndex: 0,
-                        selector:
-                            widget.profile.selector ?? widget.profile.source,
-                        source: widget.profile.source,
-                        comicId: widget.comicId,
-                        preloaded: true,
-                        preloadedChapter: imageChapter,
-                      )),
+                builder: (_) => ReaderHome(
+                  chapters: [chapter],
+                  initialChapterIndex: 0,
+                  selector: widget.profile.selector ?? widget.profile.source,
+                  source: widget.profile.source,
+                  comicId: widget.comicId,
+                  preloaded: true,
+                  preloadedChapter: imageChapter,
+                ),
+                fullscreenDialog: true,
+              ),
             );
           },
           child: Container(

@@ -33,6 +33,9 @@ class PreferenceProvider with ChangeNotifier {
     libraryViewMode = _p.getInt(PreferenceKeys.LIBRARY_VIEW_TYPE) ?? 1;
     readerBGColor = _p.getInt(PreferenceKeys.READER_BG_COLOR) ?? 0;
     malAutoSync = _p.getBool(PreferenceKeys.MAL_AUTO_SYNC) ?? true;
+    readerMaxWidth = _p.getBool(PreferenceKeys.READER_MAX_WIDTH) ?? false;
+    readerDoublePagedMode =
+        _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
     notifyListeners();
     return true;
   }
@@ -127,6 +130,16 @@ class PreferenceProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// REAder MAx WIdth
+  bool readerMaxWidth;
+
+  setReaderMaxWidth(bool max) async {
+    SharedPreferences p = await preferences();
+    readerMaxWidth = max;
+    p.setBool(PreferenceKeys.READER_MAX_WIDTH, max);
+    notifyListeners();
+  }
+
   /// GENERAL SETTINGS
 
   /// Comic Grid Cross Axis Count
@@ -193,6 +206,15 @@ class PreferenceProvider with ChangeNotifier {
     SharedPreferences p = await preferences();
     malAutoSync = sync;
     p.setBool(PreferenceKeys.MAL_AUTO_SYNC, sync);
+    notifyListeners();
+  }
+
+  bool readerDoublePagedMode;
+
+  setDoublePagedMode(bool mode) async {
+    SharedPreferences p = await preferences();
+    readerDoublePagedMode = mode;
+    p.setBool(PreferenceKeys.MAL_AUTO_SYNC, mode);
     notifyListeners();
   }
 

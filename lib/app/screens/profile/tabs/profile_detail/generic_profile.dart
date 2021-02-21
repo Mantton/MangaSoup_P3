@@ -352,6 +352,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
             source: widget.profile.source,
             initialPage: pointer.lastPageRead,
           ),
+          fullscreenDialog: true,
         ),
       );
     } else {
@@ -367,6 +368,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
             comicId: widget.comicId,
             source: widget.profile.source,
           ),
+          fullscreenDialog: true,
         ),
       );
     }
