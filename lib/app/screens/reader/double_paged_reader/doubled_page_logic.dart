@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 Map<String, dynamic> createDouble(List<Widget> widgets, bool x) {
-  print(widgets.length);
   List<Widget> output = List();
   List pagePointers = List();
   for (int index = 0; index < widgets.length; index++) {
@@ -29,7 +28,6 @@ Map<String, dynamic> createDouble(List<Widget> widgets, bool x) {
     output.add(row);
     index += 1;
   }
-  print(pagePointers);
   return {"widgets": output, "pages": pagePointers};
 }
 

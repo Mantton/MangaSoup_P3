@@ -42,7 +42,6 @@ class _DoublePagedAdapterState extends State<DoublePagedAdapter>
           reverse: settings.readerScrollDirection == 1 ? true : false,
           onPageChanged: (i) {
             int p = t['pages'][i] - 1;
-            print(p);
             provider.pageChanged(p);
           },
           preloadPagesCount: 4,
