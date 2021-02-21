@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
 import '../Globals.dart';
@@ -71,14 +72,22 @@ class MainImageWidget extends StatelessWidget {
                     height: MediaQuery.of(context).size.height,
                     width: MediaQuery.of(context).size.width,
                     child: Center(
-                      child: Text(
-                        "${(progress.progress * 100).toInt()}%",
-                        style: TextStyle(
-                          color: Colors.blueGrey,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Lato",
+                      child: CircularPercentIndicator(
+                        radius: 65.0,
+                        lineWidth: 3.0,
+                        percent: progress.progress,
+                        center: Text(
+                          "${(progress.progress * 100).toInt()}%",
+                          style: TextStyle(
+                            color: Colors.blueGrey,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Lato",
+                          ),
                         ),
+                        progressColor: Colors.purple,
+                        backgroundColor: Colors.grey[900],
+                        // fillColor: Colors.grey[900],
                       ),
                     ),
                   )

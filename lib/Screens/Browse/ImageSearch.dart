@@ -1,6 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
@@ -8,11 +9,11 @@ import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
+import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
-import 'package:mangasoup_prototype_3/Services/api_manager.dart';
-import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:provider/provider.dart';
 
@@ -76,14 +77,14 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                   color: Colors.grey[900],
                   child: _image == null
                       ? Container(
-                          child: Center(
-                            child: Icon(
-                              Icons.add,
-                              color: Colors.grey,
-                              size: 100,
-                            ),
-                          ),
-                        )
+                    child: Center(
+                      child: Icon(
+                        Icons.add,
+                        color: Colors.grey,
+                        size: 100,
+                      ),
+                    ),
+                  )
                       : Image.file(_image),
                 ),
               ),
@@ -98,12 +99,12 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                 onPressed: _image == null
                     ? null
                     : () async {
-                        setState(() {
-                          results = _manager.imageSearch(_image);
+                  setState(() {
+                    results = _manager.imageSearch(_image);
 
-                          /// Image Search
-                        });
-                      },
+                    /// Image Search
+                  });
+                },
                 child: Text(
                   'Search',
                   style: def,
@@ -157,109 +158,109 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
             List<ImageSearchResult> _res = snapshot.data;
             return (_res.isEmpty)
                 ? Container(
-                    child: Center(
-                      child: Text(
-                        "No Results",
-                        style: chapterTitleFont,
-                      ),
-                    ),
-                  )
+              child: Center(
+                child: Text(
+                  "No Results",
+                  style: chapterTitleFont,
+                ),
+              ),
+            )
                 : Container(
-                    child: ListView.builder(
-                        itemCount: _res.length,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (BuildContext context, int index) {
-                          ImageSearchResult searchResult = _res[index];
-                          return Container(
-                            color: Colors.grey[900],
-                            margin: EdgeInsets.only(
-                              bottom: 25,
-                            ),
-                            padding: EdgeInsets.all(
-                              10.w,
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      fit: FlexFit.loose,
-                                      flex: 2,
-                                      child: Container(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              searchResult.title,
-                                              softWrap: true,
-                                              style: chapterTitleFont,
-                                            ),
-                                            Text(
-                                              searchResult.chapter,
-                                              style: def,
-                                            ),
-                                            Text(
-                                              "${searchResult.similarity}% Match",
-                                              style: def,
-                                            ),
-                                            Text(
-                                              "Created by ${searchResult.author}",
-                                              style: def,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Spacer(),
-                                    Flexible(
-                                      child: Container(
-                                        height: 150,
-                                        width: 100,
-                                        child: SoupImage(
-                                          url: searchResult.thumbnail,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10.h,
-                                ),
-                                Row(
-                                  children: [
-                                    CupertinoButton(
-                                      child: Text(
-                                        "Read Chapter",
+              child: ListView.builder(
+                  itemCount: _res.length,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    ImageSearchResult searchResult = _res[index];
+                    return Container(
+                      color: Colors.grey[900],
+                      margin: EdgeInsets.only(
+                        bottom: 25,
+                      ),
+                      padding: EdgeInsets.all(
+                        10.w,
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                fit: FlexFit.loose,
+                                flex: 2,
+                                child: Container(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        searchResult.title,
+                                        softWrap: true,
                                         style: chapterTitleFont,
                                       ),
-                                      onPressed: () async {
-                                        showLoadingDialog(context);
-                                        try {
-                                          print(searchResult.chapterLink);
-                                          ComicHighlight comicHighlight =
-                                              await DexHub()
-                                                  .imageSearchViewComic(
-                                                      searchResult.mCID);
-                                          Map<String, dynamic> _data =
-                                              await Provider.of<
-                                                          DatabaseProvider>(
-                                                      context,
-                                                      listen: false)
-                                                  .generate(comicHighlight);
-                                          Profile profile = _data['profile'];
-                                          int _id = _data['id'];
-                                          print(profile.chapters[0].link);
-                                          int initialIndex = profile.chapters
-                                              .indexWhere((element) =>
-                                                  searchResult.chapterLink
-                                                      .contains(element.link));
-                                          Navigator.pop(context);
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => ReaderHome(
+                                      Text(
+                                        searchResult.chapter,
+                                        style: def,
+                                      ),
+                                      Text(
+                                        "${searchResult.similarity}% Match",
+                                        style: def,
+                                      ),
+                                      Text(
+                                        "Created by ${searchResult.author}",
+                                        style: def,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Spacer(),
+                              Flexible(
+                                child: Container(
+                                  height: 150,
+                                  width: 100,
+                                  child: SoupImage(
+                                    url: searchResult.thumbnail,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10.h,
+                          ),
+                          Row(
+                            children: [
+                              CupertinoButton(
+                                child: Text(
+                                  "Read Chapter",
+                                  style: chapterTitleFont,
+                                ),
+                                onPressed: () async {
+                                  showLoadingDialog(context);
+                                  try {
+                                    print(searchResult.chapterLink);
+                                    ComicHighlight comicHighlight =
+                                    await DexHub()
+                                        .imageSearchViewComic(
+                                        searchResult.mCID);
+                                    Map<String, dynamic> _data =
+                                    await Provider.of<
+                                        DatabaseProvider>(
+                                        context,
+                                        listen: false)
+                                        .generate(comicHighlight);
+                                    Profile profile = _data['profile'];
+                                    int _id = _data['id'];
+                                    print(profile.chapters[0].link);
+                                    int initialIndex = profile.chapters
+                                        .indexWhere((element) =>
+                                        searchResult.chapterLink
+                                            .contains(element.link));
+                                    Navigator.pop(context);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ReaderHome(
                                                 chapters: profile.chapters,
                                                 initialChapterIndex:
                                                     initialIndex,
@@ -267,51 +268,52 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                                                 selector: profile.selector,
                                                 source: profile.source,
                                               ),
+                                              fullscreenDialog: true,
                                             ),
-                                          );
-                                        } catch (err) {
-                                          print(err);
-                                          Navigator.pop(context);
-                                          showSnackBarMessage(
-                                              "An Error Occurred");
-                                        }
-                                      },
-                                    ),
-                                    Spacer(),
-                                    CupertinoButton(
-                                        child: Text(
-                                          "View Comic",
-                                          style: chapterTitleFont,
+                                    );
+                                  } catch (err) {
+                                    print(err);
+                                    Navigator.pop(context);
+                                    showSnackBarMessage(
+                                        "An Error Occurred");
+                                  }
+                                },
+                              ),
+                              Spacer(),
+                              CupertinoButton(
+                                  child: Text(
+                                    "View Comic",
+                                    style: chapterTitleFont,
+                                  ),
+                                  onPressed: () async {
+                                    showLoadingDialog(context);
+                                    try {
+                                      DexHub _dex = DexHub();
+                                      ComicHighlight comicHighlight =
+                                      await _dex.imageSearchViewComic(
+                                          searchResult.mCID);
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => ProfileHome(
+                                            highlight: comicHighlight,
+                                          ),
                                         ),
-                                        onPressed: () async {
-                                          showLoadingDialog(context);
-                                          try {
-                                            DexHub _dex = DexHub();
-                                            ComicHighlight comicHighlight =
-                                                await _dex.imageSearchViewComic(
-                                                    searchResult.mCID);
-                                            Navigator.pop(context);
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) => ProfileHome(
-                                                  highlight: comicHighlight,
-                                                ),
-                                              ),
-                                            );
-                                          } catch (err) {
-                                            print(err);
-                                            showSnackBarMessage(
-                                                "An Error Occurred");
-                                          }
-                                        })
-                                  ],
-                                )
-                              ],
-                            ),
-                          );
-                        }),
-                  );
+                                      );
+                                    } catch (err) {
+                                      print(err);
+                                      showSnackBarMessage(
+                                          "An Error Occurred");
+                                    }
+                                  })
+                            ],
+                          )
+                        ],
+                      ),
+                    );
+                  }),
+            );
           } else {
             return Container(
               height: 300,

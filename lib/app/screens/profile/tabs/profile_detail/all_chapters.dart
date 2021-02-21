@@ -75,6 +75,7 @@ class _ChapterListState extends State<ChapterList> {
             source: widget.source,
             initialPage: data != null ? data.lastPageRead : 1,
           ),
+          fullscreenDialog: true,
         ),
       );
     }
