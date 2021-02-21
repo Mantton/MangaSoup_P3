@@ -73,18 +73,9 @@ class MainImageWidget extends StatelessWidget {
                     width: MediaQuery.of(context).size.width,
                     child: Center(
                       child: CircularPercentIndicator(
-                        radius: 65.0,
+                        radius: 45.0,
                         lineWidth: 3.0,
                         percent: progress.progress,
-                        center: Text(
-                          "${(progress.progress * 100).toInt()}%",
-                          style: TextStyle(
-                            color: Colors.blueGrey,
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Lato",
-                          ),
-                        ),
                         progressColor: Colors.purple,
                         backgroundColor: Colors.grey[900],
                         // fillColor: Colors.grey[900],
