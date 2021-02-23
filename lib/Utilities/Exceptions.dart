@@ -1,13 +1,5 @@
 import 'package:dio/dio.dart';
 
-class ServerException implements Exception {
-  String cause;
-
-  ServerException(this.cause);
-}
-
-class NoConnectionException implements Exception {}
-
 class MissingMangaDexSession implements Exception {
   String _message;
 
@@ -36,21 +28,24 @@ class ErrorManager {
         else if (err.response.statusCode == 404)
           throw "Resource not Fount";
         else if (err.response.statusCode == 410)
-          throw "Resource is no longer available on this server";
+          throw "Resource is no longer available on this server.";
+        else if (err.response.statusCode == 422)
+          throw "Incorrect Schema used in request.";
         else if (err.response.statusCode == 500)
-          throw "MangaSoup Server Error\nContact Dev";
+          throw "MangaSoup Server Error\nContact Dev.";
         else if (err.response.statusCode == 502)
-          throw "Bad Gateway, Server might be under heavy load";
+          throw "Bad Gateway, Server might be under heavy load.";
         else
           throw "Requested Server is currently down";
       } else {
         print(err);
-        throw "API Manager encountered an error";
+        throw "MangaSoup encountered an error.";
       }
     } else {
       if (error is MissingMangaDexSession)
-        throw "The resource you are request requires MangaDex Authentication";
+        throw "The resource you are request requires MangaDex Authentication.";
       else {
+        print(error.runtimeType);
         print(error);
         throw error.toString();
       }
