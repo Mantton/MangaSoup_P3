@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/ReaderComponents.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
-
-
 import 'package:provider/provider.dart';
 
 import '../reader_provider.dart';
