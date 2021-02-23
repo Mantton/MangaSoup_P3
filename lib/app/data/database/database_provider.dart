@@ -361,14 +361,19 @@ class DatabaseProvider with ChangeNotifier {
   }
 
   Future<int> checkForUpdates() async {
-    print("--- CHECKING FOR UPDATE ---");
+    debugPrint("--- CHECKING FOR UPDATE ---");
     checkingForUpdates = true;
     notifyListeners();
     int updateCount = 0;
     List<Collection> uec =
         collections.where((element) => element.updateEnabled).toList();
 
-    if (uec.isEmpty) return null;
+    if (uec.isEmpty) {
+      debugPrint("---DONE CHECKING FOR UPDATE---");
+      checkingForUpdates = false;
+      notifyListeners();
+      return null;
+    }
 
     for (Collection c in uec) {
       List<ComicCollection> d = comicCollections
