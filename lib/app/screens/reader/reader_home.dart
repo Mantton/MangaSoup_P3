@@ -197,7 +197,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
   }
 
   Widget plain() => GestureDetector(
-    onTap: () {
+        onTap: () {
           setState(() {
             _showControls = !_showControls;
           });
@@ -329,6 +329,8 @@ class _ReaderFrameState extends State<ReaderFrame> {
 
   Widget footer() {
     return Consumer<ReaderProvider>(builder: (context, provider, _) {
+      int mode = Provider.of<PreferenceProvider>(context).readerScrollDirection;
+      int pow = Provider.of<PreferenceProvider>(context).readerMode;
       return AnimatedPositioned(
         duration: Duration(milliseconds: 150),
         curve: Curves.ease,
@@ -347,7 +349,12 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     onPressed: () async {
                       try {
                         showLoadingDialog(context);
-                        await provider.moveToChapter(next: false);
+                        await provider.moveToChapter(
+                            next: (pow == 1)
+                                ? (mode == 1)
+                                    ? true
+                                    : false
+                                : false);
                         Navigator.pop(context);
                       } catch (err) {
                         print(err);
@@ -365,15 +372,15 @@ class _ReaderFrameState extends State<ReaderFrame> {
                   flex: 8,
                   child: provider.pageDisplayNumber != null
                       ? Text(
-                          "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            fontFamily: 'Lato',
-                            color: Colors.grey,
-                          ),
-                          textAlign: TextAlign.center,
-                        )
+                    "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      fontFamily: 'Lato',
+                      color: Colors.grey,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
                       : Container(),
                 ),
 
@@ -383,7 +390,12 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     onPressed: () async {
                       try {
                         showLoadingDialog(context);
-                        await provider.moveToChapter();
+                        await provider.moveToChapter(
+                            next: (pow == 1)
+                                ? (mode == 1)
+                                    ? false
+                                    : true
+                                : true);
                         Navigator.pop(context);
                       } catch (err) {
                         print(err);

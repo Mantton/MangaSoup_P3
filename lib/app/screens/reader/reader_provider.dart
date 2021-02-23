@@ -432,15 +432,30 @@ class ReaderProvider with ChangeNotifier {
       // Move to Previous Chapter
       target = index + 1;
     }
-
+    int mode = Provider.of<PreferenceProvider>(context, listen: false)
+        .readerScrollDirection;
+    int pow =
+        Provider.of<PreferenceProvider>(context, listen: false).readerMode;
     if (target < 0) {
       // no chapter after it.
       showMessage(
-          "Last chapter", Icons.skip_next_outlined, Duration(seconds: 1));
+          "Last chapter",
+          (pow == 1)
+              ? (mode == 1)
+                  ? Icons.skip_previous_outlined
+                  : Icons.skip_next_outlined
+              : Icons.skip_next_outlined,
+          Duration(seconds: 1));
     } else if (target >= chapters.length) {
       // no chapters before it
       showMessage(
-          "First Chapter", Icons.skip_previous_outlined, Duration(seconds: 1));
+          "First Chapter",
+          (pow == 1)
+              ? (mode == 1)
+                  ? Icons.skip_next_outlined
+                  : Icons.skip_previous_outlined
+              : Icons.skip_previous_outlined,
+          Duration(seconds: 1));
     } else {
       // Check for duplicates
       Chapter chapter = chapters.elementAt(target);
