@@ -416,6 +416,7 @@ class DatabaseProvider with ChangeNotifier {
     for (Comic comic in targets) {
       int pointer = comics.indexWhere((element) => element.id == comic.id);
       comics[pointer].updateCount = 0;
+      comic.updateCount = 0;
       await comicManager.updateComic(comic);
     }
     notifyListeners();
