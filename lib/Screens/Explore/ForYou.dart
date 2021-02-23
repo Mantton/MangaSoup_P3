@@ -84,18 +84,18 @@ class _ForYouPageState extends State<ForYouPage>
                   page.comics.forEach((element) {
                     highlights.add(ComicHighlight.fromMap(element));
                   });
-
-                  return Padding(
-                    padding: EdgeInsets.fromLTRB(5, 10, 5, 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          sourcePages[index].header,
-                          style: TextStyle(fontSize: 30),
-                        ),
-                        SizedBox(
-                          height: 3,
+                  if (highlights.isNotEmpty)
+                    return Padding(
+                      padding: EdgeInsets.fromLTRB(5, 10, 5, 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            sourcePages[index].header,
+                            style: TextStyle(fontSize: 30),
+                          ),
+                          SizedBox(
+                            height: 3,
                         ),
                         Text(
                           sourcePages[index].subHeader,
@@ -118,16 +118,18 @@ class _ForYouPageState extends State<ForYouPage>
                             ),
                             shrinkWrap: true,
                             cacheExtent: MediaQuery.of(context).size.width,
-                            itemCount: highlights.length,
-                            itemBuilder: (BuildContext context, index) =>
-                                ComicGridTile(
-                              comic: highlights[index],
+                              itemCount: highlights.length,
+                              itemBuilder: (BuildContext context, index) =>
+                                  ComicGridTile(
+                                comic: highlights[index],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
+                        ],
+                      ),
+                    );
+                  else
+                    return Container();
                 }),
               ),
             );

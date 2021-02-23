@@ -532,6 +532,14 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  clearHistory() async {
+    for (History h in historyList) {
+      await historyManager.deleteHistory(h);
+    }
+    historyList.clear();
+    notifyListeners();
+  }
+
   historyLogic(
       Chapter chapter, int comicId, String source, String selector) async {
     ChapterData data = checkIfChapterMatch(chapter);
