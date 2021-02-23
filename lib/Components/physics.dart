@@ -200,7 +200,7 @@ class NewCustomScrollPhysics extends ScrollPhysics {
   /// calculations.
   @override
   double carriedMomentum(double existingVelocity) {
-    return 50.0;
+    return 90.0;
   }
 
   // Eyeballed from observation to counter the effect of an unintended scroll

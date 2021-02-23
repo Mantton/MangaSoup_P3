@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightList.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
@@ -14,8 +16,6 @@ import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.da
 import 'package:mangasoup_prototype_3/app/dialogs/library_options_dialog.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/library_search.dart';
 import 'package:provider/provider.dart';
-import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LibraryHome extends StatefulWidget {
   @override
@@ -59,18 +59,25 @@ class _LibraryHomeState extends State<LibraryHome>
           title: Text("Library"),
           centerTitle: true,
           leading: IconButton(
-              icon: Icon(CupertinoIcons.refresh),
-              onPressed: () {
-                showSnackBarMessage("Checking for updates.");
-                provider.checkForUpdates().then((value) {
-                  if (value == null)
-                    showSnackBarMessage("No Update Enabled Collections.");
-                  else if (value == 0)
-                    showSnackBarMessage("No new Updates.");
-                  else
-                    showSnackBarMessage("$value new updates in your Library.");
-                });
-              }),
+            icon: Icon(Icons.update),
+            color:
+                !provider.checkingForUpdates ? Colors.amber : Colors.grey[700],
+            onPressed: !provider.checkingForUpdates
+                ? () {
+                    showSnackBarMessage("Checking for updates.");
+                    provider.checkForUpdates().then((value) {
+                      if (value == null)
+                        showSnackBarMessage("No Update Enabled Collections.");
+                      else if (value == 0)
+                        showSnackBarMessage("No new Updates.");
+                      else
+                        showSnackBarMessage(
+                            "$value new updates in your Library.");
+                    });
+                  }
+                : () =>
+                    showSnackBarMessage("Currently Checking...", error: true),
+          ),
           actions: [
             IconButton(
               icon: Icon(CupertinoIcons.search),
@@ -193,74 +200,75 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
     return Stack(
       children: <Widget>[
         NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverAppBar(
-                floating: true,
-                snap: false,
-                pinned: false,
-                bottom: PreferredSize(
-                  preferredSize: Size(0, 10),
-                  child: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "${widget.collectionComics.length} Comic${widget.collectionComics.length > 1 || widget.collectionComics.length == 0 ? "s" : ''} in Collection",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                              fontSize: 15,
-                              fontFamily: "lato",
-                            ),
-                          ),
-                          Spacer(),
-                          // Clear Updates
-                          (widget.collectionComics
-                                  .any((element) => element.updateCount > 0))
-                              ? IconButton(
-                                  icon: Center(
-                                    child: Icon(
-                                      CupertinoIcons.clear_circled,
-                                      color: Colors.purple,
-                                      // size: 35,
-                                    ),
-                                  ),
-                                  onPressed: () => showClearUpdateDialog(
-                                      widget.collectionComics),
-                                )
-                              : Container(),
-                          SizedBox(width: 5),
-                          IconButton(
-                            icon: Center(
-                              child: Icon(
-                                widget.collection.updateEnabled
-                                    ? Icons.notifications_active_outlined
-                                    : Icons.notifications_off_outlined,
-                                // size: 35,
-                              ),
-                            ),
-                            color: widget.collection.updateEnabled
-                                ? Colors.green
-                                : Colors.red,
-                            onPressed: () => widget.provider
-                                .toggleCollectionUpdate(widget.collection),
-                          ),
-                          SizedBox(width: 5.w),
-                          InkWell(
-                            child: Text(
-                              "Sort by\n${collectionSortNames[widget.collection.librarySort]}",
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
+              return <Widget>[
+                SliverAppBar(
+                  floating: true,
+                  snap: false,
+                  pinned: false,
+                  bottom: PreferredSize(
+                    preferredSize: Size(0, 10),
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "${widget.collectionComics.length} Comic${widget.collectionComics.length > 1 || widget.collectionComics.length == 0 ? "s" : ''} in Collection",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color: Colors.grey,
                                 fontSize: 15,
                                 fontFamily: "lato",
                               ),
-                              textAlign: TextAlign.center,
                             ),
-                            onTap: () =>
+                            Spacer(),
+                            // Clear Updates
+                            (widget.collectionComics
+                                    .any((element) => element.updateCount > 0))
+                                ? IconButton(
+                                    icon: Center(
+                                      child: Icon(
+                                        CupertinoIcons.clear_circled,
+                                        color: Colors.purple,
+                                        // size: 35,
+                                      ),
+                                    ),
+                                    onPressed: () => showClearUpdateDialog(
+                                        widget.collectionComics),
+                                  )
+                                : Container(),
+                            SizedBox(width: 5),
+                            IconButton(
+                              icon: Center(
+                                child: Icon(
+                                  widget.collection.updateEnabled
+                                      ? Icons.notifications_active_outlined
+                                      : Icons.notifications_off_outlined,
+                                  // size: 35,
+                                ),
+                              ),
+                              color: widget.collection.updateEnabled
+                                  ? Colors.green
+                                  : Colors.red,
+                              onPressed: () => widget.provider
+                                  .toggleCollectionUpdate(widget.collection),
+                            ),
+                            SizedBox(width: 5.w),
+                            InkWell(
+                              child: Text(
+                                "Sort by\n${collectionSortNames[widget.collection.librarySort]}",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                  fontSize: 15,
+                                  fontFamily: "lato",
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              onTap: () =>
                                   idg(widget.collection, widget.provider),
                             )
                           ],

@@ -8,10 +8,11 @@ import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../Globals.dart';
 
-class ReaderImage extends StatelessWidget {
+class ReaderImage extends StatefulWidget {
   final String url;
   final BoxFit fit;
   final String referer;
@@ -26,19 +27,87 @@ class ReaderImage extends StatelessWidget {
       : super(key: key);
 
   @override
+  _ReaderImageState createState() => _ReaderImageState();
+}
+
+class _ReaderImageState extends State<ReaderImage>
+    with SingleTickerProviderStateMixin {
+  AnimationController _animationController;
+  Animation<Matrix4> _animation;
+  final _transformationController = TransformationController();
+
+  @override
+  void initState() {
+    super.initState();
+    _transformationController.addListener(() {});
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 125),
+    )..addListener(() {
+        _transformationController.value = _animation.value;
+      });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  TapDownDetails _doubleTapDetails;
+
+  @override
   Widget build(BuildContext context) {
     // double proportionalHeight = MediaQuery.of(context).size.width/imageSize.aspectRatio;
+    _transformationController.value = Matrix4.identity();
+
+    void _handleDoubleTap() {
+      Matrix4 _endMatrix;
+      Offset _position = _doubleTapDetails.localPosition;
+
+      if (_transformationController.value != Matrix4.identity()) {
+        _endMatrix = Matrix4.identity();
+      } else {
+        _endMatrix = Matrix4.identity()
+          ..translate(-_position.dx * 2, -_position.dy * 2)
+          ..scale(3.0);
+      }
+
+      _animation = Matrix4Tween(
+        begin: _transformationController.value,
+        end: _endMatrix,
+      ).animate(
+        CurveTween(curve: Curves.easeOut).animate(_animationController),
+      );
+      _animationController.forward(from: 0);
+    }
+
+    void _handleDoubleTapDown(TapDownDetails details) {
+      _doubleTapDetails = details;
+    }
+
     return Center(
       child: Consumer<PreferenceProvider>(
-        builder: (BuildContext c, provider, _) => InteractiveViewer(
-          maxScale: 3.5,
-          minScale: .5,
-          panEnabled: false,
-          child: MainImageWidget(
-            url: url,
-            referer: referer,
-            fit: fit,
-            maxWidth: provider.readerMaxWidth,
+        builder: (BuildContext c, provider, _) => GestureDetector(
+          onDoubleTapDown: _handleDoubleTapDown,
+          onDoubleTap: _handleDoubleTap,
+          child: VisibilityDetector(
+            key: Key("${widget.url}"),
+            onVisibilityChanged: (i) =>
+                _transformationController.value = Matrix4.identity(),
+            // reset on visibility change
+            child: InteractiveViewer(
+              transformationController: _transformationController,
+              maxScale: 3.5,
+              minScale: 1,
+              panEnabled: true,
+              child: MainImageWidget(
+                url: widget.url,
+                referer: widget.referer,
+                fit: widget.fit,
+                maxWidth: provider.readerMaxWidth,
+              ),
+            ),
           ),
         ),
       ),

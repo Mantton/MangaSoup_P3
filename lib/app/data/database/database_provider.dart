@@ -38,6 +38,9 @@ class DatabaseProvider with ChangeNotifier {
   List<Tracker> comicTrackers = List();
   Database _db;
 
+  // Update Check Variable
+  bool checkingForUpdates = false;
+
   // Query Managers
   ComicQuery comicManager;
   HistoryQuery historyManager;
@@ -62,7 +65,7 @@ class DatabaseProvider with ChangeNotifier {
     // Load Data into Provider Variables
     comics = await comicManager.getAll();
     collections = await collectionManager.getCollections();
-    historyList = await historyManager.getHistory(limit: 25);
+    historyList = await historyManager.getHistory();
     comicCollections = await comicCollectionManager.getAll();
     chapters = await chapterManager.getAll();
     bookmarks = await bookmarkManager.getAllBookMarks();
@@ -359,6 +362,8 @@ class DatabaseProvider with ChangeNotifier {
 
   Future<int> checkForUpdates() async {
     print("--- CHECKING FOR UPDATE ---");
+    checkingForUpdates = true;
+    notifyListeners();
     int updateCount = 0;
     List<Collection> uec =
         collections.where((element) => element.updateEnabled).toList();
@@ -399,6 +404,7 @@ class DatabaseProvider with ChangeNotifier {
       }
     }
     print("---DONE CHECKING FOR UPDATE---");
+    checkingForUpdates = false;
     notifyListeners();
     return updateCount;
   }
@@ -410,6 +416,7 @@ class DatabaseProvider with ChangeNotifier {
     for (Comic comic in targets) {
       int pointer = comics.indexWhere((element) => element.id == comic.id);
       comics[pointer].updateCount = 0;
+      comic.updateCount = 0;
       await comicManager.updateComic(comic);
     }
     notifyListeners();
@@ -529,6 +536,14 @@ class DatabaseProvider with ChangeNotifier {
   removeHistory(History history) async {
     await historyManager.deleteHistory(history);
     historyList.remove(history);
+    notifyListeners();
+  }
+
+  clearHistory() async {
+    for (History h in historyList) {
+      await historyManager.deleteHistory(h);
+    }
+    historyList.clear();
     notifyListeners();
   }
 
