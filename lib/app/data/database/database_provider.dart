@@ -38,6 +38,9 @@ class DatabaseProvider with ChangeNotifier {
   List<Tracker> comicTrackers = List();
   Database _db;
 
+  // Update Check Variable
+  bool checkingForUpdates = false;
+
   // Query Managers
   ComicQuery comicManager;
   HistoryQuery historyManager;
@@ -359,6 +362,8 @@ class DatabaseProvider with ChangeNotifier {
 
   Future<int> checkForUpdates() async {
     print("--- CHECKING FOR UPDATE ---");
+    checkingForUpdates = true;
+    notifyListeners();
     int updateCount = 0;
     List<Collection> uec =
         collections.where((element) => element.updateEnabled).toList();
@@ -399,6 +404,7 @@ class DatabaseProvider with ChangeNotifier {
       }
     }
     print("---DONE CHECKING FOR UPDATE---");
+    checkingForUpdates = false;
     notifyListeners();
     return updateCount;
   }
