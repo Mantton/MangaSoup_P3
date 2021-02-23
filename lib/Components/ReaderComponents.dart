@@ -42,7 +42,7 @@ class _ReaderImageState extends State<ReaderImage>
     _transformationController.addListener(() {});
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 125),
+      duration: Duration(milliseconds: 140),
     )..addListener(() {
         _transformationController.value = _animation.value;
       });
