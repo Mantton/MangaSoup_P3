@@ -33,6 +33,8 @@ import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:workmanager/workmanager.dart';
 
+import 'Providers/migrate_provider.dart';
+
 const simplePeriodicTask = "simplePeriodicTask";
 
 void callbackDispatcher() {
@@ -144,6 +146,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => DatabaseProvider()),
         ChangeNotifierProvider(create: (_) => ReaderProvider()),
         ChangeNotifierProvider(create: (_) => PreferenceProvider()),
+        ChangeNotifierProvider(create: (_) => MigrateProvider()),
       ],
       child: App(),
     ),

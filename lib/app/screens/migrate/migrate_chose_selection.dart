@@ -1,18 +1,19 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
+import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/screens/migrate/migrate_compare_and_complete.dart';
 
 class MigrateChoseDestination extends StatefulWidget {
   final Comic comic;
   final List<Source> sources;
 
-  const MigrateChoseDestination(
-      {Key key, @required this.comic, @required this.sources})
+  const MigrateChoseDestination({Key key, @required this.comic, @required this.sources})
       : super(key: key);
 
   @override
@@ -55,8 +56,7 @@ class BuildSearchResult extends StatefulWidget {
   final Comic initial;
   final Source source;
 
-  const BuildSearchResult(
-      {Key key, @required this.initial, @required this.source})
+  const BuildSearchResult({Key key, @required this.initial, @required this.source})
       : super(key: key);
 
   @override
@@ -145,14 +145,18 @@ class _BuildSearchResultState extends State<BuildSearchResult> {
     else
       return BuildResultList(
         result: snapshot.data,
+        initial: widget.initial,
       );
   }
 }
 
 class BuildResultList extends StatelessWidget {
+  final Comic initial;
   final List<ComicHighlight> result;
 
-  const BuildResultList({Key key, @required this.result}) : super(key: key);
+  const BuildResultList(
+      {Key key, @required this.result, @required this.initial})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -170,9 +174,73 @@ class BuildResultList extends StatelessWidget {
         shrinkWrap: true,
         cacheExtent: MediaQuery.of(context).size.width,
         itemCount: result.length,
-        itemBuilder: (BuildContext context, index) => ComicGridTile(
-          comic: result[index],
-        ),
+        itemBuilder: (BuildContext context, index) {
+          ComicHighlight comic = result[index];
+          return InkWell(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    MigrateCompare(current: initial, destination: comic),
+              ),
+            ),
+            child: GridTile(
+              child: Container(
+                // color: Colors.grey,
+                child: Column(
+                  children: [
+                    Expanded(
+                      flex: 7,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10.0),
+                        ),
+                        child: SoupImage(
+                          url: comic.thumbnail,
+                          referer: comic.imageReferer,
+                          // fit: BoxFit.fitWidth,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(5.0),
+                      child: AutoSizeText(
+                        comic.title,
+                        style: TextStyle(
+                          fontFamily: "Lato",
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          // fontSize: 17,
+                          shadows: <Shadow>[
+                            Shadow(
+                              offset: Offset(1.0, 1.0),
+                              blurRadius: 7.0,
+                              color: Colors.black,
+                            ),
+                            Shadow(
+                              offset: Offset(2.0, 2.0),
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                            )
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                        maxLines: 2,
+
+                        presetFontSizes: [17, 15],
+
+                        // maxFontSize: 40,
+                        // stepGranularity: 2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
