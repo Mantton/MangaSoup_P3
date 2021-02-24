@@ -150,7 +150,7 @@ class _SourcesPageState extends State<SourcesPage> {
                                     selectSource(source);
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.all(5.w),
+                                  padding: EdgeInsets.all(5),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
@@ -174,8 +174,7 @@ class _SourcesPageState extends State<SourcesPage> {
                                       padding:  EdgeInsets.all(8.0),
                                       child: SoupImage(
                                         url: source.thumbnail,
-                                        referer: source.url,
-                                        fit: BoxFit.fitWidth,
+                                        fit: BoxFit.scaleDown,
                                       ),
                                     ),
                                     footer: Center(
