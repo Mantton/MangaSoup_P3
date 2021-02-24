@@ -148,7 +148,7 @@ class DatabaseProvider with ChangeNotifier {
         .where(
           (element) =>
               element.inLibrary &&
-              element.title.toLowerCase().startsWith(
+              element.title.toLowerCase().contains(
                     query.toLowerCase(),
                   ),
         )
