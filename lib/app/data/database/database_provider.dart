@@ -685,4 +685,50 @@ class DatabaseProvider with ChangeNotifier {
     }
     comicTrackers.clear();
   }
+
+  Future<ComicHighlight> migrateComic(Profile c, Profile d) async {
+    // the process really is a waste
+    // get Comics for the profiles
+    Comic current = comics.firstWhere((element) => element.link == c.link);
+    Comic destination = comics.firstWhere((element) => element.link == d.link);
+
+    /// Chapters
+    // Get all Read chapters for current, create new chapter objects for d
+    List<double> readChapters = chapters
+        .where((element) => element.mangaId == current.id && element.read)
+        .map((e) => e.generatedChapterNumber)
+        .toSet()
+        .toList();
+    // list above contains the generated numbers for all read chapters in the lib
+    List<Chapter> toMark = d.chapters
+        .where((element) => readChapters.contains(element.generatedNumber))
+        .toList();
+    await updateFromACS(toMark, destination.id, true, destination.source,
+        destination.sourceSelector);
+    // Status
+    current.inLibrary = false;
+    destination.inLibrary = true;
+    List<int> ids = comicCollections
+        .where((element) => element.comicId == current.id)
+        .map((e) => e.collectionId)
+        .toList();
+    List<Collection> targetCollections =
+        collections.where((element) => ids.contains(element.id)).toList();
+    await batchSetComicCollection([], current.id);
+    await batchSetComicCollection(targetCollections, destination.id);
+    // Tracking
+    // todo, move tracking.
+
+    // Update Comic
+    int i1 = comics.indexOf(current);
+    int i2 = comics.indexOf(destination);
+    comics[i1] = current;
+    comics[i2] = destination;
+
+    await comicManager.updateComic(current);
+    await comicManager.updateComic(destination);
+
+    notifyListeners();
+    return destination.toHighlight();
+  }
 }

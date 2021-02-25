@@ -1,13 +1,16 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Providers/migrate_provider.dart';
-import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
 import 'package:provider/provider.dart';
 
 class MigrateCompare extends StatefulWidget {
@@ -105,11 +108,7 @@ class _MigrateCompareState extends State<MigrateCompare> {
                       fontSize: 20,
                     ),
                   ),
-                  onPressed: provider.canMigrate
-                      ? () {
-                          // pop to home, push to profile
-                        }
-                      : null,
+                  onPressed: provider.canMigrate ? () => migrate() : null,
                 );
               })
             ],
@@ -117,6 +116,62 @@ class _MigrateCompareState extends State<MigrateCompare> {
         ),
       ),
     );
+  }
+
+  migrate() {
+    showPlatformDialog(
+        context: context,
+        builder: (_) => PlatformAlertDialog(
+              title: Text("Migrate"),
+              content: Text(
+                "Are you sure you want to migrate this comic?\n"
+                "This would move read history, tracking and library status "
+                "to the destination comic.",
+              ),
+              actions: [
+                PlatformDialogAction(
+                  child: Text("Cancel"),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                PlatformDialogAction(
+                  child: Text("Proceed"),
+                  onPressed: () async => await doMigration(),
+                  cupertino: (_, __) => CupertinoDialogActionData(
+                    isDestructiveAction: true,
+                  ),
+                ),
+              ],
+            ));
+  }
+
+  doMigration() async {
+    Navigator.pop(context);
+    showLoadingDialog(context);
+    try {
+      Profile c = Provider.of<MigrateProvider>(context, listen: false).current;
+      Profile d =
+          Provider.of<MigrateProvider>(context, listen: false).destination;
+      ComicHighlight dest =
+          await Provider.of<DatabaseProvider>(context, listen: false)
+              .migrateComic(c, d);
+      showSnackBarMessage("Migration Complete!");
+      int count = 0;
+      Navigator.popUntil(context, (route) {
+        return count++ == 5;
+      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ProfileHome(
+            highlight: dest,
+          ),
+        ),
+      );
+    } catch (err) {
+      print(err);
+      Navigator.pop(context);
+      showSnackBarMessage("An Error Occurred", error: true);
+    }
   }
 }
 
@@ -144,8 +199,9 @@ class _ComicInformationState extends State<ComicInformation> {
   }
 
   Future<Profile> getProfile() async {
-    Profile y =
-        await ApiManager().getProfile(widget.comic.selector, widget.comic.link);
+    var c = await Provider.of<DatabaseProvider>(context, listen: false)
+        .generate(widget.comic);
+    Profile y = c['profile'];
     Provider.of<MigrateProvider>(context, listen: false)
         .setProfile(y, widget.isDestination);
 

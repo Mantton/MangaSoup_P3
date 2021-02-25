@@ -27,6 +27,7 @@ import 'package:mangasoup_prototype_3/Services/source_manager.dart';
 import 'package:mangasoup_prototype_3/Services/update_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
+import 'package:mangasoup_prototype_3/app/screens/migrate/migrate_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/landing.dart';
 import 'package:provider/provider.dart';
@@ -242,6 +243,7 @@ class App extends StatelessWidget {
             "handler": (_) => Handler(),
             "/sources": (_) => SourcesPage(),
             "landing": (_) => Landing(),
+            "/migration": (_) => MigrationHome(),
           },
         ),
       ),
@@ -288,6 +290,7 @@ class _HandlerState extends State<Handler> with AutomaticKeepAliveClientMixin {
 
   @override
   Widget build(BuildContext c) {
+    super.build(context);
     return FutureBuilder(
         future: firstLaunch,
         builder: (BuildContext cxt, snapshot) {
