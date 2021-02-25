@@ -224,7 +224,7 @@ class _ComicInformationState extends State<ComicInformation> {
             return Container(
               child: Center(
                 child: Text(
-                  "${snapshot.error}",
+                  "Migration Error",
                   style: notInLibraryFont,
                   textAlign: TextAlign.center,
                 ),

@@ -116,7 +116,7 @@ class _BuildSearchResultState extends State<BuildSearchResult> {
         height: 100,
         child: Center(
           child: Text(
-            "${snapshot.error}",
+            "An Error Occurred",
             style: notInLibraryFont,
             textAlign: TextAlign.center,
           ),
