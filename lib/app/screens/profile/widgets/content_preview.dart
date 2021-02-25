@@ -185,19 +185,21 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                     );
                   },
                   child: Container(
-                    height: 50.h,
+                    height: 50,
                     child: ListTile(
                       title: Text(
                         book.name,
                         style: TextStyle(
-                          fontSize: 17.sp,
+                          fontSize: 17,
                         ),
                       ),
-                      trailing: Text(
-                        book.range ?? "",
-                        style: TextStyle(
-                          color: Colors.grey[700],
-                          fontSize: 15.sp,
+                      trailing: FittedBox(
+                        child: Text(
+                          "${book.generatedLength} Chapters" ?? "",
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 15,
+                          ),
                         ),
                       ),
                     ),

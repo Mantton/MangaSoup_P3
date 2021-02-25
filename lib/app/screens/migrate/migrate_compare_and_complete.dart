@@ -7,6 +7,7 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Providers/migrate_provider.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/book.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
@@ -260,6 +261,7 @@ class InfoPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.all(5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -268,6 +270,7 @@ class InfoPane extends StatelessWidget {
             style: notInLibraryFont,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
           Text(
             profile.source,
@@ -303,11 +306,46 @@ class InfoPane extends StatelessWidget {
                     ),
                   ],
                 )
-              : Center(
-                  child: Text(
-                    "No Chapters",
-                  ),
-                ),
+              : (profile.containsBooks != null && profile.containsBooks)
+                  ? Builder(
+                      builder: (_) {
+                        int max = 0;
+                        Book t;
+                        for (Book b in profile.books) {
+                          if (b.generatedLength > max) {
+                            t = b;
+                            max = b.generatedLength;
+                          }
+                        }
+                        return Column(
+                          children: [
+                            Text(
+                              "${t.chapters.length} Total Chapters",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontFamily: "Lato",
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              "${t.chapters.map((e) => e.generatedNumber).toSet().toList().length} Unique Chapter(s) Detected",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontFamily: "Lato",
+                                color: Colors.blueGrey,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    )
+                  : Center(
+                      child: Text(
+                        "No Chapters",
+                      ),
+                    ),
         ],
       ),
     );

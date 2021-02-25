@@ -3,6 +3,7 @@ import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/book.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/mal_track_result.dart';
@@ -700,9 +701,23 @@ class DatabaseProvider with ChangeNotifier {
         .toSet()
         .toList();
     // list above contains the generated numbers for all read chapters in the lib
-    List<Chapter> toMark = d.chapters
-        .where((element) => readChapters.contains(element.generatedNumber))
-        .toList();
+    List<Chapter> toMark = List();
+    if (d.containsBooks) {
+      // get book with most chapters
+      Book t;
+      int max = 0;
+      for (Book b in d.books) {
+        if (b.generatedLength > max) {
+          t = b;
+        }
+      }
+      toMark = t.chapters
+          .where((element) => readChapters.contains(element.generatedNumber))
+          .toList();
+    } else
+      toMark = d.chapters
+          .where((element) => readChapters.contains(element.generatedNumber))
+          .toList();
     await updateFromACS(toMark, destination.id, true, destination.source,
         destination.sourceSelector);
     // Status

@@ -24,14 +24,14 @@ class MigrateProvider with ChangeNotifier {
   canMigrateLogic() {
     if (current != null && destination != null) {
       // Current and Destination have data
-      if (current.chapters != null && destination.chapters != null) if (current
-                  .chapterCount !=
-              null &&
-          destination.chapterCount != null) {
-        // Chapters have information
+      if (current.chapters != null && destination.chapters != null) {
+        if (current.chapterCount != null && destination.chapterCount != null) {
+          // Chapters have information
+          canMigrate = true;
+        } else
+          canMigrate = false;
+      } else if (current.containsBooks || destination.containsBooks)
         canMigrate = true;
-      } else
-        canMigrate = false;
       else
         canMigrate = false;
     } else

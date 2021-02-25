@@ -35,16 +35,18 @@ class _MigrateChoseDestinationState extends State<MigrateChoseDestination> {
             title: Text(widget.comic.title),
             subtitle: Text(widget.comic.source),
           ),
-          ListView.separated(
-            shrinkWrap: true,
-            itemBuilder: (_, index) => BuildSearchResult(
-              initial: widget.comic,
-              source: widget.sources[index],
+          Flexible(
+            child: ListView.separated(
+              shrinkWrap: true,
+              itemBuilder: (_, index) => BuildSearchResult(
+                initial: widget.comic,
+                source: widget.sources[index],
+              ),
+              separatorBuilder: (_, index) => SizedBox(
+                height: 15,
+              ),
+              itemCount: widget.sources.length,
             ),
-            separatorBuilder: (_, index) => SizedBox(
-              height: 15,
-            ),
-            itemCount: widget.sources.length,
           ),
         ],
       ),
