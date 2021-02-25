@@ -127,12 +127,14 @@ class _LatestPageState extends State<LatestPage>
                       SizedBox(
                         height: 10.h,
                       ),
-                      (_loadingMore)
-                          ? LoadingIndicator()
-                          : CupertinoButton(
-                              child: Text("Load More"),
-                              onPressed: () => paginate(),
-                            ),
+                      (_comics.isNotEmpty)
+                          ? (_loadingMore)
+                              ? LoadingIndicator()
+                              : CupertinoButton(
+                                  child: Text("Load More"),
+                                  onPressed: () => paginate(),
+                                )
+                          : Container(),
                     ],
                   ),
                 ),

@@ -174,12 +174,14 @@ class _AllComicsPageState extends State<AllComicsPage>
                       SizedBox(
                         height: 10,
                       ),
-                      (_loadingMore)
-                          ? LoadingIndicator()
-                          : CupertinoButton(
-                              child: Text("Load More"),
-                              onPressed: () => paginate(),
-                            ),
+                      (_comics.isNotEmpty)
+                          ? (_loadingMore)
+                              ? LoadingIndicator()
+                              : CupertinoButton(
+                                  child: Text("Load More"),
+                                  onPressed: () => paginate(),
+                                )
+                          : Container(),
                     ],
                   ),
                 ),
