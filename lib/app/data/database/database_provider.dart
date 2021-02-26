@@ -224,48 +224,13 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  updateCollectionOrder(int initial, int newIndex) async {
-    initial++;
-
-    print("initial: $initial\n new:$newIndex");
-    if (newIndex < initial) {
-      newIndex++;
-      // Get Target Collection that is being updated
-      Collection target =
-          collections.firstWhere((element) => element.order == initial);
-      // get affected collections from update
-      List<Collection> strays = collections
-          .where(
-              (element) => element.order >= newIndex && element.order < initial)
-          .toList();
-      // update affected collections
-      strays.forEach((element) {
-        int toUpdate = collections.indexOf(element);
-        collections[toUpdate].order++;
-      });
-
-      // Update provider collections variable
-      collections[collections.indexOf(target)].order = newIndex;
-    } else {
-      // Get Target Collection that is being updated
-      Collection target =
-          collections.firstWhere((element) => element.order == initial);
-      // get affected collections from update
-      List<Collection> strays = collections
-          .where((element) =>
-              element.order <= newIndex && element.order >= initial)
-          .toList();
-      // update affected collections
-      strays.forEach((element) {
-        int toUpdate = collections.indexOf(element);
-        collections[toUpdate].order--;
-      });
-
-      // Update provider collections variable
-
-      collections[collections.indexOf(target)].order = newIndex;
+  updateCollectionOrder(List<Collection> toUpdate) {
+    // Incoming list is sorted on the new order
+    for (Collection c in toUpdate) {
+      c.order = toUpdate.indexOf(c) + 1;
     }
-    await collectionManager.reorderCollections(collections);
+    collections = toUpdate;
+    collectionManager.reorderCollections(collections);
     notifyListeners();
   }
 
