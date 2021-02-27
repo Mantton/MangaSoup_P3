@@ -1,14 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'dart:io';
+import 'package:mangasoup_prototype_3/Services/cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class CloudFareBypass extends StatefulWidget {
   final String url;
 
   const CloudFareBypass({Key key, @required this.url}) : super(key: key);
+
   @override
   _CloudFareBypassState createState() => _CloudFareBypassState();
 }
@@ -30,6 +32,7 @@ class WebViewExample extends StatefulWidget {
   final String url;
 
   const WebViewExample({Key key, this.url}) : super(key: key);
+
   @override
   WebViewExampleState createState() => WebViewExampleState();
 }
@@ -40,24 +43,28 @@ class WebViewExampleState extends State<WebViewExample> {
     super.initState();
     // Enable hybrid composition.
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+    cookieManagerr.clearCookies();
   }
+
+  final cookieManagerr = TestCookieManager();
+
   final Completer<WebViewController> _controller =
-  Completer<WebViewController>();
+      Completer<WebViewController>();
+
   @override
   Widget build(BuildContext context) {
-    print(widget.url);
     return WebView(
       initialUrl: widget.url,
       javascriptMode: JavascriptMode.unrestricted,
-      debuggingEnabled: true,
-      onWebResourceError: (err)=>{
-        print(err.description)
-      },
+      debuggingEnabled: false,
+      userAgent: "MangaSoup/0.0.3",
+      onWebResourceError: (err) => {print(err.description)},
       onWebViewCreated: (WebViewController webViewController) {
         _controller.complete(webViewController);
         webViewController.clearCache();
         final cookieManager = CookieManager();
         cookieManager.clearCookies();
+        cookieManagerr.clearCookies();
       },
       javascriptChannels: <JavascriptChannel>[
         _toasterJavascriptChannel(context),
@@ -67,19 +74,29 @@ class WebViewExampleState extends State<WebViewExample> {
           print('blocking navigation to $request}');
           return NavigationDecision.prevent;
         }
-        print('allowing navigation to $request');
         return NavigationDecision.navigate;
       },
       onPageStarted: (String url) {
         print('Page started loading: $url');
       },
-      onPageFinished: (String url){
+      onPageFinished: (String url) {
         _controller.future.then((view) async {
-          final String cookies =
-              await view.evaluateJavascript('document.cookie');
-          print("Retrieved Cookies");
-          print(cookies);
-          Navigator.pop(context, cookies);
+          String id;
+          String clearance;
+          final gotCookies = await cookieManagerr.testGetCookies(widget.url);
+          for (var item in gotCookies) {
+            // required Cookies
+            if (item != null) {
+              if (item.name == "cf_clearance")
+                clearance = "${item.name}=${item.value}";
+              if (item.name == "__cfduid") id = "${item.name}=${item.value}";
+            }
+          }
+
+          if (clearance != null) {
+            String cookies = '$id; $clearance';
+            Navigator.pop(context, cookies);
+          }
         });
       },
       gestureNavigationEnabled: true,

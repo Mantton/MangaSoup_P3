@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
@@ -32,6 +33,7 @@ class _SourcesPageState extends State<SourcesPage> {
   ApiManager server = ApiManager();
   String _currentSelector;
   Map newCookies = Map();
+  bool bypassSuccess = false;
 
   check() {
     if (widget.selector != null)
@@ -56,8 +58,14 @@ class _SourcesPageState extends State<SourcesPage> {
       String srcCookies = pref.getString("${src.selector}_cookies");
       if (srcCookies == null) {
         await cloudFareProtectedDialog(src.cloudFareLink);
-        print(newCookies);
-        pref.setString('${src.selector}_cookies', jsonEncode(newCookies));
+
+        if (bypassSuccess) {
+          print(newCookies);
+          pref.setString('${src.selector}_cookies', jsonEncode(newCookies));
+        } else {
+          showSnackBarMessage("Failed to Bypass");
+          return;
+        }
       }
     }
     showLoadingDialog(context);
@@ -285,26 +293,30 @@ class _SourcesPageState extends State<SourcesPage> {
           PlatformDialogAction(
             child: PlatformText("Proceed"),
             onPressed: () async {
-               String cookies = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => CloudFareBypass(url: cloudfareLink,),
-                    fullscreenDialog: true
-                ),
-              );
-               Navigator.pop(context);
-               // Prepare Cookies
-               List<String> listedCookies = cookies.split("; ");
-               Map encodedCookies = Map();
-               for(String c in listedCookies){
-                 List d = c.split("=");
-                 MapEntry entry = MapEntry(d[0], d[1]);
-                 encodedCookies.putIfAbsent(entry.key, () => entry.value);
-               }
-               print(cookies);
-               newCookies = encodedCookies;
+              String cookies = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => CloudFareBypass(
+                            url: cloudfareLink,
+                          ),
+                      fullscreenDialog: true),
+                );
+                Navigator.pop(context);
+                // Prepare Cookies
 
-            }
+                if (cookies != null) {
+                  List<String> listedCookies = cookies.split("; ");
+                  Map encodedCookies = Map();
+                  for (String c in listedCookies) {
+                    List d = c.split("=");
+                    MapEntry entry = MapEntry(d[0], d[1]);
+                    encodedCookies.putIfAbsent(entry.key, () => entry.value);
+                  }
+                  print(cookies);
+                  newCookies = encodedCookies;
+                  bypassSuccess = true;
+                }
+              }
           )
         ],
       ),
