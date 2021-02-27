@@ -47,7 +47,7 @@ class ErrorManager {
       else {
         print(error.runtimeType);
         print(error);
-        throw error.toString();
+        throw "Internal Processing Error";
       }
     }
   }

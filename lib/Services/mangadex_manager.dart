@@ -231,9 +231,8 @@ class DexHub {
 
       throw 'MangaDex failed to respond with the appropriate data';
     }
-
     var manga = c['manga'];
-    Map chapters = c['chapter'];
+    Map chapters = c['chapter'] ?? {};
 
     // Comic Properties
     String title = manga['title'];
