@@ -59,7 +59,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                   profileTags(),
                   readButton(),
                   SizedBox(
-                    height: 5.h,
+                    height: 5,
                   ),
                   contentPreview()
                 ],
@@ -77,16 +77,19 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
         Container(
           margin: EdgeInsets.only(top: 10, left: 10),
           width: 200,
-          height: 250,
-          child: SoupImage(url: widget.profile.thumbnail),
+          height: 300,
+          child: SoupImage(
+            url: widget.profile.thumbnail,
+            fit: BoxFit.scaleDown,
+          ),
         ),
         SizedBox(
-          width: 10.w,
+          width: 10,
         ),
         Expanded(
           child: Container(
-            padding: EdgeInsets.all(10.w),
-            margin: EdgeInsets.only(top: 10.h),
+            padding: EdgeInsets.all(10),
+            margin: EdgeInsets.only(top: 10),
 //                                          color: Colors.white12,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,9 +105,9 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                   // maxLines: 2,
                 ),
                 Divider(
-                  height: 20.h,
-                  indent: 5.w,
-                  endIndent: 5.w,
+                  height: 20,
+                  indent: 5,
+                  endIndent: 5,
                   color: Colors.white12,
                   thickness: 2,
                 ),
@@ -167,11 +170,11 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
           DescriptionProperty property = widget.profile.properties[index];
           return (property.tags.isNotEmpty)
               ? Container(
-                  padding: EdgeInsets.only(
-                    left: 15.w,
-                    right: 15.w,
+            padding: EdgeInsets.only(
+                    left: 15,
+                    right: 15,
                   ),
-                  margin: EdgeInsets.only(bottom: 5.h),
+                  margin: EdgeInsets.only(bottom: 5),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,19 +224,19 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
           ),
         ),
         Divider(
-          height: 20.h,
-          indent: 5.w,
-          endIndent: 5.w,
+          height: 20,
+          indent: 5,
+          endIndent: 5,
           color: Colors.white12,
           thickness: 2,
         ),
         Padding(
-          padding: EdgeInsets.all(8.0.w),
+          padding: EdgeInsets.all(8.0),
           child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                crossAxisSpacing: 20.w,
-                mainAxisSpacing: 20.h,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
                 childAspectRatio: .75,
               ),
               itemCount: (widget.profile.images.length > 6)
@@ -256,7 +259,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                   child: GridTile(
                     child: ClipRRect(
                       borderRadius: BorderRadius.all(
-                        Radius.circular(10.0.w),
+                        Radius.circular(10.0),
                       ),
                       child: Container(
                           child: SoupImage(

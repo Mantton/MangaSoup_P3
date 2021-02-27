@@ -95,10 +95,11 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
           Container(
             margin: EdgeInsets.only(top: 10, left: 10),
             width: 200,
-            height: 250,
+            height: 300,
             child: SoupImage(
               url: widget.profile.thumbnail,
               referer: comic.referer,
+              fit: BoxFit.scaleDown,
             ),
           ),
           SizedBox(
@@ -124,9 +125,9 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                     // maxLines: 3,
                   ),
                   Divider(
-                    height: 20.h,
-                    indent: 5.w,
-                    endIndent: 5.w,
+                    height: 20,
+                    indent: 5,
+                    endIndent: 5,
                     color: Colors.white12,
                     thickness: 2,
                   ),
@@ -440,7 +441,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
             SizedBox(
-              height: 5.h,
+              height: 5,
             ),
             GridView.builder(
                 physics: NeverScrollableScrollPhysics(),
