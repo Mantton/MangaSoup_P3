@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -19,6 +18,8 @@ class SoupImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: CachedNetworkImage(
+        memCacheHeight: 800,
+        memCacheWidth: 600,
         imageUrl: (!url.contains("https:https:"))
             ? url
             : url.replaceFirst("https:", ""),
@@ -26,16 +27,21 @@ class SoupImage extends StatelessWidget {
             referer != null ? {"referer": referer ?? imageHeaders(url)} : null,
         placeholder: (context, url) => Center(
           child: CupertinoActivityIndicator(
-            radius: 10.w,
+            radius: 10,
           ),
         ),
         fadeInDuration: Duration(
           microseconds: 100,
         ),
-        errorWidget: (context, url, error) => Icon(
-          Icons.error,
-          color: Colors.purple,
-        ),
+        errorWidget: (context, url, error) {
+          print(url);
+          print(error);
+          CachedNetworkImage.evictFromCache(url);
+          return Icon(
+            Icons.error,
+            color: Colors.purple,
+          );
+        },
         fit: fit,
       ),
     );
@@ -68,8 +74,8 @@ class GalleryViewer extends StatelessWidget {
           itemCount: images.length,
           loadingBuilder: (context, event) => Center(
             child: Container(
-              width: 40.0.w,
-              height: 40.0.h,
+              width: 40.0,
+              height: 40.0,
               child: CircularProgressIndicator(
                 value: event == null
                     ? 0

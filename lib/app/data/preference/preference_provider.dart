@@ -21,6 +21,7 @@ class PreferenceProvider with ChangeNotifier {
     readerScrollDirection =
         _p.getInt(PreferenceKeys.READER_SCROLL_DIRECTION) ?? 1;
     readerOrientation = _p.getInt(PreferenceKeys.MANGA_ORIENTATION) ?? 1;
+    comicGridMode = _p.getInt(PreferenceKeys.COMIC_GRID_MODE) ?? 0;
     readerPadding = _p.getBool(PreferenceKeys.MANGA_PADDING) ?? true;
     readerPageSnapping = _p.getBool(PreferenceKeys.MANGA_SNAPPING) ?? true;
     comicGridCrossAxisCount =
@@ -215,6 +216,19 @@ class PreferenceProvider with ChangeNotifier {
     SharedPreferences p = await preferences();
     readerDoublePagedMode = mode;
     p.setBool(PreferenceKeys.MAL_AUTO_SYNC, mode);
+    notifyListeners();
+  }
+
+  Map comicGridModeOptions = {
+    0: "Separated",
+    1: "Compact",
+  };
+  int comicGridMode;
+
+  setComicGridMode(int option) async {
+    SharedPreferences p = await preferences();
+    comicGridMode = option;
+    p.setInt(PreferenceKeys.COMIC_GRID_MODE, option);
     notifyListeners();
   }
 

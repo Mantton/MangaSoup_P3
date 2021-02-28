@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
@@ -40,7 +39,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
       body: SingleChildScrollView(
         child: Consumer<PreferenceProvider>(builder: (context, settings, _) {
           return Padding(
-            padding: EdgeInsets.all(8.0.w),
+            padding: EdgeInsets.all(8.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +56,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                   ),
                   subtitle: Text("Number of comics in a row"),
                   trailing: Container(
-                    padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+                    padding: EdgeInsets.only(left: 10.0, right: 10.0),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
                         color: Colors.grey[900],
@@ -84,6 +83,28 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                       "This would automatically scale the cross axis count to match the intended look of the app\nThis would override the Grid Count"),
                   value: settings.scaleToMatchIntended,
                   onChanged: (v) => settings.setSTMI(v),
+                ),
+                ListTile(
+                  title: Text(
+                    "Comic GridTile Look",
+                    style: notInLibraryFont,
+                  ),
+                  subtitle: Text("OverAll Look of a GridTile"),
+                  trailing: Container(
+                    padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: Colors.grey[900],
+                        border: Border.all()),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton(
+                        value: settings.comicGridMode,
+                        items:
+                            settings.buildItems(settings.comicGridModeOptions),
+                        onChanged: (p) => settings.setComicGridMode(p),
+                      ),
+                    ),
+                  ),
                 ),
                 SizedBox(
                   height: 10,
