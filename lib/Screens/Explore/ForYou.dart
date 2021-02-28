@@ -86,38 +86,45 @@ class _ForYouPageState extends State<ForYouPage>
                   });
                   if (highlights.isNotEmpty)
                     return Padding(
-                      padding: EdgeInsets.fromLTRB(5, 10, 5, 20),
+                      padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             sourcePages[index].header,
-                            style: TextStyle(fontSize: 30),
+                            style: TextStyle(
+                                fontSize: 25,
+                                fontFamily: "Lato",
+                                fontWeight: FontWeight.bold),
                           ),
                           SizedBox(
                             height: 3,
-                        ),
-                        Text(
-                          sourcePages[index].subHeader,
-                          style: TextStyle(fontSize: 20, color: Colors.grey),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          height: 250,
-                          child: GridView.builder(
-                            physics: ScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 1,
-                              childAspectRatio: 1.58,
-                              mainAxisSpacing: 5,
-                              crossAxisSpacing: 0,
+                          ),
+                          Text(
+                            sourcePages[index].subHeader,
+                            style: TextStyle(
+                              fontSize: 17,
+                              color: Colors.grey,
+                              fontFamily: "Lato",
                             ),
-                            shrinkWrap: true,
-                            cacheExtent: MediaQuery.of(context).size.width,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            height: 250,
+                            child: GridView.builder(
+                              physics: ScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 1,
+                                childAspectRatio: 1.58,
+                                mainAxisSpacing: 5,
+                                crossAxisSpacing: 0,
+                              ),
+                              shrinkWrap: true,
+                              cacheExtent: MediaQuery.of(context).size.width,
                               itemCount: highlights.length,
                               itemBuilder: (BuildContext context, index) =>
                                   ComicGridTile(

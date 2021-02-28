@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 
 class MissingMangaDexSession implements Exception {
@@ -18,7 +20,7 @@ class ErrorManager {
   static analyze(var error) {
     if (error is DioError) {
       DioError err = error;
-      if (err.response.statusCode != null) {
+      if (err.response != null) {
         if (err.response.statusCode == 400)
           throw "Bad Request";
         else if (err.response.statusCode == 401)
@@ -31,15 +33,20 @@ class ErrorManager {
           throw "Resource is no longer available on this server.";
         else if (err.response.statusCode == 422)
           throw "Incorrect Schema used in request.";
-        else if (err.response.statusCode == 500)
+        else if (err.response.statusCode == 500) {
+          print(err.response.data);
           throw "MangaSoup Server Error\nContact Dev.";
-        else if (err.response.statusCode == 502)
+        } else if (err.response.statusCode == 502)
           throw "Bad Gateway, Server might be under heavy load.";
+        else if (err.response.statusCode == 463)
+          throw "CloudFare Bypass Validation Failed";
         else
           throw "Requested Server is currently down";
       } else {
-        print(err);
-        throw "MangaSoup encountered an error.";
+        if (err.error is SocketException) {
+          throw "Failed to Connect to MangaSoup Servers";
+        } else
+          throw "MangaSoup encountered an Undefined Network Error.";
       }
     } else {
       if (error is MissingMangaDexSession)
@@ -47,7 +54,10 @@ class ErrorManager {
       else {
         print(error.runtimeType);
         print(error);
-        throw "Internal Processing Error";
+        if (error is String)
+          throw "$error";
+        else
+          throw "Undefined Processing Error";
       }
     }
   }
