@@ -23,7 +23,7 @@ class ApiManager {
 
   static BaseOptions _options = BaseOptions(
     // actual route -->
-    baseUrl: _localAddress,
+    baseUrl: _devAddress,
     connectTimeout: 50000,
     receiveTimeout: 50000,
   );
