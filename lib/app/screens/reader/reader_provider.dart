@@ -357,13 +357,17 @@ class ReaderProvider with ChangeNotifier {
                     // do nothing, no element was found
                   }
                   if (t != null) {
-                    t.lastChapterRead = chapters
+                    int chapt = chapters
                         .elementAt(indexList[page])
                         .generatedNumber
                         .toInt();
-                    print(t.lastChapterRead);
-                    await Provider.of<DatabaseProvider>(context, listen: false)
-                        .updateTracker(t);
+                    // Only Update if Read More not less
+                    if (chapt > t.lastChapterRead) {
+                      t.lastChapterRead = chapt;
+                      await Provider.of<DatabaseProvider>(context,
+                              listen: false)
+                          .updateTracker(t);
+                    }
                   }
                 }
               } catch (err) {

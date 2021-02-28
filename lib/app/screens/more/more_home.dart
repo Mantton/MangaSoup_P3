@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/ImageSearch.dart';
-import 'package:mangasoup_prototype_3/Screens/WebViews/cloudfare_webview.dart';
 import 'package:mangasoup_prototype_3/app/screens/browse/imgur_search.dart';
 import 'package:mangasoup_prototype_3/app/screens/mangadex/mangadex_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/settings/settings_home.dart';
@@ -14,14 +13,12 @@ class MoreHomePage extends StatelessWidget {
     "MangaDex Image Search",
     "Imgur Album Search",
     "Tracking Services",
-    "Debug Services",
   ];
   final List icons = [
     "assets/images/icon.png",
     "assets/images/mangadex.png",
     "assets/images/detective.png",
     "assets/images/imgur.png",
-    "assets/images/tracking.gif",
     "assets/images/tracking.gif",
   ];
   final List pages = [
@@ -30,10 +27,6 @@ class MoreHomePage extends StatelessWidget {
     ImageSearchPage(),
     ImgurAlbumPage(),
     TrackingServicesPage(),
-    CloudFareBypass(
-      url:
-          "http://mangahasu.se/yubisaki-kara-honki-no-netsujou/chapter-48-c849832.html",
-    ),
   ];
 
   @override

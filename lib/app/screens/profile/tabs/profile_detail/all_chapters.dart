@@ -83,6 +83,15 @@ class _ChapterListState extends State<ChapterList> {
     setState(() {});
   }
 
+  List<Chapter> chapters = List();
+  bool descending = true;
+
+  @override
+  void initState() {
+    super.initState();
+    chapters = List.of(widget.chapterList);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,6 +117,24 @@ class _ChapterListState extends State<ChapterList> {
                   ),
                 )
               : Container(),
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  if (descending) {
+                    chapters.sort((a, b) =>
+                        a.generatedNumber.compareTo(b.generatedNumber));
+                    descending = false;
+                  } else {
+                    chapters.sort((a, b) =>
+                        b.generatedNumber.compareTo(a.generatedNumber));
+                    descending = true;
+                  }
+                });
+              },
+              icon: Icon(
+                descending ? CupertinoIcons.sort_up : CupertinoIcons.sort_down,
+                color: Colors.white,
+              ))
         ],
       ),
       body: Consumer<DatabaseProvider>(
@@ -115,7 +142,7 @@ class _ChapterListState extends State<ChapterList> {
         return ListView.builder(
             itemCount: widget.chapterList.length,
             itemBuilder: (BuildContext context, int index) {
-              Chapter chapter = widget.chapterList[index];
+              Chapter chapter = chapters[index];
               ChapterData data = provider.checkIfChapterMatch(chapter);
               bool similarRead =
                   provider.checkSimilarRead(chapter, widget.comicId);
