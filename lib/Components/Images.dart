@@ -48,10 +48,25 @@ class SoupImage extends StatelessWidget {
   }
 }
 
-class GalleryViewer extends StatelessWidget {
+class GalleryViewer extends StatefulWidget {
   final List images;
+  final int initialIndex;
 
-  const GalleryViewer({Key key, this.images}) : super(key: key);
+  const GalleryViewer({Key key, this.images, this.initialIndex})
+      : super(key: key);
+
+  @override
+  _GalleryViewerState createState() => _GalleryViewerState();
+}
+
+class _GalleryViewerState extends State<GalleryViewer> {
+  PageController _controller;
+
+  @override
+  void initState() {
+    _controller = PageController(initialPage: widget.initialIndex);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,14 +79,16 @@ class GalleryViewer extends StatelessWidget {
       body: Container(
         child: PhotoViewGallery.builder(
           // scrollPhysics:  BouncingScrollPhysics(),
+
+          pageController: _controller,
           builder: (BuildContext context, int index) {
             return PhotoViewGalleryPageOptions(
-              imageProvider: CachedNetworkImageProvider(images[index]),
+              imageProvider: CachedNetworkImageProvider(widget.images[index]),
               initialScale: PhotoViewComputedScale.covered * 0.8,
               heroAttributes: PhotoViewHeroAttributes(tag: "MangaSoup"),
             );
           },
-          itemCount: images.length,
+          itemCount: widget.images.length,
           loadingBuilder: (context, event) => Center(
             child: Container(
               width: 40.0,

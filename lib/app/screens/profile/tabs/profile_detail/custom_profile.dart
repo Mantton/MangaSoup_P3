@@ -150,7 +150,7 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                 ),
                 FittedBox(
                   child: Text(
-                    "Uploaded ${widget.profile.uploadDate}",
+                    "Uploaded: ${widget.profile.uploadDate ?? "Unknown"}",
                     style: def,
                   ),
                 ),
@@ -251,8 +251,9 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                     MaterialPageRoute(
                       builder: (_) => GalleryViewer(
                         images: (widget.profile.images.length > 9)
-                            ? widget.profile.images.sublist(1, 9)
+                            ? widget.profile.images.sublist(0, 9)
                             : widget.profile.images,
+                        initialIndex: index,
                       ),
                     ),
                   ),
@@ -262,9 +263,10 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                         Radius.circular(10.0),
                       ),
                       child: Container(
-                          child: SoupImage(
-                        url: widget.profile.images[index],
-                      )),
+                        child: SoupImage(
+                          url: widget.profile.images[index],
+                        ),
+                      ),
                     ),
                   ),
                 );

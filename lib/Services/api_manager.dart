@@ -295,7 +295,7 @@ class ApiManager {
       await DexHub().markChapter(ids, read, additionalParams);
     } catch (e) {
       print(e.response.data);
-      throw "Parsing Error";
+      throw "Chapter Sync Error";
     }
   }
 

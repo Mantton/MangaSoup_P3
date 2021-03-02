@@ -340,7 +340,7 @@ class ReaderProvider with ChangeNotifier {
                   await ApiManager().syncChapters(
                       [chapters.elementAt(currentIndex).link], true);
                 } catch (err) {
-                  showSnackBarMessage(err);
+                  showSnackBarMessage(err, error: true);
                 }
               }
               try {
