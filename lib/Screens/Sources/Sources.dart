@@ -15,6 +15,7 @@ import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
 import 'package:mangasoup_prototype_3/Screens/WebViews/cloudfare_webview.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Services/source_manager.dart';
+import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,10 +46,14 @@ class _SourcesPageState extends State<SourcesPage> {
 
   // Retrieve Source from Server
   Future<Map> getSources() async {
-    List<Source> sources =
-        await server.getServerSources("live"); // Retrieve Source
-    Map sorted =
-        groupBy(sources, (Source obj) => obj.sourcePack); // Group Source
+    Map sorted = Map();
+    try {
+      List<Source> sources =
+          await server.getServerSources("live"); // Retrieve Source
+      sorted = groupBy(sources, (Source obj) => obj.sourcePack); // Group Source
+    } catch (err) {
+      ErrorManager.analyze(err);
+    }
     return sorted;
   }
 
