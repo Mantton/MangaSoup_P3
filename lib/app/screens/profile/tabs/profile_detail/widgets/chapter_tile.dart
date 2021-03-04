@@ -117,24 +117,34 @@ class ChapterTile extends StatelessWidget {
 
   FittedBox fittedBox(ChapterData data) {
     return FittedBox(
-      child: Row(
+      child: Column(
         children: [
-          Icon(
-            Icons.play_arrow,
-            color: Colors.purple,
-          ),
-          SizedBox(
-            width: 2,
+          Row(
+            children: [
+              Icon(
+                Icons.play_arrow,
+                color: Colors.purple,
+              ),
+              SizedBox(
+                width: 2,
+              ),
+              Text(
+                "Page ${data.lastPageRead}",
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "Lato",
+                ),
+              )
+            ],
           ),
           Text(
-            "Page ${data.lastPageRead}",
+            chapter.date,
             style: TextStyle(
               color: Colors.grey[700],
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-              fontFamily: "Lato",
             ),
-          )
+          ),
         ],
       ),
     );

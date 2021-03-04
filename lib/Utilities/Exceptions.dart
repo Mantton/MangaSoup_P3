@@ -50,14 +50,16 @@ class ErrorManager {
       }
     } else {
       if (error is MissingMangaDexSession)
-        throw "The resource you are request requires MangaDex Authentication.";
+        throw "The resource you are requesting requires MangaDex Authentication.";
       else {
         print(error.runtimeType);
         print(error);
         if (error is String)
           throw "$error";
-        else
+        else {
+          print(error);
           throw "Undefined Processing Error";
+        }
       }
     }
   }
