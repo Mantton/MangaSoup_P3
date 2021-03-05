@@ -9,6 +9,7 @@ import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
+import 'package:mangasoup_prototype_3/app/dialogs/chapter_comment_dialog.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/reader_preferences.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/viewer_gateway.dart';
@@ -312,9 +313,13 @@ class _ReaderFrameState extends State<ReaderFrame> {
                           CupertinoIcons.bubble_left_bubble_right,
                           color: Colors.purple,
                         ),
-                        onPressed: () => showSnackBarMessage(
-                            "Comments Coming soon!",
-                            error: true),
+                        onPressed: () {
+                          String link = provider.getCurrentChapterLink();
+                          if (link != null)
+                            showCommentsDialog(link);
+                          else
+                            showSnackBarMessage("Transitioning", error: true);
+                        },
                       ),
                     ],
                   ),
@@ -372,15 +377,15 @@ class _ReaderFrameState extends State<ReaderFrame> {
                   flex: 8,
                   child: provider.pageDisplayNumber != null
                       ? Text(
-                    "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      fontFamily: 'Lato',
-                      color: Colors.grey,
-                    ),
-                    textAlign: TextAlign.center,
-                  )
+                          "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            fontFamily: 'Lato',
+                            color: Colors.grey,
+                          ),
+                          textAlign: TextAlign.center,
+                        )
                       : Container(),
                 ),
 
@@ -415,4 +420,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
       );
     });
   }
+
+  showCommentsDialog(String chapterLink) =>
+      chapterCommentsDialog(context: context, link: chapterLink);
 }

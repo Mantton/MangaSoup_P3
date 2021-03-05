@@ -4,14 +4,12 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart'
     show
-        CupertinoDynamicColor,
-        CupertinoThemeData,
         DefaultCupertinoLocalizations;
 import 'package:flutter/material.dart'
     show
-        Colors,
+    Colors,
         DefaultMaterialLocalizations,
-        Theme,
+        MaterialApp,
         ThemeData,
         ThemeMode;
 import 'package:flutter/services.dart';
@@ -72,7 +70,7 @@ void callbackDispatcher() {
       case Workmanager.iOSBackgroundTask:
         stderr.writeln("The iOS background fetch was triggered");
 
-        try{
+        try {
           var connectivityResult = await (Connectivity()
               .checkConnectivity()); //Check if user is connected
 
@@ -82,14 +80,15 @@ void callbackDispatcher() {
             updateCount = await _updateManger.checkForUpdateBackGround();
             if (updateCount > 0) {
               if (updateCount == 1)
-                showNotification("$updateCount new update in your library", flp);
+                showNotification(
+                    "$updateCount new update in your library", flp);
               else
-                showNotification("$updateCount new updates in your library", flp);
+                showNotification(
+                    "$updateCount new updates in your library", flp);
             }
             stderr.writeln("Done");
           }
-
-        }catch(err){
+        } catch (err) {
           stderr.writeln("ERROR\n$err");
           showNotification("Failed to Update Library", flp);
         }
@@ -166,86 +165,53 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     final materialTheme = ThemeData(primaryColor: Colors.black);
     final materialDarkTheme = ThemeData(
-        brightness: Brightness.dark,
-        primaryColor: Colors.black,
-        scaffoldBackgroundColor: Colors.black,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent);
-
-    final cupertinoTheme = CupertinoThemeData(
-      brightness: brightness, // if null will use the system theme
-      primaryColor: CupertinoDynamicColor.withBrightness(
-        color: Colors.blue,
-        darkColor: Colors.blue,
-      ),
+      brightness: Brightness.dark,
+      primaryColor: Colors.black,
       scaffoldBackgroundColor: Colors.black,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      textSelectionColor: Colors.blueAccent.withOpacity(.8),
     );
 
-    return Theme(
-      data: brightness == Brightness.light ? materialTheme : materialDarkTheme,
-      child: PlatformProvider(
-        builder: (_) => PlatformApp(
-          localizationsDelegates: <LocalizationsDelegate<dynamic>>[
-            DefaultMaterialLocalizations.delegate,
-            DefaultWidgetsLocalizations.delegate,
-            DefaultCupertinoLocalizations.delegate,
-          ],
-          title: 'Flutter Platform Widgets',
-          navigatorObservers: [BotToastNavigatorObserver()],
-          material: (_, __) {
-            return MaterialAppData(
-                theme: materialTheme,
-                darkTheme: materialDarkTheme,
-                themeMode: ThemeMode.dark,
-                builder: (context, widget) {
-                  widget = BotToastInit()(context, widget);
-                  return ResponsiveWrapper.builder(
-                    BouncingScrollWrapper.builder(context, widget),
-                    maxWidth: 1200,
-                    minWidth: 450,
-                    defaultScale: true,
-                    breakpoints: [
-                      ResponsiveBreakpoint.resize(450, name: MOBILE),
-                      ResponsiveBreakpoint.autoScale(800, name: TABLET),
-                      ResponsiveBreakpoint.autoScale(1000, name: TABLET),
-                      ResponsiveBreakpoint.resize(1200, name: DESKTOP),
-                      ResponsiveBreakpoint.autoScale(2460, name: "4K"),
-                    ],
-                    background: Container(color: Colors.black),
-                  );
-                });
-          },
-          cupertino: (_, __) => CupertinoAppData(
-              theme: cupertinoTheme,
-              builder: (context, widget) {
-                widget = BotToastInit()(context, widget);
-                return ResponsiveWrapper.builder(
-                  BouncingScrollWrapper.builder(context, widget),
-                  maxWidth: 1200,
-                  minWidth: 450,
-                  defaultScale: true,
-                  breakpoints: [
-                    ResponsiveBreakpoint.resize(450, name: MOBILE),
-                    ResponsiveBreakpoint.autoScale(800, name: TABLET),
-                    ResponsiveBreakpoint.autoScale(1000, name: TABLET),
-                    ResponsiveBreakpoint.resize(1200, name: DESKTOP),
-                    ResponsiveBreakpoint.autoScale(2460, name: "4K"),
-                  ],
-                  background: Container(color: Colors.black),
-                );
-              }),
-
-          initialRoute: "handler",
-          // (_firstRun) ? "sources" : "landing",
-          debugShowCheckedModeBanner: false,
-          routes: {
-            "/": (_) => Landing(),
-            "handler": (_) => Handler(),
-            "/sources": (_) => SourcesPage(),
-            "landing": (_) => Landing(),
-            "/migration": (_) => MigrationHome(),
-          },
-        ),
+    return PlatformProvider(
+      builder: (_) => MaterialApp(
+        theme: materialTheme,
+        darkTheme: materialDarkTheme,
+        themeMode: ThemeMode.dark,
+        builder: (context, widget) {
+          widget = BotToastInit()(context, widget);
+          return ResponsiveWrapper.builder(
+            BouncingScrollWrapper.builder(context, widget),
+            maxWidth: 1200,
+            minWidth: 450,
+            defaultScale: true,
+            breakpoints: [
+              ResponsiveBreakpoint.resize(450, name: MOBILE),
+              ResponsiveBreakpoint.autoScale(800, name: TABLET),
+              ResponsiveBreakpoint.autoScale(1000, name: TABLET),
+              ResponsiveBreakpoint.resize(1200, name: DESKTOP),
+              ResponsiveBreakpoint.autoScale(2460, name: "4K"),
+            ],
+            background: Container(color: Colors.black),
+          );
+        },
+        initialRoute: "handler",
+        // (_firstRun) ? "sources" : "landing",
+        debugShowCheckedModeBanner: false,
+        routes: {
+          "/": (_) => Landing(),
+          "handler": (_) => Handler(),
+          "/sources": (_) => SourcesPage(),
+          "landing": (_) => Landing(),
+          "/migration": (_) => MigrationHome(),
+        },
+        localizationsDelegates: <LocalizationsDelegate<dynamic>>[
+          DefaultMaterialLocalizations.delegate,
+          DefaultWidgetsLocalizations.delegate,
+          DefaultCupertinoLocalizations.delegate,
+        ],
+        title: 'MangaSoup',
+        navigatorObservers: [BotToastNavigatorObserver()],
       ),
     );
   }
