@@ -27,4 +27,9 @@ class PreferenceKeys {
   static const MAL_AUTO_SYNC = "mal_auto_sync";
   static const READER_BG_COLOR = "reader_bg_color";
   static const COMIC_GRID_MODE = 'comic_grid_mode';
+
+  /// MANGASOUP KEYS
+  static const MS_ACCESS_TOKEN = "ms_token";
+  static const MS_USER_NAME = "ms_username";
+  static const MS_USER_ID = "ms_id";
 }

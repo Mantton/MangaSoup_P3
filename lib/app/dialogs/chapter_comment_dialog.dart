@@ -73,6 +73,7 @@ class _CommentListFutureBuilderState extends State<CommentListFutureBuilder> {
         else if (snapshot.hasData)
           return ChapterCommentsPage(
             comments: snapshot.data,
+            chapterLink: widget.link,
           );
         else
           return Center(child: Text("You Should not be seeing this."));
