@@ -358,20 +358,38 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
       );
     } else {
       // Start from Chapter 1
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ReaderHome(
-            selector: widget.profile.selector,
-            chapters: widget.profile.chapters,
-            initialChapterIndex:
-                widget.profile.chapters.indexOf(widget.profile.chapters.last),
-            comicId: widget.comicId,
-            source: widget.profile.source,
+      if (widget.profile.containsBooks) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ReaderHome(
+              selector: widget.profile.selector,
+              chapters: widget.profile.books[0].chapters,
+              initialChapterIndex: widget.profile.books[0].chapters.indexOf(
+                widget.profile.books[0].chapters.last,
+              ),
+              comicId: widget.comicId,
+              source: widget.profile.source,
+            ),
+            fullscreenDialog: true,
           ),
-          fullscreenDialog: true,
-        ),
-      );
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ReaderHome(
+              selector: widget.profile.selector,
+              chapters: widget.profile.chapters,
+              initialChapterIndex:
+                  widget.profile.chapters.indexOf(widget.profile.chapters.last),
+              comicId: widget.comicId,
+              source: widget.profile.source,
+            ),
+            fullscreenDialog: true,
+          ),
+        );
+      }
     }
   }
 
