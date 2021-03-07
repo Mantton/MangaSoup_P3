@@ -35,6 +35,10 @@ class MangaSoupAuth {
       SharedPreferences _prefs = await SharedPreferences.getInstance();
 
       _prefs.setString(PreferenceKeys.MS_ACCESS_TOKEN, token);
+      _prefs.setString(PreferenceKeys.MS_REFRESH_TOKEN, refreshToken);
+      _prefs.setString(PreferenceKeys.MS_USER_NAME, un);
+      _prefs.setString(PreferenceKeys.MS_USER_ID, id);
+      _prefs.setStringList(PreferenceKeys.MS_USER_ROLES, roles);
       return true;
     } catch (err, trace) {
       print(err);
