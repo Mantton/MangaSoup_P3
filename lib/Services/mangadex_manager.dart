@@ -129,12 +129,64 @@ class DexHub {
     return browseHeaders;
   }
 
+  List<ComicHighlight> scrapeMangaDex(var document) {
+    List<ComicHighlight> highlights = [];
+    var comics = document
+        .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
+    if (comics.isNotEmpty) {
+      for (var comic in comics) {
+        var thumbnail = baseURL +
+            comic
+                .querySelector('div.rounded.large_logo.mr-2 > a> img')
+                .attributes['src'];
+        var title =
+            comic.querySelector('a.ml-1.manga_title.text-truncate').text;
+        var link = baseURL +
+            regexLink(comic
+                .querySelector('a.ml-1.manga_title.text-truncate')
+                .attributes['href']);
+        highlights.add(ComicHighlight.fromMap({
+          'title': HtmlUnescape().convert(title),
+          'link': link,
+          'thumbnail': thumbnail,
+          'source': source,
+          'selector': selector
+        }));
+      }
+    } else {
+      comics =
+          document.querySelectorAll('div.manga-entry.row.m-0.border-bottom');
+
+      if (comics.isNotEmpty) {
+        for (var comic in comics) {
+          var thumbnail = baseURL +
+              "/images/manga/${comic.attributes['data-id']}.large.jpg";
+
+          var title =
+              comic.querySelector('a.ml-1.manga_title.text-truncate').text;
+          var link = baseURL +
+              regexLink(comic
+                  .querySelector('a.ml-1.manga_title.text-truncate')
+                  .attributes['href']);
+          highlights.add(ComicHighlight.fromMap({
+            'title': HtmlUnescape().convert(title),
+            'link': link,
+            'thumbnail': thumbnail,
+            'source': source,
+            'selector': selector
+          }));
+        }
+      }
+    }
+    return highlights;
+  }
+
   String stringifyCookies(Map cookies) =>
       cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
 
   Future<List<ComicHighlight>> get(
       String sort, int page, Map additionalInfo) async {
-    String url = baseURL + '/titles/9/$page/?s=$sort#listing';
+    String url = baseURL + '/titles/9/$page?s=$sort#listing';
     Dio _dio = Dio();
     Map<String, dynamic> browseHeaders = prepareHeaders(additionalInfo);
     Response response = await _dio.get(
@@ -143,30 +195,8 @@ class DexHub {
     );
 
     var document = parse(response.data);
-    var comics = document
-        .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
-
-    List<ComicHighlight> highlights = [];
-    for (var comic in comics) {
-      var thumbnail = baseURL +
-          comic
-              .querySelector('div.rounded.large_logo.mr-2 > a> img')
-              .attributes['src'];
-      var title = comic.querySelector('a.ml-1.manga_title.text-truncate').text;
-      var link = baseURL +
-          regexLink(comic
-              .querySelector('a.ml-1.manga_title.text-truncate')
-              .attributes['href']);
-      highlights.add(ComicHighlight.fromMap({
-        'title': title,
-        'link': link,
-        'thumbnail': thumbnail,
-        'source': source,
-        'selector': selector
-      }));
-    }
     debugPrint("Retrieval Complete : /all @$source s/$sort, p/$page");
-    return highlights;
+    return scrapeMangaDex(document);
   }
 
   Future<List<ComicHighlight>> getTagComics(
@@ -182,35 +212,13 @@ class DexHub {
     );
 
     var document = parse(response.data);
-    var comics = document
-        .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
-
-    List<ComicHighlight> highlights = [];
-    for (var comic in comics) {
-      var thumbnail = baseURL +
-          comic
-              .querySelector('div.rounded.large_logo.mr-2 > a> img')
-              .attributes['src'];
-      var title = comic.querySelector('a.ml-1.manga_title.text-truncate').text;
-      var link = comic
-          .querySelector('a.ml-1.manga_title.text-truncate')
-          .attributes['href'];
-      String editedLink = link.split('/').sublist(1, 3).map((e) => e).join("/");
-      highlights.add(ComicHighlight.fromMap({
-        'title': title,
-        'link': baseURL + "/" + editedLink,
-        'thumbnail': thumbnail,
-        'source': source,
-        'selector': selector
-      }));
-    }
     debugPrint("Retrieval Complete : /all @$source s/$sort, p/$page");
-    return highlights;
+    return scrapeMangaDex(document);
   }
 
   Future<Profile> profile(String link, Map info) async {
     List userLanguages = info['mangadex_languages'] ?? List();
-    print("Languages: $userLanguages");
+    debugPrint("Languages: $userLanguages");
     String comicLink = link;
     // print("MD LINK: $comicLink");
     if (link.contains("http")) {
@@ -227,7 +235,7 @@ class DexHub {
     try {
       c = jsonDecode(document);
     } on FormatException catch (e) {
-      print("$e");
+      debugPrint("$e");
 
       throw 'MangaDex failed to respond with the appropriate data';
     }
@@ -366,31 +374,7 @@ class DexHub {
         throw "MangaDex Authorization Error";
       }
       var document = parse(response.data);
-      var comics = document
-          .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
-
-      List<ComicHighlight> highlights = [];
-      for (var comic in comics) {
-        var thumbnail = baseURL +
-            comic
-                .querySelector('div.rounded.large_logo.mr-2 > a> img')
-                .attributes['src'];
-        var title =
-            comic.querySelector('a.ml-1.manga_title.text-truncate').text;
-        var link = comic
-            .querySelector('a.ml-1.manga_title.text-truncate')
-            .attributes['href'];
-        highlights.add(ComicHighlight.fromMap({
-          'title': title,
-          'link': baseURL + regexLink(link),
-          'thumbnail': thumbnail,
-          'source': source,
-          'selector': selector
-        }));
-      }
-
-      debugPrint("Retrieval Complete : /all @$source");
-      return highlights;
+      return scrapeMangaDex(document);
     } on DioError catch (e) {
       throw "${e.response.statusMessage}";
     }
@@ -441,7 +425,7 @@ class DexHub {
     } catch (err) {
       if (err is DioError) {
         DioError e = err;
-        print(e.response.data);
+        debugPrint("${e.response.data}");
         throw "Restricted Manga\nContact MangaDex Staff or Discord for more information";
       } else
         throw "Restricted Manga\nContact MangaDex Staff or Discord for more information";
@@ -486,7 +470,7 @@ class DexHub {
           userProfile.toMap(),
         ),
       );
-      print(response.headers.toString());
+      debugPrint(response.headers.toString());
       return userProfile;
     } on DioError catch (e) {
       if (e.response.statusCode == 403) {
