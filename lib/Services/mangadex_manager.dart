@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
 import 'package:html_unescape/html_unescape.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
@@ -19,8 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class DexHub {
   final String baseURL = "https://mangadex.org";
-  final String apiURL = "https://mangadex.org/api";
-  final String apiV2URL = "https://mangadex.org/api/v2";
+  final String apiV2URL = "https://api.mangadex.org/v2";
   final String selector = 'mangadex';
   final String source = 'MangaDex';
 
@@ -225,35 +223,47 @@ class DexHub {
       var strings = link.split('/');
       link = strings.last;
     }
-    var profileURL = apiURL + '/manga/$link';
+    var profileURL = apiV2URL + '/manga/$link';
     // print("MD API LINK: $profileURL");
     //, headers: {'Cookie': stringifyCookies(cookies)}
-    var response = await http.get(profileURL);
+    Response response;
+    Response chapterResponse;
 
-    var document = response.body;
-    var c;
     try {
-      c = jsonDecode(document);
-    } on FormatException catch (e) {
-      debugPrint("$e");
-
-      throw 'MangaDex failed to respond with the appropriate data';
+      response = await Dio().get(profileURL);
+      chapterResponse = await Dio().get(profileURL + "/chapters");
+    } catch (err) {
+      debugPrint("MangaDex API Error: GET Profile");
+      throw "Failed to reach MangaDex API";
     }
-    var manga = c['manga'];
-    Map chapters = c['chapter'] ?? {};
+
+    Map manga = Map();
+    List chapters = List();
+    List chapterGroups = List();
+    try {
+      manga = response.data['data'];
+      chapters = chapterResponse.data['data']['chapters'] ?? List();
+      chapterGroups = chapterResponse.data['data']['groups'];
+    } catch (err) {
+      throw "MangaDex API Schema Changed...";
+    }
 
     // Comic Properties
     String title = manga['title'];
-
-    String thumbnail = baseURL + manga['cover_url'];
-    var altTitles = manga['alt_names'];
+    String thumbnail = manga['mainCover'];
+    var altTitles = manga['altTitles'];
     if (altTitles is List) {
       List t = altTitles;
       altTitles = t.map((e) => e).join(", ");
     }
-    String artist = manga['artist'];
-    String author = manga['author'];
-    List genres = manga['genres'];
+    var artist = manga['artist'];
+    var author = manga['author'];
+
+    if (artist is List) {
+      artist = artist.map((e) => e).join(", ");
+      author = author.map((e) => e).join(", ");
+    }
+    List genres = manga['tags'];
     List tags = [];
     for (int tag in genres) {
       tags.add({
@@ -262,7 +272,7 @@ class DexHub {
         "selector": selector
       });
     }
-    int statusValue = manga['status'];
+    int statusValue = manga["publication"]['status'];
     String status;
 
     if (statusValue == 1)
@@ -275,15 +285,16 @@ class DexHub {
 
     String summary = manga['description'];
     summary = summary.split('\n')[0];
-    var keys = chapters.keys.toList();
-    List chapterList = [];
-    for (var k in keys) {
-      var chapter = chapters[k];
+
+    /// Chapters
+    List chapterList = List();
+    for (var chapter in chapters) {
       String volume = chapter['volume'];
       String chapterName = chapter['chapter'];
-      // String chapterTitle = chapter['title'];
-      String groupName = chapter['group_name'];
-      String lang = chapter['lang_code'];
+      String groupName = chapterGroups.firstWhere(
+          (element) => element['id'] == chapter['groups'][0])['name'];
+      groupName = HtmlUnescape().convert(groupName);
+      String lang = chapter['language'];
       var finalTitle =
           "${(volume.isNotEmpty) ? "Vol. $volume" : ""} Ch. $chapterName";
       var date =
@@ -292,7 +303,7 @@ class DexHub {
       if (userLanguages.contains(lang) || userLanguages.length == 0) {
         chapterList.add({
           "name": finalTitle,
-          "link": "https://mangadex.org/chapter/$k",
+          "link": "https://mangadex.org/chapter/${chapter['id']}",
           "date": formattedDate,
           "maker": "${_emoji(lang)} - $groupName"
         });
@@ -300,7 +311,7 @@ class DexHub {
     }
 
     Map<String, dynamic> x = {
-      "title": title,
+      "title": HtmlUnescape().convert(title),
       "summary": HtmlUnescape().convert(summary),
       "thumbnail": thumbnail,
       "alt_title": altTitles,
