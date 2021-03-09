@@ -45,8 +45,10 @@ class ErrorManager {
       } else {
         if (err.error is SocketException) {
           throw "Failed to Connect to MangaSoup Servers";
-        } else
+        } else {
+          print(err);
           throw "MangaSoup encountered an Undefined Network Error.";
+        }
       }
     } else {
       if (error is MissingMangaDexSession)

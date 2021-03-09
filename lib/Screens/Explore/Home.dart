@@ -37,121 +37,124 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context,
-        designSize: Size(450, 747.5), allowFontScaling: true);
-
-    return DefaultTabController(
-      length: 3,
-      initialIndex: 0,
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(CupertinoIcons.cloud),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SourcesPage(
-                    selector:
-                        Provider.of<SourceNotifier>(context).source.selector,
-                  ),
-                  fullscreenDialog: true,
-                ),
-              );
-            },
-          ),
-          title: Text(
-            "Discover",
-            style: notInLibraryFont,
-          ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-                icon: Icon(CupertinoIcons.tag),
-                onPressed: () => Navigator.push(
+    return ScreenUtilInit(
+        designSize: Size(450, 747.5),
+        allowFontScaling: true,
+        builder: () {
+          return DefaultTabController(
+            length: 3,
+            initialIndex: 0,
+            child: Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: Icon(CupertinoIcons.cloud),
+                  onPressed: () {
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => AllTagsPage(),
+                        builder: (_) => SourcesPage(
+                          selector: Provider.of<SourceNotifier>(context)
+                              .source
+                              .selector,
+                        ),
+                        fullscreenDialog: true,
+                      ),
+                    );
+                  },
+                ),
+                title: Text(
+                  "Discover",
+                  style: notInLibraryFont,
+                ),
+                centerTitle: true,
+                actions: [
+                  IconButton(
+                      icon: Icon(CupertinoIcons.tag),
+                      onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AllTagsPage(),
+                              maintainState: true,
+                            ),
+                          )),
+                  IconButton(
+                    icon: Icon(CupertinoIcons.collections),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BrowsePage(),
                         maintainState: true,
                       ),
-                    )),
-            IconButton(
-              icon: Icon(CupertinoIcons.collections),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BrowsePage(),
-                  maintainState: true,
-                ),
-              ),
-            ),
-            IconButton(
-              icon: Icon(CupertinoIcons.search),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SearchPage(),
-                  maintainState: true,
-                ),
-              ),
-            ),
-          ],
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(45),
-            child: PlatformWidget(
-              cupertino: (_, __) => Container(
-                width: MediaQuery.of(context).size.width,
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: CupertinoSlidingSegmentedControl(
-                      groupValue: _index,
-                      thumbColor: Colors.purple,
-                      children: myTabs,
-                      onValueChanged: (i) {
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(CupertinoIcons.search),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SearchPage(),
+                        maintainState: true,
+                      ),
+                    ),
+                  ),
+                ],
+                bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(45),
+                  child: PlatformWidget(
+                    cupertino: (_, __) => Container(
+                      width: MediaQuery.of(context).size.width,
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: CupertinoSlidingSegmentedControl(
+                            groupValue: _index,
+                            thumbColor: Colors.purple,
+                            children: myTabs,
+                            onValueChanged: (i) {
+                              setState(() {
+                                _index = i;
+                                _controller.animateTo(i);
+                              });
+                            }),
+                      ),
+                    ),
+                    material: (_, __) => TabBar(
+                      indicatorColor: Colors.transparent,
+                      labelColor: Colors.purple,
+                      unselectedLabelColor: Colors.grey,
+                      labelStyle: TextStyle(fontSize: 17),
+                      controller: _controller,
+                      onTap: (value) {
                         setState(() {
-                          _index = i;
-                          _controller.animateTo(i);
+                          _index = value;
                         });
-                      }),
+                      },
+                      isScrollable: false,
+                      tabs: <Widget>[
+                        Tab(
+                          text: "For You",
+                        ),
+                        Tab(
+                          text: "Home",
+                        ),
+                        Tab(
+                          text: "Latest",
+                        )
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              material: (_, __) => TabBar(
-                indicatorColor: Colors.transparent,
-                labelColor: Colors.purple,
-                unselectedLabelColor: Colors.grey,
-                labelStyle: TextStyle(fontSize: 17),
+              body: TabBarView(
                 controller: _controller,
-                onTap: (value) {
-                  setState(() {
-                    _index = value;
-                  });
-                },
-                isScrollable: false,
-                tabs: <Widget>[
-                  Tab(
-                    text: "For You",
-                  ),
-                  Tab(
-                    text: "Home",
-                  ),
-                  Tab(
-                    text: "Latest",
-                  )
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  ForYouPage(),
+                  AllComicsPage(),
+                  LatestPage(),
                 ],
               ),
             ),
-          ),
-        ),
-        body: TabBarView(
-          controller: _controller,
-          physics: NeverScrollableScrollPhysics(),
-          children: [
-            ForYouPage(),
-            AllComicsPage(),
-            LatestPage(),
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 }

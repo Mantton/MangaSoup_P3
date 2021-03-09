@@ -97,173 +97,175 @@ class _SourcesPageState extends State<SourcesPage> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context,
-        designSize: Size(450, 747.5), allowFontScaling: true);
+    return ScreenUtilInit(
+      designSize: Size(450, 747.5),
+      allowFontScaling: true,
+      builder: () => Scaffold(
+        body: FutureBuilder(
+          future: getSources(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting)
+              return Center(
+                child: CupertinoActivityIndicator(),
+              );
 
-    return Scaffold(
-      body: FutureBuilder(
-        future: getSources(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return Center(
-              child: CupertinoActivityIndicator(),
-            );
-
-          if (snapshot.hasData) {
-            Map sourcePacks = snapshot.data;
-            List keys = sourcePacks.keys.toList();
-            List values = sourcePacks.values.toList();
-            return DefaultTabController(
-              length: sourcePacks.length,
-              child: Scaffold(
-                appBar: AppBar(
-                  title: Text("Sources"),
-                  centerTitle: true,
-                  // info button can go here
-                  bottom: TabBar(
-                    isScrollable: true,
-                    unselectedLabelColor: Colors.grey,
-                    indicatorColor: Colors.purple,
-                    labelColor: Colors.purple,
-                    tabs: List<Widget>.generate(
-                      sourcePacks.length,
-                      (index) => Tab(
-                        child: Text(
-                          keys[index],
-                          style: TextStyle(fontSize: 17),
+            if (snapshot.hasData) {
+              Map sourcePacks = snapshot.data;
+              List keys = sourcePacks.keys.toList();
+              List values = sourcePacks.values.toList();
+              return DefaultTabController(
+                length: sourcePacks.length,
+                child: Scaffold(
+                  appBar: AppBar(
+                    title: Text("Sources"),
+                    centerTitle: true,
+                    // info button can go here
+                    bottom: TabBar(
+                      isScrollable: true,
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Colors.purple,
+                      labelColor: Colors.purple,
+                      tabs: List<Widget>.generate(
+                        sourcePacks.length,
+                        (index) => Tab(
+                          child: Text(
+                            keys[index],
+                            style: TextStyle(fontSize: 17),
+                          ),
+                          // text: ,
                         ),
-                        // text: ,
                       ),
                     ),
                   ),
-                ),
-                body: TabBarView(
-                  children: List<Widget>.generate(
-                    sourcePacks.length,
-                    (int index) {
-                      List<Source> _sources = values[index];
-                      return Container(
-                        padding: EdgeInsets.all(ScreenUtil().setWidth(8)),
-                        child: GridView.builder(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3.w.toInt(),
-                              crossAxisSpacing: ScreenUtil().setWidth(10),
-                              mainAxisSpacing: ScreenUtil().setWidth(10),
-                              childAspectRatio: .77, // 77/100
-                            ),
-                            itemCount: _sources.length,
-                            itemBuilder: (BuildContext context, int i) {
-                              Source source = _sources[i];
-                              return GestureDetector(
-                                onTap: () async {
-                                  if (!source.isEnabled)
-                                    sourceDisabledDialog();
-                                  else
-                                    selectSource(source);
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                        color: (!source.isEnabled)
-                                            ? Colors.red
-                                            : (source.selector !=
-                                                            _currentSelector ||
-                                                        source.selector !=
-                                                            Provider.of<SourceNotifier>(
-                                                                    context)
-                                                                .source
-                                                                .selector ??
-                                                    "")
-                                                ? (source.vipProtected)
-                                                    ? Colors.amber
-                                                    : Colors.grey[900]
-                                                : Colors.purple),
-                                  ),
-                                  child: GridTile(
-                                    child: Padding(
-                                      padding:  EdgeInsets.all(8.0),
-                                      child: SoupImage(
-                                        url: source.thumbnail,
-                                        fit: BoxFit.scaleDown,
-                                      ),
+                  body: TabBarView(
+                    children: List<Widget>.generate(
+                      sourcePacks.length,
+                      (int index) {
+                        List<Source> _sources = values[index];
+                        return Container(
+                          padding: EdgeInsets.all(ScreenUtil().setWidth(8)),
+                          child: GridView.builder(
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3.w.toInt(),
+                                crossAxisSpacing: ScreenUtil().setWidth(10),
+                                mainAxisSpacing: ScreenUtil().setWidth(10),
+                                childAspectRatio: .77, // 77/100
+                              ),
+                              itemCount: _sources.length,
+                              itemBuilder: (BuildContext context, int i) {
+                                Source source = _sources[i];
+                                return GestureDetector(
+                                  onTap: () async {
+                                    if (!source.isEnabled)
+                                      sourceDisabledDialog();
+                                    else
+                                      selectSource(source);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          color: (!source.isEnabled)
+                                              ? Colors.red
+                                              : (source.selector !=
+                                                              _currentSelector ||
+                                                          source.selector !=
+                                                              Provider.of<SourceNotifier>(
+                                                                      context)
+                                                                  .source
+                                                                  .selector ??
+                                                      "")
+                                                  ? (source.vipProtected)
+                                                      ? Colors.amber
+                                                      : Colors.grey[900]
+                                                  : Colors.purple),
                                     ),
-                                    footer: Center(
-                                      child: FittedBox(
-                                        child: Text(
-                                          source.name,
-                                          style: TextStyle(
-                                            fontSize: 17,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
+                                    child: GridTile(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: SoupImage(
+                                          url: source.thumbnail,
+                                          fit: BoxFit.scaleDown,
+                                        ),
+                                      ),
+                                      footer: Center(
+                                        child: FittedBox(
+                                          child: Text(
+                                            source.name,
+                                            style: TextStyle(
+                                              fontSize: 17,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    header: (!source.vipProtected)
-                                        ? Container()
-                                        : Container(
-                                            alignment: Alignment.topRight,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                Icon(
-                                                  Icons.verified_sharp,
-                                                  color: Colors.amber,
-                                                ),
-                                                SizedBox(
-                                                  width: 3.w,
-                                                ),
-                                                Text(
-                                                  "VIP",
-                                                  style: TextStyle(
-                                                      color: Colors.amber),
-                                                )
-                                              ],
+                                      header: (!source.vipProtected)
+                                          ? Container()
+                                          : Container(
+                                              alignment: Alignment.topRight,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Icon(
+                                                    Icons.verified_sharp,
+                                                    color: Colors.amber,
+                                                  ),
+                                                  SizedBox(
+                                                    width: 3.w,
+                                                  ),
+                                                  Text(
+                                                    "VIP",
+                                                    style: TextStyle(
+                                                        color: Colors.amber),
+                                                  )
+                                                ],
+                                              ),
                                             ),
-                                          ),
+                                    ),
                                   ),
-                                ),
-                              );
-                            }),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            );
-          } else
-            return Scaffold(
-              appBar: AppBar(
-                title: Text("Sources"),
-                centerTitle: true,
-              ),
-              body: Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child: Center(
-                  child: Center(
-                    child: InkWell(
-                      child: Text(
-                        "An Error Occurred\n ${snapshot.error}\nTap to Retry",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,),
-                        textAlign: TextAlign.center,
-                      ),
-                      onTap: () {
-                        setState(() {});
+                                );
+                              }),
+                        );
                       },
                     ),
                   ),
                 ),
-              ),
-            );
-        },
+              );
+            } else
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text("Sources"),
+                  centerTitle: true,
+                ),
+                body: Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: Center(
+                      child: InkWell(
+                        child: Text(
+                          "An Error Occurred\n ${snapshot.error}\nTap to Retry",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        onTap: () {
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              );
+          },
+        ),
       ),
     );
   }
@@ -294,11 +296,10 @@ class _SourcesPageState extends State<SourcesPage> {
           textAlign: TextAlign.center,
         ),
         actions: [
-
           PlatformDialogAction(
-            child: PlatformText("Proceed"),
-            onPressed: () async {
-              String cookies = await Navigator.push(
+              child: PlatformText("Proceed"),
+              onPressed: () async {
+                String cookies = await Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (_) => CloudFareBypass(
@@ -321,8 +322,7 @@ class _SourcesPageState extends State<SourcesPage> {
                   newCookies = encodedCookies;
                   bypassSuccess = true;
                 }
-              }
-          )
+              })
         ],
       ),
     );
