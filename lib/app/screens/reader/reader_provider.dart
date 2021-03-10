@@ -25,11 +25,11 @@ class ReaderProvider with ChangeNotifier {
   String source;
   bool showControls = false;
 
-  List<ReaderChapter> readerChapters = List(); // loaded chapters
-  List<Widget> widgetPageList = List(); // Pages to be shown
-  List<Chapter> chapters = List(); // the chapters from the profile
-  List pagePositionList = List(); // the page number for each widget page
-  List indexList = List(); // the chapter index for each page
+  List<ReaderChapter> readerChapters = []; // loaded chapters
+  List<Widget> widgetPageList = []; // Pages to be shown
+  List<Chapter> chapters = []; // the chapters from the profile
+  List pagePositionList = []; // the page number for each widget page
+  List indexList = []; // the chapter index for each page
 
   int currentPage = 0;
   String selector;
