@@ -10,6 +10,7 @@ import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
+import 'package:mangasoup_prototype_3/app/data/enums/comic_status.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/comic_rating.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/profile_bookmarks.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/tag_widget.dart';
@@ -144,17 +145,9 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                   ),
                   FittedBox(
                     child: Text(
-                      widget.profile.status,
+                      statusNames[widget.profile.status.index],
                       style: TextStyle(
-                        color: (widget.profile.status
-                                .toLowerCase()
-                                .contains("complete"))
-                            ? Colors.green
-                            : (widget.profile.status
-                                    .toLowerCase()
-                                    .contains("on"))
-                                ? Colors.blue
-                                : Colors.redAccent,
+                        color: statusColors[widget.profile.status.index],
                         fontSize: 18,
                       ),
                     ),

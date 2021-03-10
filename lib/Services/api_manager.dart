@@ -13,6 +13,7 @@ import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/homepage.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/language_server.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
+import 'package:mangasoup_prototype_3/app/data/enums/comic_status.dart';
 import 'package:mangasoup_prototype_3/app/data/mangadex/models/mangadex_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -128,7 +129,6 @@ class ApiManager {
     for (int index = 0; index < dataPoints.length; index++) {
       comics.add(ComicHighlight.fromMap(dataPoints[index]));
     }
-    debugPrint("Retrieval Complete : /all @$source s/$sortBy");
     return comics;
   }
 
@@ -148,7 +148,6 @@ class ApiManager {
     for (int index = 0; index < dataPoints.length; index++) {
       comics.add(ComicHighlight.fromMap(dataPoints[index]));
     }
-    debugPrint("Retrieval Complete : /latest @$source");
     return comics;
   }
 
@@ -159,10 +158,7 @@ class ApiManager {
       Map additionalParams = await prepareAdditionalInfo(source);
       if (source == "mangadex") return dex.profile(link, additionalParams);
       Map data = {"selector": source, "link": link, "data": additionalParams};
-      print(data);
       Response response = await _dio.post('/api/v1/profile', data: data);
-      debugPrint(
-          "Retrieval Complete : /Profile : ${response.data['title']} @$source");
       p = Profile.fromMap(response.data);
     } catch (err) {
       ErrorManager.analyze(err);
@@ -202,7 +198,6 @@ class ApiManager {
       for (int index = 0; index < dataPoints.length; index++) {
         tags.add(Tag.fromMap(dataPoints[index]));
       }
-      debugPrint("Retrieval Complete : /Tags @$source");
     } catch (err) {
       ErrorManager.analyze(err);
     }
@@ -231,7 +226,6 @@ class ApiManager {
       for (int index = 0; index < dataPoints.length; index++) {
         comics.add(ComicHighlight.fromMap(dataPoints[index]));
       }
-      debugPrint("Retrieval Complete : /tagComics @$source");
     } catch (err) {
       ErrorManager.analyze(err);
     }
@@ -258,7 +252,6 @@ class ApiManager {
       for (int index = 0; index < dataPoints.length; index++) {
         comics.add(ComicHighlight.fromMap(dataPoints[index]));
       }
-      debugPrint("Retrieval Complete : /search @$source");
     } catch (err) {
       ErrorManager.analyze(err);
     }
@@ -281,7 +274,6 @@ class ApiManager {
       for (int index = 0; index < dataPoints.length; index++) {
         comics.add(ComicHighlight.fromMap(dataPoints[index]));
       }
-      debugPrint("Retrieval Complete : /browse @$source");
     } catch (err) {
       ErrorManager.analyze(err);
     }
@@ -411,4 +403,12 @@ Future<Map> prepareAdditionalInfo(String source) async {
     // print("DATA: $generated");
     return generated;
   }
+}
+
+Status statusLogic(String status) {
+  int index = 0;
+  try {
+    index = int.parse(status);
+  } catch (err) {}
+  return Status.values[index];
 }

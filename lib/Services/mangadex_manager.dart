@@ -274,15 +274,7 @@ class DexHub {
     }
     int statusValue = manga["publication"]['status'];
     String status;
-
-    if (statusValue == 1)
-      status = "Ongoing";
-    else if (statusValue == 2)
-      status = "Completed";
-    else if (statusValue == 3)
-      status = "Cancelled";
-    else if (statusValue == 4) status = "Unknown";
-
+    status = statusValue.toString();
     String summary = manga['description'];
     summary = summary.split('\n')[0];
 

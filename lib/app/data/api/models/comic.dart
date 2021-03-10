@@ -1,5 +1,7 @@
+import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/nhentai_property.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
+import 'package:mangasoup_prototype_3/app/data/enums/comic_status.dart';
 
 import 'chapter.dart';
 
@@ -10,7 +12,7 @@ class Profile {
   var altTitles;
   var author;
   var artist;
-  String status;
+  Status status;
   List<Tag> genres;
   int chapterCount;
   List<Chapter> chapters;
@@ -24,27 +26,25 @@ class Profile {
   String galleryId;
   bool isCustom;
 
-  Profile(
-    this.title,
-    this.thumbnail,
-    this.description,
-    this.source,
-    this.selector,
-    this.chapters,
-    this.chapterCount,
-    this.pageCount,
-    this.images,
-    this.altTitles,
-    this.properties,
-    this.genres,
-    this.status,
-    this.artist,
-    this.author,
-    this.link,
-    this.uploadDate,
-    this.galleryId,
-    this.isCustom,
-  );
+  Profile(this.title,
+      this.thumbnail,
+      this.description,
+      this.source,
+      this.selector,
+      this.chapters,
+      this.chapterCount,
+      this.pageCount,
+      this.images,
+      this.altTitles,
+      this.properties,
+      this.genres,
+      this.status,
+      this.artist,
+      this.author,
+      this.link,
+      this.uploadDate,
+      this.galleryId,
+      this.isCustom,);
 
   Profile.fromMap(Map<String, dynamic> map) {
     isCustom = map['is_custom'];
@@ -54,7 +54,7 @@ class Profile {
     altTitles = map['alt_title'];
     author = map['author'];
     artist = map['artist'];
-    status = map['status'];
+    status = statusLogic(map['status']);
 
     genres = map['tags'] != null
         ? (map['tags'] as List).map((e) => Tag.fromMap(e)).toList()
@@ -69,8 +69,8 @@ class Profile {
     chapters = isCustom
         ? null
         : (map['chapters'] as List)
-            .map((e) => Chapter.fromMap(e, title))
-            .toList();
+        .map((e) => Chapter.fromMap(e, title))
+        .toList();
 
     if (chapters != null)
       // Sort Chapters
@@ -79,8 +79,8 @@ class Profile {
     // Custom data for hentai sources
     properties = isCustom
         ? (map['properties'] as List)
-            .map((e) => DescriptionProperty.fromMap(e))
-            .toList()
+        .map((e) => DescriptionProperty.fromMap(e))
+        .toList()
         : null;
     images = (map['images'] as List)?.map((item) => item as String)?.toList();
     pageCount = map['page_count'];
@@ -96,7 +96,7 @@ class Profile {
       "summary": description,
       "author": author,
       "artist": artist,
-      "status": status,
+      "status": status.index.toString(),
       "genres": genres.map((e) => e.toMap()).toList(),
       "alt_title": altTitles,
       "chapter_count": chapterCount,
