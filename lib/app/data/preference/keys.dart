@@ -1,4 +1,6 @@
 class PreferenceKeys {
+  /// SERVER
+  static const MS_LANG_SERVER = "ms_lang_server";
 
   /// READER KEYS
   static const READER_MODE = "reader_mode"; // Manga or Webtoon

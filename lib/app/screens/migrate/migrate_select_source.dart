@@ -7,8 +7,10 @@ import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/migrate/migrate_chose_selection.dart';
 import 'package:mangasoup_prototype_3/app/widgets/textfields.dart';
+import 'package:provider/provider.dart';
 
 class MigrateSourceSelector extends StatefulWidget {
   final Comic comic;
@@ -26,8 +28,9 @@ class _MigrateSourceSelectorState extends State<MigrateSourceSelector> {
   Future<List<Source>> fut;
 
   Future<List<Source>> getSources() async {
-    List<Source> _sources =
-    await ApiManager().getServerSources("live"); // Retrieve Source
+    List<Source> _sources = await ApiManager().getServerSources(
+        Provider.of<PreferenceProvider>(context, listen: false)
+            .languageServer); // Retrieve Source
     sources = _sources;
     return sources;
   }

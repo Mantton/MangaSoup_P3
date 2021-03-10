@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ import 'package:mangasoup_prototype_3/Screens/WebViews/cloudfare_webview.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Services/source_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -48,8 +50,9 @@ class _SourcesPageState extends State<SourcesPage> {
   Future<Map> getSources() async {
     Map sorted = Map();
     try {
-      List<Source> sources =
-          await server.getServerSources("live"); // Retrieve Source
+      List<Source> sources = await server.getServerSources(
+          Provider.of<PreferenceProvider>(context, listen: false)
+              .languageServer); // Retrieve Source
       sorted = groupBy(sources, (Source obj) => obj.sourcePack); // Group Source
     } catch (err) {
       ErrorManager.analyze(err);
@@ -184,47 +187,35 @@ class _SourcesPageState extends State<SourcesPage> {
                                     ),
                                     child: GridTile(
                                       child: Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: SoupImage(
-                                          url: source.thumbnail,
-                                          fit: BoxFit.scaleDown,
-                                        ),
-                                      ),
-                                      footer: Center(
-                                        child: FittedBox(
-                                          child: Text(
-                                            source.name,
-                                            style: TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      header: (!source.vipProtected)
-                                          ? Container()
-                                          : Container(
-                                              alignment: Alignment.topRight,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children: [
-                                                  Icon(
-                                                    Icons.verified_sharp,
-                                                    color: Colors.amber,
-                                                  ),
-                                                  SizedBox(
-                                                    width: 3.w,
-                                                  ),
-                                                  Text(
-                                                    "VIP",
-                                                    style: TextStyle(
-                                                        color: Colors.amber),
-                                                  )
-                                                ],
+                                        padding: EdgeInsets.all(2.0),
+                                        child: Column(
+                                          children: [
+                                            Expanded(
+                                              flex: 8,
+                                              child: SoupImage(
+                                                url: source.thumbnail,
+                                                fit: BoxFit.scaleDown,
                                               ),
                                             ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Expanded(
+                                              flex: 2,
+                                              child: AutoSizeText(
+                                                source.name,
+                                                style: TextStyle(
+                                                  fontSize: 17,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: "Roboto",
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 );

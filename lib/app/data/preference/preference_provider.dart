@@ -37,6 +37,7 @@ class PreferenceProvider with ChangeNotifier {
     readerMaxWidth = _p.getBool(PreferenceKeys.READER_MAX_WIDTH) ?? false;
     readerDoublePagedMode =
         _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
+    languageServer = _p.getString(PreferenceKeys.MS_LANG_SERVER) ?? "live";
     notifyListeners();
     return true;
   }
@@ -48,6 +49,17 @@ class PreferenceProvider with ChangeNotifier {
       await initPreference();
       return _prefs;
     }
+  }
+
+  /// LANGUAGE SERVER
+
+  String languageServer;
+
+  setLanguageServer(String server) async {
+    SharedPreferences p = await preferences();
+    languageServer = server;
+    p.setString(PreferenceKeys.MS_LANG_SERVER, server);
+    notifyListeners();
   }
 
   /// READER SETTINGS

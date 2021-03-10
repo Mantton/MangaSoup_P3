@@ -7,6 +7,7 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -16,15 +17,13 @@ class ReaderImage extends StatefulWidget {
   final String url;
   final BoxFit fit;
   final String referer;
-  final Size imageSize;
 
-  const ReaderImage(
-      {Key key,
-      this.url,
-      this.fit = BoxFit.fitWidth,
-      this.referer,
-      this.imageSize})
-      : super(key: key);
+  const ReaderImage({
+    Key key,
+    this.url,
+    this.fit = BoxFit.fitWidth,
+    this.referer,
+  }) : super(key: key);
 
   @override
   _ReaderImageState createState() => _ReaderImageState();
@@ -58,7 +57,6 @@ class _ReaderImageState extends State<ReaderImage>
 
   @override
   Widget build(BuildContext context) {
-    // double proportionalHeight = MediaQuery.of(context).size.width/imageSize.aspectRatio;
     _transformationController.value = Matrix4.identity();
 
     void _handleDoubleTap() {
@@ -101,11 +99,14 @@ class _ReaderImageState extends State<ReaderImage>
               maxScale: 3.5,
               minScale: 1,
               panEnabled: true,
-              child: MainImageWidget(
-                url: widget.url,
-                referer: widget.referer,
-                fit: widget.fit,
-                maxWidth: provider.readerMaxWidth,
+              clipBehavior: Clip.none,
+              child: Container(
+                child: MainImageWidget(
+                  url: widget.url,
+                  referer: widget.referer,
+                  fit: widget.fit,
+                  maxWidth: provider.readerMaxWidth,
+                ),
               ),
             ),
           ),
@@ -115,6 +116,12 @@ class _ReaderImageState extends State<ReaderImage>
   }
 }
 
+// scrollDirection: Axis.horizontal,
+// physics:
+// _transformationController.value == Matrix4.identity()
+// ? null
+// : AlwaysScrollableScrollPhysics(),
+//width: _transformationController.value == Matrix4.identity()?null:MediaQuery.of(context).size.width,
 class MainImageWidget extends StatelessWidget {
   const MainImageWidget({
     Key key,
@@ -132,6 +139,7 @@ class MainImageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      // height: MediaQuery.of(context).size.height,
       width: maxWidth ? MediaQuery.of(context).size.width : null,
       child: CachedNetworkImage(
         imageUrl: url,
@@ -186,10 +194,10 @@ class MainImageWidget extends StatelessWidget {
 
 class VioletImage extends StatefulWidget {
   final String url;
-  final String referrer;
+  final String referer;
   final BoxFit fit;
 
-  const VioletImage({Key key, this.url, this.referrer, this.fit})
+  const VioletImage({Key key, this.url, this.referer, this.fit})
       : super(key: key);
 
   @override
@@ -207,7 +215,7 @@ class _VioletImageState extends State<VioletImage>
   }
 
   Future<Size> hello() async {
-    return await _calculateNetworkImageDimension(widget.url, widget.referrer);
+    return await _calculateNetworkImageDimension(widget.url, widget.referer);
   }
 
   @override
@@ -218,11 +226,11 @@ class _VioletImageState extends State<VioletImage>
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return Container(
-            child: ReaderImage(
+            child: VioletPage(
               url: widget.url,
-              referer: widget.referrer,
+              referer: widget.referer,
               fit: widget.fit,
-              imageSize: snapshot.data,
+              size: snapshot.data,
             ),
           );
         }
@@ -279,4 +287,35 @@ class _VioletImageState extends State<VioletImage>
 
   @override
   bool get wantKeepAlive => false;
+}
+
+class VioletPage extends StatelessWidget {
+  final String url;
+  final BoxFit fit;
+  final String referer;
+  final Size size;
+
+  const VioletPage({Key key, this.url, this.fit, this.referer, this.size})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    double proportionalHeight =
+        MediaQuery.of(context).size.width / size.aspectRatio;
+
+    return Container(
+      width: size.width,
+      height: proportionalHeight,
+      child: PhotoView(
+        imageProvider: CachedNetworkImageProvider(
+          url,
+          headers: referer != null ? {"referer": referer} : null,
+        ),
+        errorBuilder: (context, _, trace) => IconButton(
+          icon: Icon(Icons.error),
+          onPressed: null,
+        ),
+      ),
+    );
+  }
 }
