@@ -217,31 +217,36 @@ class ReaderProvider with ChangeNotifier {
         readerChapter.generatedNumber = chapter.generatedNumber;
         readerChapter.index = nextIndex;
         // Get Images
-        ImageChapter response =
-            await ApiManager().getImages(selector, chapter.link);
         try {
-          await Provider.of<DatabaseProvider>(context, listen: false)
-              .updateChapterImages(chapter, response.images);
-          print("Images set for ${chapter.name}");
-        } catch (err) {
-          print("IMAGE ERROR: $err");
-        }
-
-        if (response.images.isEmpty) {
-          emptyResponse();
-        } else {
-          int c = 0;
-          pagePositionList.add(null); // for transition page
-          indexList.add(null);
-
-          for (String uri in response.images) {
-            ReaderPage newPage = ReaderPage(c, uri, response.referer);
-            readerChapter.pages.add(newPage);
-            c++;
-            pagePositionList.add(c);
-            indexList.add(nextIndex);
+          ImageChapter response =
+              await ApiManager().getImages(selector, chapter.link);
+          try {
+            await Provider.of<DatabaseProvider>(context, listen: false)
+                .updateChapterImages(chapter, response.images);
+            print("Images set for ${chapter.name}");
+          } catch (err) {
+            print("IMAGE ERROR: $err");
           }
-          addChapterToView(readerChapter);
+
+          if (response.images.isEmpty) {
+            emptyResponse();
+          } else {
+            int c = 0;
+            pagePositionList.add(null); // for transition page
+            indexList.add(null);
+
+            for (String uri in response.images) {
+              ReaderPage newPage = ReaderPage(c, uri, response.referer);
+              readerChapter.pages.add(newPage);
+              c++;
+              pagePositionList.add(c);
+              indexList.add(nextIndex);
+            }
+            addChapterToView(readerChapter);
+          }
+        } catch (err, stacktrace) {
+          print(stacktrace);
+          showSnackBarMessage("Failed to load next chapter");
         }
       }
     }
@@ -424,59 +429,64 @@ class ReaderProvider with ChangeNotifier {
   }
 
   moveToChapter({bool next = true, int index}) async {
-    if (index == null) {
-      index = currentIndex;
-    }
-    // Might have to reinitialize entire reader
-    int target;
-    if (next) {
-      // Move to Next chapter
-      target = index - 1;
-    } else {
-      // Move to Previous Chapter
-      target = index + 1;
-    }
-    int mode = Provider.of<PreferenceProvider>(context, listen: false)
-        .readerScrollDirection;
-    int pow =
-        Provider.of<PreferenceProvider>(context, listen: false).readerMode;
-    if (target < 0) {
-      // no chapter after it.
-      showMessage(
-          "Last chapter",
-          (pow == 1)
-              ? (mode == 1)
-                  ? Icons.skip_previous_outlined
-                  : Icons.skip_next_outlined
-              : Icons.skip_next_outlined,
-          Duration(seconds: 1));
-    } else if (target >= chapters.length) {
-      // no chapters before it
-      showMessage(
-          "First Chapter",
-          (pow == 1)
-              ? (mode == 1)
-                  ? Icons.skip_next_outlined
-                  : Icons.skip_previous_outlined
-              : Icons.skip_previous_outlined,
-          Duration(seconds: 1));
-    } else {
-      // Check for duplicates
-      Chapter chapter = chapters.elementAt(target);
-      Chapter current = chapters.elementAt(currentIndex);
-
-      if (chapter.generatedNumber == current.generatedNumber) {
-        // print("match at index: $target, ${chapter.generatedNumber} == ${current.generatedNumber}");
-        await moveToChapter(next: next, index: target);
-      } else {
-        print("Changing Chapters");
-        var c = List.of(chapters);
-        var s = selector;
-        var ctx = context;
-        var id = comicId;
-        var src = source;
-        await init(c, target, s, ctx, id, src);
+    try {
+      if (index == null) {
+        index = currentIndex;
       }
+      // Might have to reinitialize entire reader
+      int target;
+      if (next) {
+        // Move to Next chapter
+        target = index - 1;
+      } else {
+        // Move to Previous Chapter
+        target = index + 1;
+      }
+      int mode = Provider.of<PreferenceProvider>(context, listen: false)
+          .readerScrollDirection;
+      int pow =
+          Provider.of<PreferenceProvider>(context, listen: false).readerMode;
+      if (target < 0) {
+        // no chapter after it.
+        showMessage(
+            "Last chapter",
+            (pow == 1)
+                ? (mode == 1)
+                    ? Icons.skip_previous_outlined
+                    : Icons.skip_next_outlined
+                : Icons.skip_next_outlined,
+            Duration(seconds: 1));
+      } else if (target >= chapters.length) {
+        // no chapters before it
+        showMessage(
+            "First Chapter",
+            (pow == 1)
+                ? (mode == 1)
+                    ? Icons.skip_next_outlined
+                    : Icons.skip_previous_outlined
+                : Icons.skip_previous_outlined,
+            Duration(seconds: 1));
+      } else {
+        // Check for duplicates
+        Chapter chapter = chapters.elementAt(target);
+        Chapter current = chapters.elementAt(currentIndex);
+
+        if (chapter.generatedNumber == current.generatedNumber) {
+          // print("match at index: $target, ${chapter.generatedNumber} == ${current.generatedNumber}");
+          await moveToChapter(next: next, index: target);
+        } else {
+          print("Changing Chapters");
+          var c = List.of(chapters);
+          var s = selector;
+          var ctx = context;
+          var id = comicId;
+          var src = source;
+          await init(c, target, s, ctx, id, src);
+        }
+      }
+    } catch (err, stacktrace) {
+      print(stacktrace);
+      showSnackBarMessage("Failed to load chapter", error: true);
     }
   }
 
