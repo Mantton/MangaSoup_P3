@@ -13,6 +13,7 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Screens/Sources/source_language_page.dart';
 import 'package:mangasoup_prototype_3/Screens/WebViews/cloudfare_webview.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Services/source_manager.dart';
@@ -122,7 +123,21 @@ class _SourcesPageState extends State<SourcesPage> {
                   appBar: AppBar(
                     title: Text("Sources"),
                     centerTitle: true,
-                    // info button can go here
+                    actions: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.public,
+                        ),
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => LanguageServerPage(),
+                          ),
+                        ).then((value) {
+                          setState(() {});
+                        }),
+                      )
+                    ],
                     bottom: TabBar(
                       isScrollable: true,
                       unselectedLabelColor: Colors.grey,
@@ -211,6 +226,7 @@ class _SourcesPageState extends State<SourcesPage> {
                                                   fontFamily: "Roboto",
                                                 ),
                                                 textAlign: TextAlign.center,
+                                                minFontSize: 10,
                                               ),
                                             ),
                                           ],

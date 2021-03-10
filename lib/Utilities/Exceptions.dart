@@ -28,7 +28,7 @@ class ErrorManager {
         else if (err.response.statusCode == 403)
           throw "Unauthorized Request";
         else if (err.response.statusCode == 404)
-          throw "Resource not Fount";
+          throw "Resource not Found";
         else if (err.response.statusCode == 410)
           throw "Resource is no longer available on this server.";
         else if (err.response.statusCode == 422)

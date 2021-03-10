@@ -37,7 +37,7 @@ class PreferenceProvider with ChangeNotifier {
     readerMaxWidth = _p.getBool(PreferenceKeys.READER_MAX_WIDTH) ?? false;
     readerDoublePagedMode =
         _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
-    languageServer = _p.getString(PreferenceKeys.MS_LANG_SERVER) ?? "live";
+    languageServer = _p.getString(PreferenceKeys.MS_LANG_SERVER) ?? "en";
     notifyListeners();
     return true;
   }
