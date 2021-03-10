@@ -216,7 +216,7 @@ class DexHub {
 
   Future<Profile> profile(String link, Map info) async {
     List userLanguages = info['mangadex_languages'] ?? List();
-    debugPrint("Languages: $userLanguages");
+    // debugPrint("Languages: $userLanguages");
     String comicLink = link;
     // print("MD LINK: $comicLink");
     if (link.contains("http")) {

@@ -1,20 +1,21 @@
+import 'dart:io' as io;
+
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/bookmark_table.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/chapter_table.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/collection_table.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/comic-collection_table.dart';
+import 'package:mangasoup_prototype_3/app/data/database/tables/comic_table.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/history_table.dart';
 import 'package:mangasoup_prototype_3/app/data/database/tables/track_table.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'dart:io' as io;
-import 'package:mangasoup_prototype_3/app/data/database/tables/comic_table.dart';
 
 class DatabaseManager {
   static Database db;
   static const String DB_NAME = 'mangasoup.db';
-  static const int VERSION = 3;
+  static const int VERSION = 4;
 
   static initDB() async {
     io.Directory documentDirectory = await getApplicationDocumentsDirectory();
@@ -47,6 +48,11 @@ class DatabaseManager {
     }
     if (oldV < 3) {
       await db.execute(TrackTable.createTableQuery()); // Tracking Table
+    }
+
+    if (oldV < 4) {
+      await db.execute(
+          "ALTER TABLE ${ComicTable.TABLE} ADD ${ComicTable.COL_UNREAD_COUNT} INTEGER NOT NULL DEFAULT 0");
     }
   }
 

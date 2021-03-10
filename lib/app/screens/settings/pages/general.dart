@@ -45,6 +45,22 @@ class _GeneralSettingsState extends State<GeneralSettings> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
+                  "App",
+                  style: notInLibraryFont,
+                ),
+                Divider(),
+                SwitchListTile.adaptive(
+                  title: Text("Check for Updates on launch"),
+                  subtitle: Text(
+                    "When enabled the app will automatically check for updates when the app is launched",
+                  ),
+                  value: settings.updateOnStartUp,
+                  onChanged: (v) => settings.setUpdateOnStartUp(v),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
                   "Comic Grid",
                   style: notInLibraryFont,
                 ),

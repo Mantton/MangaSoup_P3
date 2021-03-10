@@ -18,11 +18,13 @@ class Comic {
   bool inLibrary;
   int chapterCount; // Number of Chapters the manga contains
   int updateCount; // Number of updates available after update check
+  int unreadCount; // Number of Unread Chapters
   int viewerMode; // Specifies the mode in which the user views this comic
 
   // Library Information 2
   DateTime dateAdded;
   int rating;
+
   // Initialize new Comic
   Comic(
       {this.title,
@@ -35,6 +37,7 @@ class Comic {
     this.id = null;
     this.inLibrary = false;
     this.updateCount = 0;
+    this.unreadCount = 0;
     this.viewerMode = 0;
     this.isNsfw = false;
     this.rating = 0;
@@ -51,6 +54,7 @@ class Comic {
     sourceSelector = map['selector'];
     chapterCount = map['chapter_count'];
     updateCount = map['update_count'];
+    unreadCount = map['unread_count'];
     inLibrary = map["in_library"] == 1 ? true : false;
     viewerMode = map['view_mode'];
     isNsfw = map['nsfw'] == 1 ? true : false;
@@ -60,7 +64,8 @@ class Comic {
 
   ComicHighlight toHighlight() {
     return ComicHighlight(
-        title, link, thumbnail, sourceSelector, source, isNsfw, "",updateCount: updateCount);
+        title, link, thumbnail, sourceSelector, source, isNsfw, "",
+        updateCount: updateCount, unreadCount: unreadCount);
   }
 
   // Create DB Injectable Map from Comic
@@ -75,6 +80,7 @@ class Comic {
       "selector": sourceSelector,
       "chapter_count": chapterCount,
       "update_count": updateCount,
+      "unread_count": unreadCount,
       "in_library": inLibrary ? 1 : 0,
       "view_mode": viewerMode,
       "nsfw": isNsfw ? 1 : 0,

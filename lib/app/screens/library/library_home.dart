@@ -167,8 +167,9 @@ class _LibraryHomeState extends State<LibraryHome>
               },
               child: Text("Import"),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  side: BorderSide(color: Colors.grey[900])),
+                borderRadius: BorderRadius.circular(10.0),
+                side: BorderSide(color: Colors.grey[900]),
+              ),
             ),
           ],
         ),
@@ -337,7 +338,7 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
             mainAxisSize: MainAxisSize.min,
           ),
           cupertino: (_, __) => CupertinoActionSheet(
-            title: Text("Collection Sort"),
+            message: Text("Sort By"),
             cancelButton: CupertinoActionSheetAction(
               child: Text("Cancel"),
               isDestructiveAction: true,
@@ -351,9 +352,13 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
                   provider.updateCollection(collection);
                   Navigator.pop(context);
                 },
-                child: Text(
-                  collectionSortNames[index],
-                ),
+                child: Row(children: [
+                  Text(collectionSortNames[index]),
+                  Spacer(),
+                  collection.librarySort == index
+                      ? Icon(Icons.check)
+                      : Container(),
+                ]),
               ),
             ),
           ),

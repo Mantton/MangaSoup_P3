@@ -8,12 +8,7 @@ import 'package:flutter/cupertino.dart'
         CupertinoThemeData,
         DefaultCupertinoLocalizations;
 import 'package:flutter/material.dart'
-    show
-        Colors,
-        DefaultMaterialLocalizations,
-        Theme,
-        ThemeData,
-        ThemeMode;
+    show Colors, DefaultMaterialLocalizations, Theme, ThemeData, ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -72,7 +67,7 @@ void callbackDispatcher() {
       case Workmanager.iOSBackgroundTask:
         stderr.writeln("The iOS background fetch was triggered");
 
-        try{
+        try {
           var connectivityResult = await (Connectivity()
               .checkConnectivity()); //Check if user is connected
 
@@ -82,14 +77,15 @@ void callbackDispatcher() {
             updateCount = await _updateManger.checkForUpdateBackGround();
             if (updateCount > 0) {
               if (updateCount == 1)
-                showNotification("$updateCount new update in your library", flp);
+                showNotification(
+                    "$updateCount new update in your library", flp);
               else
-                showNotification("$updateCount new updates in your library", flp);
+                showNotification(
+                    "$updateCount new updates in your library", flp);
             }
             stderr.writeln("Done");
           }
-
-        }catch(err){
+        } catch (err) {
           stderr.writeln("ERROR\n$err");
           showNotification("Failed to Update Library", flp);
         }
@@ -274,7 +270,7 @@ class _HandlerState extends State<Handler> with AutomaticKeepAliveClientMixin {
     } else {
       await Provider.of<SourceNotifier>(context, listen: false)
           .loadSource(source);
-
+      Provider.of<DatabaseProvider>(context, listen: false).checkForUpdates();
       return false;
     }
   }

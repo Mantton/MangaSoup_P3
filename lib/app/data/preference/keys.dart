@@ -29,4 +29,6 @@ class PreferenceKeys {
   static const MAL_AUTO_SYNC = "mal_auto_sync";
   static const READER_BG_COLOR = "reader_bg_color";
   static const COMIC_GRID_MODE = 'comic_grid_mode';
+  static const UPDATE_ON_STARTUP = "uonsp";
+  static const SHOW_UNREAD_COUNT = "show_unread";
 }
