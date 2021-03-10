@@ -12,7 +12,7 @@ enum Sort {
 List collectionSortNames = [
   "Date Added",
   "Name",
-  "Update Count",
+  "Number of Updates",
   // "Unread Chapter Count",
   "Chapter Count",
   "Rating"
