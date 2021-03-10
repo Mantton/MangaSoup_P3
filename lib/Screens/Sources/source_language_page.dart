@@ -24,7 +24,7 @@ class _LanguageServerPageState extends State<LanguageServerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Language Servers"),
+        title: Text("Source Groups"),
       ),
       body: FutureBuilder(
         future: servers,

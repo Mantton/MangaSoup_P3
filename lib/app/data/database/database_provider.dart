@@ -504,7 +504,7 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  removeHistory(History history) async {
+  Future<void> removeHistory(History history) async {
     await historyManager.deleteHistory(history);
     historyList.remove(history);
     notifyListeners();

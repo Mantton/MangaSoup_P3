@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
@@ -16,6 +17,8 @@ import 'package:mangasoup_prototype_3/app/screens/profile/widgets/content_previe
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:mangasoup_prototype_3/app/widgets/comic_collection_widget.dart';
 import 'package:provider/provider.dart';
+
+import 'all_chapters.dart';
 
 class GenericProfilePage extends StatefulWidget {
   final Profile profile;
@@ -183,28 +186,8 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
         ],
       );
 
-  Widget actionButton(IconData icon, String actionText, Function action) {
-    return Column(
-      children: [
-        IconButton(
-          icon: Icon(
-            icon,
-            color: Colors.purpleAccent,
-          ),
-          iconSize: 30,
-          onPressed: () => action,
-        ),
-        Text(
-          actionText,
-          textAlign: TextAlign.center,
-          style: def,
-        )
-      ],
-    );
-  }
-
   profileActionWidget(Comic comic) {
-    List idk = List();
+    List idk = [];
     if (!widget.profile.containsBooks) {
       idk = widget.profile.chapters
           .map((e) => e.generatedNumber)
@@ -248,14 +231,39 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
             );
           }),
           Spacer(),
-          actionButton(
-              widget.profile.containsBooks
-                  ? CupertinoIcons.collections
-                  : CupertinoIcons.book,
-              widget.profile.containsBooks
-                  ? "${widget.profile.bookCount} ${widget.profile.bookCount > 1 ? "Books" : "Book"}"
-                  : "${idk.length} ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}",
-              null),
+          Column(
+            children: [
+              IconButton(
+                icon: Icon(
+                  widget.profile.containsBooks
+                      ? CupertinoIcons.collections
+                      : CupertinoIcons.book,
+                  color: Colors.purpleAccent,
+                ),
+                iconSize: 30,
+                onPressed: () => !widget.profile.containsBooks
+                    ? Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChapterList(
+                            chapterList: widget.profile.chapters,
+                            comicId: widget.comicId,
+                            selector: widget.profile.selector,
+                            source: widget.profile.source,
+                          ),
+                        ),
+                      )
+                    : null,
+              ),
+              Text(
+                widget.profile.containsBooks
+                    ? "${widget.profile.bookCount} ${widget.profile.bookCount > 1 ? "Books" : "Book"}"
+                    : "${idk.length} ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}",
+                textAlign: TextAlign.center,
+                style: def,
+              )
+            ],
+          ),
           Spacer(),
           Column(
             children: [
@@ -334,62 +342,71 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
   }
 
   playContinueLogic(History history) {
-    if (history != null) {
-      // Continue
-      ChapterData pointer =
+    try {
+      if (history != null) {
+        // Continue
+        ChapterData pointer =
+            Provider.of<DatabaseProvider>(context, listen: false)
+                .chapters
+                .firstWhere((element) => element.id == history.chapterId);
+        int target = widget.profile.chapters
+            .indexWhere((element) => element.link == pointer.link);
+        if (target < 0) {
           Provider.of<DatabaseProvider>(context, listen: false)
-              .chapters
-              .firstWhere((element) => element.id == history.chapterId);
-      int target = widget.profile.chapters
-          .indexWhere((element) => element.link == pointer.link);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ReaderHome(
-            selector: widget.profile.selector,
-            chapters: widget.profile.chapters,
-            initialChapterIndex: target,
-            comicId: widget.comicId,
-            source: widget.profile.source,
-            initialPage: pointer.lastPageRead,
-          ),
-          fullscreenDialog: true,
-        ),
-      );
-    } else {
-      // Start from Chapter 1
-      if (widget.profile.containsBooks) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ReaderHome(
-              selector: widget.profile.selector,
-              chapters: widget.profile.books[0].chapters,
-              initialChapterIndex: widget.profile.books[0].chapters.indexOf(
-                widget.profile.books[0].chapters.last,
-              ),
-              comicId: widget.comicId,
-              source: widget.profile.source,
-            ),
-            fullscreenDialog: true,
-          ),
-        );
-      } else {
+              .removeHistory(history)
+              .then((value) => throw "Bad State, No Pointer");
+        }
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => ReaderHome(
               selector: widget.profile.selector,
               chapters: widget.profile.chapters,
-              initialChapterIndex:
-                  widget.profile.chapters.indexOf(widget.profile.chapters.last),
+              initialChapterIndex: target,
               comicId: widget.comicId,
               source: widget.profile.source,
+              initialPage: pointer.lastPageRead,
             ),
             fullscreenDialog: true,
           ),
         );
+      } else {
+        // Start from Chapter 1
+        if (widget.profile.containsBooks) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ReaderHome(
+                selector: widget.profile.selector,
+                chapters: widget.profile.books[0].chapters,
+                initialChapterIndex: widget.profile.books[0].chapters.indexOf(
+                  widget.profile.books[0].chapters.last,
+                ),
+                comicId: widget.comicId,
+                source: widget.profile.source,
+              ),
+              fullscreenDialog: true,
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ReaderHome(
+                selector: widget.profile.selector,
+                chapters: widget.profile.chapters,
+                initialChapterIndex: widget.profile.chapters
+                    .indexOf(widget.profile.chapters.last),
+                comicId: widget.comicId,
+                source: widget.profile.source,
+              ),
+              fullscreenDialog: true,
+            ),
+          );
+        }
       }
+    } catch (err) {
+      showSnackBarMessage(err.toString(), error: true);
     }
   }
 
@@ -454,28 +471,36 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
             SizedBox(
               height: 5,
             ),
-            Text(
-              'Genres',
-              style: TextStyle(color: Colors.white, fontSize: 25),
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            GridView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 5.w.toInt(),
-                  crossAxisSpacing: 0,
-                  childAspectRatio: 1.7,
-                ),
-                itemCount: widget.profile.genres.length,
-                itemBuilder: (BuildContext context, int index) {
-                  Tag tag = widget.profile.genres[index];
-                  return TagWidget(
-                    tag: tag,
-                  );
-                }),
+            widget.profile.genres.isNotEmpty
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Genres',
+                        style: TextStyle(color: Colors.white, fontSize: 25),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      GridView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 5.w.toInt(),
+                            crossAxisSpacing: 0,
+                            childAspectRatio: 1.7,
+                          ),
+                          itemCount: widget.profile.genres.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            Tag tag = widget.profile.genres[index];
+                            return TagWidget(
+                              tag: tag,
+                            );
+                          }),
+                    ],
+                  )
+                : Container(),
             // SizedBox(
             //   height: 10.h,
             // ),

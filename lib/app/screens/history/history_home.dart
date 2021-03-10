@@ -280,10 +280,13 @@ class _HistoryHomeState extends State<HistoryHome>
       Profile profile = data['profile'];
       int id = data['id'];
       int index = 0;
-      List<Chapter> chapters = List();
+      List<Chapter> chapters = [];
       if (profile.chapters != null) {
         index = profile.chapters
             .indexWhere((element) => element.link == chapterData.link);
+        if (index < 0) {
+          throw "Bad State, Unreachable";
+        }
         chapters = profile.chapters;
       } else {
         Chapter chapter =
@@ -318,7 +321,7 @@ class _HistoryHomeState extends State<HistoryHome>
       );
     } catch (err) {
       Navigator.pop(context);
-      showSnackBarMessage(err.toString());
+      showSnackBarMessage(err.toString(), error: true);
     }
   }
 
