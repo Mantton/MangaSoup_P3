@@ -188,12 +188,8 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
 
   profileActionWidget(Comic comic) {
     List idk = [];
-    if (!widget.profile.containsBooks) {
-      idk = widget.profile.chapters
-          .map((e) => e.generatedNumber)
-          .toSet()
-          .toList();
-    }
+    idk =
+        widget.profile.chapters.map((e) => e.generatedNumber).toSet().toList();
 
     return Container(
       padding: EdgeInsets.all(8),
@@ -235,30 +231,24 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
             children: [
               IconButton(
                 icon: Icon(
-                  widget.profile.containsBooks
-                      ? CupertinoIcons.collections
-                      : CupertinoIcons.book,
+                  CupertinoIcons.book,
                   color: Colors.purpleAccent,
                 ),
                 iconSize: 30,
-                onPressed: () => !widget.profile.containsBooks
-                    ? Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ChapterList(
-                            chapterList: widget.profile.chapters,
-                            comicId: widget.comicId,
-                            selector: widget.profile.selector,
-                            source: widget.profile.source,
-                          ),
-                        ),
-                      )
-                    : null,
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ChapterList(
+                      chapterList: widget.profile.chapters,
+                      comicId: widget.comicId,
+                      selector: widget.profile.selector,
+                      source: widget.profile.source,
+                    ),
+                  ),
+                ),
               ),
               Text(
-                widget.profile.containsBooks
-                    ? "${widget.profile.bookCount} ${widget.profile.bookCount > 1 ? "Books" : "Book"}"
-                    : "${idk.length} ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}",
+                "${idk.length} ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}",
                 textAlign: TextAlign.center,
                 style: def,
               )
@@ -371,25 +361,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
           ),
         );
       } else {
-        // Start from Chapter 1
-        if (widget.profile.containsBooks) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ReaderHome(
-                selector: widget.profile.selector,
-                chapters: widget.profile.books[0].chapters,
-                initialChapterIndex: widget.profile.books[0].chapters.indexOf(
-                  widget.profile.books[0].chapters.last,
-                ),
-                comicId: widget.comicId,
-                source: widget.profile.source,
-              ),
-              fullscreenDialog: true,
-            ),
-          );
-        } else {
-          Navigator.push(
+        Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => ReaderHome(
@@ -403,7 +375,6 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
               fullscreenDialog: true,
             ),
           );
-        }
       }
     } catch (err) {
       showSnackBarMessage(err.toString(), error: true);

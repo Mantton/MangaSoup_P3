@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
-import 'package:mangasoup_prototype_3/app/data/api/models/book.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
@@ -43,25 +42,23 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
             child: Row(
               children: [
                 Text(
-                  (!widget.profile.containsBooks) ? "Chapters" : "Books",
+                  "Chapters",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 30,
                   ),
                 ),
                 Spacer(),
-                !widget.profile.containsBooks
-                    ? IconButton(
-                        onPressed: () {
-                          showSnackBarMessage("Downloads have been disabled.");
-                        },
-                        icon: Icon(
-                          CupertinoIcons.cloud_download,
-                          size: 30,
-                          color: Colors.purple,
-                        ),
-                      )
-                    : Container()
+                IconButton(
+                  onPressed: () {
+                    showSnackBarMessage("Downloads have been disabled.");
+                  },
+                  icon: Icon(
+                    CupertinoIcons.cloud_download,
+                    size: 30,
+                    color: Colors.purple,
+                  ),
+                )
               ],
             ),
           ),
@@ -71,7 +68,7 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
             endIndent: 10.w,
             height: 10.0.h,
           ),
-          (!widget.profile.containsBooks) ? containsChapters() : containsBooks()
+          containsChapters(),
         ],
       ),
     );
@@ -160,56 +157,6 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
     });
   }
 
-  Widget containsBooks() {
-    return Column(
-      children: [
-        Container(
-          child: ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: displayChapters(widget.profile.bookCount),
-              itemBuilder: (BuildContext context, int index) {
-                Book book = widget.profile.books[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChapterList(
-                          chapterList: book.chapters,
-                          comicId: widget.comicId,
-                          selector: widget.profile.selector,
-                          source: widget.profile.source,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 50,
-                    child: ListTile(
-                      title: Text(
-                        book.name,
-                        style: TextStyle(
-                          fontSize: 17,
-                        ),
-                      ),
-                      trailing: FittedBox(
-                        child: Text(
-                          "${book.generatedLength} Chapters" ?? "",
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-        ),
-      ],
-    );
-  }
 
   displayChapters(int length) {
     if (length > 5)

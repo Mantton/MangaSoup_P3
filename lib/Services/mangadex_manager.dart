@@ -325,6 +325,7 @@ class DexHub {
       "selector": selector,
       "link": comicLink,
       "contains_books": false,
+      "is_custom": false,
     };
     debugPrint("Retrieval Complete : /Profile: $title @$source ");
 

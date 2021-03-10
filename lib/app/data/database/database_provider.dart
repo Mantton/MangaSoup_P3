@@ -667,19 +667,6 @@ class DatabaseProvider with ChangeNotifier {
         .toList();
     // list above contains the generated numbers for all read chapters in the lib
     List<Chapter> toMark = List();
-    if (d.containsBooks) {
-      // get book with most chapters
-      Book t;
-      int max = 0;
-      for (Book b in d.books) {
-        if (b.generatedLength > max) {
-          t = b;
-        }
-      }
-      toMark = t.chapters
-          .where((element) => readChapters.contains(element.generatedNumber))
-          .toList();
-    } else
       toMark = d.chapters
           .where((element) => readChapters.contains(element.generatedNumber))
           .toList();

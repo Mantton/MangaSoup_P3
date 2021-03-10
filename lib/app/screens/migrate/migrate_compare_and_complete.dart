@@ -306,46 +306,11 @@ class InfoPane extends StatelessWidget {
                     ),
                   ],
                 )
-              : (profile.containsBooks != null && profile.containsBooks)
-                  ? Builder(
-                      builder: (_) {
-                        int max = 0;
-                        Book t;
-                        for (Book b in profile.books) {
-                          if (b.generatedLength > max) {
-                            t = b;
-                            max = b.generatedLength;
-                          }
-                        }
-                        return Column(
-                          children: [
-                            Text(
-                              "${t.chapters.length} Total Chapters",
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontFamily: "Lato",
-                                color: Colors.grey,
-                              ),
-                            ),
-                            Text(
-                              "${t.chapters.map((e) => e.generatedNumber).toSet().toList().length} Unique Chapter(s) Detected",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontFamily: "Lato",
-                                color: Colors.blueGrey,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    )
-                  : Center(
-                      child: Text(
-                        "No Chapters",
-                      ),
-                    ),
+              : Center(
+                  child: Text(
+                    "No Chapters",
+                  ),
+                ),
         ],
       ),
     );

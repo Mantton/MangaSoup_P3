@@ -17,13 +17,11 @@ import 'package:mangasoup_prototype_3/app/data/mangadex/models/mangadex_profile.
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiManager {
-  //10.0.2.2 /127.0.0.1  http://10.0.2.2:8080/app/sources?server=live
-
   static String _devAddress = "http://api.mangasoup.net";
   static String _localAddress = "http://127.0.0.1:5000";
 
   static BaseOptions _options = BaseOptions(
-    baseUrl: _devAddress,
+    baseUrl: _localAddress,
     connectTimeout: 50000,
     receiveTimeout: 50000,
   );
