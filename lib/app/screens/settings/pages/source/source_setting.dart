@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
@@ -60,9 +59,8 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
             subtitle: Text("This would log you out or remove cloudfare bypasses"),
             onTap: ()async{
               SharedPreferences prefs = await SharedPreferences.getInstance();
-              prefs.setString("${_selector}_cookies", null).then((value){
+              prefs.remove("${_selector}_cookies").then((value) {
                 showSnackBarMessage("Source Cookies cleared!");
-
               });
             },
           ),
