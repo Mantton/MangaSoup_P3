@@ -2,17 +2,8 @@ import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:flutter/cupertino.dart'
-    show
-        DefaultCupertinoLocalizations;
-import 'package:flutter/material.dart'
-    show
-    Colors,
-        DefaultMaterialLocalizations,
-        MaterialApp,
-        ThemeData,
-        ThemeMode;
-    show Colors, DefaultMaterialLocalizations, Theme, ThemeData, ThemeMode;
+import 'package:flutter/cupertino.dart' show DefaultCupertinoLocalizations;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -166,13 +157,15 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     final materialTheme = ThemeData(primaryColor: Colors.black);
     final materialDarkTheme = ThemeData(
-      brightness: Brightness.dark,
-      primaryColor: Colors.black,
-      scaffoldBackgroundColor: Colors.black,
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      textSelectionColor: Colors.blueAccent.withOpacity(.8),
-    );
+        brightness: Brightness.dark,
+        primaryColor: Colors.black,
+        scaffoldBackgroundColor: Colors.black,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        textSelectionTheme: TextSelectionThemeData(
+          selectionColor: Colors.blueAccent.withOpacity(.8),
+        ),
+        iconTheme: IconThemeData(color: Colors.blue));
 
     return PlatformProvider(
       builder: (_) => MaterialApp(
