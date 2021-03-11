@@ -30,13 +30,15 @@ class PreferenceProvider with ChangeNotifier {
         _p.getBool(PreferenceKeys.SCALE_GRID_TO_MATCH_INTENDED) ?? true;
     maxScrollVelocity = _p.getDouble(PreferenceKeys.WEBTOON_MSV) ?? 8500.0;
     showUnreadCount =
-        _p.getBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT) ?? false;
+        _p.getBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT) ?? true;
     libraryViewMode = _p.getInt(PreferenceKeys.LIBRARY_VIEW_TYPE) ?? 1;
     readerBGColor = _p.getInt(PreferenceKeys.READER_BG_COLOR) ?? 0;
     malAutoSync = _p.getBool(PreferenceKeys.MAL_AUTO_SYNC) ?? true;
     readerMaxWidth = _p.getBool(PreferenceKeys.READER_MAX_WIDTH) ?? false;
     readerDoublePagedMode =
         _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
+    languageServer = _p.getString(PreferenceKeys.MS_LANG_SERVER) ?? "en";
+    updateOnStartUp = _p.getBool(PreferenceKeys.UPDATE_ON_STARTUP) ?? true;
     notifyListeners();
     return true;
   }
@@ -48,6 +50,17 @@ class PreferenceProvider with ChangeNotifier {
       await initPreference();
       return _prefs;
     }
+  }
+
+  /// LANGUAGE SERVER
+
+  String languageServer;
+
+  setLanguageServer(String server) async {
+    SharedPreferences p = await preferences();
+    languageServer = server;
+    p.setString(PreferenceKeys.MS_LANG_SERVER, server);
+    notifyListeners();
   }
 
   /// READER SETTINGS
@@ -195,7 +208,7 @@ class PreferenceProvider with ChangeNotifier {
   setSURCM(bool surcm) async {
     // SURCM = Show UnRead Count Mode
     SharedPreferences p = await preferences();
-    scaleToMatchIntended = surcm;
+    showUnreadCount = surcm;
     p.setBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT, surcm);
     notifyListeners();
   }
@@ -229,6 +242,15 @@ class PreferenceProvider with ChangeNotifier {
     SharedPreferences p = await preferences();
     comicGridMode = option;
     p.setInt(PreferenceKeys.COMIC_GRID_MODE, option);
+    notifyListeners();
+  }
+
+  bool updateOnStartUp;
+
+  setUpdateOnStartUp(bool mode) async {
+    SharedPreferences p = await preferences();
+    updateOnStartUp = mode;
+    p.setBool(PreferenceKeys.UPDATE_ON_STARTUP, mode);
     notifyListeners();
   }
 

@@ -10,10 +10,12 @@ class ComicHighlight {
   bool isHentai;
   String imageReferer;
   int updateCount;
+  int unreadCount;
   String mangadexFollowType;
 
-  ComicHighlight(
-      this.title, this.link, this.thumbnail, this.selector, this.source, this.isHentai, this.imageReferer, {this.updateCount});
+  ComicHighlight(this.title, this.link, this.thumbnail, this.selector,
+      this.source, this.isHentai, this.imageReferer,
+      {this.updateCount, this.unreadCount});
 
   Map<String, dynamic> toMap() {
     return {

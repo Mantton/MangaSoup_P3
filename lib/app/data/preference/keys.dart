@@ -1,4 +1,6 @@
 class PreferenceKeys {
+  /// SERVER
+  static const MS_LANG_SERVER = "ms_lang_server";
 
   /// READER KEYS
   static const READER_MODE = "reader_mode"; // Manga or Webtoon
@@ -34,4 +36,6 @@ class PreferenceKeys {
   static const MS_USER_NAME = "ms_username";
   static const MS_USER_ID = "ms_id";
   static const MS_USER_ROLES = "ms_roles";
+  static const UPDATE_ON_STARTUP = "uonsp";
+  static const SHOW_UNREAD_COUNT = "show_unread";
 }

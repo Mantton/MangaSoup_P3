@@ -30,9 +30,7 @@ class MigrateProvider with ChangeNotifier {
           canMigrate = true;
         } else
           canMigrate = false;
-      } else if (current.containsBooks || destination.containsBooks)
-        canMigrate = true;
-      else
+      } else
         canMigrate = false;
     } else
       canMigrate = false;

@@ -4,18 +4,18 @@ enum Sort {
   date_added,
   name,
   update_count,
-  // unread_count,
   chapter_count,
   rating,
+  unread_count,
 }
 
 List collectionSortNames = [
   "Date Added",
   "Name",
   "Update Count",
-  // "Unread Chapter Count",
   "Chapter Count",
-  "Rating"
+  "Rating",
+  "Unread Chapters",
 ];
 
 List<Comic> sortComicCollection(int sort, List<Comic> comics) {
@@ -29,5 +29,7 @@ List<Comic> sortComicCollection(int sort, List<Comic> comics) {
     comics.sort((a, b) => b.chapterCount.compareTo(a.chapterCount));
   else if (sort == Sort.rating.index)
     comics.sort((a, b) => b.rating.compareTo(a.rating));
+  else if (sort == Sort.unread_count.index)
+    comics.sort((a, b) => b.unreadCount.compareTo(a.unreadCount));
   return comics;
 }

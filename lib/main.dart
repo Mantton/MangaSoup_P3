@@ -12,6 +12,7 @@ import 'package:flutter/material.dart'
         MaterialApp,
         ThemeData,
         ThemeMode;
+    show Colors, DefaultMaterialLocalizations, Theme, ThemeData, ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -240,7 +241,7 @@ class _HandlerState extends State<Handler> with AutomaticKeepAliveClientMixin {
     } else {
       await Provider.of<SourceNotifier>(context, listen: false)
           .loadSource(source);
-
+      Provider.of<DatabaseProvider>(context, listen: false).checkForUpdates();
       return false;
     }
   }

@@ -3,7 +3,6 @@ import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
-import 'package:mangasoup_prototype_3/app/data/api/models/book.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/mal_track_result.dart';
@@ -88,15 +87,18 @@ class DatabaseProvider with ChangeNotifier {
       );
 
       Comic generated = Comic(
-          title: highlight.title,
-          link: highlight.link,
-          thumbnail: profile.selector != "hasu"
-              ? profile.thumbnail
-              : highlight.thumbnail,
-          referer: highlight.imageReferer,
-          source: highlight.source,
-          sourceSelector: highlight.selector,
-          chapterCount: profile.chapterCount ?? 0);
+        title: highlight.title,
+        link: highlight.link,
+        thumbnail: profile.selector != "hasu"
+            ? profile.thumbnail
+            : highlight.thumbnail,
+        referer: highlight.imageReferer,
+        source: highlight.source,
+        sourceSelector: highlight.selector,
+        chapterCount: profile.chapterCount ?? 0,
+      );
+
+      generated.unreadCount = generated.chapterCount;
 
       Comic comic = isComicSaved(generated);
       if (comic != null) {
@@ -104,8 +106,14 @@ class DatabaseProvider with ChangeNotifier {
         if (profile.selector != "hasu") comic.thumbnail = profile.thumbnail;
         comic.updateCount = 0;
         comic.chapterCount = profile.chapterCount ?? 0;
+        // GET UNREAD COUNT
+        int t = chapters
+            .where((element) => element.mangaId == comic.id && element.read)
+            .length;
+        comic.unreadCount = comic.chapterCount - t;
       } else
         comic = generated;
+
       // Evaluate
       int _id = await evaluate(comic);
       map = {"profile": profile, "id": _id};
@@ -114,6 +122,8 @@ class DatabaseProvider with ChangeNotifier {
     }
     return map;
   }
+
+  updateUnread() {}
 
   /// COMICS
   Future<int> evaluate(Comic comic, {bool overWriteChapterCount = true}) async {
@@ -348,7 +358,6 @@ class DatabaseProvider with ChangeNotifier {
 
       for (ComicCollection e in d) {
         Comic comic = comics.firstWhere((element) => element.id == e.comicId);
-        print(comic.title);
         // calculate if chapter count has increased
         /// CHECK FOR UPDATE LOGIC
         int currentChapterCount = comic.chapterCount;
@@ -361,14 +370,19 @@ class DatabaseProvider with ChangeNotifier {
 
           // increase or do nothing about the updated count
           /// UPDATE COUNT LOGIC
-          if (updatedChapterCount > currentChapterCount) {
+          if (updatedChapterCount > currentChapterCount)
             updateCount++; // increase update count metric
 
-            // Update Comic Data
-            comic.chapterCount = updatedChapterCount;
-            comic.updateCount = updatedChapterCount - currentChapterCount;
-            await evaluate(comic);
-          }
+          // Update Comic Data
+          comic.chapterCount = updatedChapterCount;
+          comic.updateCount = updatedChapterCount - currentChapterCount;
+
+          // GET UNREAD COUNT
+          int t = chapters
+              .where((element) => element.mangaId == comic.id && element.read)
+              .length;
+          comic.unreadCount = comic.chapterCount - t;
+          await evaluate(comic);
         } catch (e) {
           continue;
         }
@@ -427,7 +441,7 @@ class DatabaseProvider with ChangeNotifier {
   updateFromACS(List<Chapter> incoming, int comicId, bool read, String source,
       String selector) async {
     List<ChapterData> data = List();
-    // Chack for matches, update their status to read then add to data
+    // Check for matches, update their status to read then add to data
     for (Chapter chapter in incoming) {
       ChapterData append = checkIfChapterMatch(chapter);
       // Check for non matches Create nChapterData objects then append to data
@@ -452,6 +466,14 @@ class DatabaseProvider with ChangeNotifier {
       else
         chapters.add(obj);
     }
+
+    // UPDATE COMIC UNREAD COUNT
+    Comic c = comics.firstWhere((element) => element.id == comicId);
+    int t = chapters
+        .where((element) => element.mangaId == c.id && element.read)
+        .length;
+    c.unreadCount = c.chapterCount - t;
+    evaluate(c);
     notifyListeners();
     // MD Sync
     if (selector == "mangadex" && read) {
@@ -504,7 +526,7 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  removeHistory(History history) async {
+  Future<void> removeHistory(History history) async {
     await historyManager.deleteHistory(history);
     historyList.remove(history);
     notifyListeners();
@@ -667,22 +689,9 @@ class DatabaseProvider with ChangeNotifier {
         .toList();
     // list above contains the generated numbers for all read chapters in the lib
     List<Chapter> toMark = List();
-    if (d.containsBooks) {
-      // get book with most chapters
-      Book t;
-      int max = 0;
-      for (Book b in d.books) {
-        if (b.generatedLength > max) {
-          t = b;
-        }
-      }
-      toMark = t.chapters
-          .where((element) => readChapters.contains(element.generatedNumber))
-          .toList();
-    } else
-      toMark = d.chapters
-          .where((element) => readChapters.contains(element.generatedNumber))
-          .toList();
+    toMark = d.chapters
+        .where((element) => readChapters.contains(element.generatedNumber))
+        .toList();
     await updateFromACS(toMark, destination.id, true, destination.source,
         destination.sourceSelector);
     // Status

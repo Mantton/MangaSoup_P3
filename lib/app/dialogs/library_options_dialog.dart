@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 libraryOptionsDialog({@required BuildContext context, int comicId}) {
   showGeneralDialog(
-    barrierLabel: "Not In Library",
+    barrierLabel: "Libary Options",
     barrierDismissible: true,
     barrierColor: Colors.black.withOpacity(0.5),
     transitionDuration: Duration(milliseconds: 70),
@@ -121,6 +121,14 @@ class LibraryOptions extends StatelessWidget {
                 else
                   provider.setLibraryViewMode(2);
               }),
+          SwitchListTile.adaptive(
+            title: Text(
+              "Show Unread Chapter Count",
+              style: libraryOptionsFont,
+            ),
+            value: provider.showUnreadCount,
+            onChanged: (v) => provider.setSURCM(v),
+          ),
         ],
       );
     });
