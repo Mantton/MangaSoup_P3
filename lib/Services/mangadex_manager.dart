@@ -123,6 +123,7 @@ class DexHub {
       "User-Agent": "MangaSoup/0.0.2",
       "Access-Control-Allow-Origin": "*",
       "referer": "https://mangadex.org",
+      "origin": "https://mangadex.org"
     };
     return browseHeaders;
   }
@@ -373,7 +374,7 @@ class DexHub {
       if (responseHeaders.contains("mangadex_session=deleted")) {
         SharedPreferences _prefs = await SharedPreferences.getInstance();
         _prefs
-            .setString("mangadex_cookies", null)
+            .remove("mangadex_cookies")
             .then((value) => showSnackBarMessage("MangaDex Session Revoked"));
         throw "MangaDex Authorization Error";
       }
@@ -459,6 +460,19 @@ class DexHub {
     // options: Options(headers: prepareHeaders(additionalInfo)),
   }
 
+  Future<void> logout() async {
+    Map info = await prepareAdditionalInfo("mangadex");
+    Map headers = prepareHeaders(info);
+    headers.putIfAbsent("x-requested-with", () => "XMLHttpRequest");
+    await Dio().get(
+      baseURL + "/ajax/actions.ajax.php?function=logout",
+      options: Options(headers: headers),
+    );
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    _prefs.remove(PreferenceKeys.MANGADEX_PROFILE);
+    _prefs.remove("mangadex_cookies");
+  }
+
   Future<DexProfile> setUserProfile(Map additionalInfo) async {
     try {
       Response response = await Dio().get(
@@ -474,7 +488,6 @@ class DexHub {
           userProfile.toMap(),
         ),
       );
-      debugPrint(response.headers.toString());
       return userProfile;
     } on DioError catch (e) {
       if (e.response.statusCode == 403) {
@@ -483,7 +496,7 @@ class DexHub {
             .contains("mangadex_session=deleted")) {
           SharedPreferences _prefs = await SharedPreferences.getInstance();
           _prefs
-              .setString("mangadex_cookies", null)
+              .remove("mangadex_cookies")
               .then((value) => showSnackBarMessage("MangaDex Session Revoked"));
         }
         throw "${e.response.statusCode}, Authorization Error";
@@ -499,10 +512,8 @@ class DexHub {
   Future<List<ComicHighlight>> getUserLibrary(Map additionalInfo) async {
     var headers = prepareHeaders(additionalInfo);
     try {
-      Response response = await Dio().get(
-        apiV2URL + "/user/me/followed-manga",
-        options: Options(headers: headers),
-      );
+      Response response = await Dio().get(apiV2URL + "/user/me/followed-manga",
+          options: Options(headers: headers), queryParameters: {"hentai": "1"});
 
       List data = response.data['data'];
       List<ComicHighlight> comics = List();
@@ -517,7 +528,7 @@ class DexHub {
             .contains("mangadex_session=deleted")) {
           SharedPreferences _prefs = await SharedPreferences.getInstance();
           _prefs
-              .setString("mangadex_cookies", null)
+              .remove("mangadex_cookies")
               .then((value) => showSnackBarMessage("MangaDex Session Revoked"));
         }
         throw "${e.response.statusCode}, Authorization Error";

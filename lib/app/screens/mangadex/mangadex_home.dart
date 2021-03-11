@@ -1,14 +1,16 @@
 import 'dart:convert';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Components/Images.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Screens/WebViews/mangadex_login.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
+import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
@@ -17,7 +19,6 @@ import 'package:mangasoup_prototype_3/app/data/mangadex/models/mangadex_profile.
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:collection/collection.dart';
 
 class DexHubHome extends StatefulWidget {
   @override
@@ -89,17 +90,18 @@ class _DexHubHomeState extends State<DexHubHome> {
               child: Column(
                 children: [
                   Container(
-                    color: Colors.grey[900],
-                    margin: EdgeInsets.all(10.w),
+                    color: Color.fromRGBO(9, 9, 9, 1),
+                    margin: EdgeInsets.all(10),
                     child: Row(
                       children: [
                         Container(
-                          width: 140.w,
-                          height: 150.h,
-                          padding: EdgeInsets.all(5.w),
-                          child: SoupImage(
-                            url: snapshot.data.avatar,
-                            referer: "mangadex.org",
+                          width: 140,
+                          height: 150,
+                          padding: EdgeInsets.all(5),
+                          child: CircleAvatar(
+                            backgroundColor: Colors.grey[900],
+                            backgroundImage: CachedNetworkImageProvider(
+                                snapshot.data.avatar),
                           ),
                         ),
                         Text(
@@ -139,6 +141,33 @@ class _DexHubHomeState extends State<DexHubHome> {
                       setState(() {
                         profile = ApiManager().getMangadexProfile();
                       });
+                    },
+                  ),
+                  ListTile(
+                    title: Text(
+                      "Log Out",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: "Lato",
+                        color: Colors.redAccent,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.logout,
+                      color: Colors.redAccent,
+                    ),
+                    onTap: () async {
+                      showLoadingDialog(context);
+                      try {
+                        await DexHub().logout();
+                        Navigator.pop(context);
+                        setState(() {
+                          profile = ApiManager().getMangadexProfile();
+                        });
+                      } catch (err) {
+                        Navigator.pop(context);
+                        showSnackBarMessage("Error");
+                      }
                     },
                   )
                 ],
@@ -193,6 +222,7 @@ class _DexHubHomeState extends State<DexHubHome> {
       mergeIntoMangaSoupLibrary(sorted);
     } catch (err) {
       Navigator.pop(context);
+      showSnackBarMessage("Merge Failed", error: true);
     }
   }
 

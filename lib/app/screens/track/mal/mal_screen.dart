@@ -94,7 +94,7 @@ class _MALHomeState extends State<MALHome> {
                         ),
                       ),
                       trailing: Icon(
-                        CupertinoIcons.clear,
+                        Icons.logout,
                         color: Colors.redAccent,
                       ),
                       onTap: () async {
