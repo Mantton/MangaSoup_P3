@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/app/screens/history/history_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/library_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/more/more_home.dart';
+
 import 'Screens/Explore/Home.dart';
 
 class Landing extends StatefulWidget {
@@ -30,10 +31,10 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin{
             Container(
               child: HistoryHome(), // View History
             ),
-            Container(
-              color: Colors.grey[900],
-              // push to general discussions page
-            ),
+            // Container(
+            //   color: Colors.grey[900],
+            //   // push to general discussions page
+            // ),
             Container(
               child: MoreHomePage(), // More
             )
@@ -64,7 +65,9 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin{
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              (_index != 1) ? CupertinoIcons.folder : CupertinoIcons.folder_fill,
+              (_index != 1)
+                  ? CupertinoIcons.folder
+                  : CupertinoIcons.folder_fill,
             ),
             label: "Library",
           ),
@@ -74,14 +77,14 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin{
             ),
             label: "History",
           ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(
+          //     (_index != 3) ? CupertinoIcons.bubble_left : CupertinoIcons.bubble_left_fill,
+          //   ),
+          //   label: "Discussions",
+          // ),
           BottomNavigationBarItem(
-            icon: Icon(
-              (_index != 3) ? CupertinoIcons.bubble_left : CupertinoIcons.bubble_left_fill,
-            ),
-            label: "Discussions",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon((_index != 4)
+            icon: Icon((_index != 3)
                 ? CupertinoIcons.square_stack_3d_up
                 : CupertinoIcons.square_stack_3d_up_fill),
             label: "More",
