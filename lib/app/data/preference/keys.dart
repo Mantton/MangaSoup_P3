@@ -31,11 +31,8 @@ class PreferenceKeys {
   static const COMIC_GRID_MODE = 'comic_grid_mode';
 
   /// MANGASOUP KEYS
-  static const MS_ACCESS_TOKEN = "ms_token";
-  static const MS_REFRESH_TOKEN = "ms_refresh";
-  static const MS_USER_NAME = "ms_username";
-  static const MS_USER_ID = "ms_id";
-  static const MS_USER_ROLES = "ms_roles";
+  static const MS_T_ACCESS_TOKEN = "ms_token_t";
+  static const MS_T_USER = "ms_user_t";
   static const UPDATE_ON_STARTUP = "uonsp";
   static const SHOW_UNREAD_COUNT = "show_unread";
 }

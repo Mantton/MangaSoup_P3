@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/data/api/discussion_models/chapter_comment.dart';
 import 'package:mangasoup_prototype_3/app/screens/comments/chapter_comments.dart';
-import 'package:mangasoup_prototype_3/app/services/discuss/discussions_manager.dart';
+import 'package:mangasoup_prototype_3/app/services/mangasoup_combined_testing.dart';
 
 chapterCommentsDialog({@required BuildContext context, String link}) {
   showModalBottomSheet(
@@ -34,7 +34,7 @@ class _CommentListFutureBuilderState extends State<CommentListFutureBuilder> {
   Future<List<ChapterComment>> getComments() async {
     List<ChapterComment> v = List();
     try {
-      v = await DiscussionManager().getChapterComments(widget.link, 1);
+      v = await MSCombined().getChapterComments(widget.link, 1, context);
     } catch (err) {
       throw err;
     }
@@ -60,7 +60,7 @@ class _CommentListFutureBuilderState extends State<CommentListFutureBuilder> {
           return Center(
             child: InkWell(
               child: Text(
-                "An Error Occurred\nTap to Retry",
+                "An Error Occurred\n${snapshot.error}\nTap to Retry",
                 textAlign: TextAlign.center,
               ),
               onTap: () {

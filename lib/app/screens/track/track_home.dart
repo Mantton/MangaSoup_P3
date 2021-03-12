@@ -7,9 +7,9 @@ import 'package:mangasoup_prototype_3/app/screens/track/mal/mal_screen.dart';
 class ServicesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    List names = ['MangaDex', "MyAnimeList"];
-    List pages = [DexHubHome(), MALHome()];
-    List images = ["mangadex.png", "mal.png"];
+    List names = ['MangaDex', "MyAnimeList", "MangaSoup"];
+    List pages = [DexHubHome(), MALHome(), DexHubHome()];
+    List images = ["mangadex.png", "mal.png", "icon.png"];
     return Scaffold(
       appBar: AppBar(
         title: Text("Services"),

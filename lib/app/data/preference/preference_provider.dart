@@ -1,11 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mangasoup_prototype_3/app/data/api/discussion_models/mangasoup_combined_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'keys.dart';
 
 class PreferenceProvider with ChangeNotifier {
   SharedPreferences _prefs;
+
   // Init at launch
 
   Future<void> initPreference() async {
@@ -39,6 +43,10 @@ class PreferenceProvider with ChangeNotifier {
         _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
     languageServer = _p.getString(PreferenceKeys.MS_LANG_SERVER) ?? "en";
     updateOnStartUp = _p.getBool(PreferenceKeys.UPDATE_ON_STARTUP) ?? true;
+    msUser = _p.getString(PreferenceKeys.MS_T_USER) != null
+        ? MSUserCombined.fromMap(
+            jsonDecode(_p.getString(PreferenceKeys.MS_T_USER)))
+        : null;
     notifyListeners();
     return true;
   }
@@ -74,6 +82,7 @@ class PreferenceProvider with ChangeNotifier {
   /// 1 - Manga
   /// 2 - Webtoon
   Map readerModeOptions = {1: "Paged / Manga", 2: "WebToon"};
+
   setReaderMode(int mode) async {
     SharedPreferences p = await preferences();
     readerMode = mode;
@@ -84,8 +93,15 @@ class PreferenceProvider with ChangeNotifier {
   /// Reader Scroll Direction
   /// 1 - LTR
   /// 2 - RTL
-  Map readerScrollDirectionOptionsHorizontal = {1: "Left to Right", 2: "Right to Left"};
-  Map readerScrollDirectionOptionsVertical = {1: "Downward Swipe", 2: "Upward Swipe"};
+  Map readerScrollDirectionOptionsHorizontal = {
+    1: "Left to Right",
+    2: "Right to Left"
+  };
+  Map readerScrollDirectionOptionsVertical = {
+    1: "Downward Swipe",
+    2: "Upward Swipe"
+  };
+
   setReaderScrollDirection(int mode) async {
     SharedPreferences p = await preferences();
     readerScrollDirection = mode;
@@ -97,6 +113,7 @@ class PreferenceProvider with ChangeNotifier {
   /// 1 - Horizontal
   /// 2 - Vertical
   Map readerOrientationOptions = {1: "Horizontal", 2: "Vertical"};
+
   setReaderOrientation(int mode) async {
     SharedPreferences p = await preferences();
     readerOrientation = mode;
@@ -251,6 +268,22 @@ class PreferenceProvider with ChangeNotifier {
     SharedPreferences p = await preferences();
     updateOnStartUp = mode;
     p.setBool(PreferenceKeys.UPDATE_ON_STARTUP, mode);
+    notifyListeners();
+  }
+
+  MSUserCombined msUser;
+
+  setMSUsr(MSUserCombined newUsr) async {
+    SharedPreferences p = await preferences();
+    p.setString(PreferenceKeys.MS_T_USER, jsonEncode(newUsr.toMap()));
+    msUser = newUsr;
+    notifyListeners();
+  }
+
+  removeMSUser() async {
+    SharedPreferences p = await preferences();
+    p.remove(PreferenceKeys.MS_T_USER);
+    msUser = null;
     notifyListeners();
   }
 

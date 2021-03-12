@@ -54,8 +54,6 @@ class ErrorManager {
       if (error is MissingMangaDexSession)
         throw "The resource you are requesting requires MangaDex Authentication.";
       else {
-        print(error.runtimeType);
-        print(error);
         if (error is String)
           throw "$error";
         else {
