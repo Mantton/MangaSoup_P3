@@ -8,6 +8,7 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Setting.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -76,6 +77,9 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
                     onPressed: () async {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
+                      if (_selector == "mangadex") {
+                        DexHub().logout();
+                      }
                       prefs.remove("${_selector}_cookies").then((value) {
                         showSnackBarMessage("Source Cookies cleared!");
                       });
