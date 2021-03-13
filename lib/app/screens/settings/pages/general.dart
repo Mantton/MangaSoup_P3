@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
+import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
+import 'package:mangasoup_prototype_3/app/screens/downloads/downloads_testing.dart';
 import 'package:provider/provider.dart';
 
 class GeneralSettings extends StatefulWidget {
@@ -130,20 +132,40 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                   style: notInLibraryFont,
                 ),
                 Divider(),
+                FutureBuilder(
+                  future: getCacheSize(),
+                  builder: (_, snap) {
+                    if (snap.hasData)
+                      return ListTile(
+                        title: Text(
+                          "${snap.data['count']} Image(s) consuming ${snap.data['size']} MB",
+                          style: notInLibraryFont,
+                        ),
+                      );
+                    else
+                      return LoadingIndicator();
+                  },
+                ),
                 ListTile(
                   title: Text(
                     "Clear Image Cache",
                     style: TextStyle(
                       color: Colors.redAccent,
-                      fontSize: 17,
+                      fontSize: 20,
                       fontFamily: "Lato",
                     ),
                   ),
+                  trailing: Icon(
+                    Icons.delete_outline,
+                    color: Colors.redAccent,
+                  ),
                   onTap: () {
-                    DefaultCacheManager manager = DefaultCacheManager();
                     setState(() {
+                      DefaultCacheManager manager = DefaultCacheManager();
                       manager.emptyCache(); //clears all data in cache.
-                      showSnackBarMessage("Image Cache Cleared!");
+                      showSnackBarMessage(
+                        "Image Cache Cleared!",
+                      );
                     });
                   },
                 )

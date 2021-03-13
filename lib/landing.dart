@@ -5,6 +5,7 @@ import 'package:mangasoup_prototype_3/app/screens/library/library_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/more/more_home.dart';
 
 import 'Screens/Explore/Home.dart';
+import 'app/screens/downloads/downloads_home.dart';
 
 class Landing extends StatefulWidget {
   @override
@@ -22,22 +23,11 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin{
         child: IndexedStack(
           index: _index,
           children: [
-            Container(
-              child: Home(), // Explore
-            ),
-            Container(
-              child: LibraryHome(), // Library
-            ),
-            Container(
-              child: HistoryHome(), // View History
-            ),
-            // Container(
-            //   color: Colors.grey[900],
-            //   // push to general discussions page
-            // ),
-            Container(
-              child: MoreHomePage(), // More
-            )
+            Home(),
+            LibraryHome(),
+            HistoryHome(),
+            DownloadsHome(),
+            MoreHomePage()
           ],
         ),
       ),
@@ -77,14 +67,16 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin{
             ),
             label: "History",
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(
-          //     (_index != 3) ? CupertinoIcons.bubble_left : CupertinoIcons.bubble_left_fill,
-          //   ),
-          //   label: "Discussions",
-          // ),
           BottomNavigationBarItem(
-            icon: Icon((_index != 3)
+            icon: Icon(
+              (_index != 3)
+                  ? CupertinoIcons.cloud_download
+                  : CupertinoIcons.cloud_download_fill,
+            ),
+            label: "Downloads",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon((_index != 4)
                 ? CupertinoIcons.square_stack_3d_up
                 : CupertinoIcons.square_stack_3d_up_fill),
             label: "More",
