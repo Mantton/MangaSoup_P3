@@ -25,7 +25,7 @@ class _DownloadsHomeState extends State<DownloadsHome> {
               ),
               Tab(
                 text: "Queue",
-              )
+              ),
             ],
           ),
         ),

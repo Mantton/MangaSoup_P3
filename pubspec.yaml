@@ -66,6 +66,7 @@ dependencies:
   percent_indicator: ^2.1.7+2
   visibility_detector: ^0.1.5
   webview_cookie_manager: ^1.0.7
+  flutter_downloader: ^1.5.2
 
 dependency_overrides:
   collection: ^1.14.13

@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart'
@@ -118,6 +118,9 @@ Future<void> main() async {
   Workmanager.initialize(
       callbackDispatcher, // The top level function, aka callbackDispatcher
       isInDebugMode: false);
+  await FlutterDownloader.initialize(
+      debug: true // optional: set false to disable printing logs to console
+      );
 
   // await FlutterDownloader.initialize(debug: false); this is causing issues on IOS
 
@@ -270,7 +273,9 @@ class _HandlerState extends State<Handler> with AutomaticKeepAliveClientMixin {
     } else {
       await Provider.of<SourceNotifier>(context, listen: false)
           .loadSource(source);
-      Provider.of<DatabaseProvider>(context, listen: false).checkForUpdates();
+      if (Provider.of<PreferenceProvider>(context, listen: false)
+          .updateOnStartUp)
+        Provider.of<DatabaseProvider>(context, listen: false).checkForUpdates();
       return false;
     }
   }

@@ -64,9 +64,9 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
           ),
           Divider(
             color: Colors.grey[900],
-            indent: 10.w,
-            endIndent: 10.w,
-            height: 10.0.h,
+            indent: 10,
+            endIndent: 10,
+            height: 10.0,
           ),
           containsChapters(),
         ],
@@ -100,9 +100,9 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
           ),
           Divider(
             color: Colors.grey[900],
-            indent: 10.w,
-            endIndent: 10.w,
-            height: 10.0.h,
+            indent: 10,
+            endIndent: 10,
+            height: 10.0,
           ),
           GestureDetector(
             onTap: () {
