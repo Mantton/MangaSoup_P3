@@ -4,22 +4,11 @@ import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:provider/provider.dart';
 
-class PagedViewAdapter extends StatefulWidget {
-  @override
-  _PagedViewAdapterState createState() => _PagedViewAdapterState();
-}
 
-class _PagedViewAdapterState extends State<PagedViewAdapter> {
-  @override
-  void initState() {
-    super.initState();
-    _controller = PreloadPageController(
-        initialPage: Provider.of<ReaderProvider>(context, listen: false)
-            .initialPageIndex,
-        viewportFraction: 1);
-  }
+class PagedViewAdapter extends StatelessWidget {
+  final PreloadPageController controller;
 
-  PreloadPageController _controller;
+  const PagedViewAdapter({Key key, this.controller}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +18,7 @@ class _PagedViewAdapterState extends State<PagedViewAdapter> {
           scrollDirection:
               settings.readerOrientation == 1 ? Axis.horizontal : Axis.vertical,
           pageSnapping: settings.readerPageSnapping,
-          controller: _controller,
+          controller: controller,
           reverse: settings.readerScrollDirection == 1 ? true : false,
           onPageChanged: provider.pageChanged,
           preloadPagesCount: 4,

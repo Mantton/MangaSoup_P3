@@ -6,6 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class WebToonPageAdapter extends StatefulWidget {
+  final ItemScrollController controller;
+
+  const WebToonPageAdapter({Key key, this.controller}) : super(key: key);
+
   @override
   _WebToonPageAdapterState createState() => _WebToonPageAdapterState();
 }
@@ -13,13 +17,11 @@ class WebToonPageAdapter extends StatefulWidget {
 class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
   int lastPage = -1;
 
-  ItemScrollController itemScrollController;
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
 
   @override
   void initState() {
-    itemScrollController = ItemScrollController();
     itemPositionsListener.itemPositions.addListener(() {
       int max = itemPositionsListener.itemPositions.value
           .where((ItemPosition position) => position.itemLeadingEdge < .33)
@@ -52,7 +54,7 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
           ),
           itemBuilder: (_, index) => provider.widgetPageList[index],
           itemCount: provider.widgetPageList.length,
-          itemScrollController: itemScrollController,
+          itemScrollController: widget.controller,
           itemPositionsListener: itemPositionsListener,
           initialScrollIndex: provider.initialPageIndex,
         ),
