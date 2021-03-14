@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
@@ -126,6 +127,11 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                       fontSize: 25,
                       fontFamily: 'Lato',
                     ),
+                    onTap: () {
+                      Clipboard.setData(
+                          ClipboardData(text: widget.profile.title));
+                      showSnackBarMessage("Copied title to clipboard!");
+                    },
                     // maxLines: 3,
                   ),
                   Divider(
