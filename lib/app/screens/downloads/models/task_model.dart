@@ -13,13 +13,14 @@ class TaskInfo {
 class ChapterDownload {
   List<String> taskIds;
   List<String> links;
+  String saveDir;
   String chapterUrl;
   int comicId;
   int chapterId;
   double progress;
   int status;
 
-  ChapterDownload({this.chapterId, this.comicId}) {
+  ChapterDownload({this.chapterId, this.comicId, this.saveDir}) {
     taskIds = [];
     progress = 0;
     status = 0; // waiting image request

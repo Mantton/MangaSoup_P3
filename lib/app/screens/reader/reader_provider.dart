@@ -11,6 +11,7 @@ import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
+import 'package:mangasoup_prototype_3/app/screens/downloads/models/task_model.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/empty_response.dart';
@@ -96,20 +97,37 @@ class ReaderProvider with ChangeNotifier {
     firstChapter.generatedNumber = chapter.generatedNumber;
     firstChapter.index = initialIndex;
 
-    ImageChapter response;
-    try {
-      // Get Images
-      response = !loaded
-          ? await ApiManager().getImages(selector, chapter.link)
-          : loadedChapter;
-    } catch (err) {
-      ErrorManager.analyze(err);
+    ImageChapter response = ImageChapter(images: []);
+    bool isDownloaded = false;
+
+    ChapterDownload download =
+        Provider.of<DatabaseProvider>(context, listen: false)
+            .chapterDownloads
+            .firstWhere(
+                (element) =>
+                    element.chapterUrl == chapter.link && element.status == 3,
+                orElse: () => null);
+
+    if (download != null) {
+      isDownloaded = true;
+      response.images = download.links;
+      response.referer = "MangaSoup";
+      debugPrint("Download Loaded");
+    } else {
+      try {
+        // Get Images
+        response = !loaded
+            ? await ApiManager().getImages(selector, chapter.link)
+            : loadedChapter;
+      } catch (err) {
+        ErrorManager.analyze(err);
+      }
     }
 
     try {
-      await Provider.of<DatabaseProvider>(context, listen: false)
-          .updateChapterImages(chapter, response.images);
-      print("Images set for ${chapter.name}");
+      if (!isDownloaded)
+        await Provider.of<DatabaseProvider>(context, listen: false)
+            .updateChapterImages(chapter, response.images);
       await Provider.of<DatabaseProvider>(context, listen: false)
           .updateChapterInfo(initPage, chapter);
     } catch (err) {

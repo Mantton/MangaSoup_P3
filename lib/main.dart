@@ -1,5 +1,7 @@
 import 'dart:io';
-import 'package:flutter_downloader/flutter_downloader.dart';
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart'
@@ -11,6 +13,7 @@ import 'package:flutter/material.dart'
     show Colors, DefaultMaterialLocalizations, Theme, ThemeData, ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
@@ -30,6 +33,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'Providers/migrate_provider.dart';
+import 'app/screens/downloads/models/task_model.dart';
 
 const simplePeriodicTask = "simplePeriodicTask";
 
@@ -256,6 +260,8 @@ class Handler extends StatefulWidget {
 }
 
 class _HandlerState extends State<Handler> with AutomaticKeepAliveClientMixin {
+  ReceivePort _port = ReceivePort(); // Receiving port for download Isolate
+
   Future<bool> initSource() async {
     debugPrint("Start Up");
 
@@ -282,11 +288,61 @@ class _HandlerState extends State<Handler> with AutomaticKeepAliveClientMixin {
 
   Future<bool> firstLaunch;
 
+  static void downloadCallback(
+    String id,
+    DownloadTaskStatus status,
+    int progress,
+  ) {
+    final SendPort send =
+        IsolateNameServer.lookupPortByName('ms_download_send_port');
+    send.send([id, status, progress]); // Send Event
+  }
+
+  void _bindBackgroundIsolate() {
+    bool isSuccess = IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'ms_download_send_port');
+    if (!isSuccess) {
+      // Failed to bind
+      _unbindBackgroundIsolate();
+      _bindBackgroundIsolate();
+      print("Failed to connect");
+      return;
+    } else {
+      print("MS Download Send Port Connected");
+    }
+    _port.listen((dynamic data) {
+      /*
+      * Receives event in for of list [taskId, status, progress]
+      * */
+
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+      TaskInfo task = TaskInfo(taskId: id);
+      task.status = status;
+      task.progress = progress;
+      Provider.of<DatabaseProvider>(context, listen: false)
+          .monitorDownloads(task);
+    });
+  }
+
+  @override
+  void dispose() {
+    _unbindBackgroundIsolate();
+    super.dispose();
+  }
+
+  void _unbindBackgroundIsolate() {
+    IsolateNameServer.removePortNameMapping('ms_download_send_port');
+  }
+
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     firstLaunch = initSource();
+    _bindBackgroundIsolate();
+    FlutterDownloader.registerCallback(downloadCallback);
   }
 
   @override

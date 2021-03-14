@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -141,18 +142,19 @@ class MainImageWidget extends StatelessWidget {
     return Container(
       // height: MediaQuery.of(context).size.height,
       width: maxWidth ? MediaQuery.of(context).size.width : null,
-      child: CachedNetworkImage(
-        imageUrl: url,
-        progressIndicatorBuilder: (_, url, var progress) =>
-            progress.progress != null
-                ? Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    child: Center(
-                      child: CircularPercentIndicator(
-                        radius: 45.0,
-                        lineWidth: 3.0,
-                        percent: progress.progress,
+      child: (!url.contains("MSDownloadMDX"))
+          ? CachedNetworkImage(
+              imageUrl: url,
+              progressIndicatorBuilder: (_, url, var progress) =>
+                  progress.progress != null
+                      ? Container(
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width,
+                          child: Center(
+                            child: CircularPercentIndicator(
+                              radius: 45.0,
+                              lineWidth: 3.0,
+                              percent: progress.progress,
                         progressColor: Colors.purple,
                         backgroundColor: Colors.grey[900],
                         // fillColor: Colors.grey[900],
@@ -177,17 +179,18 @@ class MainImageWidget extends StatelessWidget {
           child: Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
-            child: Center(
-                child: Icon(
-              Icons.error_outline,
-              color: Colors.purple,
-            )),
-          ),
-        ),
-        fit: fit,
-        fadeInDuration: Duration(microseconds: 500),
-        fadeInCurve: Curves.easeIn,
-      ),
+                  child: Center(
+                      child: Icon(
+                    Icons.error_outline,
+                    color: Colors.purple,
+                  )),
+                ),
+              ),
+              fit: fit,
+              fadeInDuration: Duration(microseconds: 500),
+              fadeInCurve: Curves.easeIn,
+            )
+          : Image.file(File(url)),
     );
   }
 }

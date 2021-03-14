@@ -165,11 +165,11 @@ class DatabaseProvider with ChangeNotifier {
     return comics
         .where(
           (element) =>
-      element.inLibrary &&
-          element.title.toLowerCase().contains(
-            query.toLowerCase(),
-          ),
-    )
+              element.inLibrary &&
+              element.title.toLowerCase().contains(
+                    query.toLowerCase(),
+                  ),
+        )
         .toList();
   }
 
@@ -188,7 +188,7 @@ class DatabaseProvider with ChangeNotifier {
   Comic isComicSaved(Comic comic) {
     try {
       Comic retrieved = comics.firstWhere((element) =>
-      element.source == comic.source && comic.link == element.link);
+          element.source == comic.source && comic.link == element.link);
       return retrieved;
     } catch (err) {
       return null;
@@ -199,7 +199,7 @@ class DatabaseProvider with ChangeNotifier {
   bool checkIfCollectionExists(String collectionName) {
     List<Collection> exists = collections
         .where((element) =>
-    element.name.toLowerCase() == collectionName.toLowerCase())
+            element.name.toLowerCase() == collectionName.toLowerCase())
         .toList();
     if (exists.isEmpty)
       return false;
@@ -211,32 +211,32 @@ class DatabaseProvider with ChangeNotifier {
     // Delete Collections
 
     List<Collection> toDelete =
-    collections.where((element) => element.id != 1).toList();
+        collections.where((element) => element.id != 1).toList();
     collections.removeWhere(
-            (element) => toDelete.contains(element)); // delete from provider object
+        (element) => toDelete.contains(element)); // delete from provider object
     print(collections);
     print("Deleted Collections");
     // Delete Comic Collections
     List<ComicCollection> comicCollectionsToDelete = comicCollections
         .where((element) =>
-        toDelete.map((e) => e.id).toList().contains(element.collectionId))
+            toDelete.map((e) => e.id).toList().contains(element.collectionId))
         .toList();
     comicCollections.removeWhere((element) =>
         comicCollectionsToDelete.contains(element)); // remove comic collections
     print("Deleted Comic Collections");
     // Delete from DB
     toDelete.forEach(
-            (element) async => await collectionManager.deleteCollection(element));
+        (element) async => await collectionManager.deleteCollection(element));
     comicCollectionsToDelete.forEach((element) async =>
-    await comicCollectionManager.deleteComicCollection(element));
+        await comicCollectionManager.deleteComicCollection(element));
     print("Updated Database");
     // Re-add Collections under default.
     Collection defaultCollection =
-    collections.firstWhere((element) => element.id == 1);
+        collections.firstWhere((element) => element.id == 1);
     List<Comic> lib = comics.where((element) => element.inLibrary).toList();
     print("Retrieved favorites");
     lib.forEach((element) async =>
-    await batchSetComicCollection([defaultCollection], element.id));
+        await batchSetComicCollection([defaultCollection], element.id));
     print("Collection Clear Complete");
     notifyListeners();
   }
@@ -263,7 +263,7 @@ class DatabaseProvider with ChangeNotifier {
 
   Future<Collection> updateCollection(Collection collection) async {
     int index =
-    collections.indexWhere((element) => element.id == collection.id);
+        collections.indexWhere((element) => element.id == collection.id);
     collections[index] = collection;
     await collectionManager.updateCollection(collection);
     notifyListeners();
@@ -329,7 +329,7 @@ class DatabaseProvider with ChangeNotifier {
     // get the comic linked to those collections
 
     List<Comic> requiredComics =
-    comics.where((element) => requiredIds.contains(element.id)).toList();
+        comics.where((element) => requiredIds.contains(element.id)).toList();
     return requiredComics;
   }
 
@@ -337,7 +337,7 @@ class DatabaseProvider with ChangeNotifier {
     collection.updateEnabled = !collection.updateEnabled;
 
     int target =
-    collections.indexWhere((element) => element.id == collection.id);
+        collections.indexWhere((element) => element.id == collection.id);
     collections[target] = collection;
     collectionManager.updateCollection(collection);
     notifyListeners();
@@ -349,7 +349,7 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
     int updateCount = 0;
     List<Collection> uec =
-    collections.where((element) => element.updateEnabled).toList();
+        collections.where((element) => element.updateEnabled).toList();
 
     if (uec.isEmpty) {
       debugPrint("---DONE CHECKING FOR UPDATE---");
@@ -372,7 +372,7 @@ class DatabaseProvider with ChangeNotifier {
 
         try {
           Profile profile =
-          await ApiManager().getProfile(comic.sourceSelector, comic.link);
+              await ApiManager().getProfile(comic.sourceSelector, comic.link);
           int updatedChapterCount = profile.chapterCount;
 
           // increase or do nothing about the updated count
@@ -403,7 +403,7 @@ class DatabaseProvider with ChangeNotifier {
 
   clearUpdates(List<Comic> toClear) async {
     List<Comic> targets =
-    toClear.where((element) => element.updateCount > 0).toList();
+        toClear.where((element) => element.updateCount > 0).toList();
 
     for (Comic comic in targets) {
       int pointer = comics.indexWhere((element) => element.id == comic.id);
@@ -517,7 +517,7 @@ class DatabaseProvider with ChangeNotifier {
   updateHistory(int comicId, int chapterId) async {
     if (historyList.any((element) => element.comicId == comicId)) {
       int targetIndex =
-      historyList.indexWhere((element) => element.comicId == comicId);
+          historyList.indexWhere((element) => element.comicId == comicId);
 
       historyList[targetIndex].chapterId = chapterId;
       historyList[targetIndex].lastRead = DateTime.now();
@@ -548,7 +548,8 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  historyLogic(Chapter chapter, int comicId, String source, String selector) async {
+  historyLogic(
+      Chapter chapter, int comicId, String source, String selector) async {
     ChapterData data = checkIfChapterMatch(chapter);
     if (data == null) {
       await updateFromACS([chapter], comicId, false, source, selector);
@@ -566,7 +567,7 @@ class DatabaseProvider with ChangeNotifier {
 
   deleteBookMark(BookMark mark) async {
     await bookmarkManager.deleteBookMark(bookmarks.firstWhere((element) =>
-    element.page == mark.page && element.chapterLink == mark.chapterLink));
+        element.page == mark.page && element.chapterLink == mark.chapterLink));
 
     bookmarks.removeWhere((element) => element.id == mark.id);
     print("bookmark deleted");
@@ -582,7 +583,7 @@ class DatabaseProvider with ChangeNotifier {
 
   bool checkIfBookMarked(BookMark mark) {
     return bookmarks.any((element) =>
-    element.page == mark.page && element.chapterLink == mark.chapterLink);
+        element.page == mark.page && element.chapterLink == mark.chapterLink);
   }
 
   deleteCollection(Collection collection) async {
@@ -594,8 +595,8 @@ class DatabaseProvider with ChangeNotifier {
     for (ComicCollection pointer in pointers) {
       // Check if this is the only collection attributed to the comic
       if (comicCollections
-          .where((element) => element.comicId == pointer.comicId)
-          .length >
+              .where((element) => element.comicId == pointer.comicId)
+              .length >
           1) {
         // Comic is in multiple collections, safe to delete
         comicCollections.remove(pointer);
@@ -604,7 +605,7 @@ class DatabaseProvider with ChangeNotifier {
         // Move Comic to default.
         pointer.collectionId = 1;
         int target =
-        comicCollections.indexWhere((element) => element.id == pointer.id);
+            comicCollections.indexWhere((element) => element.id == pointer.id);
         comicCollections[target] = pointer;
         await comicCollectionManager.updateComicCollection(pointer);
       }
@@ -665,7 +666,7 @@ class DatabaseProvider with ChangeNotifier {
         await MALManager().updateTracker(tracker);
         trackerManager.updateTracker(tracker);
         int target =
-        comicTrackers.indexWhere((element) => element.id == tracker.id);
+            comicTrackers.indexWhere((element) => element.id == tracker.id);
         comicTrackers[target] = tracker;
         notifyListeners();
       } catch (err) {
@@ -709,7 +710,7 @@ class DatabaseProvider with ChangeNotifier {
         .map((e) => e.collectionId)
         .toList();
     List<Collection> targetCollections =
-    collections.where((element) => ids.contains(element.id)).toList();
+        collections.where((element) => ids.contains(element.id)).toList();
     await batchSetComicCollection([], current.id);
     await batchSetComicCollection(targetCollections, destination.id);
     // Tracking
@@ -767,7 +768,7 @@ class DatabaseProvider with ChangeNotifier {
 
           // Create Download Path
           String _localPath =
-              directory.path + Platform.pathSeparator + 'Download';
+              directory.path + Platform.pathSeparator + 'MSDownloadMDX';
 
           Directory savedDir = Directory(_localPath);
           bool hasExisted = await savedDir.exists();
@@ -801,24 +802,35 @@ class DatabaseProvider with ChangeNotifier {
           if (!hasExisted) {
             savedDir.create();
           }
-          print(savedDir.path);
+          print(tj.title);
+          if (value.images.isNotEmpty) tj.images = value.images;
+          t.saveDir = savedDir.path;
+          Map<String, String> headers = Map();
+          if (value.referer != null || value.referer.isNotEmpty)
+            headers = {"referer": value.referer};
           for (String image in value.images) {
             FlutterDownloader.enqueue(
                     url: image,
                     savedDir: savedDir.path,
-                    fileName: "${value.images.indexOf(image)}.jpg")
-                .then((value) {
+                    fileName: "${value.images.indexOf(image)}.jpg",
+                    requiresStorageNotLow: true,
+                    headers: headers)
+                .then((idd) {
               // returns task id for image
-              t.taskIds.add(value);
+              t.taskIds.add(idd);
               t.status = 2;
               notifyListeners();
             });
           }
         }).catchError((onError) {
+          print(onError);
           t.status = 4;
           notifyListeners();
         });
-      } catch (err) {}
+      } catch (err) {
+        print("Caught error");
+        print(err);
+      }
     }
   }
 
@@ -831,35 +843,43 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void monitorDownloads(TaskInfo task) {
+  void monitorDownloads(TaskInfo task) async {
     // This essentially monitors the callback and syncs the task with the db
+    // Get ChapterDownload to be updated
+    ChapterDownload c = chapterDownloads
+        .firstWhere((element) => element.taskIds.contains(task.taskId));
     if (task.status != DownloadTaskStatus.failed) {
       // Task has not failed
-      // Get ChapterDownload to be updated
-      ChapterDownload c = chapterDownloads
-          .firstWhere((element) => element.taskIds.contains(task.taskId));
 
       // Update progress
-      FlutterDownloader.loadTasks().then((value) {
-        // If complete add to ChapterDownloadObject
-        if (task.status == DownloadTaskStatus.complete) {
-          var t = value.firstWhere((element) => element.taskId == task.taskId);
-          String fil = t.savedDir + Platform.pathSeparator + t.filename;
-          if (!c.links.contains(fil)) c.links.add(fil);
-        }
-        c.progress = value
-                .where((element) => c.taskIds.contains(element.taskId))
-                .map((e) => e.progress)
-                .toList()
-                .fold(0, (p, c) => p + c) /
-            c.taskIds.length;
+
+      c.progress = task.progress.toDouble();
+      List<DownloadTask> pointers = [];
+
+      String test =
+          "(${c.taskIds.map((e) => "'${e.toString()}\'").join(", ")})";
+      String query = "SELECT * FROM task WHERE task_id IN $test";
+      pointers = await FlutterDownloader.loadTasksWithRawQuery(query: query);
+
+      if (task.status == DownloadTaskStatus.complete) {
+        var t = pointers.firstWhere((element) => element.taskId == task.taskId);
+        String fil = t.savedDir + Platform.pathSeparator + t.filename;
+        if (!c.links.contains(fil)) c.links.add(fil);
+      }
+
+      if (c.progress != 100.0) {
+        c.progress =
+            pointers.map((e) => e.progress).toList().fold(0, (p, c) => p + c) /
+                c.taskIds.length;
+        // print(query);
+      } else {
         if (c.progress == 100.0) {
           c.status = 3;
         }
-        notifyListeners();
-      }).catchError((onError) {
-        print(onError);
-      });
+      }
+    } else {
+      c.status = 4;
     }
+    notifyListeners();
   }
 }

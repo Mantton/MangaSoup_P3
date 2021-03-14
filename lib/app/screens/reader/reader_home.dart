@@ -129,7 +129,7 @@ class _ReaderOpenerState extends State<ReaderOpener> {
                 child: InkWell(
                   onTap: () => Navigator.pop(context),
                   child: Text(
-                    "An Error Occurred\nTap to return to profile",
+                    "An Error Occurred\n${snapshot.error}\nTap to return to profile",
                     style: notInLibraryFont,
                     textAlign: TextAlign.center,
                   ),

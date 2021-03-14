@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/app/screens/downloads/screens/d_library.dart';
 import 'package:mangasoup_prototype_3/app/screens/downloads/screens/d_queue.dart';
@@ -19,6 +20,7 @@ class _DownloadsHomeState extends State<DownloadsHome> {
           centerTitle: true,
           bottom: TabBar(
             indicatorColor: Colors.purple,
+            labelStyle: TextStyle(fontSize: 17, fontFamily: "Lato"),
             tabs: [
               Tab(
                 text: "Library",
@@ -28,6 +30,12 @@ class _DownloadsHomeState extends State<DownloadsHome> {
               ),
             ],
           ),
+          actions: [
+            IconButton(
+              icon: Icon(CupertinoIcons.search),
+              onPressed: () => debugPrint("Search Downloads"),
+            )
+          ],
         ),
         body: TabBarView(
           children: [

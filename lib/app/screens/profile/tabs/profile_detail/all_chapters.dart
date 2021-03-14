@@ -145,14 +145,20 @@ class _ChapterListState extends State<ChapterList> {
             itemBuilder: (BuildContext context, int index) {
               Chapter chapter = chapters[index];
               ChapterData data = provider.checkIfChapterMatch(chapter);
-              ChapterDownload downloadInfo = provider.chapterDownloads
-                  .firstWhere((element) => element.chapterId == data?.id,
-                      orElse: () => null);
+              ChapterDownload downloadInfo;
+              bool historyTarget = false;
+
+              if (data != null) {
+                downloadInfo = provider.chapterDownloads.firstWhere(
+                    (element) => element.chapterId == data.id,
+                    orElse: () => null);
+                if (widget.history != null)
+                  historyTarget = (widget.history.chapterId == data.id);
+              }
+
               bool similarRead =
                   provider.checkSimilarRead(chapter, widget.comicId);
-              bool historyTarget = false;
-              if (widget.history != null)
-                historyTarget = (widget.history.chapterId == data?.id);
+
               TextStyle readFont = TextStyle(
                 color: similarRead ? Colors.grey[800] : Colors.white,
               );
@@ -176,7 +182,9 @@ class _ChapterListState extends State<ChapterList> {
                           ? Icon(Icons.location_disabled)
                           : Container(),
                       // History Info
-                      historyTarget ? fittedBox(data) : Container(),
+                      historyTarget && data != null
+                          ? fittedBox(data)
+                          : Container(),
 
                       // Similar Read Info
                       similarRead && data == null
@@ -434,6 +442,7 @@ class _ChapterListState extends State<ChapterList> {
                         widget.source,
                         widget.selector,
                         Theme.of(context).platform);
+
                 Navigator.pop(context);
               },
             ),

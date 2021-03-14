@@ -26,6 +26,12 @@ class ApiManager {
     connectTimeout: 50000,
     receiveTimeout: 50000,
   );
+
+  static BaseOptions _download = BaseOptions(
+    baseUrl: _devAddress,
+    connectTimeout: 5000,
+    receiveTimeout: 5000,
+  );
   final Dio _dio = Dio(_options);
   final DexHub dex = DexHub();
   final String imgSrcUrl = 'https://saucenao.com/search.php?db=37'
