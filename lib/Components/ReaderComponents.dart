@@ -155,42 +155,65 @@ class MainImageWidget extends StatelessWidget {
                               radius: 45.0,
                               lineWidth: 3.0,
                               percent: progress.progress,
-                        progressColor: Colors.purple,
-                        backgroundColor: Colors.grey[900],
-                        // fillColor: Colors.grey[900],
-                      ),
-                    ),
-                  )
-                : Center(
-                    child: Container(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      child: Center(
-                        child: Text(
-                          "Loading...",
-                          style: notInLibraryFont,
+                              progressColor: Colors.purple,
+                              backgroundColor: Colors.grey[900],
+                              // fillColor: Colors.grey[900],
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Container(
+                            height: MediaQuery.of(context).size.height,
+                            width: MediaQuery.of(context).size.width,
+                            child: Center(
+                              child: Text(
+                                "Loading...",
+                                style: notInLibraryFont,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+              httpHeaders: referer != null
+                  ? {"referer": referer ?? imageHeaders(url)}
+                  : null,
+              errorWidget: (context, url, error) => Center(
+                child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: Icon(
+                      Icons.error_outline,
+                      color: Colors.purple,
                     ),
                   ),
-        httpHeaders:
-            referer != null ? {"referer": referer ?? imageHeaders(url)} : null,
-        errorWidget: (context, url, error) => Center(
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-                  child: Center(
-                      child: Icon(
-                    Icons.error_outline,
-                    color: Colors.purple,
-                  )),
                 ),
               ),
               fit: fit,
               fadeInDuration: Duration(microseconds: 500),
               fadeInCurve: Curves.easeIn,
             )
-          : Image.file(File(url)),
+          : Image.file(
+              File(url),
+              errorBuilder: (_, err, trace) => Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.purple,
+                      ),
+                      Text(
+                        "Unable to decode downloaded image data.",
+                        style: textFieldStyle,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
     );
   }
 }

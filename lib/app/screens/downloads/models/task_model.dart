@@ -18,26 +18,29 @@ class ChapterDownload {
   int comicId;
   int chapterId;
   double progress;
-  int status;
+  MSDownloadStatus status;
+  int count;
 
   ChapterDownload({this.chapterId, this.comicId, this.saveDir}) {
     taskIds = [];
     progress = 0;
-    status = 0; // waiting image request
+    status = MSDownloadStatus.queued; // waiting image request
     links = [];
   }
 }
 
+enum MSDownloadStatus {
+  queued,
+  requested,
+  downloading,
+  done,
+  error,
+}
 /*
 * Statuses
-* 0 - Waiting image request
-* 1 - requesting image
-* 2 - downloaidng
-* 3 - done
-* 4 - error
-* 5
-* 6
-* 7
-* 8
-* 9
+* 0 - Queued (Waiting image request)
+* 1 - Requested (Requesting Image)
+* 2 - Downloading (Request Successful, Downloading Chapter)
+* 3 - Done / Complete (Download Successful, all images saved)
+* 4 - Error / Request or Download Failed.
 * */

@@ -134,23 +134,29 @@ class ChapterTile extends StatelessWidget {
 }
 
 class DownloadIcon extends StatelessWidget {
-  final int status;
+  final MSDownloadStatus status;
 
   const DownloadIcon({Key key, this.status}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (status == 0)
-      return Icon(Icons.stream); // Waiting API Request
-    else if (status == 1)
-      return Icon(Icons.cloud_download); // Requesting image
-    else if (status == 2)
-      return Icon(CupertinoIcons.download_circle); // Downloading
-    else if (status == 3)
+    if (status == MSDownloadStatus.queued)
+      return Icon(Icons.library_books_outlined); // Waiting API Request
+    else if (status == MSDownloadStatus.requested)
+      return Icon(Icons.cloud_circle_rounded); // Requesting image
+    else if (status == MSDownloadStatus.downloading)
+      return Icon(Icons.download_sharp); // Downloading
+    else if (status == MSDownloadStatus.done)
       return Icon(Icons.file_download_done); // Done
-    else if (status == 4)
-      return Icon(Icons.error_outline, color: Colors.redAccent); // Error
+    else if (status == MSDownloadStatus.error)
+      return Icon(
+        Icons.error_outline,
+        color: Colors.redAccent,
+      ); // Error
     else
-      return Icon(Icons.remove);
+      return Icon(
+        Icons.error_outline,
+        color: Colors.amber,
+      );
   }
 }

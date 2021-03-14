@@ -25,7 +25,8 @@ class _DownloadLibraryState extends State<DownloadLibrary> {
     return Consumer<DatabaseProvider>(builder: (context, db, _) {
       // Sort
       Map<int, List<ChapterDownload>> sorted = groupBy(
-          db.chapterDownloads.where((element) => element.status == 3),
+          db.chapterDownloads
+              .where((element) => element.status == MSDownloadStatus.done),
           (ChapterDownload obj) => obj.comicId); // Group Comic
       List<int> keys = sorted.keys.toList();
       return Container(
@@ -35,7 +36,7 @@ class _DownloadLibraryState extends State<DownloadLibrary> {
               provider: db,
               comic:
                   db.comics.firstWhere((element) => keys[index] == element.id),
-              chapts: sorted[keys[index]],
+              chapterDownloads: sorted[keys[index]],
             ),
           ),
           separatorBuilder: (_, index) => SizedBox(
@@ -51,19 +52,21 @@ class _DownloadLibraryState extends State<DownloadLibrary> {
 class ComicDownloadBlock extends StatelessWidget {
   final DatabaseProvider provider;
   final Comic comic;
-  final List<ChapterDownload> chapts;
+  final List<ChapterDownload> chapterDownloads;
 
-  const ComicDownloadBlock({Key key, this.provider, this.comic, this.chapts})
+  const ComicDownloadBlock(
+      {Key key, this.provider, this.comic, this.chapterDownloads})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     List<ChapterData> chapterData = provider.chapters
-        .where((e) => chapts.map((k) => k.chapterId).contains(e.id))
+        .where((e) => chapterDownloads.map((k) => k.chapterId).contains(e.id))
         .toList();
     chapterData.sort(
         (a, b) => b.generatedChapterNumber.compareTo(a.generatedChapterNumber));
-    var dir = chapts.first.saveDir.split(comic.title)[0] + comic.title;
+    var dir =
+        chapterDownloads.first.saveDir.split(comic.title)[0] + comic.title;
     var size = dirStatSync(dir)["size"];
     return ExpansionTile(
       leading: InkWell(
@@ -86,7 +89,7 @@ class ComicDownloadBlock extends StatelessWidget {
         style: notInLibraryFont,
       ),
       subtitle: Text(
-        comic.source + "\n$size MB, ${chapts.length} Chapter(s)",
+        comic.source + "\n$size MB, ${chapterDownloads.length} Chapter(s)",
         style: TextStyle(
           color: Colors.grey,
         ),
@@ -95,12 +98,13 @@ class ComicDownloadBlock extends StatelessWidget {
         chapterData.length,
         (i) {
           var data = chapterData[i];
-          var x = chapts.firstWhere((element) => element.chapterId == data.id);
+          var x = chapterDownloads
+              .firstWhere((element) => element.chapterId == data.id);
           var s = dirStatSync(x.saveDir);
           return ListTile(
             title: Text(data.title),
             trailing: Text(
-              "${s['count']} Images(s), ${s['size']} MB",
+              "${s['count']} Image(s), ${s['size']} MB",
               style: TextStyle(color: Colors.grey),
             ),
           );
@@ -141,7 +145,7 @@ class ComicDownloadBlock extends StatelessWidget {
                               onPressed: () {
                                 Provider.of<DatabaseProvider>(context,
                                         listen: false)
-                                    .deleteDownloads(chapts);
+                                    .deleteDownloads(chapterDownloads);
                                 Navigator.pop(context);
                               },
                               isDestructiveAction: true,

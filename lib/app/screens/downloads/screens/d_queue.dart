@@ -5,8 +5,9 @@ import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/screens/downloads/models/task_model.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/chapter_tile.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class DownloadQueue extends StatefulWidget {
   @override
@@ -26,7 +27,8 @@ class _DownloadQueueState extends State<DownloadQueue> {
     return Consumer<DatabaseProvider>(builder: (context, db, _) {
       // Sort
       Map<int, List<ChapterDownload>> sorted = groupBy(
-          db.chapterDownloads.where((element) => element.status != 3),
+          db.chapterDownloads
+              .where((element) => element.status != MSDownloadStatus.done),
           (ChapterDownload obj) => obj.comicId); // Group Comic
       List<int> keys = sorted.keys.toList();
       return Container(
@@ -78,18 +80,29 @@ class ComicDownloadBlock extends StatelessWidget {
           var data = chapterData[i];
           var x = chapts.firstWhere((element) => element.chapterId == data.id);
           return ListTile(
-            title: Text(data.title),
-            trailing: CircularPercentIndicator(
-              radius: 45.0,
-              lineWidth: 3.0,
-              percent: x.progress / 100,
-              progressColor: Colors.purple,
-              backgroundColor: Colors.grey[900],
-              // fillColor: Colors.grey[900],
-            ),
-          );
+              title: Text(data.title),
+              trailing: DownloadQueueStatus(
+                data: x,
+              ));
         },
       ),
+    );
+  }
+}
+
+class DownloadQueueStatus extends StatelessWidget {
+  final ChapterDownload data;
+
+  const DownloadQueueStatus({Key key, this.data}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      child: DownloadIcon(
+        status: data.status,
+      ),
+      baseColor: Colors.purple,
+      highlightColor: Colors.purpleAccent,
     );
   }
 }

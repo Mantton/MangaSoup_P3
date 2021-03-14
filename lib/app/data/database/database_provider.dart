@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
@@ -748,8 +749,10 @@ class DatabaseProvider with ChangeNotifier {
       ChapterDownload c =
           ChapterDownload(chapterId: pointer.id, comicId: comicId);
       c.chapterUrl = chapter.link;
-      newDownloads.add(c);
-      // Save to Downloads database
+
+      if (!chapterDownloads.any((element) => element.chapterId == pointer.id))
+        newDownloads.add(c);
+      //todo Save to Downloads database
     }
     chapterDownloads.addAll(newDownloads);
     notifyListeners(); // Show Queue indicator
@@ -760,91 +763,102 @@ class DatabaseProvider with ChangeNotifier {
       ChapterData tj =
           chapters.firstWhere((element) => element.id == t.chapterId);
       try {
-        t.status = 1;
-        ApiManager().getImages(selector, t.chapterUrl).then((value) async {
-          // Update Status
-          // Update ChapterData ImageChapter Object
-          // Queuing tasks
+        t.status = MSDownloadStatus.requested;
+        notifyListeners(); // Notify of Status Change
+        ImageChapter value =
+            await ApiManager().getImages(selector, t.chapterUrl);
 
-          // Create Download Path
-          String _localPath =
-              directory.path + Platform.pathSeparator + 'MSDownloadMDX';
+        // Update Status
+        // Update ChapterData ImageChapter Object
+        // Queuing tasks
+        t.count = value.images.length;
+        // Create Download Path
+        String _localPath =
+            directory.path + Platform.pathSeparator + 'MSDownloadMDX';
 
-          Directory savedDir = Directory(_localPath);
-          bool hasExisted = await savedDir.exists();
-          if (!hasExisted) {
-            savedDir.create();
-          }
-          // Create Source Path
-          _localPath = savedDir.path + Platform.pathSeparator + source;
+        Directory savedDir = Directory(_localPath);
+        bool hasExisted = await savedDir.exists();
+        if (!hasExisted) {
+          savedDir.create();
+        }
+        // Create Source Path
+        // todo remove container path from saved module
+        _localPath = savedDir.path + Platform.pathSeparator + source;
 
-          savedDir = Directory(_localPath);
-          hasExisted = await savedDir.exists();
-          if (!hasExisted) {
-            savedDir.create();
-          }
+        savedDir = Directory(_localPath);
+        hasExisted = await savedDir.exists();
+        if (!hasExisted) {
+          savedDir.create();
+        }
 
-          // Create Comic Path
-          _localPath = savedDir.path + Platform.pathSeparator + cm.title;
+        // Create Comic Path
+        _localPath = savedDir.path + Platform.pathSeparator + cm.title;
 
-          savedDir = Directory(_localPath);
-          hasExisted = await savedDir.exists();
-          if (!hasExisted) {
-            savedDir.create();
-          }
+        savedDir = Directory(_localPath);
+        hasExisted = await savedDir.exists();
+        if (!hasExisted) {
+          savedDir.create();
+        }
 
-          // Create Chapter Path
-          _localPath =
-              savedDir.path + Platform.pathSeparator + "${tj.title}-${tj.id}";
+        // Create Chapter Path
+        _localPath =
+            savedDir.path + Platform.pathSeparator + "${tj.title}-${tj.id}";
 
-          savedDir = Directory(_localPath);
-          hasExisted = await savedDir.exists();
-          if (!hasExisted) {
-            savedDir.create();
-          }
-          print(tj.title);
-          if (value.images.isNotEmpty) tj.images = value.images;
-          t.saveDir = savedDir.path;
-          Map<String, String> headers = Map();
-          if (value.referer != null || value.referer.isNotEmpty)
-            headers = {"referer": value.referer};
-          for (String image in value.images) {
-            FlutterDownloader.enqueue(
-                    url: image,
-                    savedDir: savedDir.path,
-                    fileName: "${value.images.indexOf(image)}.jpg",
-                    requiresStorageNotLow: true,
-                    headers: headers)
-                .then((idd) {
-              // returns task id for image
-              t.taskIds.add(idd);
-              t.status = 2;
-              notifyListeners();
-            });
-          }
-        }).catchError((onError) {
-          print(onError);
-          t.status = 4;
-          notifyListeners();
-        });
-      } catch (err) {
-        print("Caught error");
-        print(err);
+        savedDir = Directory(_localPath);
+        hasExisted = await savedDir.exists();
+        if (!hasExisted) {
+          savedDir.create();
+        }
+        print("Downloading ${tj.title}, ${t.count} Images");
+        if (value.images.isNotEmpty) tj.images = value.images;
+        t.saveDir = savedDir.path;
+        Map<String, String> headers = Map();
+        if (value.referer != null || value.referer.isNotEmpty)
+          headers = {"referer": value.referer};
+
+        t.status = MSDownloadStatus.downloading;
+        notifyListeners();
+
+        /// Queue Images
+        for (String image in value.images) {
+          String idd = await FlutterDownloader.enqueue(
+              url: image,
+              savedDir: savedDir.path,
+              fileName: "${value.images.indexOf(image)}.jpg",
+              requiresStorageNotLow: true,
+              headers: headers);
+          t.taskIds.add(idd);
+        }
+      } catch (err, stacktrace) {
+        t.status = MSDownloadStatus.error;
+        notifyListeners();
+        print("Caught Error");
+        print(stacktrace);
       }
     }
   }
 
   void deleteDownloads(List toDelete) async {
+    List<ChapterDownload> targets = [];
     if (toDelete is List<Chapter>) {
       for (Chapter chapter in toDelete) {
         // Get the ChapterData object
         ChapterData pointer = checkIfChapterMatch(chapter);
-        chapterDownloads.removeWhere((e) => e.chapterId == pointer.id);
+        var x = chapterDownloads.firstWhere((e) => e.chapterId == pointer.id);
+        targets.add(x);
       }
     } else if (toDelete is List<ChapterDownload>) {
-      chapterDownloads
-          .removeWhere((e) => toDelete.contains(e)); //todo change to ID
+      targets = List.of(toDelete);
+    }
+    // Delete Object so
+    chapterDownloads.removeWhere((e) => targets.contains(e));
+    // Delete all tasks associated with chapter, then delete object
 
+    for (ChapterDownload download in targets) {
+      List ids = download.taskIds;
+      for (var id in ids) {
+        await FlutterDownloader.remove(taskId: id, shouldDeleteContent: true);
+      }
     }
 
     notifyListeners();
@@ -875,20 +889,29 @@ class DatabaseProvider with ChangeNotifier {
       }
 
       if (c.progress != 100.0) {
-        c.progress =
-            pointers.map((e) => e.progress).toList().fold(0, (p, c) => p + c) /
-                c.taskIds.length;
+        int taskProgress =
+            pointers.map((e) => e.progress).toList().fold(0, (p, c) => p + c);
+        c.progress = taskProgress / c.count;
+        // print("${c.chapterId}: ${c.progress}, $taskProgress");
+        // if (c.progress == 100) print("Complete : ${c.chapterId}");
         // print(query);
       } else {
-        if (c.progress == 100.0) {
-          c.status = 3;
+        if (c.progress == 100.0 &&
+            c.links.length == c.count &&
+            c.count == c.taskIds.length) {
+          c.status = MSDownloadStatus.done;
+          print("${c.chapterId}: Download Complete");
         }
       }
     } else {
-      c.status = 4;
+      c.status = MSDownloadStatus.error;
     }
     notifyListeners();
   }
+
+  Future<void> retryDownload() async {}
+
+  Future<void> cancelDownload() async {}
 
   Future<void> clearChapterDataInfo(List<Chapter> pointers) async {
     List<ChapterData> toUpdate = [];

@@ -52,7 +52,7 @@ class ReaderProvider with ChangeNotifier {
       int initialIndex,
       String incomingSelector,
       BuildContext widgetContext,
-      int comic_id,
+      int cId,
       String incomingSource,
       {bool loaded = false,
       bool imgurAlbum = false,
@@ -64,7 +64,7 @@ class ReaderProvider with ChangeNotifier {
     currentIndex = initialIndex;
     selector = incomingSelector;
     context = widgetContext;
-    comicId = comic_id;
+    comicId = cId;
     source = incomingSource;
     // Get Chapter being pointed to
     Chapter chapter = incomingChapters.elementAt(initialIndex);
@@ -86,11 +86,11 @@ class ReaderProvider with ChangeNotifier {
         source,
         selector,
       );
-      print("History Initialized");
+      // print("History Initialized");
     }
 
     // Debugging
-    print("Specified Initial Page Index: $initialPageIndex");
+    // print("Specified Initial Page Index: $initialPageIndex");
     // Initialize Reader Chapter
     ReaderChapter firstChapter = ReaderChapter();
     firstChapter.chapterName = chapter.name;
@@ -132,7 +132,8 @@ class ReaderProvider with ChangeNotifier {
             .chapterDownloads
             .firstWhere(
                 (element) =>
-                    element.chapterUrl == chapter.link && element.status == 3,
+                    element.chapterUrl == chapter.link &&
+                    element.status == MSDownloadStatus.done,
                 orElse: () => null);
 
     // Downloaded Chapter

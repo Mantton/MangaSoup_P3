@@ -67,6 +67,8 @@ dependencies:
   visibility_detector: ^0.1.5
   webview_cookie_manager: ^1.0.7
   flutter_downloader: ^1.5.2
+  shimmer: ^2.0.0-nullsafety.0
+
 
 dependency_overrides:
   collection: ^1.14.13
