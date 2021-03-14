@@ -37,91 +37,89 @@ class _ChapterCommentsPageState extends State<ChapterCommentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
-              children: [
-                Text(
-                  "Comments",
-                  style: TextStyle(
-                    fontFamily: "Roboto",
-                    fontSize: 20,
-                    color: Colors.white70,
-                  ),
-                ),
-                Spacer(),
-                IconButton(
-                  icon: Icon(
-                    CupertinoIcons.clear,
-                    // size: 30,
-                    color: Colors.grey,
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                )
-              ],
-            ),
-          ),
-          Expanded(
-            child: comments.isEmpty
-                ? isEmptyView()
-                : CommentList(comments: comments),
-          ),
-          Container(
-            height: 50,
-            child: TextField(
-              controller: _controller,
-              maxLines: 1,
-              decoration: InputDecoration(
-                hintText: "Add Comment...",
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.transparent,
-                  ),
-                  gapPadding: 5,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Row(
+            children: [
+              Text(
+                "Comments",
+                style: TextStyle(
+                  fontFamily: "Roboto",
+                  fontSize: 20,
+                  color: Colors.white70,
                 ),
               ),
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(150),
-              ],
-              onSubmitted: (body) {
-                if (body.isEmpty)
-                  BotToast.showCustomNotification(
-                    toastBuilder: (_) => Container(
-                      padding: EdgeInsets.all(5.0),
-                      height: 45,
-                      width: 300,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.grey[900],
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Enter a comment",
-                          style: notInLibraryFont,
-                        ),
+              Spacer(),
+              IconButton(
+                icon: Icon(
+                  CupertinoIcons.clear,
+                  // size: 30,
+                  color: Colors.grey,
+                ),
+                onPressed: () => Navigator.pop(context),
+              )
+            ],
+          ),
+        ),
+        Expanded(
+          child: comments.isEmpty
+              ? isEmptyView()
+              : Container(
+                  padding: EdgeInsets.all(3),
+                  child: CommentList(comments: comments)),
+        ),
+        Container(
+          height: 50,
+          child: TextField(
+            controller: _controller,
+            maxLines: 1,
+            decoration: InputDecoration(
+              hintText: "Add Comment...",
+              contentPadding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.transparent,
+                ),
+                gapPadding: 5,
+              ),
+            ),
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(150),
+            ],
+            onSubmitted: (body) {
+              if (body.isEmpty)
+                BotToast.showCustomNotification(
+                  toastBuilder: (_) => Container(
+                    padding: EdgeInsets.all(5.0),
+                    height: 45,
+                    width: 300,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey[900],
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Enter a comment",
+                        style: notInLibraryFont,
                       ),
                     ),
-                  );
-                else {
-                  _addComment(body, context);
-                }
+                  ),
+                );
+              else {
+                _addComment(body, context);
+              }
 
-                setState(() {
-                  _controller.clear();
-                });
-              },
-            ),
-          )
-        ],
-      ),
+              setState(() {
+                _controller.clear();
+              });
+            },
+          ),
+        )
+      ],
     );
   }
 
@@ -148,7 +146,7 @@ class _ChapterCommentsPageState extends State<ChapterCommentsPage> {
     });
   }
 
-  idggDialong() => showPlatformDialog(
+  authorizationDialog() => showPlatformDialog(
         context: context,
         builder: (_) => PlatformAlertDialog(
           title: Text("Authorize"),

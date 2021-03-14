@@ -8,9 +8,17 @@ import 'package:mangasoup_prototype_3/app/services/mangasoup_combined_testing.da
 chapterCommentsDialog({@required BuildContext context, String link}) {
   showModalBottomSheet(
     context: context,
-    builder: (_) => Container(
-      height: MediaQuery.of(_).size.height * .70,
-      color: Color.fromRGBO(10, 10, 10, 1.0),
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) => Container(
+      height: MediaQuery.of(context).size.height * 0.75,
+      decoration: new BoxDecoration(
+        color: Colors.black,
+        borderRadius: new BorderRadius.only(
+          topLeft: const Radius.circular(20.0),
+          topRight: const Radius.circular(20.0),
+        ),
+      ),
       child: CommentListFutureBuilder(
         link: link,
       ),
@@ -32,7 +40,7 @@ class _CommentListFutureBuilderState extends State<CommentListFutureBuilder> {
   Future<List<ChapterComment>> pointer;
 
   Future<List<ChapterComment>> getComments() async {
-    List<ChapterComment> v = List();
+    List<ChapterComment> v = [];
     try {
       v = await MSCombined().getChapterComments(widget.link, 1, context);
     } catch (err) {
