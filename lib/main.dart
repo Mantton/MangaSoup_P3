@@ -264,7 +264,7 @@ class _HandlerState extends State<Handler> with AutomaticKeepAliveClientMixin {
 
   Future<bool> initSource() async {
     debugPrint("Start Up");
-
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     // Initialize Data Providers
     await Provider.of<DatabaseProvider>(context, listen: false).init();
     await Provider.of<PreferenceProvider>(context, listen: false).loadValues();
