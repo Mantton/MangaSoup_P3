@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
@@ -36,8 +35,8 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
         children: [
           Container(
             padding: EdgeInsets.only(
-              left: 10.w,
-              right: 10.w,
+              left: 10,
+              right: 10,
             ),
             child: Row(
               children: [
@@ -48,17 +47,6 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                     fontSize: 30,
                   ),
                 ),
-                Spacer(),
-                IconButton(
-                  onPressed: () {
-                    showSnackBarMessage("Downloads have been disabled.");
-                  },
-                  icon: Icon(
-                    CupertinoIcons.cloud_download,
-                    size: 30,
-                    color: Colors.purple,
-                  ),
-                )
               ],
             ),
           ),
