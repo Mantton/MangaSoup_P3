@@ -1,11 +1,15 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/screens/downloads/models/task_model.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
 import 'package:provider/provider.dart';
 
 import '../downloads_testing.dart';
@@ -62,9 +66,19 @@ class ComicDownloadBlock extends StatelessWidget {
     var dir = chapts.first.saveDir.split(comic.title)[0] + comic.title;
     var size = dirStatSync(dir)["size"];
     return ExpansionTile(
-      leading: FittedBox(
-        child: SoupImage(
-          url: comic.thumbnail,
+      leading: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            maintainState: true,
+            builder: (_) => ProfileHome(highlight: comic.toHighlight()),
+          ),
+        ),
+        onLongPress: () => longPressTile(context),
+        child: FittedBox(
+          child: SoupImage(
+            url: comic.thumbnail,
+          ),
         ),
       ),
       title: Text(
@@ -91,6 +105,61 @@ class ComicDownloadBlock extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void longPressTile(BuildContext context) {
+    showPlatformModalSheet(
+      context: context,
+      builder: (_) => PlatformWidget(
+        cupertino: (_, __) => CupertinoActionSheet(
+          actions: [
+            CupertinoActionSheetAction(
+              child: Text("Export Downloads"),
+              onPressed: () {
+                Navigator.pop(context);
+                showSnackBarMessage("Planned Feature", error: true);
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: Text("Delete Downloaded Chapters"),
+              onPressed: () {
+                showCupertinoDialog(
+                    context: context,
+                    builder: (_) => CupertinoAlertDialog(
+                          title: Text("Delete Downloads?"),
+                          content: Text(
+                              "Are you sure you want to delete all downloaded chapters for the specified comic?"),
+                          actions: [
+                            CupertinoDialogAction(
+                                child: Text("Cancel"),
+                                onPressed: () => Navigator.pop(context),
+                                isDefaultAction: true),
+                            CupertinoDialogAction(
+                              child: Text("Delete"),
+                              onPressed: () {
+                                Provider.of<DatabaseProvider>(context,
+                                        listen: false)
+                                    .deleteDownloads(chapts);
+                                Navigator.pop(context);
+                              },
+                              isDestructiveAction: true,
+                            )
+                          ],
+                        )).then(
+                  (value) => Navigator.pop(context),
+                );
+              },
+              isDestructiveAction: true,
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+            isDefaultAction: true,
+          ),
+        ),
       ),
     );
   }

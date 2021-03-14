@@ -1,8 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
+import 'package:mangasoup_prototype_3/app/screens/downloads/models/task_model.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../reader/reader_home.dart';
 
@@ -13,32 +17,34 @@ class ChapterTile extends StatelessWidget {
   final Chapter chapter;
   final Profile profile;
   final int comicID;
-  final bool selected;
-  final Function longPress;
-  final Function onTileTap;
 
-  const ChapterTile(
-      {Key key,
-      this.history,
-      this.data,
-      this.similarRead,
-      this.chapter,
-      this.profile,
-      this.comicID,
-      this.selected = false,
-      this.longPress,
-      this.onTileTap})
-      : super(key: key);
+  const ChapterTile({
+    Key key,
+    this.history,
+    this.data,
+    this.similarRead,
+    this.chapter,
+    this.profile,
+    this.comicID,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    bool historyTarget = false;
-    if (data != null) {
-      if (history != null) historyTarget = (history.chapterId == data.id);
+    return Consumer<DatabaseProvider>(builder: (context, provider, _) {
+      ChapterData data = provider.checkIfChapterMatch(chapter);
+      ChapterDownload downloadInfo;
+      bool historyTarget = false;
+      if (data != null) {
+        downloadInfo = Provider.of<DatabaseProvider>(context)
+            .chapterDownloads
+            .firstWhere((element) => element.chapterId == data.id,
+                orElse: () => null);
+        if (history != null) historyTarget = (history.chapterId == data.id);
+      }
+
       TextStyle readFont = TextStyle(
-        color: data.read ? Colors.grey[800] : Colors.white,
+        color: similarRead ? Colors.grey[800] : Colors.white,
       );
-      // It is Store
       return ListTile(
         title: Text(chapter.name, style: readFont),
         subtitle: chapter.maker.isNotEmpty
@@ -47,107 +53,66 @@ class ChapterTile extends StatelessWidget {
                 style: readFont,
               )
             : null,
-        trailing: historyTarget
-            ? fittedBox(data)
-            : Text(
-                chapter.date,
-                style: TextStyle(
-                  color: Colors.grey[700],
-                ),
-              ),
-        selectedTileColor: Colors.grey[900],
-        selected: selected,
-        onTap: () => onTap(chapter, data, context),
-      );
-    }
-    if (similarRead) {
-      return ListTile(
-        leading: historyTarget
-            ? Icon(
-                Icons.play_arrow,
-                color: Colors.purple,
-              )
-            : null,
-        title: Text(
-          chapter.name,
-          style: TextStyle(color: Colors.grey[800]),
-        ),
-        subtitle: chapter.maker.isNotEmpty
-            ? Text(
-                chapter.maker,
-                style: TextStyle(color: Colors.grey[800]),
-              )
-            : null,
-        trailing: historyTarget
-            ? fittedBox(data)
-            : Text(
-                "SR",
-                style: TextStyle(color: Colors.blueGrey[800]),
-              ),
-        selectedTileColor: Colors.grey[900],
-        selected: selected,
-        onTap: () => onTap(chapter, data, context),
-      );
-    } else {
-      return ListTile(
-        leading: historyTarget
-            ? Icon(
-                Icons.play_arrow,
-                color: Colors.purple,
-              )
-            : null,
-        title: Text(
-          chapter.name,
-          style: TextStyle(color: Colors.white),
-        ),
-        subtitle: chapter.maker.isNotEmpty ? Text(chapter.maker) : null,
-        trailing: historyTarget
-            ? fittedBox(data)
-            : Text(
-                chapter.date,
-                style: TextStyle(
-                  color: Colors.grey[700],
-                ),
-              ),
-        selectedTileColor: Colors.grey[900],
-        onTap: () => onTap(chapter, data, context),
-      );
-    }
-  }
-
-  FittedBox fittedBox(ChapterData data) {
-    return FittedBox(
-      child: Column(
-        children: [
-          Row(
+        trailing: FittedBox(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Icon(
-                Icons.play_arrow,
-                color: Colors.purple,
-              ),
-              SizedBox(
-                width: 2,
-              ),
+              // Download Info
+              (downloadInfo != null)
+                  ? DownloadIcon(
+                      status: downloadInfo.status,
+                    )
+                  : Container(),
+              // History Info
+              historyTarget && data != null
+                  ? Row(
+                      children: [
+                        Icon(
+                          Icons.play_arrow,
+                          color: Colors.purple,
+                        ),
+                        SizedBox(
+                          width: 2,
+                        ),
+                        Text(
+                          (data.images.length == 0 ||
+                                  data.lastPageRead >= data.images.length)
+                              ? "Read"
+                              : "Page ${data.lastPageRead}",
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Lato",
+                          ),
+                        )
+                      ],
+                    )
+                  : Container(),
+
+              // Similar Read Info
+              similarRead && data == null
+                  ? Text(
+                      "Similar Read",
+                      style: TextStyle(color: Colors.blueGrey[800]),
+                    )
+                  : Container(),
+              // Date
               Text(
-                "Page ${data.lastPageRead}",
+                chapter.date,
                 style: TextStyle(
                   color: Colors.grey[700],
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Lato",
                 ),
-              )
+              ),
             ],
           ),
-          Text(
-            chapter.date,
-            style: TextStyle(
-              color: Colors.grey[700],
-            ),
-          ),
-        ],
-      ),
-    );
+        ),
+        selectedTileColor: Colors.grey[900],
+        onTap: () => onTap(chapter, data, context),
+      );
+    });
   }
 
   onTap(Chapter chapter, ChapterData data, BuildContext context) async {
@@ -165,5 +130,27 @@ class ChapterTile extends StatelessWidget {
         fullscreenDialog: true,
       ),
     );
+  }
+}
+
+class DownloadIcon extends StatelessWidget {
+  final int status;
+
+  const DownloadIcon({Key key, this.status}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (status == 0)
+      return Icon(Icons.stream); // Waiting API Request
+    else if (status == 1)
+      return Icon(Icons.cloud_download); // Requesting image
+    else if (status == 2)
+      return Icon(CupertinoIcons.download_circle); // Downloading
+    else if (status == 3)
+      return Icon(Icons.file_download_done); // Done
+    else if (status == 4)
+      return Icon(Icons.error_outline, color: Colors.redAccent); // Error
+    else
+      return Icon(Icons.remove);
   }
 }

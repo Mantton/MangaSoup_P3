@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 
 class ChapterData {
   // Database
@@ -47,6 +48,10 @@ class ChapterData {
     bookmarked = map['bookmark'] == 1 ? true : false;
     timeAccessed = DateTime.fromMicrosecondsSinceEpoch(map['time_accessed']);
     images = jsonDecode(map['images']);
+  }
+
+  Chapter toChapter() {
+    return Chapter(title, link, null, null);
   }
 
   Map<String, dynamic> toMap() {

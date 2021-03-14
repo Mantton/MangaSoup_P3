@@ -185,10 +185,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
       child: Stack(
         children: [
           plain(),
-          ViewerGateWay(
-            initialPage: Provider.of<ReaderProvider>(context, listen: false)
-                .initialPageIndex,
-          ),
+          ViewerGateWay(),
           header(),
           footer(),
         ],
@@ -372,15 +369,15 @@ class _ReaderFrameState extends State<ReaderFrame> {
                   flex: 8,
                   child: provider.pageDisplayNumber != null
                       ? Text(
-                    "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      fontFamily: 'Lato',
-                      color: Colors.grey,
-                    ),
-                    textAlign: TextAlign.center,
-                  )
+                          "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            fontFamily: 'Lato',
+                            color: Colors.grey,
+                          ),
+                          textAlign: TextAlign.center,
+                        )
                       : Container(),
                 ),
 

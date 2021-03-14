@@ -30,12 +30,12 @@ class _DownloadsHomeState extends State<DownloadsHome> {
               ),
             ],
           ),
-          actions: [
-            IconButton(
-              icon: Icon(CupertinoIcons.search),
-              onPressed: () => debugPrint("Search Downloads"),
-            )
-          ],
+          // actions: [
+          //   IconButton(
+          //     icon: Icon(CupertinoIcons.search),
+          //     onPressed: () => debugPrint("Search Downloads"),
+          //   )
+          // ],
         ),
         body: TabBarView(
           children: [

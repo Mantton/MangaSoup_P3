@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
@@ -10,6 +11,7 @@ import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 import 'package:mangasoup_prototype_3/app/screens/downloads/models/task_model.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/chapter_tile.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:provider/provider.dart';
 
@@ -53,7 +55,7 @@ class _ChapterListState extends State<ChapterList> {
     });
   }
 
-  Future<void> onTap(Chapter chapter, ChapterData data) async {
+  void onTap(Chapter chapter, ChapterData data) async {
     // toggle chapter selection
     if (editMode()) {
       if (_selectedChapters.contains(chapter))
@@ -175,15 +177,40 @@ class _ChapterListState extends State<ChapterList> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       // Download Info
                       (downloadInfo != null)
-                          ? Icon(Icons.location_disabled)
+                          ? DownloadIcon(
+                              status: downloadInfo.status,
+                            )
                           : Container(),
                       // History Info
                       historyTarget && data != null
-                          ? fittedBox(data)
+                          ? Row(
+                              children: [
+                                Icon(
+                                  Icons.play_arrow,
+                                  color: Colors.purple,
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                Text(
+                                  (data.images.length == 0 ||
+                                          data.lastPageRead >=
+                                              data.images.length)
+                                      ? "Read"
+                                      : "Page ${data.lastPageRead}",
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: "Lato",
+                                  ),
+                                )
+                              ],
+                            )
                           : Container(),
 
                       // Similar Read Info
@@ -240,29 +267,6 @@ class _ChapterListState extends State<ChapterList> {
               ),
             )
           : null,
-    );
-  }
-
-  Widget fittedBox(ChapterData data) {
-    return Row(
-      children: [
-        Icon(
-          Icons.play_arrow,
-          color: Colors.purple,
-        ),
-        SizedBox(
-          width: 2,
-        ),
-        Text(
-          "Page ${data.lastPageRead}",
-          style: TextStyle(
-            color: Colors.grey[700],
-            fontSize: 17,
-            fontWeight: FontWeight.bold,
-            fontFamily: "Lato",
-          ),
-        )
-      ],
     );
   }
 
@@ -471,11 +475,14 @@ class _ChapterListState extends State<ChapterList> {
               onPressed: () async {
                 Provider.of<DatabaseProvider>(context, listen: false)
                     .downloadChapters(
-                        _selectedChapters,
+                        List.of(_selectedChapters),
                         widget.comicId,
                         widget.source,
                         widget.selector,
                         Theme.of(context).platform);
+                setState(() {
+                  _selectedChapters.clear();
+                });
                 Navigator.pop(context);
               },
             ),
@@ -488,6 +495,27 @@ class _ChapterListState extends State<ChapterList> {
                 setState(() {
                   _selectedChapters.clear();
                 });
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: Text("Clear Chapter Data"),
+              onPressed: () async {
+                showLoadingDialog(context);
+                Provider.of<DatabaseProvider>(context, listen: false)
+                    .clearChapterDataInfo(_selectedChapters)
+                    .then((value) {
+                  showSnackBarMessage("Chapter Data Cleared!");
+
+                  Navigator.pop(context);
+                }).onError((error, stackTrace) {
+                  showSnackBarMessage("An error Occurred", error: true);
+
+                  Navigator.pop(context);
+                });
+                setState(() {
+                  _selectedChapters.clear();
+                });
+                Navigator.pop(context);
               },
             ),
           ],

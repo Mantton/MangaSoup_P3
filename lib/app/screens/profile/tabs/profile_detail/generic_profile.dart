@@ -236,6 +236,12 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                       comicId: widget.comicId,
                       selector: widget.profile.selector,
                       source: widget.profile.source,
+                      profile: widget.profile,
+                      history: Provider.of<DatabaseProvider>(context)
+                          .historyList
+                          .firstWhere(
+                              (element) => element.comicId == widget.comicId,
+                              orElse: () => null),
                     ),
                   ),
                 ),

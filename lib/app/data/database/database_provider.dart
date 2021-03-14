@@ -418,7 +418,7 @@ class DatabaseProvider with ChangeNotifier {
     ChapterData implied;
     try {
       implied = chapters.firstWhere((element) =>
-      element.generatedChapterNumber == chapter.generatedNumber &&
+          element.generatedChapterNumber == chapter.generatedNumber &&
           element.link == chapter.link);
       return implied;
     } catch (err) {
@@ -834,12 +834,19 @@ class DatabaseProvider with ChangeNotifier {
     }
   }
 
-  void deleteDownloads(List<Chapter> toDelete) async {
-    for (Chapter chapter in toDelete) {
-      // Get the ChapterData object
-      ChapterData pointer = checkIfChapterMatch(chapter);
-      chapterDownloads.removeWhere((e) => e.chapterId == pointer.id);
+  void deleteDownloads(List toDelete) async {
+    if (toDelete is List<Chapter>) {
+      for (Chapter chapter in toDelete) {
+        // Get the ChapterData object
+        ChapterData pointer = checkIfChapterMatch(chapter);
+        chapterDownloads.removeWhere((e) => e.chapterId == pointer.id);
+      }
+    } else if (toDelete is List<ChapterDownload>) {
+      chapterDownloads
+          .removeWhere((e) => toDelete.contains(e)); //todo change to ID
+
     }
+
     notifyListeners();
   }
 
@@ -880,6 +887,27 @@ class DatabaseProvider with ChangeNotifier {
     } else {
       c.status = 4;
     }
+    notifyListeners();
+  }
+
+  Future<void> clearChapterDataInfo(List<Chapter> pointers) async {
+    List<ChapterData> toUpdate = [];
+    for (Chapter chapter in pointers) {
+      // Get the ChapterData object
+      ChapterData target = checkIfChapterMatch(chapter);
+
+      // Reset Info
+      if (target != null) {
+        target.images.clear();
+        target.lastPageRead = 1;
+
+        //Update Info
+        int d = chapters.indexWhere((element) => element.id == target.id);
+        chapters[d] = target;
+        toUpdate.add(target);
+      }
+    }
+    await chapterManager.updateBatch(toUpdate);
     notifyListeners();
   }
 }

@@ -6,9 +6,6 @@ import 'package:preload_page_view/preload_page_view.dart';
 import 'package:provider/provider.dart';
 
 class DoublePagedAdapter extends StatefulWidget {
-  final int initialPage;
-
-  const DoublePagedAdapter({Key key, this.initialPage}) : super(key: key);
 
   @override
   _DoublePagedAdapterState createState() => _DoublePagedAdapterState();
@@ -18,7 +15,6 @@ class _DoublePagedAdapterState extends State<DoublePagedAdapter>
     with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
-    print(widget.initialPage);
     super.initState();
   }
 
@@ -30,11 +26,12 @@ class _DoublePagedAdapterState extends State<DoublePagedAdapter>
     return Consumer<ReaderProvider>(builder: (context, provider, _) {
       return Consumer<PreferenceProvider>(builder: (context, settings, _) {
         _controller = PreloadPageController(
-            initialPage: doublePagedGetInitial(widget.initialPage),
-            viewportFraction: 1);
+          initialPage: doublePagedGetInitial(provider.initialPageIndex),
+          viewportFraction: 1,
+        );
         Map<String, dynamic> t = createDouble(
             provider.widgetPageList, settings.readerScrollDirection == 1);
-        return PreloadPageView(
+        return PreloadPageView.builder(
           scrollDirection:
               settings.readerOrientation == 1 ? Axis.horizontal : Axis.vertical,
           pageSnapping: settings.readerPageSnapping,
@@ -45,7 +42,8 @@ class _DoublePagedAdapterState extends State<DoublePagedAdapter>
             provider.pageChanged(p);
           },
           preloadPagesCount: 4,
-          children: t['widgets'],
+          itemBuilder: (_, index) => t['widgets'][index],
+          itemCount: t['widgets'].length,
         );
       });
     });

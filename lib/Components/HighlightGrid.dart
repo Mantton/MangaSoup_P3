@@ -53,7 +53,7 @@ class ComicGridTile extends StatelessWidget {
     return Container(
       child: GestureDetector(
         onTap: () {
-          debugPrint("${comic.title} @ ${comic.link} /f ${comic.source}");
+          // debugPrint("${comic.title} @ ${comic.link} /f ${comic.source}");
           Navigator.push(
             context,
             MaterialPageRoute(

@@ -6,27 +6,14 @@ import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_
 import 'package:provider/provider.dart';
 
 class ViewerGateWay extends StatelessWidget {
-  final int initialPage;
-
-  const ViewerGateWay({Key key, this.initialPage}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Consumer<PreferenceProvider>(builder: (context, provider, _) {
-      return Container(
-        // child: WebToonPageAdapter(),
-        child: provider.readerMode == 1
-            ? !provider.readerDoublePagedMode
-                ? PagedViewAdapter(
-                    initialPage: initialPage,
-                  )
-                : DoublePagedAdapter(
-                    initialPage: initialPage,
-                  )
-            : WebToonPageAdapter(
-                initialPage: initialPage,
-              ),
-      );
+      return provider.readerMode == 1
+          ? !provider.readerDoublePagedMode
+              ? PagedViewAdapter()
+              : DoublePagedAdapter()
+          : WebToonPageAdapter();
     });
   }
 }
