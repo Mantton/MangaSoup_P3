@@ -8,12 +8,14 @@ import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
+import 'package:mangasoup_prototype_3/app/constants/variables.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/mal_track_result.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/downloads.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/bookmark_queries.dart';
@@ -21,12 +23,14 @@ import 'package:mangasoup_prototype_3/app/data/database/queries/chapter_queries.
 import 'package:mangasoup_prototype_3/app/data/database/queries/collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic-collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic_queries.dart';
+import 'package:mangasoup_prototype_3/app/data/database/queries/download_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/history_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/track_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/enums/mal.dart';
-import 'package:mangasoup_prototype_3/app/screens/downloads/models/task_model.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/services/track/myanimelist/mal_api_manager.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -57,6 +61,7 @@ class DatabaseProvider with ChangeNotifier {
   ChapterQuery chapterManager;
   BookMarkQuery bookmarkManager;
   TrackQuery trackerManager;
+  DownloadQuery downloadManager;
 
   // init
 
@@ -70,6 +75,7 @@ class DatabaseProvider with ChangeNotifier {
     chapterManager = ChapterQuery(_db);
     bookmarkManager = BookMarkQuery(_db);
     trackerManager = TrackQuery(_db);
+    downloadManager = DownloadQuery(_db);
     // Load Data into Provider Variables
     comics = await comicManager.getAll();
     collections = await collectionManager.getCollections();
@@ -78,6 +84,7 @@ class DatabaseProvider with ChangeNotifier {
     chapters = await chapterManager.getAll();
     bookmarks = await bookmarkManager.getAllBookMarks();
     comicTrackers = await trackerManager.getTrackers();
+    chapterDownloads = await downloadManager.getDownloads();
     print("Database Provider Successfully Initialized");
     notifyListeners();
   }
@@ -697,7 +704,7 @@ class DatabaseProvider with ChangeNotifier {
         .toSet()
         .toList();
     // list above contains the generated numbers for all read chapters in the lib
-    List<Chapter> toMark = List();
+    List<Chapter> toMark = [];
     toMark = d.chapters
         .where((element) => readChapters.contains(element.generatedNumber))
         .toList();
@@ -730,7 +737,7 @@ class DatabaseProvider with ChangeNotifier {
     return destination.toHighlight();
   }
 
-  ///////////// DOWNLOADING
+  /// --------------  DOWNLOADING  ------------------ ///
 
   void downloadChapters(List<Chapter> toDownload, int comicId, String source,
       String selector, var platform) async {
@@ -746,95 +753,78 @@ class DatabaseProvider with ChangeNotifier {
       // Get the ChapterData object
       if (chapter.openInBrowser) continue;
       ChapterData pointer = checkIfChapterMatch(chapter);
-      ChapterDownload c =
-          ChapterDownload(chapterId: pointer.id, comicId: comicId);
-      c.chapterUrl = chapter.link;
-
-      if (!chapterDownloads.any((element) => element.chapterId == pointer.id))
-        newDownloads.add(c);
-      //todo Save to Downloads database
+      ChapterDownload c;
+      if (pointer != null) {
+        if (chapterDownloads.any((element) => element.chapterId == pointer.id))
+          continue;
+        else {
+          c = ChapterDownload(chapterId: pointer.id, comicId: comicId);
+          c.chapterUrl = chapter.link;
+          newDownloads.add(c);
+        }
+      }
+    }
+    //Save to DB
+    for (var x in newDownloads) {
+      x = await downloadManager.addDownload(x);
     }
     chapterDownloads.addAll(newDownloads);
     notifyListeners(); // Show Queue indicator
     Comic cm = comics.firstWhere((element) => element.id == comicId);
 
-    for (ChapterDownload t in newDownloads) {
+    for (ChapterDownload download in newDownloads) {
       // Try to get Images
-      ChapterData tj =
-          chapters.firstWhere((element) => element.id == t.chapterId);
+      ChapterData chapterData =
+          chapters.firstWhere((element) => element.id == download.chapterId);
+
       try {
-        t.status = MSDownloadStatus.requested;
+        download.status = MSDownloadStatus.requested;
+        String filePath =
+            "/$msDownloadFolderName/$source/${cm.title}/${chapterData.title}-${chapterData.id}/";
+        String _localPath = directory.path + filePath;
+        download.saveDir = filePath;
         notifyListeners(); // Notify of Status Change
+        await downloadManager.updateDownload(download);
         ImageChapter value =
-            await ApiManager().getImages(selector, t.chapterUrl);
+            await ApiManager().getImages(selector, download.chapterUrl);
+        // Update ChapterData
+        if (value.images.isNotEmpty) {
+          chapterData.images = value.images;
+          await chapterManager.updateBatch([chapterData]);
+        }
 
         // Update Status
-        // Update ChapterData ImageChapter Object
         // Queuing tasks
-        t.count = value.images.length;
+        download.count = value.images.length;
         // Create Download Path
-        String _localPath =
-            directory.path + Platform.pathSeparator + 'MSDownloadMDX';
-
-        Directory savedDir = Directory(_localPath);
-        bool hasExisted = await savedDir.exists();
-        if (!hasExisted) {
-          savedDir.create();
-        }
-        // Create Source Path
-        // todo remove container path from saved module
-        _localPath = savedDir.path + Platform.pathSeparator + source;
-
-        savedDir = Directory(_localPath);
-        hasExisted = await savedDir.exists();
-        if (!hasExisted) {
-          savedDir.create();
-        }
-
-        // Create Comic Path
-        _localPath = savedDir.path + Platform.pathSeparator + cm.title;
-
-        savedDir = Directory(_localPath);
-        hasExisted = await savedDir.exists();
-        if (!hasExisted) {
-          savedDir.create();
-        }
-
-        // Create Chapter Path
-        _localPath =
-            savedDir.path + Platform.pathSeparator + "${tj.title}-${tj.id}";
-
-        savedDir = Directory(_localPath);
-        hasExisted = await savedDir.exists();
-        if (!hasExisted) {
-          savedDir.create();
-        }
-        print("Downloading ${tj.title}, ${t.count} Images");
-        if (value.images.isNotEmpty) tj.images = value.images;
-        t.saveDir = savedDir.path;
+        Directory savedDir =
+            await Directory(_localPath).create(recursive: true);
+        // Download Logic
+        print("Downloading ${chapterData.title}, ${download.count} Images");
         Map<String, String> headers = Map();
         if (value.referer != null || value.referer.isNotEmpty)
           headers = {"referer": value.referer};
-
-        t.status = MSDownloadStatus.downloading;
+        download.status = MSDownloadStatus.downloading;
         notifyListeners();
 
         /// Queue Images
         for (String image in value.images) {
-          String idd = await FlutterDownloader.enqueue(
-              url: image,
-              savedDir: savedDir.path,
-              fileName: "${value.images.indexOf(image)}.jpg",
-              requiresStorageNotLow: true,
-              headers: headers);
-          t.taskIds.add(idd);
+          String returnedTaskId = await FlutterDownloader.enqueue(
+            url: image,
+            savedDir: savedDir.path,
+            fileName: "${value.images.indexOf(image)}.jpg",
+            requiresStorageNotLow: true,
+            headers: headers,
+          );
+          download.taskIds.add(returnedTaskId);
         }
-      } catch (err, stacktrace) {
-        t.status = MSDownloadStatus.error;
+      } catch (err) {
+        download.status = MSDownloadStatus.error;
         notifyListeners();
         print("Caught Error");
-        print(stacktrace);
       }
+      // Update DB
+      await downloadManager.updateDownload(download);
     }
   }
 
@@ -844,8 +834,12 @@ class DatabaseProvider with ChangeNotifier {
       for (Chapter chapter in toDelete) {
         // Get the ChapterData object
         ChapterData pointer = checkIfChapterMatch(chapter);
-        var x = chapterDownloads.firstWhere((e) => e.chapterId == pointer.id);
-        targets.add(x);
+
+        if (pointer != null) {
+          var x = chapterDownloads.firstWhere((e) => e.chapterId == pointer.id,
+              orElse: () => null);
+          if (x != null) targets.add(x);
+        }
       }
     } else if (toDelete is List<ChapterDownload>) {
       targets = List.of(toDelete);
@@ -855,12 +849,12 @@ class DatabaseProvider with ChangeNotifier {
     // Delete all tasks associated with chapter, then delete object
 
     for (ChapterDownload download in targets) {
+      await downloadManager.deleteDownload(download);
       List ids = download.taskIds;
       for (var id in ids) {
         await FlutterDownloader.remove(taskId: id, shouldDeleteContent: true);
       }
     }
-
     notifyListeners();
   }
 
@@ -873,10 +867,7 @@ class DatabaseProvider with ChangeNotifier {
       // Task has not failed
 
       // Update progress
-
-      c.progress = task.progress.toDouble();
       List<DownloadTask> pointers = [];
-
       String test =
           "(${c.taskIds.map((e) => "'${e.toString()}\'").join(", ")})";
       String query = "SELECT * FROM task WHERE task_id IN $test";
@@ -884,8 +875,11 @@ class DatabaseProvider with ChangeNotifier {
 
       if (task.status == DownloadTaskStatus.complete) {
         var t = pointers.firstWhere((element) => element.taskId == task.taskId);
-        String fil = t.savedDir + Platform.pathSeparator + t.filename;
-        if (!c.links.contains(fil)) c.links.add(fil);
+        String fil = c.saveDir + t.filename;
+
+        if (!c.links.contains(fil)) {
+          c.links.add(fil);
+        }
       }
 
       if (c.progress != 100.0) {
@@ -906,12 +900,89 @@ class DatabaseProvider with ChangeNotifier {
     } else {
       c.status = MSDownloadStatus.error;
     }
+    downloadManager.updateDownload(c);
     notifyListeners();
   }
 
-  Future<void> retryDownload() async {}
+  Future<void> retryDownload(BuildContext context) async {
+    for (ChapterDownload download in chapterDownloads
+        .where((element) => element.status == MSDownloadStatus.error)) {
+      // CLear task id
 
-  Future<void> cancelDownload() async {}
+      for (String task in download.taskIds) {
+        await FlutterDownloader.remove(taskId: task, shouldDeleteContent: true);
+        // await FlutterDownloader.cancel(taskId: task);
+      }
+      download.taskIds.clear();
+      // Try to get Images
+      ChapterData chapterData =
+          chapters.firstWhere((element) => element.id == download.chapterId);
+      try {
+        download.status = MSDownloadStatus.requested;
+        notifyListeners(); // Notify of Status Change
+        ImageChapter value = await ApiManager()
+            .getImages(chapterData.selector, download.chapterUrl);
+        // Update ChapterData
+        if (value.images.isNotEmpty) chapterData.images = value.images;
+
+        // Update Status
+        // Queuing tasks
+        download.count = value.images.length;
+        // Create Download Path
+
+        String _localPath =
+            Provider.of<PreferenceProvider>(context, listen: false).paths +
+                download.saveDir;
+
+        Directory savedDir =
+            await Directory(_localPath).create(recursive: true);
+
+        // Download Logic
+        print("Downloading ${chapterData.title}, ${download.count} Images");
+        // download.saveDir = filePath;
+        Map<String, String> headers = Map();
+        if (value.referer != null || value.referer.isNotEmpty)
+          headers = {"referer": value.referer};
+        download.status = MSDownloadStatus.downloading;
+        notifyListeners();
+
+        /// Queue Images
+        for (String image in value.images) {
+          String returnedTaskId = await FlutterDownloader.enqueue(
+            url: image,
+            savedDir: savedDir.path,
+            fileName: "${value.images.indexOf(image)}.jpg",
+            requiresStorageNotLow: true,
+            headers: headers,
+          );
+          download.taskIds.add(returnedTaskId);
+        }
+      } catch (err) {
+        download.status = MSDownloadStatus.error;
+        notifyListeners();
+      }
+      // Update DB
+      await downloadManager.updateDownload(download);
+    }
+  }
+
+  Future<void> cancelDownload() async {
+    List<ChapterDownload> toDelete = List.of(chapterDownloads
+        .where((element) => element.status == MSDownloadStatus.error)
+        .toList());
+    for (ChapterDownload download in toDelete) {
+      // CLear task id
+
+      for (String task in download.taskIds) {
+        await FlutterDownloader.remove(taskId: task, shouldDeleteContent: true);
+        // await FlutterDownloader.cancel(taskId: task);
+      }
+
+      await downloadManager.deleteDownload(download);
+      chapterDownloads.removeWhere((element) => element.id == download.id);
+    }
+    notifyListeners();
+  }
 
   Future<void> clearChapterDataInfo(List<Chapter> pointers) async {
     List<ChapterData> toUpdate = [];

@@ -1,10 +1,13 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
-import 'package:mangasoup_prototype_3/app/screens/downloads/models/task_model.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/downloads.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/chapter_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -80,29 +83,61 @@ class ComicDownloadBlock extends StatelessWidget {
           var data = chapterData[i];
           var x = chapts.firstWhere((element) => element.chapterId == data.id);
           return ListTile(
-              title: Text(data.title),
-              trailing: DownloadQueueStatus(
-                data: x,
-              ));
+            title: Text(data.title),
+            trailing: DownloadIcon(
+              status: x.status,
+            ),
+            subtitle: Shimmer.fromColors(
+              highlightColor: x.status != MSDownloadStatus.error
+                  ? Colors.purpleAccent
+                  : Colors.redAccent,
+              baseColor: x.status != MSDownloadStatus.error
+                  ? Colors.purple
+                  : Colors.red[900],
+              child: LinearProgressIndicator(),
+            ),
+            onLongPress: (x.status.index == 4)
+                ? () => showQueueDialog(context, provider)
+                : null,
+            onTap: (x.status.index == 4)
+                ? () {
+                    print("Restarting");
+                    showSnackBarMessage("Restarting");
+                  }
+                : null,
+          );
         },
       ),
     );
   }
 }
 
-class DownloadQueueStatus extends StatelessWidget {
-  final ChapterDownload data;
-
-  const DownloadQueueStatus({Key key, this.data}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      child: DownloadIcon(
-        status: data.status,
+Future<void> showQueueDialog(BuildContext context, DatabaseProvider provider) =>
+    showPlatformModalSheet(
+      context: context,
+      builder: (_) => PlatformWidget(
+        cupertino: (_, __) => CupertinoActionSheet(
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel"),
+          ),
+          actions: [
+            CupertinoActionSheetAction(
+              onPressed: () {
+                provider.retryDownload(context);
+                Navigator.pop(context);
+              },
+              child: Text("Retry Failures"),
+            ),
+            CupertinoActionSheetAction(
+              onPressed: () {
+                provider.cancelDownload();
+                Navigator.pop(context);
+              },
+              child: Text("Cancel Failures"),
+              isDestructiveAction: true,
+            ),
+          ],
+        ),
       ),
-      baseColor: Colors.purple,
-      highlightColor: Colors.purpleAccent,
     );
-  }
-}

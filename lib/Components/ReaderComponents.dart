@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/constants/variables.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:photo_view/photo_view.dart';
@@ -142,7 +143,7 @@ class MainImageWidget extends StatelessWidget {
     return Container(
       // height: MediaQuery.of(context).size.height,
       width: maxWidth ? MediaQuery.of(context).size.width : null,
-      child: (!url.contains("MSDownloadMDX"))
+      child: (!url.contains(msDownloadFolderName))
           ? CachedNetworkImage(
               imageUrl: url,
               progressIndicatorBuilder: (_, url, var progress) =>
@@ -193,7 +194,7 @@ class MainImageWidget extends StatelessWidget {
               fadeInCurve: Curves.easeIn,
             )
           : Image.file(
-              File(url),
+        File(Provider.of<PreferenceProvider>(context).paths + url),
               errorBuilder: (_, err, trace) => Container(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,

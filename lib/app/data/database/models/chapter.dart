@@ -51,7 +51,10 @@ class ChapterData {
   }
 
   Chapter toChapter() {
-    return Chapter(title, link, null, null);
+    Chapter c = Chapter(title, link, "", "");
+    c.generatedNumber = generatedChapterNumber;
+    c.openInBrowser = false;
+    return c;
   }
 
   Map<String, dynamic> toMap() {

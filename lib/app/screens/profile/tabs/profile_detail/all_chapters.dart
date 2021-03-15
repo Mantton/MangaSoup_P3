@@ -9,8 +9,8 @@ import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/downloads.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
-import 'package:mangasoup_prototype_3/app/screens/downloads/models/task_model.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/chapter_tile.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:provider/provider.dart';
@@ -473,13 +473,13 @@ class _ChapterListState extends State<ChapterList> {
             CupertinoActionSheetAction(
               child: Text("Add to Download Queue"),
               onPressed: () async {
+                List<Chapter> sending = List.of(_selectedChapters);
+                // Sort before sending to download;
+                sending.sort(
+                    (a, b) => b.generatedNumber.compareTo(a.generatedNumber));
                 Provider.of<DatabaseProvider>(context, listen: false)
-                    .downloadChapters(
-                        List.of(_selectedChapters),
-                        widget.comicId,
-                        widget.source,
-                        widget.selector,
-                        Theme.of(context).platform);
+                    .downloadChapters(sending, widget.comicId, widget.source,
+                        widget.selector, Theme.of(context).platform);
                 setState(() {
                   _selectedChapters.clear();
                 });

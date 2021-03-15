@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/ImageSearch.dart';
 import 'package:mangasoup_prototype_3/app/screens/browse/imgur_search.dart';
-import 'package:mangasoup_prototype_3/app/screens/downloads/downloads_testing.dart';
 import 'package:mangasoup_prototype_3/app/screens/settings/settings_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/track/track_home.dart';
 
@@ -12,21 +11,18 @@ class MoreHomePage extends StatelessWidget {
     "MangaDex Image Search",
     "Imgur Album Search",
     "Services",
-    "Testing",
   ];
   final List icons = [
     "assets/images/icon.png",
     "assets/images/detective.png",
     "assets/images/imgur.png",
     "assets/images/tracking.gif",
-    "assets/images/icon.png",
   ];
   final List pages = [
     SettingsHome(),
     ImageSearchPage(),
     ImgurAlbumPage(),
     ServicesPage(),
-    DownLoadsTesting(),
   ];
 
   @override

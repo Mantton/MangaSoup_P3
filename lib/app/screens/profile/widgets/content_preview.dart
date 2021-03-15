@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
@@ -92,6 +91,9 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
             endIndent: 10,
             height: 10.0,
           ),
+          SizedBox(
+            height: 10,
+          ),
           GestureDetector(
             onTap: () {
               Navigator.push(
@@ -110,11 +112,12 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
             },
             child: widget.profile.chapterCount != 0
                 ? Container(
-                    margin: EdgeInsets.only(left: 20.w, right: 20.w),
+              margin: EdgeInsets.only(left: 20, right: 20),
                     decoration: BoxDecoration(
-                        color: Colors.grey[900],
-                        borderRadius: BorderRadius.circular(10)),
-                    height: 45.h,
+                      color: Colors.grey[900],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    height: 45,
                     child: Center(
                       child: Text(
                         'View all Chapters',
@@ -124,7 +127,7 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                     ),
                   )
                 : Container(
-                    margin: EdgeInsets.all(15.w),
+              margin: EdgeInsets.all(15),
                     color: Colors.grey[800],
                     child: ListTile(
                       title: Text(
@@ -140,11 +143,13 @@ class _ProfileContentPreviewState extends State<ProfileContentPreview> {
                     ),
                   ),
           ),
+          SizedBox(
+            height: 10,
+          ),
         ],
       );
     });
   }
-
 
   displayChapters(int length) {
     if (length > 5)

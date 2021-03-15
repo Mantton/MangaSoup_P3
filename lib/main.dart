@@ -33,7 +33,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'Providers/migrate_provider.dart';
-import 'app/screens/downloads/models/task_model.dart';
+import 'app/data/database/models/downloads.dart';
 
 const simplePeriodicTask = "simplePeriodicTask";
 
@@ -267,7 +267,8 @@ class _HandlerState extends State<Handler> with AutomaticKeepAliveClientMixin {
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     // Initialize Data Providers
     await Provider.of<DatabaseProvider>(context, listen: false).init();
-    await Provider.of<PreferenceProvider>(context, listen: false).loadValues();
+    await Provider.of<PreferenceProvider>(context, listen: false)
+        .loadValues(context);
     SourcePreference _prefs = SourcePreference();
     await _prefs.init();
 

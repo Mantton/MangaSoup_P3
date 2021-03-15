@@ -8,8 +8,10 @@ import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
-import 'package:mangasoup_prototype_3/app/screens/downloads/models/task_model.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/downloads.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:provider/provider.dart';
 
 import '../downloads_testing.dart';
@@ -65,8 +67,9 @@ class ComicDownloadBlock extends StatelessWidget {
         .toList();
     chapterData.sort(
         (a, b) => b.generatedChapterNumber.compareTo(a.generatedChapterNumber));
-    var dir =
-        chapterDownloads.first.saveDir.split(comic.title)[0] + comic.title;
+    var dir = Provider.of<PreferenceProvider>(context).paths +
+        chapterDownloads.first.saveDir.split(comic.title)[0] +
+        comic.title;
     var size = dirStatSync(dir)["size"];
     return ExpansionTile(
       leading: InkWell(
@@ -77,7 +80,7 @@ class ComicDownloadBlock extends StatelessWidget {
             builder: (_) => ProfileHome(highlight: comic.toHighlight()),
           ),
         ),
-        onLongPress: () => longPressTile(context),
+        onLongPress: () => longPressTile(context, chapterDownloads),
         child: FittedBox(
           child: SoupImage(
             url: comic.thumbnail,
@@ -100,41 +103,58 @@ class ComicDownloadBlock extends StatelessWidget {
           var data = chapterData[i];
           var x = chapterDownloads
               .firstWhere((element) => element.chapterId == data.id);
-          var s = dirStatSync(x.saveDir);
+          var s = dirStatSync(
+              Provider.of<PreferenceProvider>(context).paths + x.saveDir);
           return ListTile(
             title: Text(data.title),
             trailing: Text(
               "${s['count']} Image(s), ${s['size']} MB",
               style: TextStyle(color: Colors.grey),
             ),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ReaderHome(
+                  selector: data.selector,
+                  chapters: chapterData.map((e) => e.toChapter()).toList(),
+                  initialChapterIndex: i,
+                  comicId: comic.id,
+                  source: comic.source,
+                  initialPage: data != null ? data.lastPageRead : 1,
+                ),
+                fullscreenDialog: true,
+              ),
+            ),
+            onLongPress: () => longPressTile(context, [x]),
           );
         },
       ),
     );
   }
 
-  void longPressTile(BuildContext context) {
+  void longPressTile(BuildContext context, List<ChapterDownload> toDelete) {
     showPlatformModalSheet(
       context: context,
       builder: (_) => PlatformWidget(
         cupertino: (_, __) => CupertinoActionSheet(
           actions: [
             CupertinoActionSheetAction(
-              child: Text("Export Downloads"),
+              child: Text("Export"),
               onPressed: () {
                 Navigator.pop(context);
                 showSnackBarMessage("Planned Feature", error: true);
               },
             ),
             CupertinoActionSheetAction(
-              child: Text("Delete Downloaded Chapters"),
+              child: Text("Delete Download${toDelete.length > 1 ? "s" : ""}"),
               onPressed: () {
                 showCupertinoDialog(
                     context: context,
                     builder: (_) => CupertinoAlertDialog(
                           title: Text("Delete Downloads?"),
                           content: Text(
-                              "Are you sure you want to delete all downloaded chapters for the specified comic?"),
+                            "Are you sure you want to delete all downloaded chapters for the specified comic?",
+                          ),
                           actions: [
                             CupertinoDialogAction(
                                 child: Text("Cancel"),
@@ -145,7 +165,7 @@ class ComicDownloadBlock extends StatelessWidget {
                               onPressed: () {
                                 Provider.of<DatabaseProvider>(context,
                                         listen: false)
-                                    .deleteDownloads(chapterDownloads);
+                                    .deleteDownloads(toDelete);
                                 Navigator.pop(context);
                               },
                               isDestructiveAction: true,

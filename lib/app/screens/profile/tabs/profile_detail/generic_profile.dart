@@ -317,7 +317,6 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
 
         if (widget.profile.chapters[target] != widget.profile.chapters.first &&
             (pointer.lastPageRead == pointer.images.length)) {
-          print("Completed moving to next");
           // Open Next Chapter
           Navigator.push(
             context,

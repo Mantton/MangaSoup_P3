@@ -4,8 +4,8 @@ import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/downloads.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
-import 'package:mangasoup_prototype_3/app/screens/downloads/models/task_model.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../reader/reader_home.dart';
@@ -141,13 +141,25 @@ class DownloadIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (status == MSDownloadStatus.queued)
-      return Icon(Icons.library_books_outlined); // Waiting API Request
+      return Icon(
+        Icons.library_books_outlined,
+        color: Colors.blueAccent,
+      ); // Waiting API Request
     else if (status == MSDownloadStatus.requested)
-      return Icon(Icons.cloud_circle_rounded); // Requesting image
+      return Icon(
+        Icons.cloud_circle_rounded,
+        color: Colors.indigoAccent,
+      ); // Requesting image
     else if (status == MSDownloadStatus.downloading)
-      return Icon(Icons.download_sharp); // Downloading
+      return Icon(
+        Icons.download_sharp,
+        color: Colors.purple,
+      ); // Downloading
     else if (status == MSDownloadStatus.done)
-      return Icon(Icons.file_download_done); // Done
+      return Icon(
+        Icons.file_download_done,
+        color: Colors.green,
+      ); // Done
     else if (status == MSDownloadStatus.error)
       return Icon(
         Icons.error_outline,
