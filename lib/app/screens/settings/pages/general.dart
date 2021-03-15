@@ -33,9 +33,19 @@ class _GeneralSettingsState extends State<GeneralSettings> {
       value: 5,
     )
   ];
+  Future<Map<String, dynamic>> d;
+  Future<Map<String, dynamic>> c;
+
+  @override
+  void initState() {
+    d = getDownloadSize();
+    c = getCacheSize();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    var d = getDownloadSize();
     return Scaffold(
       appBar: AppBar(
         title: Text("General Settings"),
@@ -85,8 +95,8 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                       child: DropdownButton(
                         value: List.of(cgcacItems)
                             .singleWhere((element) =>
-                                element.value ==
-                                settings.comicGridCrossAxisCount)
+                        element.value ==
+                            settings.comicGridCrossAxisCount)
                             .value,
                         items: cgcacItems,
                         onChanged: (p) => settings.setCrossAxisCount(p),
@@ -120,7 +130,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                       child: DropdownButton(
                         value: settings.comicGridMode,
                         items:
-                            settings.buildItems(settings.comicGridModeOptions),
+                        settings.buildItems(settings.comicGridModeOptions),
                         onChanged: (p) => settings.setComicGridMode(p),
                       ),
                     ),
@@ -135,7 +145,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                 ),
                 Divider(),
                 FutureBuilder(
-                  future: getCacheSize(),
+                  future: c,
                   builder: (_, snap) {
                     if (snap.hasData)
                       return Padding(
@@ -170,6 +180,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                     setState(() {
                       DefaultCacheManager manager = DefaultCacheManager();
                       manager.emptyCache(); //clears all data in cache.
+                      c = getCacheSize();
                       showSnackBarMessage(
                         "Image Cache Cleared!",
                       );
@@ -185,7 +196,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                 ),
                 Divider(),
                 FutureBuilder(
-                  future: getDownloadSize(),
+                  future: d,
                   builder: (_, snap) {
                     if (snap.hasData)
                       return Padding(
@@ -240,6 +251,9 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                               await Provider.of<DatabaseProvider>(context,
                                       listen: false)
                                   .deleteAllDownloads(context);
+                              setState(() {
+                                d = getDownloadSize();
+                              });
                               Navigator.pop(context);
                               showSnackBarMessage("Downloads Cleared!");
                             } catch (err, stacktrace) {

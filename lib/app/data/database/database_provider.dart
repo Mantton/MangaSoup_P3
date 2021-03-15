@@ -990,7 +990,8 @@ class DatabaseProvider with ChangeNotifier {
         ? await getExternalStorageDirectory()
         : await getApplicationDocumentsDirectory();
 
-    String path = directory.path + "/" + msDownloadFolderName;
+    String path = directory.path + "/" + msDownloadFolderName + "/";
+    Directory(path).createSync(recursive: true);
     await FlutterDownloader.cancelAll(); // Cancel All running tasks
     for (var d in chapterDownloads) {
       for (var task in d.taskIds) {
@@ -1001,6 +1002,7 @@ class DatabaseProvider with ChangeNotifier {
     chapterDownloads.clear();
     // Delete Directory.
     Directory(path).deleteSync(recursive: true);
+    Directory(path).createSync(recursive: true);
     notifyListeners();
   }
 

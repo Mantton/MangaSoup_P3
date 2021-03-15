@@ -34,7 +34,7 @@ class DownLoadsTesting extends StatelessWidget {
   }
 }
 
-Future<Map> getCacheSize() async {
+Future<Map<String, dynamic>> getCacheSize() async {
   Directory tempDir = await getTemporaryDirectory();
   String tempPath = tempDir.path;
   String cacheDirectory = tempPath + "/libCachedImageData";
@@ -42,7 +42,7 @@ Future<Map> getCacheSize() async {
   return dirStatSync(cacheDirectory);
 }
 
-Future<Map> getDownloadSize() async {
+Future<Map<String, dynamic>> getDownloadSize() async {
   Directory tempDir = await getApplicationDocumentsDirectory();
   String tempPath = tempDir.path;
   String cacheDirectory = tempPath + "/$msDownloadFolderName";
