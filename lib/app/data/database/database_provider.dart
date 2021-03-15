@@ -894,14 +894,24 @@ class DatabaseProvider with ChangeNotifier {
             c.links.length == c.count &&
             c.count == c.taskIds.length) {
           c.status = MSDownloadStatus.done;
+          c.links.sort((a, b) => parsePageNum(a).compareTo(parsePageNum(b)));
           print("${c.chapterId}: Download Complete");
+          print(c.links);
         }
       }
     } else {
       c.status = MSDownloadStatus.error;
     }
-    downloadManager.updateDownload(c);
+    await downloadManager.updateDownload(c);
     notifyListeners();
+  }
+
+  parsePageNum(String page) {
+    page = page.split("/").last;
+    page = page.split(".").first;
+
+    int p = int.parse(page);
+    return p;
   }
 
   Future<void> retryDownload(BuildContext context) async {
@@ -991,6 +1001,7 @@ class DatabaseProvider with ChangeNotifier {
         : await getApplicationDocumentsDirectory();
 
     String path = directory.path + "/" + msDownloadFolderName + "/";
+    String fix = directory.path + "/" + "MSDownload" + "/";
     Directory(path).createSync(recursive: true);
     await FlutterDownloader.cancelAll(); // Cancel All running tasks
     for (var d in chapterDownloads) {
