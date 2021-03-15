@@ -221,31 +221,38 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                     builder: (_) => PlatformAlertDialog(
                       title: Text("Delete Downloads"),
                       content: Text(
-                          "Are you sure you want to delete all downloaded content?"),
+                        "Are you sure you want to delete all downloaded content?",
+                      ),
                       actions: [
                         PlatformDialogAction(
-                            child: Text("Cancel"),
-                            onPressed: () => Navigator.pop(context),
-                            cupertino: (_, __) => CupertinoDialogActionData(
-                                isDefaultAction: true)),
+                          child: Text("Cancel"),
+                          onPressed: () => Navigator.pop(context),
+                          cupertino: (_, __) => CupertinoDialogActionData(
+                            isDefaultAction: true,
+                          ),
+                        ),
                         PlatformDialogAction(
-                            child: Text("Proceed"),
-                            onPressed: () async {
-                              Navigator.pop(context); // Pop Dialog
-                              showLoadingDialog(context);
-                              try {
-                                await Provider.of<DatabaseProvider>(context,
-                                        listen: false)
-                                    .deleteAllDownloads(context);
-                                Navigator.pop(context);
-                                showSnackBarMessage("Downloads Cleared!");
-                              } catch (err) {
-                                Navigator.pop(context);
-                                showSnackBarMessage("Error", error: true);
-                              }
-                            },
-                            cupertino: (_, __) => CupertinoDialogActionData(
-                                isDestructiveAction: true)),
+                          child: Text("Proceed"),
+                          onPressed: () async {
+                            Navigator.pop(context); // Pop Dialog
+                            showLoadingDialog(context);
+                            try {
+                              await Provider.of<DatabaseProvider>(context,
+                                      listen: false)
+                                  .deleteAllDownloads(context);
+                              Navigator.pop(context);
+                              showSnackBarMessage("Downloads Cleared!");
+                            } catch (err, stacktrace) {
+                              Navigator.pop(context);
+                              showSnackBarMessage("Error", error: true);
+                              print(err);
+                              print(stacktrace);
+                            }
+                          },
+                          cupertino: (_, __) => CupertinoDialogActionData(
+                            isDestructiveAction: true,
+                          ),
+                        ),
                       ],
                     ),
                   ),

@@ -447,7 +447,7 @@ class DatabaseProvider with ChangeNotifier {
 
   bool checkSimilarRead(Chapter chapter, int comicId) {
     bool check = chapters.any((element) =>
-    element.read &&
+        element.read &&
         element.generatedChapterNumber == chapter.generatedNumber &&
         element.mangaId == comicId);
     return check;
@@ -986,10 +986,22 @@ class DatabaseProvider with ChangeNotifier {
 
   Future<void> deleteAllDownloads(BuildContext context) async {
     // Get path
-    // Clear Chapter Downloads
-    // Clear Downloads DB
-    // Clear FlutterDownloads task ie the entire thing
+    final directory = Theme.of(context).platform == TargetPlatform.android
+        ? await getExternalStorageDirectory()
+        : await getApplicationDocumentsDirectory();
+
+    String path = directory.path + "/" + msDownloadFolderName;
+    await FlutterDownloader.cancelAll(); // Cancel All running tasks
+    for (var d in chapterDownloads) {
+      for (var task in d.taskIds) {
+        await FlutterDownloader.remove(taskId: task);
+      }
+      await downloadManager.deleteDownload(d);
+    }
+    chapterDownloads.clear();
     // Delete Directory.
+    Directory(path).deleteSync(recursive: true);
+    notifyListeners();
   }
 
   Future<void> clearChapterDataInfo(List<Chapter> pointers) async {
