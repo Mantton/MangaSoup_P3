@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
@@ -313,20 +314,44 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
               .removeHistory(history)
               .then((value) => throw "Bad State, No Pointer");
         }
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ReaderHome(
-              selector: widget.profile.selector,
-              chapters: widget.profile.chapters,
-              initialChapterIndex: target,
-              comicId: widget.comicId,
-              source: widget.profile.source,
-              initialPage: pointer.lastPageRead,
+
+        if (widget.profile.chapters[target] != widget.profile.chapters.first &&
+            (pointer.lastPageRead == pointer.images.length)) {
+          print("Completed moving to next");
+          // Open Next Chapter
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ReaderHome(
+                selector: widget.profile.selector,
+                chapters: widget.profile.chapters,
+                initialChapterIndex:
+                    getTarget(widget.profile.chapters, pointer, target),
+                comicId: widget.comicId,
+                source: widget.profile.source,
+                initialPage: 1,
+              ),
+              fullscreenDialog: true,
             ),
-            fullscreenDialog: true,
-          ),
-        );
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ReaderHome(
+                selector: widget.profile.selector,
+                chapters: widget.profile.chapters,
+                initialChapterIndex: target,
+                comicId: widget.comicId,
+                source: widget.profile.source,
+                initialPage: (pointer.lastPageRead == pointer.images.length)
+                    ? 1
+                    : pointer.lastPageRead,
+              ),
+              fullscreenDialog: true,
+            ),
+          );
+        }
       } else {
         Navigator.push(
           context,
@@ -346,6 +371,16 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
     } catch (err) {
       showSnackBarMessage(err.toString(), error: true);
     }
+  }
+
+  int getTarget(List<Chapter> chapters, ChapterData pointer, int index) {
+    if (index > 0) {
+      if (chapters[index - 1].generatedNumber == pointer.generatedChapterNumber)
+        return getTarget(chapters, pointer, index - 1);
+      else
+        return index - 1;
+    } else
+      return index;
   }
 
   Widget profileBody() {
