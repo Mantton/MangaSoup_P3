@@ -85,6 +85,11 @@ class DatabaseProvider with ChangeNotifier {
     bookmarks = await bookmarkManager.getAllBookMarks();
     comicTrackers = await trackerManager.getTrackers();
     chapterDownloads = await downloadManager.getDownloads();
+    var hangingDownloads = chapterDownloads
+        .where((element) => element.status != MSDownloadStatus.done)
+        .toList();
+    print("Deleting ${hangingDownloads.length}");
+    await deleteDownloads(hangingDownloads);
     print("Database Provider Successfully Initialized");
     notifyListeners();
   }
@@ -828,7 +833,7 @@ class DatabaseProvider with ChangeNotifier {
     }
   }
 
-  void deleteDownloads(List toDelete) async {
+  Future<void> deleteDownloads(List toDelete) async {
     List<ChapterDownload> targets = [];
     if (toDelete is List<Chapter>) {
       for (Chapter chapter in toDelete) {
@@ -847,12 +852,18 @@ class DatabaseProvider with ChangeNotifier {
     // Delete Object so
     chapterDownloads.removeWhere((e) => targets.contains(e));
     // Delete all tasks associated with chapter, then delete object
-
+    var directory = await getApplicationDocumentsDirectory();
+    print("Deleting ${targets.length} downloads.");
     for (ChapterDownload download in targets) {
       await downloadManager.deleteDownload(download);
       List ids = download.taskIds;
       for (var id in ids) {
         await FlutterDownloader.remove(taskId: id, shouldDeleteContent: true);
+      }
+
+      if (download.saveDir.isNotEmpty) {
+        String path = directory.path + "/" + download.saveDir;
+        Directory(path).deleteSync(recursive: true);
       }
     }
     notifyListeners();
@@ -896,7 +907,6 @@ class DatabaseProvider with ChangeNotifier {
           c.status = MSDownloadStatus.done;
           c.links.sort((a, b) => parsePageNum(a).compareTo(parsePageNum(b)));
           print("${c.chapterId}: Download Complete");
-          print(c.links);
         }
       }
     } else {

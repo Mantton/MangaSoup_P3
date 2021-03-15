@@ -202,7 +202,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                       return Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: Text(
-                          "${snap.data['count']} Image(s) consuming ${snap.data['size']} MB",
+                          "${snap.data['size']} MB Consumed",
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 17,

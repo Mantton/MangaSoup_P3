@@ -153,13 +153,14 @@ class ComicDownloadBlock extends StatelessWidget {
                     builder: (_) => CupertinoAlertDialog(
                           title: Text("Delete Downloads?"),
                           content: Text(
-                            "Are you sure you want to delete all downloaded chapters for the specified comic?",
+                            "Delete ${toDelete.length} Chapter(s)?",
                           ),
                           actions: [
                             CupertinoDialogAction(
-                                child: Text("Cancel"),
-                                onPressed: () => Navigator.pop(context),
-                                isDefaultAction: true),
+                              child: Text("Cancel"),
+                              onPressed: () => Navigator.pop(context),
+                              isDefaultAction: true,
+                            ),
                             CupertinoDialogAction(
                               child: Text("Delete"),
                               onPressed: () {
