@@ -12,7 +12,7 @@ class Landing extends StatefulWidget {
   _LandingState createState() => _LandingState();
 }
 
-class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin{
+class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin {
   int _index = 0;
 
   @override
@@ -70,15 +70,17 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin{
           BottomNavigationBarItem(
             icon: Icon(
               (_index != 3)
-                  ? CupertinoIcons.cloud_download
-                  : CupertinoIcons.cloud_download_fill,
+                  ? CupertinoIcons.download_circle
+                  : CupertinoIcons.download_circle_fill,
             ),
             label: "Downloads",
           ),
           BottomNavigationBarItem(
-            icon: Icon((_index != 4)
-                ? CupertinoIcons.square_stack_3d_up
-                : CupertinoIcons.square_stack_3d_up_fill),
+            icon: Icon(
+              (_index != 4)
+                  ? CupertinoIcons.square_stack_3d_up
+                  : CupertinoIcons.square_stack_3d_up_fill,
+            ),
             label: "More",
           ),
         ],

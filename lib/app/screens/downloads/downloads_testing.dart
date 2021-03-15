@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:mangasoup_prototype_3/app/constants/variables.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DownLoadsTesting extends StatelessWidget {
@@ -38,6 +39,13 @@ Future<Map> getCacheSize() async {
   String tempPath = tempDir.path;
   String cacheDirectory = tempPath + "/libCachedImageData";
 
+  return dirStatSync(cacheDirectory);
+}
+
+Future<Map> getDownloadSize() async {
+  Directory tempDir = await getApplicationDocumentsDirectory();
+  String tempPath = tempDir.path;
+  String cacheDirectory = tempPath + "/$msDownloadFolderName";
   return dirStatSync(cacheDirectory);
 }
 

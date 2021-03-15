@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/downloads/downloads_testing.dart';
 import 'package:provider/provider.dart';
@@ -136,10 +138,15 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                   future: getCacheSize(),
                   builder: (_, snap) {
                     if (snap.hasData)
-                      return ListTile(
-                        title: Text(
+                      return Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Text(
                           "${snap.data['count']} Image(s) consuming ${snap.data['size']} MB",
-                          style: notInLibraryFont,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 17,
+                            fontFamily: "Lato",
+                          ),
                         ),
                       );
                     else
@@ -151,7 +158,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                     "Clear Image Cache",
                     style: TextStyle(
                       color: Colors.redAccent,
-                      fontSize: 20,
+                      fontSize: 17,
                       fontFamily: "Lato",
                     ),
                   ),
@@ -168,6 +175,80 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                       );
                     });
                   },
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Downloads",
+                  style: notInLibraryFont,
+                ),
+                Divider(),
+                FutureBuilder(
+                  future: getDownloadSize(),
+                  builder: (_, snap) {
+                    if (snap.hasData)
+                      return Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Text(
+                          "${snap.data['count']} Image(s) consuming ${snap.data['size']} MB",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 17,
+                            fontFamily: "Lato",
+                          ),
+                        ),
+                      );
+                    else
+                      return LoadingIndicator();
+                  },
+                ),
+                ListTile(
+                  title: Text(
+                    "Delete all Downloads",
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 17,
+                      fontFamily: "Lato",
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.delete_outline,
+                    color: Colors.redAccent,
+                  ),
+                  onTap: () => showPlatformDialog(
+                    context: context,
+                    builder: (_) => PlatformAlertDialog(
+                      title: Text("Delete Downloads"),
+                      content: Text(
+                          "Are you sure you want to delete all downloaded content?"),
+                      actions: [
+                        PlatformDialogAction(
+                            child: Text("Cancel"),
+                            onPressed: () => Navigator.pop(context),
+                            cupertino: (_, __) => CupertinoDialogActionData(
+                                isDefaultAction: true)),
+                        PlatformDialogAction(
+                            child: Text("Proceed"),
+                            onPressed: () async {
+                              Navigator.pop(context); // Pop Dialog
+                              showLoadingDialog(context);
+                              try {
+                                await Provider.of<DatabaseProvider>(context,
+                                        listen: false)
+                                    .deleteAllDownloads(context);
+                                Navigator.pop(context);
+                                showSnackBarMessage("Downloads Cleared!");
+                              } catch (err) {
+                                Navigator.pop(context);
+                                showSnackBarMessage("Error", error: true);
+                              }
+                            },
+                            cupertino: (_, __) => CupertinoDialogActionData(
+                                isDestructiveAction: true)),
+                      ],
+                    ),
+                  ),
                 )
               ],
             ),

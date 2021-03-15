@@ -984,6 +984,14 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteAllDownloads(BuildContext context) async {
+    // Get path
+    // Clear Chapter Downloads
+    // Clear Downloads DB
+    // Clear FlutterDownloads task ie the entire thing
+    // Delete Directory.
+  }
+
   Future<void> clearChapterDataInfo(List<Chapter> pointers) async {
     List<ChapterData> toUpdate = [];
     for (Chapter chapter in pointers) {
