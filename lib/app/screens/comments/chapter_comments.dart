@@ -69,7 +69,11 @@ class _ChapterCommentsPageState extends State<ChapterCommentsPage> {
               ? isEmptyView()
               : Container(
                   padding: EdgeInsets.all(3),
-                  child: CommentList(comments: comments)),
+                  child: CommentList(
+                    comments: comments,
+                    link: widget.chapterLink,
+                  ),
+                ),
         ),
         Container(
           height: 50,
@@ -168,18 +172,58 @@ class _ChapterCommentsPageState extends State<ChapterCommentsPage> {
 
 class CommentList extends StatefulWidget {
   final List<ChapterComment> comments;
+  final String link;
 
-  const CommentList({Key key, this.comments}) : super(key: key);
+  const CommentList({Key key, this.comments, this.link}) : super(key: key);
 
   @override
   _CommentListState createState() => _CommentListState();
 }
 
 class _CommentListState extends State<CommentList> {
+  ScrollController _controller;
+
+  bool _reachedEnd = false;
+  bool _loadingMore = false;
+  int _page = 1;
+
   @override
   void initState() {
     super.initState();
     _comments = widget.comments;
+    _controller = ScrollController();
+    _controller.addListener(() {
+      _scrollListener();
+    });
+  }
+
+  _scrollListener() async {
+    double maxScroll = _controller.position.maxScrollExtent;
+    double currentScroll = _controller.position.pixels;
+    double delta = MediaQuery.of(context).size.height * .65;
+    if (maxScroll - currentScroll < delta && !_reachedEnd) {
+      await paginate();
+    }
+  }
+
+  Future<void> paginate() async {
+    if (_loadingMore == true) return null;
+    _page++;
+    setState(() {
+      _loadingMore = true;
+    });
+    List<ChapterComment> t = [];
+    try {
+      debugPrint("Paginating Comments");
+      t = await MSCombined().getChapterComments(widget.link, _page, context);
+      if (t.isEmpty) _reachedEnd = true;
+      setState(() {
+        _comments.addAll(t);
+        _loadingMore = false;
+      });
+    } catch (err) {
+      showSnackBarMessage("Failed to load more");
+    }
   }
 
   List<ChapterComment> _comments = [];
@@ -189,6 +233,7 @@ class _CommentListState extends State<CommentList> {
     return CupertinoScrollbar(
       child: ListView.separated(
         shrinkWrap: true,
+        controller: _controller,
         physics: AlwaysScrollableScrollPhysics(),
         itemBuilder: (_, index) => commentTile(_comments[index]),
         separatorBuilder: (_, index) => SizedBox(height: 5),
@@ -210,138 +255,138 @@ class _CommentListState extends State<CommentList> {
                     CachedNetworkImageProvider(comment.author.avatar),
                 backgroundColor: Colors.grey[900],
               ),
-              Expanded(
-                flex: 10,
-                child: Padding(
-                  padding: const EdgeInsets.all(7.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        comment.author.username,
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontFamily: "Lato",
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        comment.body,
-                        style: TextStyle(
-                          // color: Colors.white70,
-                          fontFamily: "Lato",
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              TextButton(
-                style: ButtonStyle(
-                    overlayColor:
-                        MaterialStateProperty.all<Color>(Colors.transparent)),
-                onPressed: () {
-                  setState(() {
-                    if (comment.likedByUser)
-                      comment.likes--;
-                    else
-                      comment.likes++;
-                    comment.likedByUser = !comment.likedByUser;
-                  });
-                  try {
-                    MSCombined().toggleLike(comment, context);
-                  } catch (err) {
-                    print(err);
-                  }
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      !comment.likedByUser
-                          ? Icons.favorite_border
-                          : Icons.favorite,
-                      color:
-                          comment.likedByUser ? Colors.redAccent : Colors.grey,
+          Expanded(
+            flex: 10,
+            child: Padding(
+              padding: const EdgeInsets.all(7.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    comment.author.username,
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontFamily: "Lato",
+                      fontSize: 14,
                     ),
-                    comment.likes >= 1
-                        ? Text(
-                            comment.likes.toString(),
-                            style: TextStyle(
-                              color: comment.likedByUser
-                                  ? Colors.redAccent
-                                  : Colors.grey,
-                            ),
-                          )
+                  ),
+                  Text(
+                    comment.body,
+                    style: TextStyle(
+                      // color: Colors.white70,
+                      fontFamily: "Lato",
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          TextButton(
+            style: ButtonStyle(
+                overlayColor:
+                MaterialStateProperty.all<Color>(Colors.transparent)),
+            onPressed: () {
+              setState(() {
+                if (comment.likedByUser)
+                  comment.likes--;
+                else
+                  comment.likes++;
+                comment.likedByUser = !comment.likedByUser;
+              });
+              try {
+                MSCombined().toggleLike(comment, context);
+              } catch (err) {
+                print(err);
+              }
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  !comment.likedByUser
+                      ? Icons.favorite_border
+                      : Icons.favorite,
+                  color:
+                  comment.likedByUser ? Colors.redAccent : Colors.grey,
+                ),
+                comment.likes >= 1
+                    ? Text(
+                  comment.likes.toString(),
+                  style: TextStyle(
+                    color: comment.likedByUser
+                        ? Colors.redAccent
+                        : Colors.grey,
+                  ),
+                )
+                    : Container(),
+              ],
+            ),
+          )
+        ],
+      ),
+    ),
+  );
+
+  showOptionsMenu(ChapterComment comment) => showPlatformModalSheet(
+    context: context,
+    builder: (_) => PlatformWidget(
+      cupertino: (_, __) => CupertinoActionSheet(
+          cancelButton: CupertinoActionSheetAction(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+            isDefaultAction: true,
+          ),
+          actions: [
+            CupertinoActionSheetAction(
+              child: Text("Copy"),
+              onPressed: () {
+                Clipboard.setData(
+                  ClipboardData(text: comment.body),
+                );
+                Navigator.pop(context);
+                showSnackBarMessage("Copied!");
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: Text("Report"),
+              onPressed: () => Navigator.pop(context),
+            ),
+            Consumer<PreferenceProvider>(
+              builder: (context, provider, _) => provider.msUser != null &&
+                  (provider.msUser.level > 1 ||
+                      provider.msUser.id == comment.author.id)
+                  ? CupertinoActionSheetAction(
+                onPressed: () => MSCombined()
+                    .deleteComment(comment, context)
+                    .then((value) {
+                  setState(() {
+                    _comments.remove(comment);
+                  });
+                  Navigator.pop(context);
+                  showSnackBarMessage("Removed!", success: true);
+                }).catchError(
+                        (onError) => showSnackBarMessage(onError)),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(provider.msUser.level > 1
+                        ? "Remove"
+                        : "Delete"),
+                    provider.msUser.level > 1
+                        ? Icon(
+                      Icons.shield,
+                      color: Colors.red,
+                    )
                         : Container(),
                   ],
                 ),
+                isDestructiveAction: provider.msUser.level > 1,
               )
-            ],
-          ),
-        ),
-      );
-
-  showOptionsMenu(ChapterComment comment) => showPlatformModalSheet(
-        context: context,
-        builder: (_) => PlatformWidget(
-          cupertino: (_, __) => CupertinoActionSheet(
-              cancelButton: CupertinoActionSheetAction(
-                child: Text("Cancel"),
-                onPressed: () => Navigator.pop(context),
-                isDefaultAction: true,
-              ),
-              actions: [
-                CupertinoActionSheetAction(
-                  child: Text("Copy"),
-                  onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(text: comment.body),
-                    );
-                    Navigator.pop(context);
-                    showSnackBarMessage("Copied!");
-                  },
-                ),
-                CupertinoActionSheetAction(
-                  child: Text("Report"),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                Consumer<PreferenceProvider>(
-                  builder: (context, provider, _) => provider.msUser != null &&
-                          (provider.msUser.level > 1 ||
-                              provider.msUser.id == comment.author.id)
-                      ? CupertinoActionSheetAction(
-                          onPressed: () => MSCombined()
-                              .deleteComment(comment, context)
-                              .then((value) {
-                            setState(() {
-                              _comments.remove(comment);
-                            });
-                            Navigator.pop(context);
-                            showSnackBarMessage("Removed!", success: true);
-                          }).catchError(
-                                  (onError) => showSnackBarMessage(onError)),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(provider.msUser.level > 1
-                                  ? "Remove"
-                                  : "Delete"),
-                              provider.msUser.level > 1
-                                  ? Icon(
-                                      Icons.shield,
-                                      color: Colors.red,
-                                    )
-                                  : Container(),
-                            ],
-                          ),
-                          isDestructiveAction: provider.msUser.level > 1,
-                        )
-                      : Container(),
-                ),
-              ]),
-        ),
-      );
+                  : Container(),
+            ),
+          ]),
+    ),
+  );
 }
