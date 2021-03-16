@@ -253,7 +253,6 @@ class ApiManager {
         "data": additionalParams,
       };
       Response response = await _dio.post('/api/v1/search', data: data);
-      print(response.data);
       List dataPoints = response.data['comics'] ?? [];
       for (int index = 0; index < dataPoints.length; index++) {
         comics.add(ComicHighlight.fromMap(dataPoints[index]));
