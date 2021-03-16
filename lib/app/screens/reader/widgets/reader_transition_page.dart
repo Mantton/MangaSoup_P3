@@ -1,6 +1,7 @@
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TransitionPage extends StatelessWidget {
   final ReaderChapter current;
@@ -55,28 +56,30 @@ class TransitionPage extends StatelessWidget {
           ),
           (next.generatedNumber - current.generatedNumber > 1)
               ? Center(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                       Icon(
                         Icons.error_outline,
-                        color: Colors.purple,
+                        color: Colors.amber,
                       ),
-                      SizedBox(
-                        width: 10.w,
-                      ),
-                      Text(
-                        "There seems to be missing chapters.",
-                        style: TextStyle(
-                          color: Colors.grey[700],
-                          fontSize: 25.sp,
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: AutoSizeText(
+                          "MangaSoup detected missing chapters.\n"
+                          "Ch.${current.generatedNumber} → Ch.${next.generatedNumber} jump is greater than 1.",
+                          style: TextStyle(
+                            color: Colors.amber,
+                            fontSize: 15,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
                       )
                     ],
-                  ),
-                )
+            ),
+          )
               : Container(),
         ]),
       ),

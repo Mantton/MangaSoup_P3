@@ -45,9 +45,9 @@ class _CustomProfilePageState extends State<CustomProfilePage> {
                 children: [
                   profileHeader(),
                   Divider(
-                    height: 10.h,
-                    indent: 5.w,
-                    endIndent: 5.w,
+                    height: 10,
+                    indent: 5,
+                    endIndent: 5,
                     color: Colors.white12,
                     thickness: 2,
                   ),

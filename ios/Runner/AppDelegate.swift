@@ -3,6 +3,8 @@ import Flutter
 import workmanager
 import flutter_local_notifications
 import shared_preferences
+import flutter_downloader
+
 
 
 
@@ -14,6 +16,8 @@ import shared_preferences
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
     WorkmanagerPlugin.register(with: self.registrar(forPlugin: "be.tramckrijte.workmanager.WorkmanagerPlugin")!)
+    FlutterDownloaderPlugin.setPluginRegistrantCallback(registerPlugins)
+
 
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
@@ -27,4 +31,10 @@ import shared_preferences
     }
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+}
+
+private func registerPlugins(registry: FlutterPluginRegistry) {
+    if (!registry.hasPlugin("FlutterDownloaderPlugin")) {
+       FlutterDownloaderPlugin.register(with: registry.registrar(forPlugin: "FlutterDownloaderPlugin")!)
+    }
 }

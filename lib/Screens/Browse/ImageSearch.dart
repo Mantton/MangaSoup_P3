@@ -39,12 +39,12 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(10.0.w),
+          padding: EdgeInsets.all(10.0),
           child: Column(
             children: [
               submitImage(),
               SizedBox(
-                height: 10.h,
+                height: 10,
               ),
               resultsWidget(),
             ],

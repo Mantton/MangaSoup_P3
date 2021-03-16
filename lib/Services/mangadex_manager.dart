@@ -543,11 +543,8 @@ class DexHub {
 
   Future<void> markChapter(List<int> ids, bool read, Map additionalInfo) async {
     var headers = prepareHeaders(additionalInfo);
-    headers.addAll({
-      'Content-Type': "application/json",
-    });
     await Dio().post(apiV2URL + "/user/me/marker",
-        options: Options(headers: headers),
+        options: Options(headers: headers, contentType: "application/json"),
         data: {"chapters": ids, "read": read});
   }
 }

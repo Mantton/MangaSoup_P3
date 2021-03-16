@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
+import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
+import 'package:mangasoup_prototype_3/app/screens/downloads/downloads_testing.dart';
 import 'package:provider/provider.dart';
 
 class GeneralSettings extends StatefulWidget {
@@ -29,9 +33,19 @@ class _GeneralSettingsState extends State<GeneralSettings> {
       value: 5,
     )
   ];
+  Future<Map<String, dynamic>> d;
+  Future<Map<String, dynamic>> c;
+
+  @override
+  void initState() {
+    d = getDownloadSize();
+    c = getCacheSize();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    var d = getDownloadSize();
     return Scaffold(
       appBar: AppBar(
         title: Text("General Settings"),
@@ -81,8 +95,8 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                       child: DropdownButton(
                         value: List.of(cgcacItems)
                             .singleWhere((element) =>
-                                element.value ==
-                                settings.comicGridCrossAxisCount)
+                        element.value ==
+                            settings.comicGridCrossAxisCount)
                             .value,
                         items: cgcacItems,
                         onChanged: (p) => settings.setCrossAxisCount(p),
@@ -116,7 +130,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                       child: DropdownButton(
                         value: settings.comicGridMode,
                         items:
-                            settings.buildItems(settings.comicGridModeOptions),
+                        settings.buildItems(settings.comicGridModeOptions),
                         onChanged: (p) => settings.setComicGridMode(p),
                       ),
                     ),
@@ -130,6 +144,25 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                   style: notInLibraryFont,
                 ),
                 Divider(),
+                FutureBuilder(
+                  future: c,
+                  builder: (_, snap) {
+                    if (snap.hasData)
+                      return Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Text(
+                          "${snap.data['count']} Image(s) consuming ${snap.data['size']} MB",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 17,
+                            fontFamily: "Lato",
+                          ),
+                        ),
+                      );
+                    else
+                      return LoadingIndicator();
+                  },
+                ),
                 ListTile(
                   title: Text(
                     "Clear Image Cache",
@@ -139,13 +172,104 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                       fontFamily: "Lato",
                     ),
                   ),
+                  trailing: Icon(
+                    Icons.delete_outline,
+                    color: Colors.redAccent,
+                  ),
                   onTap: () {
-                    DefaultCacheManager manager = DefaultCacheManager();
                     setState(() {
+                      DefaultCacheManager manager = DefaultCacheManager();
                       manager.emptyCache(); //clears all data in cache.
-                      showSnackBarMessage("Image Cache Cleared!");
+                      c = getCacheSize();
+                      showSnackBarMessage(
+                        "Image Cache Cleared!",
+                      );
                     });
                   },
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Downloads",
+                  style: notInLibraryFont,
+                ),
+                Divider(),
+                FutureBuilder(
+                  future: d,
+                  builder: (_, snap) {
+                    if (snap.hasData)
+                      return Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Text(
+                          "${snap.data['size']} MB Consumed",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 17,
+                            fontFamily: "Lato",
+                          ),
+                        ),
+                      );
+                    else
+                      return LoadingIndicator();
+                  },
+                ),
+                ListTile(
+                  title: Text(
+                    "Delete all Downloads",
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 17,
+                      fontFamily: "Lato",
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.delete_outline,
+                    color: Colors.redAccent,
+                  ),
+                  onTap: () => showPlatformDialog(
+                    context: context,
+                    builder: (_) => PlatformAlertDialog(
+                      title: Text("Delete Downloads"),
+                      content: Text(
+                        "Are you sure you want to delete all downloaded content?",
+                      ),
+                      actions: [
+                        PlatformDialogAction(
+                          child: Text("Cancel"),
+                          onPressed: () => Navigator.pop(context),
+                          cupertino: (_, __) => CupertinoDialogActionData(
+                            isDefaultAction: true,
+                          ),
+                        ),
+                        PlatformDialogAction(
+                          child: Text("Proceed"),
+                          onPressed: () async {
+                            Navigator.pop(context); // Pop Dialog
+                            showLoadingDialog(context);
+                            try {
+                              await Provider.of<DatabaseProvider>(context,
+                                      listen: false)
+                                  .deleteAllDownloads(context);
+                              setState(() {
+                                d = getDownloadSize();
+                              });
+                              Navigator.pop(context);
+                              showSnackBarMessage("Downloads Cleared!");
+                            } catch (err, stacktrace) {
+                              Navigator.pop(context);
+                              showSnackBarMessage("Error", error: true);
+                              print(err);
+                              print(stacktrace);
+                            }
+                          },
+                          cupertino: (_, __) => CupertinoDialogActionData(
+                            isDestructiveAction: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 )
               ],
             ),

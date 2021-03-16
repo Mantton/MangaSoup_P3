@@ -116,34 +116,7 @@ class _ForYouPageState extends State<ForYouPage>
                             SizedBox(
                               height: 10,
                             ),
-                            Consumer<PreferenceProvider>(
-                                builder: (context, settings, _) {
-                              return Container(
-                                height: 250,
-                                child: GridView.builder(
-                                  physics: ScrollPhysics(),
-                                  scrollDirection: Axis.horizontal,
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 1,
-                                    childAspectRatio:
-                                        settings.comicGridMode == 0
-                                            ? (100 / 53)
-                                            : (100 / 60),
-                                    mainAxisSpacing: 10,
-                                    crossAxisSpacing: 0,
-                                  ),
-                                  shrinkWrap: true,
-                                  cacheExtent:
-                                      MediaQuery.of(context).size.width,
-                                  itemCount: highlights.length,
-                                  itemBuilder: (BuildContext context, index) =>
-                                      ComicGridTile(
-                                    comic: highlights[index],
-                                  ),
-                                ),
-                              );
-                            }),
+                            ListGridComicHighlight(highlights: highlights),
                           ],
                         ),
                       ),
@@ -161,4 +134,39 @@ class _ForYouPageState extends State<ForYouPage>
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class ListGridComicHighlight extends StatelessWidget {
+  const ListGridComicHighlight({
+    Key key,
+    @required this.highlights,
+  }) : super(key: key);
+
+  final List<ComicHighlight> highlights;
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<PreferenceProvider>(builder: (context, settings, _) {
+      return Container(
+        height: 250,
+        child: GridView.builder(
+          physics: ScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 1,
+            childAspectRatio:
+                settings.comicGridMode == 0 ? (100 / 53) : (100 / 60),
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 0,
+          ),
+          shrinkWrap: true,
+          cacheExtent: MediaQuery.of(context).size.width,
+          itemCount: highlights.length,
+          itemBuilder: (BuildContext context, index) => ComicGridTile(
+            comic: highlights[index],
+          ),
+        ),
+      );
+    });
+  }
 }

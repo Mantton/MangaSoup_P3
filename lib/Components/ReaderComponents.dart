@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/constants/variables.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:photo_view/photo_view.dart';
@@ -141,53 +143,78 @@ class MainImageWidget extends StatelessWidget {
     return Container(
       // height: MediaQuery.of(context).size.height,
       width: maxWidth ? MediaQuery.of(context).size.width : null,
-      child: CachedNetworkImage(
-        imageUrl: url,
-        progressIndicatorBuilder: (_, url, var progress) =>
-            progress.progress != null
-                ? Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    child: Center(
-                      child: CircularPercentIndicator(
-                        radius: 45.0,
-                        lineWidth: 3.0,
-                        percent: progress.progress,
-                        progressColor: Colors.purple,
-                        backgroundColor: Colors.grey[900],
-                        // fillColor: Colors.grey[900],
-                      ),
-                    ),
-                  )
-                : Center(
-                    child: Container(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      child: Center(
-                        child: Text(
-                          "Loading...",
-                          style: notInLibraryFont,
+      child: (!url.contains(msDownloadFolderName))
+          ? CachedNetworkImage(
+              imageUrl: url,
+              progressIndicatorBuilder: (_, url, var progress) =>
+                  progress.progress != null
+                      ? Container(
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width,
+                          child: Center(
+                            child: CircularPercentIndicator(
+                              radius: 45.0,
+                              lineWidth: 3.0,
+                              percent: progress.progress,
+                              progressColor: Colors.purple,
+                              backgroundColor: Colors.grey[900],
+                              // fillColor: Colors.grey[900],
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Container(
+                            height: MediaQuery.of(context).size.height,
+                            width: MediaQuery.of(context).size.width,
+                            child: Center(
+                              child: Text(
+                                "Loading...",
+                                style: notInLibraryFont,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+              httpHeaders: referer != null
+                  ? {"referer": referer ?? imageHeaders(url)}
+                  : null,
+              errorWidget: (context, url, error) => Center(
+                child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: Icon(
+                      Icons.error_outline,
+                      color: Colors.purple,
                     ),
                   ),
-        httpHeaders:
-            referer != null ? {"referer": referer ?? imageHeaders(url)} : null,
-        errorWidget: (context, url, error) => Center(
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: Center(
-                child: Icon(
-              Icons.error_outline,
-              color: Colors.purple,
-            )),
-          ),
-        ),
-        fit: fit,
-        fadeInDuration: Duration(microseconds: 500),
-        fadeInCurve: Curves.easeIn,
-      ),
+                ),
+              ),
+              fit: fit,
+              fadeInDuration: Duration(microseconds: 500),
+              fadeInCurve: Curves.easeIn,
+            )
+          : Image.file(
+        File(Provider.of<PreferenceProvider>(context).paths + url),
+              errorBuilder: (_, err, trace) => Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.purple,
+                      ),
+                      Text(
+                        "Unable to decode downloaded image data.",
+                        style: textFieldStyle,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
     );
   }
 }

@@ -18,8 +18,8 @@ class ReachedEndPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "That was the last available chapter.\n"
-              "${inLibrary.inLibrary ? "This comic is in your library, you will be notified when a new chapter is available" : "Add this comic to your library to be updated when more chapters are released!"}",
+              "Reached End.\n"
+              "${inLibrary.inLibrary ? "In your library, you will be notified when a new chapter is available" : "Add this comic to your library to be updated when more chapters are released!"}",
               style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,

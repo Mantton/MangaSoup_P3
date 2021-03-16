@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
@@ -50,7 +52,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
 
   Widget homeView({@required Comic comic}) => SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(2.0),
           child: Container(
             color: Colors.black,
             child: Column(
@@ -126,6 +128,11 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                       fontSize: 25,
                       fontFamily: 'Lato',
                     ),
+                    onTap: () {
+                      Clipboard.setData(
+                          ClipboardData(text: widget.profile.title));
+                      showSnackBarMessage("Copied title to clipboard!");
+                    },
                     // maxLines: 3,
                   ),
                   Divider(
@@ -185,139 +192,107 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
         widget.profile.chapters.map((e) => e.generatedNumber).toSet().toList();
 
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: EdgeInsets.all(3),
       child: Row(
+        // mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Spacer(),
-          Consumer<DatabaseProvider>(
-              builder: (BuildContext context, provider, _) {
-            History comicHistory;
-            try {
-              comicHistory = provider.historyList
-                  .firstWhere((element) => element.comicId == widget.comicId);
-            } catch (err) {
-              // Comic Has No History
-            }
-            bool exists = (comicHistory != null) ? true : false;
-            return InkWell(
-              child: Column(
-                children: [
-                  IconButton(
-                    icon: Icon(
+          Expanded(
+            child: Consumer<DatabaseProvider>(
+                builder: (BuildContext context, provider, _) {
+              History comicHistory;
+              try {
+                comicHistory = provider.historyList
+                    .firstWhere((element) => element.comicId == widget.comicId);
+              } catch (err) {
+                // Comic Has No History
+              }
+              bool exists = (comicHistory != null) ? true : false;
+              return InkWell(
+                onTap: () => playContinueLogic(comicHistory),
+                child: Column(
+                  children: [
+                    Icon(
                       CupertinoIcons.play,
                       color: Colors.purpleAccent,
-                    ),
-                    iconSize: 30,
-                    onPressed: () => playContinueLogic(comicHistory),
-                  ),
-                  Text(
-                    exists ? "Continue" : "Read",
-                    textAlign: TextAlign.center,
-                    style: def,
-                  ),
-                ],
-              ),
-            );
-          }),
-          Spacer(),
-          Column(
-            children: [
-              IconButton(
-                icon: Icon(
-                  CupertinoIcons.book,
-                  color: Colors.purpleAccent,
-                ),
-                iconSize: 30,
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ChapterList(
-                      chapterList: widget.profile.chapters,
-                      comicId: widget.comicId,
-                      selector: widget.profile.selector,
-                      source: widget.profile.source,
-                    ),
-                  ),
-                ),
-              ),
-              Text(
-                "${idk.length} ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}",
-                textAlign: TextAlign.center,
-                style: def,
-              )
-            ],
-          ),
-          Spacer(),
-          Column(
-            children: [
-              IconButton(
-                icon: Icon(
-                  CupertinoIcons.bookmark,
-                  color: Colors.purpleAccent,
-                ),
-                iconSize: 30,
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ComicBookMarksPage(
-                      comicId: widget.comicId,
-                      profile: widget.profile,
-                    ),
-                  ),
-                ),
-              ),
-              Text(
-                "Bookmarks",
-                textAlign: TextAlign.center,
-                style: def,
-              )
-            ],
-          ),
-          Spacer(),
-
-          comic.rating == 0
-              ? Column(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        CupertinoIcons.chart_bar_square,
-                        color: Colors.purpleAccent,
-                      ),
-                      iconSize: 30,
-                      onPressed: () =>
-                          comicRatingDialog(context: context, comic: comic),
+                      size: 30,
                     ),
                     Text(
-                      "Rate",
+                      exists ? "Continue\n" : "Read\n",
                       textAlign: TextAlign.center,
                       style: def,
-                    )
+                    ),
                   ],
-                )
-              : InkWell(
-                  onTap: () =>
-                      comicRatingDialog(context: context, comic: comic),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "${comic.rating}/5",
-                        style: TextStyle(
-                          color: Colors.purple,
-                          fontSize: 30,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Rating",
-                        textAlign: TextAlign.center,
-                        style: def,
-                      )
-                    ],
+                ),
+              );
+            }),
+          ),
+          Expanded(
+            child: InkWell(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ChapterList(
+                    chapterList: widget.profile.chapters,
+                    comicId: widget.comicId,
+                    selector: widget.profile.selector,
+                    source: widget.profile.source,
+                    profile: widget.profile,
+                    history: Provider.of<DatabaseProvider>(context)
+                        .historyList
+                        .firstWhere(
+                            (element) => element.comicId == widget.comicId,
+                            orElse: () => null),
                   ),
                 ),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    CupertinoIcons.book,
+                    color: Colors.purpleAccent,
+                    size: 30,
+                  ),
+                  Text(
+                    "${idk.length} Unique ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}",
+                    textAlign: TextAlign.center,
+                    style: def,
+                  )
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ComicBookMarksPage(
+                    comicId: widget.comicId,
+                    profile: widget.profile,
+                  ),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    CupertinoIcons.bookmark,
+                    color: Colors.purpleAccent,
+                    size: 30,
+                  ),
+                  Text(
+                    "Bookmarks\n",
+                    textAlign: TextAlign.center,
+                    style: def,
+                  )
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: ratings(comic),
+          ),
           // Spacer()
         ],
       ),
@@ -339,39 +314,72 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
               .removeHistory(history)
               .then((value) => throw "Bad State, No Pointer");
         }
+
+        if (widget.profile.chapters[target] != widget.profile.chapters.first &&
+            (pointer.lastPageRead == pointer.images.length)) {
+          // Open Next Chapter
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ReaderHome(
+                selector: widget.profile.selector,
+                chapters: widget.profile.chapters,
+                initialChapterIndex:
+                    getTarget(widget.profile.chapters, pointer, target),
+                comicId: widget.comicId,
+                source: widget.profile.source,
+                initialPage: 1,
+              ),
+              fullscreenDialog: true,
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ReaderHome(
+                selector: widget.profile.selector,
+                chapters: widget.profile.chapters,
+                initialChapterIndex: target,
+                comicId: widget.comicId,
+                source: widget.profile.source,
+                initialPage: (pointer.lastPageRead == pointer.images.length)
+                    ? 1
+                    : pointer.lastPageRead,
+              ),
+              fullscreenDialog: true,
+            ),
+          );
+        }
+      } else {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => ReaderHome(
               selector: widget.profile.selector,
               chapters: widget.profile.chapters,
-              initialChapterIndex: target,
+              initialChapterIndex:
+                  widget.profile.chapters.indexOf(widget.profile.chapters.last),
               comicId: widget.comicId,
               source: widget.profile.source,
-              initialPage: pointer.lastPageRead,
             ),
             fullscreenDialog: true,
           ),
         );
-      } else {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ReaderHome(
-                selector: widget.profile.selector,
-                chapters: widget.profile.chapters,
-                initialChapterIndex: widget.profile.chapters
-                    .indexOf(widget.profile.chapters.last),
-                comicId: widget.comicId,
-                source: widget.profile.source,
-              ),
-              fullscreenDialog: true,
-            ),
-          );
       }
     } catch (err) {
       showSnackBarMessage(err.toString(), error: true);
     }
+  }
+
+  int getTarget(List<Chapter> chapters, ChapterData pointer, int index) {
+    if (index > 0) {
+      if (chapters[index - 1].generatedNumber == pointer.generatedChapterNumber)
+        return getTarget(chapters, pointer, index - 1);
+      else
+        return index - 1;
+    } else
+      return index;
   }
 
   Widget profileBody() {
@@ -472,5 +480,46 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
         ),
       ),
     );
+  }
+
+  Widget ratings(Comic comic) {
+    return comic.rating == 0
+        ? InkWell(
+            onTap: () => comicRatingDialog(context: context, comic: comic),
+            child: Column(
+              children: [
+                Icon(
+                  CupertinoIcons.chart_bar_square,
+                  color: Colors.purpleAccent,
+                  size: 30,
+                ),
+                Text(
+                  "Rate\n",
+                  textAlign: TextAlign.center,
+                  style: def,
+                )
+              ],
+            ),
+          )
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "${comic.rating}/5",
+                style: TextStyle(
+                  color: Colors.purple,
+                  fontSize: 30,
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                "Rating",
+                textAlign: TextAlign.center,
+                style: def,
+              )
+            ],
+          );
   }
 }
