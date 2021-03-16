@@ -54,7 +54,8 @@ class _MultiSourceSearchState extends State<MultiSourceSearch> {
                                 MultiSearchResult(sources: _selectedSources),
                           ),
                         )
-                      : showSnackBarMessage("Too many Selections", error: true),
+                      : showSnackBarMessage("Too many Selections!",
+                          error: true),
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.all(3.0),
