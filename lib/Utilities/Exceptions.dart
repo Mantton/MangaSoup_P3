@@ -40,8 +40,10 @@ class ErrorManager {
           throw "Bad Gateway, Server might be under heavy load.";
         else if (err.response.statusCode == 463)
           throw "CloudFare Bypass Validation Failed";
-        else
+        else {
+          print(err);
           throw "Requested Server is currently down";
+        }
       } else {
         if (err.error is SocketException) {
           throw "Failed to Connect to MangaSoup Servers";

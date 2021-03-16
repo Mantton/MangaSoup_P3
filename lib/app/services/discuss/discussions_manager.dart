@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 class DiscussionManager {
   static bool _isDev = true;
-  static String _productionAddress = "http://topics.mangasoup.net";
+  static String _productionAddress = "https://topics.mangasoup.net";
   static String _localAddress = "http://127.0.0.1:3000";
   final String _jwt =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwMjg5MTMzM2YzY"
