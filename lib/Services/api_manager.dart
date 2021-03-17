@@ -76,7 +76,7 @@ class ApiManager {
   Future<List<HomePage>> getHomePage() async {
     Response response = await _dio.get('/app/sources/homepage');
     List initial = response.data['content'];
-    debugPrint(initial.length.toString());
+    // debugPrint(initial.length.toString());
     List<HomePage> pages = [];
     for (int index = 0; index < initial.length; index++) {
       Map test = initial[index];
@@ -129,7 +129,7 @@ class ApiManager {
       "data": additionalParams
     };
     Response response = await _dio.post("/api/v1/all", data: jsonEncode(data));
-    debugPrint(response.request.data.toString());
+    // debugPrint(response.request.data.toString());
     List dataPoints = response.data['comics'];
     List<ComicHighlight> comics = [];
     for (int index = 0; index < dataPoints.length; index++) {
@@ -314,7 +314,7 @@ class ApiManager {
     List<ImageSearchResult> isrResults = List();
 
     try {
-      debugPrint("${image.path}");
+      // debugPrint("${image.path}");
       FormData _data = FormData.fromMap({
         "file": await MultipartFile.fromFile(image.path,
             filename: image.path.split('/').last)
@@ -338,10 +338,10 @@ class ApiManager {
     // Link
     if (info.contains("http")) {
       if (info.endsWith("/")) info = info.substring(0, info.length - 1);
-      print(info);
+      // print(info);
       // get id
       albumID = info.split("/").last;
-      print(albumID);
+      // print(albumID);
     } else {
       albumID = info;
     }

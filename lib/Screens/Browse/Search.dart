@@ -66,25 +66,30 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget searchForm() {
-    return TextField(
-      decoration: mangasoupInputDecoration(
-          "Search ${Provider.of<SourceNotifier>(context, listen: false).source.name}..."),
-      cursorColor: Colors.grey,
-      maxLines: 1,
-      style: TextStyle(
-        height: 1.7,
-        color: Colors.grey,
-        fontSize: 18,
-      ),
-      onSubmitted: (value) async {
-        setState(() {
-          _query = value;
-        });
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: TextField(
+        decoration: mangasoupInputDecoration(
+            "Search ${Provider.of<SourceNotifier>(context, listen: false).source.name}..."),
+        cursorColor: Colors.grey,
+        maxLines: 1,
+        style: TextStyle(
+          height: 1.7,
+          color: Colors.grey,
+          fontSize: 18,
+        ),
+        onSubmitted: (value) async {
+          setState(() {
+            _query = value;
+          });
 
-        _futureComics = _manager.search(
-            Provider.of<SourceNotifier>(context, listen: false).source.selector,
-            _query);
-      },
+          _futureComics = _manager.search(
+              Provider.of<SourceNotifier>(context, listen: false)
+                  .source
+                  .selector,
+              _query);
+        },
+      ),
     );
   }
 
@@ -180,7 +185,6 @@ class _SearchPageState extends State<SearchPage> {
                       CupertinoButton(
                         child: Text(
                           "Multi-Source Search",
-                          style: TextStyle(fontSize: 23),
                         ),
                         onPressed: () => Navigator.push(
                           context,
@@ -192,7 +196,6 @@ class _SearchPageState extends State<SearchPage> {
                       CupertinoButton(
                         child: Text(
                           "Image Search",
-                          style: TextStyle(fontSize: 23),
                         ),
                         onPressed: () => Navigator.push(
                           context,

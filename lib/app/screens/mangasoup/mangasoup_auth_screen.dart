@@ -24,7 +24,7 @@ class _MangaSoupSignInSignUPState extends State<MangaSoupSignInSignUP> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                "Continue with one of the listed services to to access MangaSoup Topics",
+                "Continue with one of the listed services to access MangaSoup Topics",
                 style: notInLibraryFont,
               ),
             ),

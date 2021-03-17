@@ -69,20 +69,23 @@ class _MultiSearchResultState extends State<MultiSearchResult> {
   }
 
   Widget searchForm() {
-    return TextField(
-      decoration: mangasoupInputDecoration("Search..."),
-      cursorColor: Colors.grey,
-      maxLines: 1,
-      style: TextStyle(
-        height: 1.7,
-        color: Colors.grey,
-        fontSize: 18,
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: TextField(
+        decoration: mangasoupInputDecoration("Search..."),
+        cursorColor: Colors.grey,
+        maxLines: 1,
+        style: TextStyle(
+          height: 1.7,
+          color: Colors.grey,
+          fontSize: 18,
+        ),
+        onSubmitted: (value) async {
+          setState(() {
+            query = value;
+          });
+        },
       ),
-      onSubmitted: (value) async {
-        setState(() {
-          query = value;
-        });
-      },
     );
   }
 
@@ -117,7 +120,7 @@ class BuildResults extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "${source.name}, ${snapshot.data?.length} Result(s)",
+              "${source.name}, ${snapshot.data?.length ?? 0} Result(s)",
               style: TextStyle(
                 color: Colors.grey,
                 fontWeight: FontWeight.bold,

@@ -28,7 +28,7 @@ class AboutPage extends StatelessWidget {
               ),
             ),
             ListTile(
-              title: Text("MangaSoup SubReddit"),
+              title: Text("MangaSoup Subreddit"),
               onTap: () async => await _launchUniversalLinkIos(
                   "https://reddit.com/r/mangasoup"),
               trailing: Icon(

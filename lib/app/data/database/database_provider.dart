@@ -390,12 +390,12 @@ class DatabaseProvider with ChangeNotifier {
 
           // increase or do nothing about the updated count
           /// UPDATE COUNT LOGIC
-          if (updatedChapterCount > currentChapterCount)
+          if (updatedChapterCount > currentChapterCount) {
             updateCount++; // increase update count metric
-
-          // Update Comic Data
-          comic.chapterCount = updatedChapterCount;
-          comic.updateCount = updatedChapterCount - currentChapterCount;
+            // Update Comic Data
+            comic.chapterCount = updatedChapterCount;
+            comic.updateCount = updatedChapterCount - currentChapterCount;
+          }
 
           // GET UNREAD COUNT
           int t = chapters

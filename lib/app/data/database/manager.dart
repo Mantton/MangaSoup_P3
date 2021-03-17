@@ -60,8 +60,12 @@ class DatabaseManager {
     }
 
     if (oldV < 5) {
-      await db
-          .execute(ChapterDownloadsTable.createTableQuery()); // Downloads Table
+      try {
+        await db.execute(
+            ChapterDownloadsTable.createTableQuery()); // Downloads Table
+      } catch (err) {
+        print("Oh no");
+      }
     }
   }
 }
