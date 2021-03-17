@@ -21,7 +21,16 @@ class _MangaSoupSignInSignUPState extends State<MangaSoupSignInSignUP> {
       body: Container(
         child: Column(
           children: [
-            Text("Continue to access the full features of MangaSoup"),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Continue with one of the listed services to to access MangaSoup Topics",
+                style: notInLibraryFont,
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
             ListTile(
               leading: Image.asset("assets/images/mangadex.png"),
               title: Text(
@@ -32,8 +41,9 @@ class _MangaSoupSignInSignUPState extends State<MangaSoupSignInSignUP> {
                 Icons.arrow_forward_ios,
                 color: Colors.grey,
               ),
-              onTap: () async => _continueWithMangaDexLogic(context)
-                  .then((value) => value ? Navigator.pop(context, true) : null),
+              onTap: () async => _continueWithMangaDexLogic(context).then(
+                (value) => value ? Navigator.pop(context, true) : null,
+              ),
             )
           ],
         ),

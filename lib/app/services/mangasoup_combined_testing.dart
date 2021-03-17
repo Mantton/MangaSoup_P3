@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MSCombined {
-  static bool _isDev = false;
+  static bool _isDev = true;
   static String _productionAddress = "https://topics.mangasoup.net";
   static String _localAddress = "http://127.0.0.1:5500";
 
@@ -157,12 +157,35 @@ class MSCombined {
     }
   }
 
+  Future<void> logOut(BuildContext context) async {
+    String token = await getAccessToken();
+
+    Response r = await _dio.get(
+      '/auth/logout',
+      options: Options(
+        headers: {"x-access-token": token}, // MangaSoup Auth/Access Token.
+      ),
+    );
+    Map data = r.data;
+    bool deleteToken = data['delete_token'] ?? false;
+    if (deleteToken) {
+      SharedPreferences.getInstance().then((value) {
+        value.remove(PreferenceKeys.MS_T_ACCESS_TOKEN);
+        Provider.of<PreferenceProvider>(context, listen: false).removeMSUser();
+      });
+    } else {
+      throw "Unable to log you out.";
+    }
+  }
+
   managerError(var err, BuildContext context) {
     if (err is DioError) {
       if (err.response != null) {
-        if (err.response.statusCode == 401 || err.response.statusCode == 403) {
+        if (err.response.statusCode == 401 ||
+            err.response.statusCode == 403 ||
+            err.response.statusCode == 400) {
           Map data = err.response.data;
-          print(data);
+          // print(data);
           bool deleteToken = data['delete_token'] ?? false;
           if (deleteToken) {
             SharedPreferences.getInstance().then((value) {
