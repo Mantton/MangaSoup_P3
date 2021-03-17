@@ -549,4 +549,11 @@ class ReaderProvider with ChangeNotifier {
     currentPage = 0;
     pageBookmarked = false;
   }
+
+  String getCurrentChapterLink() {
+    if (indexList[currentIndex] != null) {
+      return chapters.elementAt(indexList[currentIndex]).link;
+    } else
+      return null;
+  }
 }

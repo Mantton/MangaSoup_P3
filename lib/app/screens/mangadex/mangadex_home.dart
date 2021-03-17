@@ -162,7 +162,7 @@ class _DexHubHomeState extends State<DexHubHome> {
                         await DexHub().logout();
                         Navigator.pop(context);
                         setState(() {
-                          profile = ApiManager().getMangadexProfile();
+                          profile = null;
                         });
                       } catch (err) {
                         Navigator.pop(context);
