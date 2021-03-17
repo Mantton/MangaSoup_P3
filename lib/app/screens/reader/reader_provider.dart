@@ -8,6 +8,7 @@ import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/downloads.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
@@ -51,7 +52,7 @@ class ReaderProvider with ChangeNotifier {
       int initialIndex,
       String incomingSelector,
       BuildContext widgetContext,
-      int comic_id,
+      int cId,
       String incomingSource,
       {bool loaded = false,
       bool imgurAlbum = false,
@@ -63,7 +64,7 @@ class ReaderProvider with ChangeNotifier {
     currentIndex = initialIndex;
     selector = incomingSelector;
     context = widgetContext;
-    comicId = comic_id;
+    comicId = cId;
     source = incomingSource;
     // Get Chapter being pointed to
     Chapter chapter = incomingChapters.elementAt(initialIndex);
@@ -85,36 +86,24 @@ class ReaderProvider with ChangeNotifier {
         source,
         selector,
       );
-      print("History Initialized");
+      // print("History Initialized");
     }
 
     // Debugging
-    print("Specified Initial Page Index: $initialPageIndex");
+    // print("Specified Initial Page Index: $initialPageIndex");
     // Initialize Reader Chapter
     ReaderChapter firstChapter = ReaderChapter();
     firstChapter.chapterName = chapter.name;
     firstChapter.generatedNumber = chapter.generatedNumber;
     firstChapter.index = initialIndex;
-
-    ImageChapter response;
+    ImageChapter response = ImageChapter();
     try {
-      // Get Images
-      response = !loaded
-          ? await ApiManager().getImages(selector, chapter.link)
-          : loadedChapter;
-    } catch (err) {
+      response = await retrieveImages(chapter, initPage, loaded, loadedChapter);
+    } catch (err, stacktrace) {
+      print(stacktrace);
       ErrorManager.analyze(err);
     }
 
-    try {
-      await Provider.of<DatabaseProvider>(context, listen: false)
-          .updateChapterImages(chapter, response.images);
-      print("Images set for ${chapter.name}");
-      await Provider.of<DatabaseProvider>(context, listen: false)
-          .updateChapterInfo(initPage, chapter);
-    } catch (err) {
-      print("IMAGE ERROR: $err");
-    }
     if (response.images.isEmpty) {
       emptyResponse();
     } else {
@@ -132,6 +121,59 @@ class ReaderProvider with ChangeNotifier {
 
     notifyListeners();
     return true;
+  }
+
+  Future<ImageChapter> retrieveImages(Chapter chapter, int initialPage,
+      bool externalImageChapter, ImageChapter external) async {
+    ImageChapter response = ImageChapter(images: [], referer: chapter.link);
+
+    ChapterDownload download =
+        Provider.of<DatabaseProvider>(context, listen: false)
+            .chapterDownloads
+            .firstWhere(
+                (element) =>
+                    element.chapterUrl == chapter.link &&
+                    element.status == MSDownloadStatus.done,
+                orElse: () => null);
+
+    // Downloaded Chapter
+    if (download != null) {
+      // Chapter has a download pointer
+      response.images = download.links;
+      response.referer = "MangaSoup";
+    }
+
+    // External Chapter
+    else if (externalImageChapter && external != null)
+      response = external;
+    else {
+      ChapterData target = Provider.of<DatabaseProvider>(context, listen: false)
+          .checkIfChapterMatch(chapter);
+
+      // ChapterData Contains Images
+      if (target != null && target.images.isNotEmpty) {
+        response.images =
+            (target.images)?.map((item) => item as String)?.toList();
+      } else {
+        // ChapterData does not contain images, call API
+        try {
+          response = await ApiManager().getImages(selector, chapter.link);
+          try {
+            // Save Image Response
+            await Provider.of<DatabaseProvider>(context, listen: false)
+                .updateChapterImages(chapter, response.images);
+          } catch (err) {
+            print("IMAGE ERROR: $err");
+          }
+        } catch (err) {
+          ErrorManager.analyze(err);
+        }
+      }
+    }
+
+    await Provider.of<DatabaseProvider>(context, listen: false)
+        .updateChapterInfo(initialPage, chapter);
+    return response;
   }
 
   addInitialChapterToView(ReaderChapter chapter) {
@@ -218,15 +260,7 @@ class ReaderProvider with ChangeNotifier {
         readerChapter.index = nextIndex;
         // Get Images
         try {
-          ImageChapter response =
-              await ApiManager().getImages(selector, chapter.link);
-          try {
-            await Provider.of<DatabaseProvider>(context, listen: false)
-                .updateChapterImages(chapter, response.images);
-            print("Images set for ${chapter.name}");
-          } catch (err) {
-            print("IMAGE ERROR: $err");
-          }
+          ImageChapter response = await retrieveImages(chapter, 1, false, null);
 
           if (response.images.isEmpty) {
             emptyResponse();
@@ -246,7 +280,7 @@ class ReaderProvider with ChangeNotifier {
           }
         } catch (err, stacktrace) {
           print(stacktrace);
-          showSnackBarMessage("Failed to load next chapter");
+          showSnackBarMessage("Failed to load next chapter", error: true);
         }
       }
     }
@@ -308,7 +342,7 @@ class ReaderProvider with ChangeNotifier {
         !imgur) {
       // things to fix, going bac would cause next to be triggered
       int nextIndex = currentIndex - 1;
-      print(chapterHolder.keys.toList());
+      // print(chapterHolder.keys.toList());
       if (!chapterHolder.keys.contains(nextIndex)) {
         print("loading next");
 

@@ -6,28 +6,25 @@ import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class WebToonPageAdapter extends StatefulWidget {
-  final int initialPage;
+  final ItemScrollController controller;
 
-  const WebToonPageAdapter({Key key, this.initialPage}) : super(key: key);
+  const WebToonPageAdapter({Key key, this.controller}) : super(key: key);
 
   @override
   _WebToonPageAdapterState createState() => _WebToonPageAdapterState();
 }
 
 class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
-  int lastPage = 0;
+  int lastPage = -1;
 
-  ItemScrollController itemScrollController;
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
 
   @override
   void initState() {
-    print(widget.initialPage);
-    itemScrollController = ItemScrollController();
     itemPositionsListener.itemPositions.addListener(() {
       int max = itemPositionsListener.itemPositions.value
-          .where((ItemPosition position) => position.itemLeadingEdge < 1)
+          .where((ItemPosition position) => position.itemLeadingEdge < .33)
           .reduce((ItemPosition max, ItemPosition position) =>
               position.itemLeadingEdge > max.itemLeadingEdge ? position : max)
           .index;
@@ -35,7 +32,7 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
       int itemCount = Provider.of<ReaderProvider>(context, listen: false)
           .widgetPageList
           .length;
-      if (max != lastPage && max > 0 && max < itemCount) {
+      if (max != lastPage && max >= 0 && max < itemCount) {
         Provider.of<ReaderProvider>(context, listen: false).pageChanged(max);
         lastPage = max;
       }
@@ -57,11 +54,9 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
           ),
           itemBuilder: (_, index) => provider.widgetPageList[index],
           itemCount: provider.widgetPageList.length,
-          itemScrollController: itemScrollController,
+          itemScrollController: widget.controller,
           itemPositionsListener: itemPositionsListener,
-          initialScrollIndex: widget.initialPage != 0
-              ? widget.initialPage - 1
-              : widget.initialPage,
+          initialScrollIndex: provider.initialPageIndex,
         ),
       );
     });

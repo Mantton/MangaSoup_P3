@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/HighlightGrid.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
@@ -13,6 +12,8 @@ import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/widgets/textfields.dart';
 import 'package:provider/provider.dart';
+
+import 'multi_source_search/MultiSourceSearch.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -40,11 +41,11 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget header() {
     return Positioned(
-      top: 10.h,
+      top: 10,
       left: 0,
       right: 0,
       child: Container(
-        height: 70.h,
+        height: 70,
         width: MediaQuery.of(context).size.width,
         child: Row(
           children: <Widget>[
@@ -89,7 +90,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget body() {
     return Positioned(
-      top: 85.h,
+      top: 85,
       left: 0,
       right: 0,
       bottom: 0,
@@ -99,7 +100,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget searchBody() {
     return Padding(
-      padding: EdgeInsets.all(8.0.w),
+      padding: EdgeInsets.all(8.0),
       child: FutureBuilder(
           future: _futureComics,
           builder: (BuildContext context, snapshot) {
@@ -159,30 +160,48 @@ class _SearchPageState extends State<SearchPage> {
             if (snapshot.hasData) {
               return Container(
                 // color: Colors.redAccent,
-                child: (snapshot.data.length!=0)
+                child: (snapshot.data.length != 0)
                     ? ComicGrid(
                         comics: snapshot.data,
                       )
                     : Center(
-                        child: Text("No Results", style:notInLibraryFont),
+                        child: Text("No Results", style: notInLibraryFont),
                       ),
               );
             } else {
               return Container(
-                height: 300.h,
-                margin: EdgeInsets.only(top: 10.h),
+                height: 300,
+                margin: EdgeInsets.only(
+                  top: 10,
+                ),
                 child: Center(
-                  child: CupertinoButton(
-                    child: Text(
-                      "Image Search",
-                      style: TextStyle(fontSize: 23),
-                    ),
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ImageSearchPage(),
+                  child: Column(
+                    children: [
+                      CupertinoButton(
+                        child: Text(
+                          "Multi-Source Search",
+                          style: TextStyle(fontSize: 23),
+                        ),
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MultiSourceSearch(),
+                          ),
+                        ),
                       ),
-                    ),
+                      CupertinoButton(
+                        child: Text(
+                          "Image Search",
+                          style: TextStyle(fontSize: 23),
+                        ),
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ImageSearchPage(),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );

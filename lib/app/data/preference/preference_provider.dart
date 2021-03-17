@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:mangasoup_prototype_3/app/data/api/discussion_models/mangasoup_combined_model.dart';
+import 'package:path_provider/path_provider.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'keys.dart';
@@ -16,7 +19,7 @@ class PreferenceProvider with ChangeNotifier {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  Future<bool> loadValues() async {
+  Future<bool> loadValues(BuildContext context) async {
     // Initialize Values or Load Defaults
     SharedPreferences _p = await preferences();
 
@@ -43,10 +46,16 @@ class PreferenceProvider with ChangeNotifier {
         _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
     languageServer = _p.getString(PreferenceKeys.MS_LANG_SERVER) ?? "en";
     updateOnStartUp = _p.getBool(PreferenceKeys.UPDATE_ON_STARTUP) ?? true;
+
     msUser = _p.getString(PreferenceKeys.MS_T_USER) != null
         ? MSUserCombined.fromMap(
             jsonDecode(_p.getString(PreferenceKeys.MS_T_USER)))
         : null;
+
+    final directory = Theme.of(context).platform == TargetPlatform.android
+        ? await getExternalStorageDirectory()
+        : await getApplicationDocumentsDirectory();
+    paths = directory.path;
     notifyListeners();
     return true;
   }
@@ -286,6 +295,8 @@ class PreferenceProvider with ChangeNotifier {
     msUser = null;
     notifyListeners();
   }
+  
+  String paths;
 
   /// Functions
   List<DropdownMenuItem> buildItems(Map pref) => pref.entries

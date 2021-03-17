@@ -2,13 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/downloads.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/chapter_tile.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_home.dart';
 import 'package:provider/provider.dart';
 
@@ -52,7 +55,7 @@ class _ChapterListState extends State<ChapterList> {
     });
   }
 
-  Future<void> onTap(Chapter chapter, ChapterData data) async {
+  void onTap(Chapter chapter, ChapterData data) async {
     // toggle chapter selection
     if (editMode()) {
       if (_selectedChapters.contains(chapter))
@@ -144,137 +147,126 @@ class _ChapterListState extends State<ChapterList> {
             itemBuilder: (BuildContext context, int index) {
               Chapter chapter = chapters[index];
               ChapterData data = provider.checkIfChapterMatch(chapter);
-              bool similarRead =
-                  provider.checkSimilarRead(chapter, widget.comicId);
+              ChapterDownload downloadInfo;
               bool historyTarget = false;
+
               if (data != null) {
+                downloadInfo = provider.chapterDownloads.firstWhere(
+                    (element) => element.chapterId == data.id,
+                    orElse: () => null);
                 if (widget.history != null)
                   historyTarget = (widget.history.chapterId == data.id);
-                TextStyle readFont = TextStyle(
-                  color: data.read ? Colors.grey[800] : Colors.white,
-                );
-                // It is Store
-                return ListTile(
-                  title: Text(chapter.name, style: readFont),
-                  subtitle: chapter.maker.isNotEmpty
-                      ? Text(
-                          chapter.maker,
-                          style: readFont,
-                        )
-                      : null,
-                  trailing: historyTarget
-                      ? fittedBox(data)
-                      : Text(
-                          chapter.date,
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                  selectedTileColor: Colors.grey[900],
-                  selected: isSelected(chapter),
-                  onLongPress: () => longPress(chapter),
-                  onTap: () => onTap(chapter, data),
-                );
               }
-              if (similarRead) {
-                return ListTile(
-                  leading: historyTarget
-                      ? Icon(
-                          Icons.play_arrow,
-                          color: Colors.purple,
-                        )
-                      : null,
-                  title: Text(
-                    chapter.name,
-                    style: TextStyle(color: Colors.grey[800]),
-                  ),
-                  subtitle: chapter.maker.isNotEmpty
-                      ? Text(
-                          chapter.maker,
-                          style: TextStyle(color: Colors.grey[800]),
-                        )
-                      : null,
-                  trailing: historyTarget
-                      ? fittedBox(data)
-                      : Text(
-                          "SR",
-                          style: TextStyle(color: Colors.blueGrey[800]),
+
+              bool similarRead =
+                  provider.checkSimilarRead(chapter, widget.comicId);
+
+              TextStyle readFont = TextStyle(
+                color: similarRead ? Colors.grey[800] : Colors.white,
+              );
+              // It is Store
+              return ListTile(
+                title: Text(chapter.name, style: readFont),
+                subtitle: chapter.maker.isNotEmpty
+                    ? Text(
+                        chapter.maker,
+                        style: readFont,
+                      )
+                    : null,
+                trailing: FittedBox(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // Download Info
+                      (downloadInfo != null)
+                          ? DownloadIcon(
+                              status: downloadInfo.status,
+                            )
+                          : Container(),
+                      // History Info
+                      historyTarget && data != null
+                          ? Row(
+                              children: [
+                                Icon(
+                                  Icons.play_arrow,
+                                  color: Colors.purple,
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                Text(
+                                  (data.images.length == 0 ||
+                                          data.lastPageRead >=
+                                              data.images.length)
+                                      ? "Read"
+                                      : "Page ${data.lastPageRead}",
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: "Lato",
+                                  ),
+                                )
+                              ],
+                            )
+                          : Container(),
+
+                      // Similar Read Info
+                      similarRead && data == null
+                          ? Text(
+                              "Similar Read",
+                              style: TextStyle(color: Colors.blueGrey[800]),
+                            )
+                          : Container(),
+                      // Date
+                      Text(
+                        chapter.date,
+                        style: TextStyle(
+                          color: Colors.grey[700],
                         ),
-                  selectedTileColor: Colors.grey[900],
-                  selected: isSelected(chapter),
-                  onLongPress: () => longPress(chapter),
-                  onTap: () => onTap(chapter, data),
-                );
-              } else {
-                return ListTile(
-                  leading: historyTarget
-                      ? Icon(
-                          Icons.play_arrow,
-                          color: Colors.purple,
-                        )
-                      : null,
-                  title: Text(
-                    chapter.name,
-                    style: TextStyle(color: Colors.white),
+                      ),
+                    ],
                   ),
-                  subtitle:
-                      chapter.maker.isNotEmpty ? Text(chapter.maker) : null,
-                  trailing: historyTarget
-                      ? fittedBox(data)
-                      : Text(
-                          chapter.date,
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                  selectedTileColor: Colors.grey[900],
-                  selected: isSelected(chapter),
-                  onLongPress: () => longPress(chapter),
-                  onTap: () => onTap(chapter, data),
-                );
-              }
+                ),
+                selectedTileColor: Colors.grey[900],
+                selected: isSelected(chapter),
+                onLongPress: () => longPress(chapter),
+                onTap: () => onTap(chapter, data),
+              );
             });
       }),
       bottomSheet: editMode()
           ? Container(
-              height: 50,
+        height: 60,
               color: Colors.grey[900],
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Spacer(),
-                  CupertinoButton(child: Text("Fill"), onPressed: selectMenu),
-                  Spacer(),
-                  CupertinoButton(child: Text("Mark"), onPressed: markMenu),
-                  Spacer(),
+                  Expanded(
+                    child: CupertinoButton(
+                      child: Text("Fill"),
+                      onPressed: selectMenu,
+                    ),
+                  ),
+                  Expanded(
+                    child: CupertinoButton(
+                      child: Text("Mark"),
+                      onPressed: markMenu,
+                    ),
+                  ),
+                  Expanded(
+                    child: CupertinoButton(
+                      child: Text("Manage"),
+                      onPressed: downloadMenu,
+                    ),
+                  ),
                 ],
               ),
             )
           : null,
-    );
-  }
-
-  FittedBox fittedBox(ChapterData data) {
-    return FittedBox(
-      child: Row(
-        children: [
-          Icon(
-            Icons.play_arrow,
-            color: Colors.purple,
-          ),
-          SizedBox(
-            width: 2,
-          ),
-          Text(
-            "Page ${data.lastPageRead}",
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-              fontFamily: "Lato",
-            ),
-          )
-        ],
-      ),
     );
   }
 
@@ -341,7 +333,6 @@ class _ChapterListState extends State<ChapterList> {
         });
       }
 
-      debugPrint(_selectedChapters.toString());
       Navigator.pop(context);
     }
   }
@@ -412,7 +403,6 @@ class _ChapterListState extends State<ChapterList> {
 
   markAsRead() async {
     showLoadingDialog(context);
-    print(_selectedChapters.length);
     await Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
         _selectedChapters,
         widget.comicId,
@@ -437,5 +427,136 @@ class _ChapterListState extends State<ChapterList> {
       _selectedChapters.clear();
     });
     Navigator.pop(context);
+  }
+
+  downloadMenu() {
+    return showPlatformModalSheet(
+      context: (context),
+      builder: (_) => PlatformWidget(
+        material: (_, __) => ListView(
+          shrinkWrap: true,
+          children: [
+            ListTile(
+              title: Text("Add to Download Queue"),
+              onTap: () async {
+                Provider.of<DatabaseProvider>(context, listen: false)
+                    .downloadChapters(
+                        _selectedChapters,
+                        widget.comicId,
+                        widget.source,
+                        widget.selector,
+                        Theme.of(context).platform);
+
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text("Remove Download"),
+              onTap: () async {
+                await deleteDownload().then(
+                  (value) => Navigator.pop(context),
+                );
+                setState(() {
+                  _selectedChapters.clear();
+                });
+              },
+            ),
+          ],
+        ),
+        cupertino: (_, __) => CupertinoActionSheet(
+          title: Text("Manage Download"),
+          cancelButton: CupertinoButton(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          actions: [
+            CupertinoActionSheetAction(
+              child: Text("Add to Download Queue"),
+              onPressed: () async {
+                List<Chapter> sending = List.of(_selectedChapters);
+                // Sort before sending to download;
+                sending.sort(
+                    (a, b) => b.generatedNumber.compareTo(a.generatedNumber));
+                Provider.of<DatabaseProvider>(context, listen: false)
+                    .downloadChapters(sending, widget.comicId, widget.source,
+                        widget.selector, Theme.of(context).platform);
+                setState(() {
+                  _selectedChapters.clear();
+                });
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: Text("Remove Download"),
+              onPressed: () async {
+                await deleteDownload().then(
+                  (value) => Navigator.pop(context),
+                );
+                setState(() {
+                  _selectedChapters.clear();
+                });
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: Text("Clear Chapter Data"),
+              onPressed: () async {
+                showLoadingDialog(context);
+                Provider.of<DatabaseProvider>(context, listen: false)
+                    .clearChapterDataInfo(_selectedChapters)
+                    .then((value) {
+                  showSnackBarMessage("Chapter Data Cleared!");
+
+                  Navigator.pop(context);
+                }).onError((error, stackTrace) {
+                  showSnackBarMessage("An error Occurred", error: true);
+
+                  Navigator.pop(context);
+                });
+                setState(() {
+                  _selectedChapters.clear();
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future deleteDownload() {
+    return showPlatformDialog(
+      context: context,
+      builder: (_) => PlatformAlertDialog(
+        title: Text("Delete Downloads"),
+        content: Text(
+          "Are you sure you want to delete the downloads for the selected "
+          "chapters?\nSelected chapters which have not been downloaded "
+          "will be ignored.",
+        ),
+        actions: [
+          PlatformDialogAction(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+            cupertino: (_, __) =>
+                CupertinoDialogActionData(isDefaultAction: true),
+          ),
+          PlatformDialogAction(
+            child: Text("Proceed"),
+            onPressed: () {
+              Provider.of<DatabaseProvider>(context, listen: false)
+                  .deleteDownloads(_selectedChapters);
+
+              Navigator.pop(context);
+              setState(() {
+                _selectedChapters.clear();
+              });
+            },
+            cupertino: (_, __) =>
+                CupertinoDialogActionData(isDestructiveAction: true),
+          ),
+        ],
+      ),
+    );
   }
 }

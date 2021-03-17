@@ -13,7 +13,9 @@ import 'package:mangasoup_prototype_3/app/dialogs/chapter_comment_dialog.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/reader_preferences.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/viewer_gateway.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class ReaderHome extends StatefulWidget {
   final List<Chapter> chapters;
@@ -112,46 +114,47 @@ class _ReaderOpenerState extends State<ReaderOpener> {
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery.removePadding(
-      context: context,
-      removeTop: true,
-      child: Scaffold(
-        // extendBodyBehindAppBar: true,
-        extendBody: true,
-
-        body: FutureBuilder(
-          future: providerInitializer,
-          builder: (_, snapshot) {
-            if (snapshot.hasData) {
-              return ReaderFrame();
-            }
-            if (snapshot.hasError) {
-              return Center(
-                child: InkWell(
-                  onTap: () => Navigator.pop(context),
-                  child: Text(
-                    "An Error Occurred\nTap to return to profile",
-                    style: notInLibraryFont,
-                    textAlign: TextAlign.center,
-                  ),
+    return FutureBuilder(
+      future: providerInitializer,
+      builder: (_, snapshot) {
+        if (snapshot.hasData) {
+          return MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: Scaffold(
+              extendBody: true,
+              body: ReaderFrame(),
+            ),
+          );
+        }
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: InkWell(
+                onTap: () => Navigator.pop(context),
+                child: Text(
+                  "An Error Occurred\n${snapshot.error}\nTap to return to profile",
+                  style: notInLibraryFont,
+                  textAlign: TextAlign.center,
                 ),
-              );
-            } else {
-              return InkWell(
-                onTap: () => Provider.of<ReaderProvider>(context, listen: false)
-                    .toggleShowControls(),
-                child: Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  child: Center(
-                    child: LoadingIndicator(),
-                  ),
+              ),
+            ),
+          );
+        } else {
+          return Scaffold(
+            appBar: AppBar(),
+            body: InkWell(
+              child: Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: Center(
+                  child: LoadingIndicator(),
                 ),
-              );
-            }
-          },
-        ),
-      ),
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 }
@@ -163,17 +166,38 @@ class ReaderFrame extends StatefulWidget {
 
 class _ReaderFrameState extends State<ReaderFrame> {
   bool _showControls = false;
+  PreloadPageController _pagedController;
+  PreloadPageController _doublePagedController;
+  ItemScrollController _webtoonController;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIOverlays([]);
+    _pagedController = PreloadPageController(
+        initialPage: Provider.of<ReaderProvider>(context, listen: false)
+            .initialPageIndex);
+    _doublePagedController = PreloadPageController(
+        initialPage: Provider.of<ReaderProvider>(context, listen: false)
+            .initialPageIndex);
+    _webtoonController = ItemScrollController();
   }
 
   @override
   void dispose() {
     super.dispose();
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    _pagedController.dispose();
+    _doublePagedController.dispose();
+  }
+
+  void resetControllers() {
+    if (_pagedController.hasClients) _pagedController.jumpToPage(0);
+
+    if (_doublePagedController.hasClients) _doublePagedController.jumpToPage(0);
+
+    if (_webtoonController.isAttached) _webtoonController.jumpTo(index: 0);
+    debugPrint("controllers reset");
   }
 
   @override
@@ -187,8 +211,9 @@ class _ReaderFrameState extends State<ReaderFrame> {
         children: [
           plain(),
           ViewerGateWay(
-            initialPage: Provider.of<ReaderProvider>(context, listen: false)
-                .initialPageIndex,
+            pagedController: _pagedController,
+            webToonController: _webtoonController,
+            doublePagedController: _doublePagedController,
           ),
           header(),
           footer(),
@@ -354,6 +379,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     onPressed: () async {
                       try {
                         showLoadingDialog(context);
+                        resetControllers();
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
@@ -395,6 +421,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     onPressed: () async {
                       try {
                         showLoadingDialog(context);
+                        resetControllers();
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
