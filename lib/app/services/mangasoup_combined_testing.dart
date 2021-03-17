@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MSCombined {
-  static bool _isDev = true;
+  static bool _isDev = false;
   static String _productionAddress = "https://topics.mangasoup.net";
   static String _localAddress = "http://127.0.0.1:5500";
 
