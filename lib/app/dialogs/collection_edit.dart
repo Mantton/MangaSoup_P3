@@ -20,9 +20,11 @@ collectionEditBuilder(BuildContext context, Collection collection) {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(20.0),
     ),
-    child: CreateCollectionWidget(
-      rename: true,
-      toRename: collection,
-    ),
+    child: Container(),
+
+    // CreateCollectionWidget(
+    //   rename: true,
+    //   toRename: collection,
+    // ),
   );
 }

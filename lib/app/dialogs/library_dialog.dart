@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
@@ -8,22 +8,25 @@ import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:mangasoup_prototype_3/app/widgets/textfields.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 libraryDialog({@required BuildContext context, int comicId}) {
-  showGeneralDialog(
-    barrierLabel: "Not In Library",
-    barrierDismissible: true,
-    barrierColor: Colors.black.withOpacity(0.5),
-    transitionDuration: Duration(milliseconds: 70),
-    context: context,
-    pageBuilder: (_, __, ___) => buildLibraryDialog(context, comicId),
-    transitionBuilder: (_, anim, __, child) {
-      return SlideTransition(
-        position: Tween(begin: Offset(0, 1), end: Offset(0, 0)).animate(anim),
-        child: child,
-      );
-    },
-  );
+  buildCollectionSheet(context, comicId);
+
+  // showGeneralDialog(
+  //   barrierLabel: "Not In Library",
+  //   barrierDismissible: true,
+  //   barrierColor: Colors.black.withOpacity(0.5),
+  //   transitionDuration: Duration(milliseconds: 70),
+  //   context: context,
+  //   pageBuilder: (_, __, ___) => buildLibraryDialog(context, comicId),
+  //   transitionBuilder: (_, anim, __, child) {
+  //     return SlideTransition(
+  //       position: Tween(begin: Offset(0, 1), end: Offset(0, 0)).animate(anim),
+  //       child: child,
+  //     );
+  //   },
+  // );
 }
 
 createCollectionDialog({@required BuildContext context}) {
@@ -44,11 +47,11 @@ createCollectionDialog({@required BuildContext context}) {
 }
 
 createCollectionBuilder(BuildContext context) => Dialog(
-      backgroundColor: Colors.grey[900], //blue for testing, change to black
+  backgroundColor: Colors.grey[900], //blue for testing, change to black
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
       ),
-      child: CreateCollectionWidget(),
+      child: Container(),
     );
 
 buildLibraryDialog(BuildContext context, int comicId) => Dialog(
@@ -72,12 +75,21 @@ class _AddToLibraryState extends State<AddToLibrary> {
   List<Collection> _selectedCollections = List();
   int initialCount = 0;
 
-  toggleSelection(Collection collection) {
+  toggleSelection(Collection collection) async {
     if (_selectedCollections.contains(collection)) {
       _selectedCollections.remove(collection);
     } else
       _selectedCollections.add(collection);
     setState(() {});
+
+    // DataBase / Provider Logic
+    if (_selectedCollections.isNotEmpty) {
+      await Provider.of<DatabaseProvider>(context, listen: false)
+          .addToLibrary(_selectedCollections, widget.comicId);
+    } else if (initialCount > 0) {
+      await Provider.of<DatabaseProvider>(context, listen: false)
+          .addToLibrary(_selectedCollections, widget.comicId, remove: true);
+    }
   }
 
   @override
@@ -85,209 +97,90 @@ class _AddToLibraryState extends State<AddToLibrary> {
     List<int> confirmed = Provider.of<DatabaseProvider>(context, listen: false)
         .getSpecificComicCollectionIds(widget.comicId);
     _selectedCollections.addAll(
-        Provider.of<DatabaseProvider>(context, listen: false)
-            .collections
-            .where((element) => confirmed.contains(element.id)));
+      Provider.of<DatabaseProvider>(context, listen: false).collections.where(
+            (element) => confirmed.contains(element.id),
+          ),
+    );
     initialCount = _selectedCollections.length;
     super.initState();
   }
 
-  buildListTile(List<Collection> collections) {
-    List<Widget> t = List<Widget>.generate(
-      collections.length,
-      (index) => ListTile(
-        selected: _selectedCollections.contains(collections[index]),
-        selectedTileColor: Colors.grey[800],
-        leading: Icon(
-          _selectedCollections.contains(collections[index])
-              ? Icons.check_box_outlined
-              : Icons.check_box_outline_blank,
-          color: Colors.white,
-        ),
-        title: Text(
-          collections[index].name,
-          style: TextStyle(
-            fontFamily: "Lato",
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+  Widget listView(List<Collection> collections) => ListView.separated(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemBuilder: (_, index) => ListTile(
+          tileColor: Color.fromRGBO(9, 9, 9, 1.0),
+          title: Text(
+            collections[index].name,
+            style: TextStyle(
+              fontFamily: "Lato",
+              fontSize: 17,
+            ),
           ),
+          trailing: _selectedCollections.contains(collections[index])
+              ? Icon(
+                  Icons.check,
+                  color: Colors.purpleAccent,
+                )
+              : null,
+          onTap: () {
+            toggleSelection(collections[index]);
+          },
         ),
-        onTap: () {
-          toggleSelection(collections[index]);
-        },
-      ),
-    );
-    return t;
-  }
+        separatorBuilder: (_, index) => SizedBox(
+          height: 2,
+        ),
+        itemCount: collections.length,
+      );
 
   @override
   Widget build(BuildContext context) {
     return Consumer<DatabaseProvider>(
         builder: (BuildContext context, provider, _) {
       List<Collection> collections = List.of(provider.collections);
-      if (collections.length >= 1 &&
-          !provider.comicCollections
-              .any((element) => element.collectionId == 1)) {
+      if (!provider.comicCollections
+          .any((e) => e.collectionId == 1 && e.comicId == widget.comicId)) {
         // Remove default collection
         collections.removeWhere((element) => element.order == 0);
       }
       return Padding(
         padding: const EdgeInsets.all(10.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              flex: 1,
-              child: Text(
-                "Library",
-                style: TextStyle(
-                    fontFamily: "roboto",
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey),
-              ),
-            ),
-            SizedBox(height: 3),
-            Flexible(
-              flex: 7,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: buildListTile(collections),
+        child: CupertinoScrollbar(
+          child: SingleChildScrollView(
+            // physics: BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 3),
+                listView(collections),
+                SizedBox(
+                  height: 5,
                 ),
-              ),
+                collections.length <= 5 ? AddCollection() : Container(),
+              ],
             ),
-            SizedBox(
-              height: 5,
-            ),
-            Flexible(
-                flex: 1,
-                child: ListTile(
-                  title: Text(
-                    "Create New Collection",
-                    style: TextStyle(
-                      fontFamily: "Lato",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Colors.lightBlueAccent,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  onTap: () {
-                    // Navigator.pop(context);
-                    createCollectionDialog(context: context);
-                  },
-                )),
-            Flexible(
-              flex: 1,
-              child: Padding(
-                padding: EdgeInsets.only(left: 15, right: 15),
-                child: Row(
-                  children: [
-                    FlatButton(
-                      child: Text(
-                        "Cancel",
-                        style: createCancelStyle,
-                        textAlign: TextAlign.center,
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Spacer(),
-                    FlatButton(
-                      disabledColor: Colors.grey[900],
-                      child: Text(
-                        (_selectedCollections.isNotEmpty)
-                            ? "Confirm"
-                            : (initialCount > 0)
-                                ? "Remove from Library"
-                                : "",
-                        style: createCancelStyle,
-                        textAlign: TextAlign.center,
-                      ),
-                      onPressed: (_selectedCollections.isNotEmpty)
-                          ? () async {
-                              Navigator.pop(context);
-                              showLoadingDialog(context);
-                              await provider.addToLibrary(
-                                  _selectedCollections, widget.comicId);
-                              Navigator.pop(context);
-                            }
-                          : (initialCount > 0)
-                              ? () async {
-                                  Navigator.pop(context);
-                                  showLoadingDialog(context);
-                                  await provider.addToLibrary(
-                                      _selectedCollections, widget.comicId,
-                                      remove: true);
-                                  Navigator.pop(context);
-                                }
-                              : null,
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       );
     });
   }
 }
 
-class CreateCollectionWidget extends StatefulWidget {
-  final bool initialCreate;
-  final bool rename;
-  final Collection toRename;
-
-  const CreateCollectionWidget(
-      {Key key, this.initialCreate = false, this.rename = false, this.toRename})
-      : super(key: key);
-
+class AddCollection extends StatefulWidget {
   @override
-  _CreateCollectionWidgetState createState() => _CreateCollectionWidgetState();
+  _AddCollectionState createState() => _AddCollectionState();
 }
 
-class _CreateCollectionWidgetState extends State<CreateCollectionWidget> {
+class _AddCollectionState extends State<AddCollection> {
   final _textController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
 
-  @override
-  void initState() {
-    super.initState();
-  }
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     _textController.dispose();
     super.dispose();
-  }
-
-  Future<String> create() async {
-    if (_formKey.currentState.validate()) {
-      // If Valid
-      print(_textController.text);
-      Collection collection =
-          await Provider.of<DatabaseProvider>(context, listen: false)
-              .createCollection(_textController.text);
-      Navigator.pop(context);
-      return collection.name;
-    } else
-      return null;
-  }
-
-  Future<String> rename() async {
-    if (_formKey.currentState.validate()) {
-      // If Valid
-      print(_textController.text);
-      Collection c = widget.toRename;
-      c.name = _textController.text;
-      Collection collection =
-          await Provider.of<DatabaseProvider>(context, listen: false)
-              .updateCollection(c);
-      Navigator.pop(context);
-      return collection.name;
-    } else
-      return null;
   }
 
   String consumerValidator(String value) {
@@ -299,107 +192,84 @@ class _CreateCollectionWidgetState extends State<CreateCollectionWidget> {
     if (value.toLowerCase() == "default")
       return "Cannot override 'Default' collection.";
     if (value.length >= 20) return "Collection name too long.";
-    if (value.length <= 2) return "Collection name too short.";
     return null;
+  }
+
+  Future<void> create() async {
+    if (_formKey.currentState.validate()) {
+      // If Valid
+
+      await Provider.of<DatabaseProvider>(context, listen: false)
+          .createCollection(_textController.text);
+      setState(() {
+        _textController.clear();
+      });
+    } else
+      return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Form(
-          key: _formKey,
-          child: Padding(
-            padding: EdgeInsets.all(10.0.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  !widget.rename ? "Create Collection" : "Rename Collection",
-                  style: TextStyle(
-                    fontFamily: "roboto",
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(
-                  height: 10.h,
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8.0.w),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _textController,
-                        decoration:
-                            mangasoupInputDecoration("Enter Collection Name"),
-                        cursorColor: Colors.grey,
-                        maxLines: 1,
-                        style: textFieldStyle,
-                        validator: consumerValidator,
-                        autofocus: true,
-                      ),
-                      SizedBox(height: 20.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          InkWell(
-                            child: Text(
-                              "Cancel",
-                              style: createCancelStyle,
-                            ),
-                            onTap: () => Navigator.pop(context),
-                          ),
-                          SizedBox(
-                            width: 20.w,
-                          ),
-                          InkWell(
-                            child: Text(
-                              !widget.rename ? "Create" : "Rename",
-                              style: createCancelStyle,
-                            ),
-                            onTap: () async {
-                              showLoadingDialog(context);
-
-                              if (!widget.rename) {
-                                String name = await create();
-                                if (name != null) {
-                                  Navigator.pop(context);
-                                  showMessage(
-                                    "Created $name",
-                                    Icons.check,
-                                    Duration(seconds: 1),
-                                  );
-                                } else {
-                                  Navigator.pop(context);
-                                }
-                              } else {
-                                String name = await rename();
-                                if (name != null) {
-                                  Navigator.pop(context);
-                                  showMessage(
-                                    "Renamed to $name",
-                                    Icons.check,
-                                    Duration(seconds: 1),
-                                  );
-                                } else {
-                                  Navigator.pop(context);
-                                }
-                              }
-                            },
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ],
+    return Container(
+      padding: EdgeInsets.all(7),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Color.fromRGBO(10, 10, 10, 1.0),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Form(
+            key: _formKey,
+            child: CupertinoTextFormFieldRow(
+              controller: _textController,
+              placeholder: "Collection Name",
+              cursorColor: Colors.grey,
+              maxLines: 1,
+              style: textFieldStyle,
+              validator: consumerValidator,
+              autofocus: false,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
             ),
           ),
-        ),
-      ],
+          Divider(),
+          CupertinoButton(
+            onPressed: () => create(),
+            child: Text("Create Collection"),
+          ),
+        ],
+      ),
     );
   }
+}
+
+buildCollectionSheet(BuildContext context, int id) {
+  showModalBottomSheet(
+    isScrollControlled: true,
+    enableDrag: false,
+    context: context,
+    // elevation: 10,
+    builder: (_) => Container(
+      height: MediaQuery.of(context).orientation == Orientation.portrait
+          ? MediaQuery.of(context).size.height * .85
+          : MediaQuery.of(context).size.height,
+      child: CupertinoPageScaffold(
+        // resizeToAvoidBottomInset: true,
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('Collections'),
+          leading: Container(),
+          trailing: IconButton(
+            icon: Icon(Icons.clear),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        backgroundColor: Colors.black,
+        child: SafeArea(
+          child: AddToLibrary(
+            comicId: id,
+          ),
+        ),
+      ),
+    ),
+  );
 }

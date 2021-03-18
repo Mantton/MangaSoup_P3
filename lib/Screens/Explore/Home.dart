@@ -51,7 +51,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
+                      CupertinoPageRoute(
                         builder: (_) => SourcesPage(
                           selector: Provider.of<SourceNotifier>(context)
                               .source
