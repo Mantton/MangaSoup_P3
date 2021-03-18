@@ -404,8 +404,7 @@ class DexHub {
 
   Future<ComicHighlight> imageSearchViewComic(int id) async {
     Dio _dio = Dio();
-    Response response =
-        await _dio.get("https://mangadex.org/api/v2/chapter/$id");
+    Response response = await _dio.get("${apiV2URL}/chapter/$id");
 
     int mangaID = response.data['data']['mangaId'];
     Profile _profile = await profile("https://mangadex.org/title/$mangaID",
@@ -419,9 +418,9 @@ class DexHub {
     String link = chapterLink.split("/").last;
     Dio _dio = Dio();
     int saverMode = info['saver'];
-    String imageAPI = "https://mangadex.org/api/v2/chapter/";
+    String imageAPI = "$apiV2URL/chapter/";
     // print(imageAPI + link);
-    /// https://mangadex.org/api/v2//chapter/1100871?saver=1
+    /// https://api.mangadex.org/api/v2//chapter/1100871?saver=1
     Response response;
     try {
       response = await _dio.get(imageAPI + link,
