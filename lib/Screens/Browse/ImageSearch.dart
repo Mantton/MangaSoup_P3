@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
@@ -39,12 +38,12 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(10.0.w),
+          padding: EdgeInsets.all(10.0),
           child: Column(
             children: [
               submitImage(),
               SizedBox(
-                height: 10.h,
+                height: 10,
               ),
               resultsWidget(),
             ],
@@ -178,8 +177,8 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                         bottom: 25,
                       ),
                       padding: EdgeInsets.all(
-                        10.w,
-                      ),
+                        10,
+                            ),
                       child: Column(
                         children: [
                           Row(
@@ -226,8 +225,8 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                             ],
                           ),
                           SizedBox(
-                            height: 10.h,
-                          ),
+                            height: 10,
+                                ),
                           Row(
                             children: [
                               CupertinoButton(

@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
-import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
@@ -280,10 +279,13 @@ class _HistoryHomeState extends State<HistoryHome>
       Profile profile = data['profile'];
       int id = data['id'];
       int index = 0;
-      List<Chapter> chapters = List();
+      List<Chapter> chapters = [];
       if (profile.chapters != null) {
         index = profile.chapters
             .indexWhere((element) => element.link == chapterData.link);
+        if (index < 0) {
+          throw "Bad State, Unreachable";
+        }
         chapters = profile.chapters;
       } else {
         Chapter chapter =
@@ -292,13 +294,6 @@ class _HistoryHomeState extends State<HistoryHome>
         chapters.add(chapter);
       }
 
-      ImageChapter imageChapter = ImageChapter(
-        images: (chapterData.images)?.map((item) => item as String)?.toList(),
-        referer: profile.link,
-        link: profile.link,
-        source: profile.selector,
-        count: chapterData.images.length,
-      );
       Navigator.pop(context);
       Navigator.push(
         context,
@@ -309,8 +304,8 @@ class _HistoryHomeState extends State<HistoryHome>
             selector: profile.selector,
             source: profile.source,
             comicId: id,
-            preloaded: true,
-            preloadedChapter: imageChapter,
+            preloaded: false,
+            preloadedChapter: null,
             initialPage: chapterData.lastPageRead,
           ),
           fullscreenDialog: true,
@@ -318,7 +313,7 @@ class _HistoryHomeState extends State<HistoryHome>
       );
     } catch (err) {
       Navigator.pop(context);
-      showSnackBarMessage(err.toString());
+      showSnackBarMessage(err.toString(), error: true);
     }
   }
 

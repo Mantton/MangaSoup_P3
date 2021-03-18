@@ -1,32 +1,32 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Screens/Browse/ImageSearch.dart';
+import 'package:mangasoup_prototype_3/app/data/about/about_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/browse/imgur_search.dart';
-import 'package:mangasoup_prototype_3/app/screens/mangadex/mangadex_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/settings/settings_home.dart';
 import 'package:mangasoup_prototype_3/app/screens/track/track_home.dart';
 
 class MoreHomePage extends StatelessWidget {
   final List titles = [
     "Settings",
-    "MangaDex Home",
     "MangaDex Image Search",
     "Imgur Album Search",
-    "Tracking Services"
+    "Services",
+    "About",
   ];
   final List icons = [
     "assets/images/icon.png",
-    "assets/images/mangadex.png",
     "assets/images/detective.png",
     "assets/images/imgur.png",
     "assets/images/tracking.gif",
+    "assets/images/icon.png",
   ];
   final List pages = [
     SettingsHome(),
-    DexHubHome(),
     ImageSearchPage(),
     ImgurAlbumPage(),
-    TrackingServicesPage(),
+    ServicesPage(),
+    AboutPage(),
   ];
 
   @override

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/libary_order.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/library_bulk_delete.dart';
-import 'package:mangasoup_prototype_3/app/screens/library/library_migrate.dart';
+import 'package:mangasoup_prototype_3/app/screens/migrate/migrate_home.dart';
 import 'package:provider/provider.dart';
 
 libraryOptionsDialog({@required BuildContext context, int comicId}) {
   showGeneralDialog(
-    barrierLabel: "Not In Library",
+    barrierLabel: "Libary Options",
     barrierDismissible: true,
     barrierColor: Colors.black.withOpacity(0.5),
     transitionDuration: Duration(milliseconds: 70),
@@ -82,7 +82,7 @@ class LibraryOptions extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => LibraryMigratePage(),
+                builder: (_) => MigrationHome(),
               ),
             ),
           ),
@@ -121,6 +121,14 @@ class LibraryOptions extends StatelessWidget {
                 else
                   provider.setLibraryViewMode(2);
               }),
+          SwitchListTile.adaptive(
+            title: Text(
+              "Show Unread Chapter Count",
+              style: libraryOptionsFont,
+            ),
+            value: provider.showUnreadCount,
+            onChanged: (v) => provider.setSURCM(v),
+          ),
         ],
       );
     });

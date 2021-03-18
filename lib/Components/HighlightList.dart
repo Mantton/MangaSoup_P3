@@ -4,6 +4,8 @@ import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/profile_home.dart';
 import 'package:provider/provider.dart';
+
+import 'HighlightGrid.dart';
 import 'Images.dart';
 
 class ComicList extends StatefulWidget {
@@ -24,15 +26,15 @@ class _ComicListState extends State<ComicList>
     super.build(context);
     return RepaintBoundary(
       child: Consumer<PreferenceProvider>(builder: (context, settings, _) {
-        return Padding(
-          padding: EdgeInsets.all(4.0),
-          child: ListView.builder(
-            physics: ScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: widget.comics.length,
-            itemBuilder: (BuildContext context, index) => ComicListTile(
-              comic: widget.comics[index],
-            ),
+        return ListView.separated(
+          physics: ScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: widget.comics.length,
+          itemBuilder: (BuildContext context, index) => ComicListTile(
+            comic: widget.comics[index],
+          ),
+          separatorBuilder: (_, index) => SizedBox(
+            height: 4,
           ),
         );
       }),
@@ -51,6 +53,7 @@ class ComicListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      tileColor: Color.fromRGBO(8, 8, 8, 1.0),
       leading: FittedBox(
         child: SoupImage(
           url: comic.thumbnail,
@@ -96,17 +99,7 @@ class ComicListTile extends StatelessWidget {
         maxLines: 2,
         presetFontSizes: [17, 15],
       ),
-      trailing: FittedBox(
-        child: comic.updateCount > 0
-            ? Text(
-                "${comic.updateCount} Update(s)",
-                style: TextStyle(color: Colors.blue),
-              )
-            : Text(
-                "0",
-                style: TextStyle(color: Colors.transparent),
-              ),
-      ),
+      trailing: FittedBox(child: GridHeader(comic: comic)),
     );
   }
 }

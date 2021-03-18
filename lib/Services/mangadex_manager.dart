@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
 import 'package:html_unescape/html_unescape.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
@@ -19,8 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class DexHub {
   final String baseURL = "https://mangadex.org";
-  final String apiURL = "https://mangadex.org/api";
-  final String apiV2URL = "https://mangadex.org/api/v2";
+  final String apiV2URL = "https://api.mangadex.org/v2";
   final String selector = 'mangadex';
   final String source = 'MangaDex';
 
@@ -125,8 +123,61 @@ class DexHub {
       "User-Agent": "MangaSoup/0.0.2",
       "Access-Control-Allow-Origin": "*",
       "referer": "https://mangadex.org",
+      "origin": "https://mangadex.org"
     };
     return browseHeaders;
+  }
+
+  List<ComicHighlight> scrapeMangaDex(var document) {
+    List<ComicHighlight> highlights = [];
+    var comics = document
+        .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
+    if (comics.isNotEmpty) {
+      for (var comic in comics) {
+        var thumbnail = baseURL +
+            comic
+                .querySelector('div.rounded.large_logo.mr-2 > a> img')
+                .attributes['src'];
+        var title =
+            comic.querySelector('a.ml-1.manga_title.text-truncate').text;
+        var link = baseURL +
+            regexLink(comic
+                .querySelector('a.ml-1.manga_title.text-truncate')
+                .attributes['href']);
+        highlights.add(ComicHighlight.fromMap({
+          'title': HtmlUnescape().convert(title),
+          'link': link,
+          'thumbnail': thumbnail,
+          'source': source,
+          'selector': selector
+        }));
+      }
+    } else {
+      comics =
+          document.querySelectorAll('div.manga-entry.row.m-0.border-bottom');
+
+      if (comics.isNotEmpty) {
+        for (var comic in comics) {
+          var thumbnail = baseURL +
+              "/images/manga/${comic.attributes['data-id']}.large.jpg";
+
+          var title =
+              comic.querySelector('a.ml-1.manga_title.text-truncate').text;
+          var link = baseURL +
+              regexLink(comic
+                  .querySelector('a.ml-1.manga_title.text-truncate')
+                  .attributes['href']);
+          highlights.add(ComicHighlight.fromMap({
+            'title': HtmlUnescape().convert(title),
+            'link': link,
+            'thumbnail': thumbnail,
+            'source': source,
+            'selector': selector
+          }));
+        }
+      }
+    }
+    return highlights;
   }
 
   String stringifyCookies(Map cookies) =>
@@ -134,7 +185,7 @@ class DexHub {
 
   Future<List<ComicHighlight>> get(
       String sort, int page, Map additionalInfo) async {
-    String url = baseURL + '/titles/9/$page/?s=$sort#listing';
+    String url = baseURL + '/titles/9/$page?s=$sort#listing';
     Dio _dio = Dio();
     Map<String, dynamic> browseHeaders = prepareHeaders(additionalInfo);
     Response response = await _dio.get(
@@ -143,30 +194,8 @@ class DexHub {
     );
 
     var document = parse(response.data);
-    var comics = document
-        .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
-
-    List<ComicHighlight> highlights = [];
-    for (var comic in comics) {
-      var thumbnail = baseURL +
-          comic
-              .querySelector('div.rounded.large_logo.mr-2 > a> img')
-              .attributes['src'];
-      var title = comic.querySelector('a.ml-1.manga_title.text-truncate').text;
-      var link = baseURL +
-          regexLink(comic
-              .querySelector('a.ml-1.manga_title.text-truncate')
-              .attributes['href']);
-      highlights.add(ComicHighlight.fromMap({
-        'title': title,
-        'link': link,
-        'thumbnail': thumbnail,
-        'source': source,
-        'selector': selector
-      }));
-    }
     debugPrint("Retrieval Complete : /all @$source s/$sort, p/$page");
-    return highlights;
+    return scrapeMangaDex(document);
   }
 
   Future<List<ComicHighlight>> getTagComics(
@@ -182,71 +211,60 @@ class DexHub {
     );
 
     var document = parse(response.data);
-    var comics = document
-        .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
-
-    List<ComicHighlight> highlights = [];
-    for (var comic in comics) {
-      var thumbnail = baseURL +
-          comic
-              .querySelector('div.rounded.large_logo.mr-2 > a> img')
-              .attributes['src'];
-      var title = comic.querySelector('a.ml-1.manga_title.text-truncate').text;
-      var link = comic
-          .querySelector('a.ml-1.manga_title.text-truncate')
-          .attributes['href'];
-      String editedLink = link.split('/').sublist(1, 3).map((e) => e).join("/");
-      highlights.add(ComicHighlight.fromMap({
-        'title': title,
-        'link': baseURL + "/" + editedLink,
-        'thumbnail': thumbnail,
-        'source': source,
-        'selector': selector
-      }));
-    }
     debugPrint("Retrieval Complete : /all @$source s/$sort, p/$page");
-    return highlights;
+    return scrapeMangaDex(document);
   }
 
   Future<Profile> profile(String link, Map info) async {
     List userLanguages = info['mangadex_languages'] ?? List();
-    print("Languages: $userLanguages");
+    // debugPrint("Languages: $userLanguages");
     String comicLink = link;
     // print("MD LINK: $comicLink");
     if (link.contains("http")) {
       var strings = link.split('/');
       link = strings.last;
     }
-    var profileURL = apiURL + '/manga/$link';
+    var profileURL = apiV2URL + '/manga/$link';
     // print("MD API LINK: $profileURL");
     //, headers: {'Cookie': stringifyCookies(cookies)}
-    var response = await http.get(profileURL);
+    Response response;
+    Response chapterResponse;
 
-    var document = response.body;
-    var c;
     try {
-      c = jsonDecode(document);
-    } on FormatException catch (e) {
-      print("$e");
-
-      throw 'MangaDex failed to respond with the appropriate data';
+      response = await Dio().get(profileURL);
+      chapterResponse = await Dio().get(profileURL + "/chapters");
+    } catch (err) {
+      debugPrint("MangaDex API Error: GET Profile");
+      throw "Failed to reach MangaDex API";
     }
 
-    var manga = c['manga'];
-    Map chapters = c['chapter'];
+    Map manga = Map();
+    List chapters = List();
+    List chapterGroups = List();
+    try {
+      manga = response.data['data'];
+      chapters = chapterResponse.data['data']['chapters'] ?? List();
+      chapterGroups = chapterResponse.data['data']['groups'];
+    } catch (err) {
+      throw "MangaDex API Schema Changed...";
+    }
 
     // Comic Properties
     String title = manga['title'];
-
-    String thumbnail = baseURL + manga['cover_url'];
-    var altTitles = manga['alt_names'];
+    String thumbnail = manga['mainCover'];
+    var altTitles = manga['altTitles'];
     if (altTitles is List) {
       List t = altTitles;
       altTitles = t.map((e) => e).join(", ");
     }
-    String artist = manga['artist'];
-    String author = manga['author'];
-    List genres = manga['genres'];
+    var artist = manga['artist'];
+    var author = manga['author'];
+
+    if (artist is List) {
+      artist = artist.map((e) => e).join(", ");
+      author = author.map((e) => e).join(", ");
+    }
+    List genres = manga['tags'];
     List tags = [];
     for (int tag in genres) {
       tags.add({
@@ -255,28 +273,21 @@ class DexHub {
         "selector": selector
       });
     }
-    int statusValue = manga['status'];
+    int statusValue = manga["publication"]['status'];
     String status;
-
-    if (statusValue == 1)
-      status = "Ongoing";
-    else if (statusValue == 2)
-      status = "Completed";
-    else if (statusValue == 3)
-      status = "Cancelled";
-    else if (statusValue == 4) status = "Unknown";
-
+    status = statusValue.toString();
     String summary = manga['description'];
     summary = summary.split('\n')[0];
-    var keys = chapters.keys.toList();
-    List chapterList = [];
-    for (var k in keys) {
-      var chapter = chapters[k];
+
+    /// Chapters
+    List chapterList = List();
+    for (var chapter in chapters) {
       String volume = chapter['volume'];
       String chapterName = chapter['chapter'];
-      // String chapterTitle = chapter['title'];
-      String groupName = chapter['group_name'];
-      String lang = chapter['lang_code'];
+      String groupName = chapterGroups.firstWhere(
+          (element) => element['id'] == chapter['groups'][0])['name'];
+      groupName = HtmlUnescape().convert(groupName);
+      String lang = chapter['language'];
       var finalTitle =
           "${(volume.isNotEmpty) ? "Vol. $volume" : ""} Ch. $chapterName";
       var date =
@@ -285,7 +296,7 @@ class DexHub {
       if (userLanguages.contains(lang) || userLanguages.length == 0) {
         chapterList.add({
           "name": finalTitle,
-          "link": "https://mangadex.org/chapter/$k",
+          "link": "https://mangadex.org/chapter/${chapter['id']}",
           "date": formattedDate,
           "maker": "${_emoji(lang)} - $groupName"
         });
@@ -293,7 +304,7 @@ class DexHub {
     }
 
     Map<String, dynamic> x = {
-      "title": title,
+      "title": HtmlUnescape().convert(title),
       "summary": HtmlUnescape().convert(summary),
       "thumbnail": thumbnail,
       "alt_title": altTitles,
@@ -307,6 +318,7 @@ class DexHub {
       "selector": selector,
       "link": comicLink,
       "contains_books": false,
+      "is_custom": false,
     };
     debugPrint("Retrieval Complete : /Profile: $title @$source ");
 
@@ -362,36 +374,12 @@ class DexHub {
       if (responseHeaders.contains("mangadex_session=deleted")) {
         SharedPreferences _prefs = await SharedPreferences.getInstance();
         _prefs
-            .setString("mangadex_cookies", null)
+            .remove("mangadex_cookies")
             .then((value) => showSnackBarMessage("MangaDex Session Revoked"));
         throw "MangaDex Authorization Error";
       }
       var document = parse(response.data);
-      var comics = document
-          .querySelectorAll('div.manga-entry.col-lg-6.border-bottom.pl-0.my-1');
-
-      List<ComicHighlight> highlights = [];
-      for (var comic in comics) {
-        var thumbnail = baseURL +
-            comic
-                .querySelector('div.rounded.large_logo.mr-2 > a> img')
-                .attributes['src'];
-        var title =
-            comic.querySelector('a.ml-1.manga_title.text-truncate').text;
-        var link = comic
-            .querySelector('a.ml-1.manga_title.text-truncate')
-            .attributes['href'];
-        highlights.add(ComicHighlight.fromMap({
-          'title': title,
-          'link': baseURL + regexLink(link),
-          'thumbnail': thumbnail,
-          'source': source,
-          'selector': selector
-        }));
-      }
-
-      debugPrint("Retrieval Complete : /all @$source");
-      return highlights;
+      return scrapeMangaDex(document);
     } on DioError catch (e) {
       throw "${e.response.statusMessage}";
     }
@@ -416,8 +404,7 @@ class DexHub {
 
   Future<ComicHighlight> imageSearchViewComic(int id) async {
     Dio _dio = Dio();
-    Response response =
-        await _dio.get("https://mangadex.org/api/v2/chapter/$id");
+    Response response = await _dio.get("${apiV2URL}/chapter/$id");
 
     int mangaID = response.data['data']['mangaId'];
     Profile _profile = await profile("https://mangadex.org/title/$mangaID",
@@ -431,9 +418,9 @@ class DexHub {
     String link = chapterLink.split("/").last;
     Dio _dio = Dio();
     int saverMode = info['saver'];
-    String imageAPI = "https://mangadex.org/api/v2/chapter/";
+    String imageAPI = "$apiV2URL/chapter/";
     // print(imageAPI + link);
-    /// https://mangadex.org/api/v2//chapter/1100871?saver=1
+    /// https://api.mangadex.org/api/v2//chapter/1100871?saver=1
     Response response;
     try {
       response = await _dio.get(imageAPI + link,
@@ -442,7 +429,7 @@ class DexHub {
     } catch (err) {
       if (err is DioError) {
         DioError e = err;
-        print(e.response.data);
+        debugPrint("${e.response.data}");
         throw "Restricted Manga\nContact MangaDex Staff or Discord for more information";
       } else
         throw "Restricted Manga\nContact MangaDex Staff or Discord for more information";
@@ -472,6 +459,19 @@ class DexHub {
     // options: Options(headers: prepareHeaders(additionalInfo)),
   }
 
+  Future<void> logout() async {
+    Map info = await prepareAdditionalInfo("mangadex");
+    Map headers = prepareHeaders(info);
+    headers.putIfAbsent("x-requested-with", () => "XMLHttpRequest");
+    await Dio().get(
+      baseURL + "/ajax/actions.ajax.php?function=logout",
+      options: Options(headers: headers),
+    );
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    _prefs.remove(PreferenceKeys.MANGADEX_PROFILE);
+    _prefs.remove("mangadex_cookies");
+  }
+
   Future<DexProfile> setUserProfile(Map additionalInfo) async {
     try {
       Response response = await Dio().get(
@@ -487,7 +487,6 @@ class DexHub {
           userProfile.toMap(),
         ),
       );
-      print(response.headers.toString());
       return userProfile;
     } on DioError catch (e) {
       if (e.response.statusCode == 403) {
@@ -496,7 +495,7 @@ class DexHub {
             .contains("mangadex_session=deleted")) {
           SharedPreferences _prefs = await SharedPreferences.getInstance();
           _prefs
-              .setString("mangadex_cookies", null)
+              .remove("mangadex_cookies")
               .then((value) => showSnackBarMessage("MangaDex Session Revoked"));
         }
         throw "${e.response.statusCode}, Authorization Error";
@@ -512,10 +511,8 @@ class DexHub {
   Future<List<ComicHighlight>> getUserLibrary(Map additionalInfo) async {
     var headers = prepareHeaders(additionalInfo);
     try {
-      Response response = await Dio().get(
-        apiV2URL + "/user/me/followed-manga",
-        options: Options(headers: headers),
-      );
+      Response response = await Dio().get(apiV2URL + "/user/me/followed-manga",
+          options: Options(headers: headers), queryParameters: {"hentai": "1"});
 
       List data = response.data['data'];
       List<ComicHighlight> comics = List();
@@ -530,7 +527,7 @@ class DexHub {
             .contains("mangadex_session=deleted")) {
           SharedPreferences _prefs = await SharedPreferences.getInstance();
           _prefs
-              .setString("mangadex_cookies", null)
+              .remove("mangadex_cookies")
               .then((value) => showSnackBarMessage("MangaDex Session Revoked"));
         }
         throw "${e.response.statusCode}, Authorization Error";
@@ -545,11 +542,8 @@ class DexHub {
 
   Future<void> markChapter(List<int> ids, bool read, Map additionalInfo) async {
     var headers = prepareHeaders(additionalInfo);
-    headers.addAll({
-      'Content-Type': "application/json",
-    });
     await Dio().post(apiV2URL + "/user/me/marker",
-        options: Options(headers: headers),
+        options: Options(headers: headers, contentType: "application/json"),
         data: {"chapters": ids, "read": read});
   }
 }

@@ -48,7 +48,7 @@ showMessage(String info, IconData img, Duration duration) {
   );
 }
 
-showSnackBarMessage(String msg, {bool error = false}) {
+showSnackBarMessage(String msg, {bool error = false, bool success = false}) {
   BotToast.showText(
     duration: Duration(milliseconds: 1500),
     text: msg,
@@ -56,6 +56,10 @@ showSnackBarMessage(String msg, {bool error = false}) {
         color: !error ? Colors.black : Colors.white,
         fontWeight: FontWeight.bold,
         fontFamily: "Lato"),
-    contentColor: !error ? Colors.white : Colors.redAccent,
+    contentColor: !error
+        ? success
+            ? Colors.green
+            : Colors.white
+        : Colors.redAccent,
   );
 }

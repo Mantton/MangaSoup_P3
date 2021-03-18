@@ -1,18 +1,25 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:mangasoup_prototype_3/app/data/api/discussion_models/mangasoup_combined_model.dart';
+import 'package:path_provider/path_provider.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'keys.dart';
 
 class PreferenceProvider with ChangeNotifier {
   SharedPreferences _prefs;
+
   // Init at launch
 
   Future<void> initPreference() async {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  Future<bool> loadValues() async {
+  Future<bool> loadValues(BuildContext context) async {
     // Initialize Values or Load Defaults
     SharedPreferences _p = await preferences();
 
@@ -21,6 +28,7 @@ class PreferenceProvider with ChangeNotifier {
     readerScrollDirection =
         _p.getInt(PreferenceKeys.READER_SCROLL_DIRECTION) ?? 1;
     readerOrientation = _p.getInt(PreferenceKeys.MANGA_ORIENTATION) ?? 1;
+    comicGridMode = _p.getInt(PreferenceKeys.COMIC_GRID_MODE) ?? 0;
     readerPadding = _p.getBool(PreferenceKeys.MANGA_PADDING) ?? true;
     readerPageSnapping = _p.getBool(PreferenceKeys.MANGA_SNAPPING) ?? true;
     comicGridCrossAxisCount =
@@ -29,13 +37,25 @@ class PreferenceProvider with ChangeNotifier {
         _p.getBool(PreferenceKeys.SCALE_GRID_TO_MATCH_INTENDED) ?? true;
     maxScrollVelocity = _p.getDouble(PreferenceKeys.WEBTOON_MSV) ?? 8500.0;
     showUnreadCount =
-        _p.getBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT) ?? false;
+        _p.getBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT) ?? true;
     libraryViewMode = _p.getInt(PreferenceKeys.LIBRARY_VIEW_TYPE) ?? 1;
     readerBGColor = _p.getInt(PreferenceKeys.READER_BG_COLOR) ?? 0;
     malAutoSync = _p.getBool(PreferenceKeys.MAL_AUTO_SYNC) ?? true;
     readerMaxWidth = _p.getBool(PreferenceKeys.READER_MAX_WIDTH) ?? false;
     readerDoublePagedMode =
         _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
+    languageServer = _p.getString(PreferenceKeys.MS_LANG_SERVER) ?? "en";
+    updateOnStartUp = _p.getBool(PreferenceKeys.UPDATE_ON_STARTUP) ?? true;
+
+    msUser = _p.getString(PreferenceKeys.MS_T_USER) != null
+        ? MSUserCombined.fromMap(
+            jsonDecode(_p.getString(PreferenceKeys.MS_T_USER)))
+        : null;
+
+    final directory = Theme.of(context).platform == TargetPlatform.android
+        ? await getExternalStorageDirectory()
+        : await getApplicationDocumentsDirectory();
+    paths = directory.path;
     notifyListeners();
     return true;
   }
@@ -49,6 +69,17 @@ class PreferenceProvider with ChangeNotifier {
     }
   }
 
+  /// LANGUAGE SERVER
+
+  String languageServer;
+
+  setLanguageServer(String server) async {
+    SharedPreferences p = await preferences();
+    languageServer = server;
+    p.setString(PreferenceKeys.MS_LANG_SERVER, server);
+    notifyListeners();
+  }
+
   /// READER SETTINGS
   int readerMode;
   int readerScrollDirection;
@@ -60,6 +91,7 @@ class PreferenceProvider with ChangeNotifier {
   /// 1 - Manga
   /// 2 - Webtoon
   Map readerModeOptions = {1: "Paged / Manga", 2: "WebToon"};
+
   setReaderMode(int mode) async {
     SharedPreferences p = await preferences();
     readerMode = mode;
@@ -70,8 +102,15 @@ class PreferenceProvider with ChangeNotifier {
   /// Reader Scroll Direction
   /// 1 - LTR
   /// 2 - RTL
-  Map readerScrollDirectionOptionsHorizontal = {1: "Left to Right", 2: "Right to Left"};
-  Map readerScrollDirectionOptionsVertical = {1: "Downward Swipe", 2: "Upward Swipe"};
+  Map readerScrollDirectionOptionsHorizontal = {
+    1: "Left to Right",
+    2: "Right to Left"
+  };
+  Map readerScrollDirectionOptionsVertical = {
+    1: "Downward Swipe",
+    2: "Upward Swipe"
+  };
+
   setReaderScrollDirection(int mode) async {
     SharedPreferences p = await preferences();
     readerScrollDirection = mode;
@@ -83,6 +122,7 @@ class PreferenceProvider with ChangeNotifier {
   /// 1 - Horizontal
   /// 2 - Vertical
   Map readerOrientationOptions = {1: "Horizontal", 2: "Vertical"};
+
   setReaderOrientation(int mode) async {
     SharedPreferences p = await preferences();
     readerOrientation = mode;
@@ -194,7 +234,7 @@ class PreferenceProvider with ChangeNotifier {
   setSURCM(bool surcm) async {
     // SURCM = Show UnRead Count Mode
     SharedPreferences p = await preferences();
-    scaleToMatchIntended = surcm;
+    showUnreadCount = surcm;
     p.setBool(PreferenceKeys.LIBRARY_SHOW_UNREAD_COUNT, surcm);
     notifyListeners();
   }
@@ -217,6 +257,46 @@ class PreferenceProvider with ChangeNotifier {
     p.setBool(PreferenceKeys.MAL_AUTO_SYNC, mode);
     notifyListeners();
   }
+
+  Map comicGridModeOptions = {
+    0: "Separated",
+    1: "Compact",
+  };
+  int comicGridMode;
+
+  setComicGridMode(int option) async {
+    SharedPreferences p = await preferences();
+    comicGridMode = option;
+    p.setInt(PreferenceKeys.COMIC_GRID_MODE, option);
+    notifyListeners();
+  }
+
+  bool updateOnStartUp;
+
+  setUpdateOnStartUp(bool mode) async {
+    SharedPreferences p = await preferences();
+    updateOnStartUp = mode;
+    p.setBool(PreferenceKeys.UPDATE_ON_STARTUP, mode);
+    notifyListeners();
+  }
+
+  MSUserCombined msUser;
+
+  setMSUsr(MSUserCombined newUsr) async {
+    SharedPreferences p = await preferences();
+    p.setString(PreferenceKeys.MS_T_USER, jsonEncode(newUsr.toMap()));
+    msUser = newUsr;
+    notifyListeners();
+  }
+
+  removeMSUser() async {
+    SharedPreferences p = await preferences();
+    p.remove(PreferenceKeys.MS_T_USER);
+    msUser = null;
+    notifyListeners();
+  }
+  
+  String paths;
 
   /// Functions
   List<DropdownMenuItem> buildItems(Map pref) => pref.entries

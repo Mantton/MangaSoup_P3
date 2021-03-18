@@ -1,4 +1,6 @@
 class PreferenceKeys {
+  /// SERVER
+  static const MS_LANG_SERVER = "ms_lang_server";
 
   /// READER KEYS
   static const READER_MODE = "reader_mode"; // Manga or Webtoon
@@ -26,4 +28,11 @@ class PreferenceKeys {
   static const MAL_AUTH = "mal_auth_body";
   static const MAL_AUTO_SYNC = "mal_auto_sync";
   static const READER_BG_COLOR = "reader_bg_color";
+  static const COMIC_GRID_MODE = 'comic_grid_mode';
+
+  /// MANGASOUP KEYS
+  static const MS_T_ACCESS_TOKEN = "ms_token_t";
+  static const MS_T_USER = "ms_user_t";
+  static const UPDATE_ON_STARTUP = "uonsp";
+  static const SHOW_UNREAD_COUNT = "show_unread";
 }

@@ -1,14 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
+import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
+import 'package:mangasoup_prototype_3/app/constants/variables.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/mal_track_result.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic-collection.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/downloads.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/bookmark_queries.dart';
@@ -16,10 +23,14 @@ import 'package:mangasoup_prototype_3/app/data/database/queries/chapter_queries.
 import 'package:mangasoup_prototype_3/app/data/database/queries/collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic-collection_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/comic_queries.dart';
+import 'package:mangasoup_prototype_3/app/data/database/queries/download_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/history_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/database/queries/track_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/enums/mal.dart';
+import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/services/track/myanimelist/mal_api_manager.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -29,13 +40,14 @@ import 'models/comic.dart';
 
 class DatabaseProvider with ChangeNotifier {
   // Provider Variables
-  List<Comic> comics = List();
-  List<Collection> collections = List();
-  List<History> historyList = List();
-  List<ComicCollection> comicCollections = List();
-  List<ChapterData> chapters = List();
-  List<BookMark> bookmarks = List();
-  List<Tracker> comicTrackers = List();
+  List<Comic> comics = [];
+  List<Collection> collections = [];
+  List<History> historyList = [];
+  List<ComicCollection> comicCollections = [];
+  List<ChapterData> chapters = [];
+  List<BookMark> bookmarks = [];
+  List<Tracker> comicTrackers = [];
+  List<ChapterDownload> chapterDownloads = [];
   Database _db;
 
   // Update Check Variable
@@ -49,6 +61,7 @@ class DatabaseProvider with ChangeNotifier {
   ChapterQuery chapterManager;
   BookMarkQuery bookmarkManager;
   TrackQuery trackerManager;
+  DownloadQuery downloadManager;
 
   // init
 
@@ -62,6 +75,7 @@ class DatabaseProvider with ChangeNotifier {
     chapterManager = ChapterQuery(_db);
     bookmarkManager = BookMarkQuery(_db);
     trackerManager = TrackQuery(_db);
+    downloadManager = DownloadQuery(_db);
     // Load Data into Provider Variables
     comics = await comicManager.getAll();
     collections = await collectionManager.getCollections();
@@ -70,6 +84,12 @@ class DatabaseProvider with ChangeNotifier {
     chapters = await chapterManager.getAll();
     bookmarks = await bookmarkManager.getAllBookMarks();
     comicTrackers = await trackerManager.getTrackers();
+    chapterDownloads = await downloadManager.getDownloads();
+    var hangingDownloads = chapterDownloads
+        .where((element) => element.status != MSDownloadStatus.done)
+        .toList();
+    print("Deleting ${hangingDownloads.length}");
+    await deleteDownloads(hangingDownloads);
     print("Database Provider Successfully Initialized");
     notifyListeners();
   }
@@ -87,15 +107,18 @@ class DatabaseProvider with ChangeNotifier {
       );
 
       Comic generated = Comic(
-          title: highlight.title,
-          link: highlight.link,
-          thumbnail: profile.selector != "hasu"
-              ? profile.thumbnail
-              : highlight.thumbnail,
-          referer: highlight.imageReferer,
-          source: highlight.source,
-          sourceSelector: highlight.selector,
-          chapterCount: profile.chapterCount ?? 0);
+        title: highlight.title,
+        link: highlight.link,
+        thumbnail: profile.selector != "hasu"
+            ? profile.thumbnail
+            : highlight.thumbnail,
+        referer: highlight.imageReferer,
+        source: highlight.source,
+        sourceSelector: highlight.selector,
+        chapterCount: profile.chapterCount ?? 0,
+      );
+
+      generated.unreadCount = generated.chapterCount;
 
       Comic comic = isComicSaved(generated);
       if (comic != null) {
@@ -103,8 +126,14 @@ class DatabaseProvider with ChangeNotifier {
         if (profile.selector != "hasu") comic.thumbnail = profile.thumbnail;
         comic.updateCount = 0;
         comic.chapterCount = profile.chapterCount ?? 0;
+        // GET UNREAD COUNT
+        int t = chapters
+            .where((element) => element.mangaId == comic.id && element.read)
+            .length;
+        comic.unreadCount = comic.chapterCount - t;
       } else
         comic = generated;
+
       // Evaluate
       int _id = await evaluate(comic);
       map = {"profile": profile, "id": _id};
@@ -113,6 +142,8 @@ class DatabaseProvider with ChangeNotifier {
     }
     return map;
   }
+
+  updateUnread() {}
 
   /// COMICS
   Future<int> evaluate(Comic comic, {bool overWriteChapterCount = true}) async {
@@ -148,7 +179,7 @@ class DatabaseProvider with ChangeNotifier {
         .where(
           (element) =>
               element.inLibrary &&
-              element.title.toLowerCase().startsWith(
+              element.title.toLowerCase().contains(
                     query.toLowerCase(),
                   ),
         )
@@ -223,48 +254,13 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  updateCollectionOrder(int initial, int newIndex) async {
-    initial++;
-
-    print("initial: $initial\n new:$newIndex");
-    if (newIndex < initial) {
-      newIndex++;
-      // Get Target Collection that is being updated
-      Collection target =
-          collections.firstWhere((element) => element.order == initial);
-      // get affected collections from update
-      List<Collection> strays = collections
-          .where(
-              (element) => element.order >= newIndex && element.order < initial)
-          .toList();
-      // update affected collections
-      strays.forEach((element) {
-        int toUpdate = collections.indexOf(element);
-        collections[toUpdate].order++;
-      });
-
-      // Update provider collections variable
-      collections[collections.indexOf(target)].order = newIndex;
-    } else {
-      // Get Target Collection that is being updated
-      Collection target =
-          collections.firstWhere((element) => element.order == initial);
-      // get affected collections from update
-      List<Collection> strays = collections
-          .where((element) =>
-              element.order <= newIndex && element.order >= initial)
-          .toList();
-      // update affected collections
-      strays.forEach((element) {
-        int toUpdate = collections.indexOf(element);
-        collections[toUpdate].order--;
-      });
-
-      // Update provider collections variable
-
-      collections[collections.indexOf(target)].order = newIndex;
+  updateCollectionOrder(List<Collection> toUpdate) {
+    // Incoming list is sorted on the new order
+    for (Collection c in toUpdate) {
+      c.order = toUpdate.indexOf(c) + 1;
     }
-    await collectionManager.reorderCollections(collections);
+    collections = toUpdate;
+    collectionManager.reorderCollections(collections);
     notifyListeners();
   }
 
@@ -361,14 +357,19 @@ class DatabaseProvider with ChangeNotifier {
   }
 
   Future<int> checkForUpdates() async {
-    print("--- CHECKING FOR UPDATE ---");
+    debugPrint("--- CHECKING FOR UPDATE ---");
     checkingForUpdates = true;
     notifyListeners();
     int updateCount = 0;
     List<Collection> uec =
         collections.where((element) => element.updateEnabled).toList();
 
-    if (uec.isEmpty) return null;
+    if (uec.isEmpty) {
+      debugPrint("---DONE CHECKING FOR UPDATE---");
+      checkingForUpdates = false;
+      notifyListeners();
+      return null;
+    }
 
     for (Collection c in uec) {
       List<ComicCollection> d = comicCollections
@@ -377,7 +378,6 @@ class DatabaseProvider with ChangeNotifier {
 
       for (ComicCollection e in d) {
         Comic comic = comics.firstWhere((element) => element.id == e.comicId);
-        print(comic.title);
         // calculate if chapter count has increased
         /// CHECK FOR UPDATE LOGIC
         int currentChapterCount = comic.chapterCount;
@@ -392,12 +392,17 @@ class DatabaseProvider with ChangeNotifier {
           /// UPDATE COUNT LOGIC
           if (updatedChapterCount > currentChapterCount) {
             updateCount++; // increase update count metric
-
             // Update Comic Data
             comic.chapterCount = updatedChapterCount;
             comic.updateCount = updatedChapterCount - currentChapterCount;
-            await evaluate(comic);
           }
+
+          // GET UNREAD COUNT
+          int t = chapters
+              .where((element) => element.mangaId == comic.id && element.read)
+              .length;
+          comic.unreadCount = comic.chapterCount - t;
+          await evaluate(comic);
         } catch (e) {
           continue;
         }
@@ -454,9 +459,10 @@ class DatabaseProvider with ChangeNotifier {
   }
 
   updateFromACS(List<Chapter> incoming, int comicId, bool read, String source,
-      String selector) async {
-    List<ChapterData> data = List();
-    // Chack for matches, update their status to read then add to data
+      String selector,
+      {bool toggleRead = true}) async {
+    List<ChapterData> data = [];
+    // Check for matches, update their status to read then add to data
     for (Chapter chapter in incoming) {
       ChapterData append = checkIfChapterMatch(chapter);
       // Check for non matches Create nChapterData objects then append to data
@@ -470,7 +476,7 @@ class DatabaseProvider with ChangeNotifier {
           selector: selector,
         );
       }
-      append.read = read;
+      if (toggleRead) append.read = read;
       data.add(append);
     }
     data = await chapterManager.updateBatch(data);
@@ -481,6 +487,14 @@ class DatabaseProvider with ChangeNotifier {
       else
         chapters.add(obj);
     }
+
+    // UPDATE COMIC UNREAD COUNT
+    Comic c = comics.firstWhere((element) => element.id == comicId);
+    int t = chapters
+        .where((element) => element.mangaId == c.id && element.read)
+        .length;
+    c.unreadCount = c.chapterCount - t;
+    evaluate(c);
     notifyListeners();
     // MD Sync
     if (selector == "mangadex" && read) {
@@ -533,7 +547,7 @@ class DatabaseProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  removeHistory(History history) async {
+  Future<void> removeHistory(History history) async {
     await historyManager.deleteHistory(history);
     historyList.remove(history);
     notifyListeners();
@@ -679,5 +693,358 @@ class DatabaseProvider with ChangeNotifier {
       await trackerManager.deleteTracker(t);
     }
     comicTrackers.clear();
+  }
+
+  Future<ComicHighlight> migrateComic(Profile c, Profile d) async {
+    // the process really is a waste
+    // get Comics for the profiles
+    Comic current = comics.firstWhere((element) => element.link == c.link);
+    Comic destination = comics.firstWhere((element) => element.link == d.link);
+
+    /// Chapters
+    // Get all Read chapters for current, create new chapter objects for d
+    List<double> readChapters = chapters
+        .where((element) => element.mangaId == current.id && element.read)
+        .map((e) => e.generatedChapterNumber)
+        .toSet()
+        .toList();
+    // list above contains the generated numbers for all read chapters in the lib
+    List<Chapter> toMark = [];
+    toMark = d.chapters
+        .where((element) => readChapters.contains(element.generatedNumber))
+        .toList();
+    await updateFromACS(toMark, destination.id, true, destination.source,
+        destination.sourceSelector);
+    // Status
+    current.inLibrary = false;
+    destination.inLibrary = true;
+    List<int> ids = comicCollections
+        .where((element) => element.comicId == current.id)
+        .map((e) => e.collectionId)
+        .toList();
+    List<Collection> targetCollections =
+        collections.where((element) => ids.contains(element.id)).toList();
+    await batchSetComicCollection([], current.id);
+    await batchSetComicCollection(targetCollections, destination.id);
+    // Tracking
+    // todo, move tracking.
+
+    // Update Comic
+    int i1 = comics.indexOf(current);
+    int i2 = comics.indexOf(destination);
+    comics[i1] = current;
+    comics[i2] = destination;
+
+    await comicManager.updateComic(current);
+    await comicManager.updateComic(destination);
+
+    notifyListeners();
+    return destination.toHighlight();
+  }
+
+  /// --------------  DOWNLOADING  ------------------ ///
+
+  void downloadChapters(List<Chapter> toDownload, int comicId, String source,
+      String selector, var platform) async {
+    // Download path stuff
+    final directory = platform == TargetPlatform.android
+        ? await getExternalStorageDirectory()
+        : await getApplicationDocumentsDirectory();
+    // Create a download object
+    await updateFromACS(toDownload, comicId, false, source, selector,
+        toggleRead: false);
+    List<ChapterDownload> newDownloads = [];
+    for (Chapter chapter in toDownload) {
+      // Get the ChapterData object
+      if (chapter.openInBrowser) continue;
+      ChapterData pointer = checkIfChapterMatch(chapter);
+      ChapterDownload c;
+      if (pointer != null) {
+        if (chapterDownloads.any((element) => element.chapterId == pointer.id))
+          continue;
+        else {
+          c = ChapterDownload(chapterId: pointer.id, comicId: comicId);
+          c.chapterUrl = chapter.link;
+          newDownloads.add(c);
+        }
+      }
+    }
+    //Save to DB
+    for (var x in newDownloads) {
+      x = await downloadManager.addDownload(x);
+    }
+    chapterDownloads.addAll(newDownloads);
+    notifyListeners(); // Show Queue indicator
+    Comic cm = comics.firstWhere((element) => element.id == comicId);
+
+    for (ChapterDownload download in newDownloads) {
+      // Try to get Images
+      ChapterData chapterData =
+          chapters.firstWhere((element) => element.id == download.chapterId);
+
+      try {
+        download.status = MSDownloadStatus.requested;
+        String filePath =
+            "/$msDownloadFolderName/$source/${cm.title}/${chapterData.title}-${chapterData.id}/";
+        String _localPath = directory.path + filePath;
+        download.saveDir = filePath;
+        notifyListeners(); // Notify of Status Change
+        await downloadManager.updateDownload(download);
+        ImageChapter value =
+            await ApiManager().getImages(selector, download.chapterUrl);
+        // Update ChapterData
+        if (value.images.isNotEmpty) {
+          chapterData.images = value.images;
+          await chapterManager.updateBatch([chapterData]);
+        }
+
+        // Update Status
+        // Queuing tasks
+        download.count = value.images.length;
+        // Create Download Path
+        Directory savedDir =
+            await Directory(_localPath).create(recursive: true);
+        // Download Logic
+        print("Downloading ${chapterData.title}, ${download.count} Images");
+        Map<String, String> headers = Map();
+        if (value.referer != null || value.referer.isNotEmpty)
+          headers = {"referer": value.referer};
+        download.status = MSDownloadStatus.downloading;
+        notifyListeners();
+
+        /// Queue Images
+        for (String image in value.images) {
+          String returnedTaskId = await FlutterDownloader.enqueue(
+            url: image,
+            savedDir: savedDir.path,
+            fileName: "${value.images.indexOf(image)}.jpg",
+            requiresStorageNotLow: true,
+            headers: headers,
+          );
+          download.taskIds.add(returnedTaskId);
+        }
+      } catch (err) {
+        download.status = MSDownloadStatus.error;
+        notifyListeners();
+        print("Caught Error");
+      }
+      // Update DB
+      await downloadManager.updateDownload(download);
+    }
+  }
+
+  Future<void> deleteDownloads(List toDelete) async {
+    List<ChapterDownload> targets = [];
+    if (toDelete is List<Chapter>) {
+      for (Chapter chapter in toDelete) {
+        // Get the ChapterData object
+        ChapterData pointer = checkIfChapterMatch(chapter);
+
+        if (pointer != null) {
+          var x = chapterDownloads.firstWhere((e) => e.chapterId == pointer.id,
+              orElse: () => null);
+          if (x != null) targets.add(x);
+        }
+      }
+    } else if (toDelete is List<ChapterDownload>) {
+      targets = List.of(toDelete);
+    }
+    // Delete Object so
+    chapterDownloads.removeWhere((e) => targets.contains(e));
+    // Delete all tasks associated with chapter, then delete object
+    var directory = await getApplicationDocumentsDirectory();
+    print("Deleting ${targets.length} downloads.");
+    for (ChapterDownload download in targets) {
+      await downloadManager.deleteDownload(download);
+      List ids = download.taskIds;
+      for (var id in ids) {
+        await FlutterDownloader.remove(taskId: id, shouldDeleteContent: true);
+      }
+
+      if (download.saveDir.isNotEmpty) {
+        String path = directory.path + "/" + download.saveDir;
+        Directory(path).deleteSync(recursive: true);
+      }
+    }
+    notifyListeners();
+  }
+
+  void monitorDownloads(TaskInfo task) async {
+    // This essentially monitors the callback and syncs the task with the db
+    // Get ChapterDownload to be updated
+    ChapterDownload c = chapterDownloads
+        .firstWhere((element) => element.taskIds.contains(task.taskId));
+    if (task.status != DownloadTaskStatus.failed) {
+      // Task has not failed
+
+      // Update progress
+      List<DownloadTask> pointers = [];
+      String test =
+          "(${c.taskIds.map((e) => "'${e.toString()}\'").join(", ")})";
+      String query = "SELECT * FROM task WHERE task_id IN $test";
+      pointers = await FlutterDownloader.loadTasksWithRawQuery(query: query);
+
+      if (task.status == DownloadTaskStatus.complete) {
+        var t = pointers.firstWhere((element) => element.taskId == task.taskId);
+        String fil = c.saveDir + t.filename;
+
+        if (!c.links.contains(fil)) {
+          c.links.add(fil);
+        }
+      }
+
+      if (c.progress != 100.0) {
+        int taskProgress =
+            pointers.map((e) => e.progress).toList().fold(0, (p, c) => p + c);
+        c.progress = taskProgress / c.count;
+        // print("${c.chapterId}: ${c.progress}, $taskProgress");
+        // if (c.progress == 100) print("Complete : ${c.chapterId}");
+        // print(query);
+      } else {
+        if (c.progress == 100.0 &&
+            c.links.length == c.count &&
+            c.count == c.taskIds.length) {
+          c.status = MSDownloadStatus.done;
+          c.links.sort((a, b) => parsePageNum(a).compareTo(parsePageNum(b)));
+          print("${c.chapterId}: Download Complete");
+        }
+      }
+    } else {
+      c.status = MSDownloadStatus.error;
+    }
+    await downloadManager.updateDownload(c);
+    notifyListeners();
+  }
+
+  parsePageNum(String page) {
+    page = page.split("/").last;
+    page = page.split(".").first;
+
+    int p = int.parse(page);
+    return p;
+  }
+
+  Future<void> retryDownload(BuildContext context) async {
+    for (ChapterDownload download in chapterDownloads
+        .where((element) => element.status == MSDownloadStatus.error)) {
+      // CLear task id
+
+      for (String task in download.taskIds) {
+        await FlutterDownloader.remove(taskId: task, shouldDeleteContent: true);
+        // await FlutterDownloader.cancel(taskId: task);
+      }
+      download.taskIds.clear();
+      // Try to get Images
+      ChapterData chapterData =
+          chapters.firstWhere((element) => element.id == download.chapterId);
+      try {
+        download.status = MSDownloadStatus.requested;
+        notifyListeners(); // Notify of Status Change
+        ImageChapter value = await ApiManager()
+            .getImages(chapterData.selector, download.chapterUrl);
+        // Update ChapterData
+        if (value.images.isNotEmpty) chapterData.images = value.images;
+
+        // Update Status
+        // Queuing tasks
+        download.count = value.images.length;
+        // Create Download Path
+
+        String _localPath =
+            Provider.of<PreferenceProvider>(context, listen: false).paths +
+                download.saveDir;
+
+        Directory savedDir =
+            await Directory(_localPath).create(recursive: true);
+
+        // Download Logic
+        print("Downloading ${chapterData.title}, ${download.count} Images");
+        // download.saveDir = filePath;
+        Map<String, String> headers = Map();
+        if (value.referer != null || value.referer.isNotEmpty)
+          headers = {"referer": value.referer};
+        download.status = MSDownloadStatus.downloading;
+        notifyListeners();
+
+        /// Queue Images
+        for (String image in value.images) {
+          String returnedTaskId = await FlutterDownloader.enqueue(
+            url: image,
+            savedDir: savedDir.path,
+            fileName: "${value.images.indexOf(image)}.jpg",
+            requiresStorageNotLow: true,
+            headers: headers,
+          );
+          download.taskIds.add(returnedTaskId);
+        }
+      } catch (err) {
+        download.status = MSDownloadStatus.error;
+        notifyListeners();
+      }
+      // Update DB
+      await downloadManager.updateDownload(download);
+    }
+  }
+
+  Future<void> cancelDownload() async {
+    List<ChapterDownload> toDelete = List.of(chapterDownloads
+        .where((element) => element.status == MSDownloadStatus.error)
+        .toList());
+    for (ChapterDownload download in toDelete) {
+      // CLear task id
+
+      for (String task in download.taskIds) {
+        await FlutterDownloader.remove(taskId: task, shouldDeleteContent: true);
+        // await FlutterDownloader.cancel(taskId: task);
+      }
+
+      await downloadManager.deleteDownload(download);
+      chapterDownloads.removeWhere((element) => element.id == download.id);
+    }
+    notifyListeners();
+  }
+
+  Future<void> deleteAllDownloads(BuildContext context) async {
+    // Get path
+    final directory = Theme.of(context).platform == TargetPlatform.android
+        ? await getExternalStorageDirectory()
+        : await getApplicationDocumentsDirectory();
+
+    String path = directory.path + "/" + msDownloadFolderName + "/";
+    String fix = directory.path + "/" + "MSDownload" + "/";
+    Directory(path).createSync(recursive: true);
+    await FlutterDownloader.cancelAll(); // Cancel All running tasks
+    for (var d in chapterDownloads) {
+      for (var task in d.taskIds) {
+        await FlutterDownloader.remove(taskId: task);
+      }
+      await downloadManager.deleteDownload(d);
+    }
+    chapterDownloads.clear();
+    // Delete Directory.
+    Directory(path).deleteSync(recursive: true);
+    Directory(path).createSync(recursive: true);
+    notifyListeners();
+  }
+
+  Future<void> clearChapterDataInfo(List<Chapter> pointers) async {
+    List<ChapterData> toUpdate = [];
+    for (Chapter chapter in pointers) {
+      // Get the ChapterData object
+      ChapterData target = checkIfChapterMatch(chapter);
+
+      // Reset Info
+      if (target != null) {
+        target.images.clear();
+        target.lastPageRead = 1;
+
+        //Update Info
+        int d = chapters.indexWhere((element) => element.id == target.id);
+        chapters[d] = target;
+        toUpdate.add(target);
+      }
+    }
+    await chapterManager.updateBatch(toUpdate);
+    notifyListeners();
   }
 }

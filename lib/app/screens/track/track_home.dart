@@ -1,36 +1,45 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/screens/mangadex/mangadex_home.dart';
+import 'package:mangasoup_prototype_3/app/screens/mangasoup/mangasoup_profile_screen.dart';
 import 'package:mangasoup_prototype_3/app/screens/track/mal/mal_screen.dart';
 
-class TrackingServicesPage extends StatelessWidget {
+class ServicesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    print("built");
+    List names = ['MangaDex', "MyAnimeList", "MangaSoup"];
+    List pages = [DexHubHome(), MALHome(), MangaSoupUserHome()];
+    List images = ["mangadex.png", "mal.png", "icon.png"];
     return Scaffold(
       appBar: AppBar(
-        title: Text("Tracking"),
+        title: Text("Services"),
         centerTitle: true,
       ),
       body: Container(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              tileColor: Color.fromRGBO(6, 6, 6, 1.0),
-              title: Text("MyAnimeList"),
-              leading: Image.asset("assets/images/mal.png"),
-              trailing: Icon(
-                CupertinoIcons.forward,
-                color: Colors.white,
+        child: ListView.separated(
+          itemBuilder: (_, index) => ListTile(
+            tileColor: Color.fromRGBO(6, 6, 6, 1.0),
+            title: Text(
+              names[index],
+              style: notInLibraryFont,
+            ),
+            leading: Image.asset("assets/images/${images[index]}"),
+            trailing: Icon(
+              CupertinoIcons.forward,
+              color: Colors.white,
+            ),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => pages[index],
               ),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => MALHome(),
-                ),
-              ),
-            )
-          ],
+            ),
+          ),
+          separatorBuilder: (_, index) => SizedBox(
+            height: 4,
+          ),
+          itemCount: names.length,
         ),
       ),
     );

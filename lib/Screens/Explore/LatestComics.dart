@@ -70,7 +70,6 @@ class _LatestPageState extends State<LatestPage>
       _scrollListener();
     });
     sourcesStream.stream.listen((event) {
-      print("loading latest page");
       Source _source =
           Provider.of<SourceNotifier>(context, listen: false).source;
       _futureComics = _loadComics(_source.selector, _page);
@@ -127,12 +126,14 @@ class _LatestPageState extends State<LatestPage>
                       SizedBox(
                         height: 10.h,
                       ),
-                      (_loadingMore)
-                          ? LoadingIndicator()
-                          : CupertinoButton(
-                              child: Text("Load More"),
-                              onPressed: () => paginate(),
-                            ),
+                      (_comics.isNotEmpty)
+                          ? (_loadingMore)
+                              ? LoadingIndicator()
+                              : CupertinoButton(
+                                  child: Text("Load More"),
+                                  onPressed: () => paginate(),
+                                )
+                          : Container(),
                     ],
                   ),
                 ),

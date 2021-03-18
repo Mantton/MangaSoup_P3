@@ -4,45 +4,28 @@ import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:provider/provider.dart';
 
-class PagedViewAdapter extends StatefulWidget {
-  final int initialPage;
 
-  const PagedViewAdapter({Key key, this.initialPage}) : super(key: key);
-  @override
-  _PagedViewAdapterState createState() => _PagedViewAdapterState();
-}
+class PagedViewAdapter extends StatelessWidget {
+  final PreloadPageController controller;
 
-class _PagedViewAdapterState extends State<PagedViewAdapter>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  void initState() {
-    print(widget.initialPage);
-    super.initState();
-  }
+  const PagedViewAdapter({Key key, this.controller}) : super(key: key);
 
-  PreloadPageController _controller;
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Consumer<ReaderProvider>(builder: (context, provider, _) {
       return Consumer<PreferenceProvider>(builder: (context, settings, _) {
-        _controller = PreloadPageController(
-            initialPage: widget.initialPage, viewportFraction: 1);
-
-        return PreloadPageView(
+        return PreloadPageView.builder(
           scrollDirection:
               settings.readerOrientation == 1 ? Axis.horizontal : Axis.vertical,
           pageSnapping: settings.readerPageSnapping,
-          controller: _controller,
+          controller: controller,
           reverse: settings.readerScrollDirection == 1 ? true : false,
           onPageChanged: provider.pageChanged,
           preloadPagesCount: 4,
-          children: provider.widgetPageList,
+          itemBuilder: (_, index) => provider.widgetPageList[index],
+          itemCount: provider.widgetPageList.length,
         );
       });
     });
   }
-
-  @override
-  bool get wantKeepAlive => false;
 }

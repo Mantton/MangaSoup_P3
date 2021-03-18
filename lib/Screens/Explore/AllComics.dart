@@ -74,7 +74,6 @@ class _AllComicsPageState extends State<AllComicsPage>
       _scrollListener();
     });
     sourcesStream.stream.listen((event) {
-      print("loading homepage");
       _page = 1;
       Source _source =
           Provider.of<SourceNotifier>(context, listen: false).source;
@@ -159,93 +158,8 @@ class _AllComicsPageState extends State<AllComicsPage>
                                 onTap: () {
                                   showPlatformModalSheet(
                                     context: context,
-                                    builder: (_) => PlatformWidget(
-                                      material: (_, __) => ListView.builder(
-                                        shrinkWrap: true,
-                                        itemCount: sourceProvider
-                                            .source.sorters.length,
-                                        itemBuilder:
-                                            (BuildContext context, index) =>
-                                                ListTile(
-                                          title: Text(
-                                            sourceProvider.source.sorters[index]
-                                                ['name'],
-                                          ),
-                                          leading: Icon(
-                                            Icons.check,
-                                            color: (_sort['selector'] ==
-                                                    sourceProvider.source
-                                                            .sorters[index]
-                                                        ['selector'])
-                                                ? Colors.purple
-                                                : Colors.transparent,
-                                          ),
-                                          onTap: () {
-                                            setState(() {
-                                              _sort = sourceProvider
-                                                  .source.sorters[index];
-                                              _futureComics = _loadComics(
-                                                  sourceProvider
-                                                      .source.selector,
-                                                  _sort['selector'],
-                                                  1,
-                                                  {});
-                                              Navigator.pop(context);
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                      cupertino: (_, __) =>
-                                          CupertinoActionSheet(
-                                            title: Text(
-                                          "Sort by",
-                                        ),
-                                        cancelButton:
-                                            CupertinoActionSheetAction(
-                                          child: Text("Cancel"),
-                                          isDestructiveAction: true,
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                        ),
-                                        actions: List<
-                                            CupertinoActionSheetAction>.generate(
-                                          sourceProvider.source.sorters.length,
-                                          (index) => CupertinoActionSheetAction(
-                                            onPressed: () {
-                                              setState(() {
-                                                _sort = sourceProvider
-                                                    .source.sorters[index];
-                                                _futureComics = _loadComics(
-                                                    sourceProvider
-                                                        .source.selector,
-                                                    _sort['selector'],
-                                                    1,
-                                                    {});
-                                                Navigator.pop(context);
-                                              });
-                                            },
-                                            child: Row(
-                                              children: <Widget>[
-                                                Text(
-                                                  sourceProvider.source
-                                                      .sorters[index]['name'],
-                                                ),
-                                                Spacer(),
-                                                Icon(
-                                                  _sort['selector'] ==
-                                                          sourceProvider.source
-                                                                  .sorters[
-                                                              index]['selector']
-                                                      ? CupertinoIcons
-                                                          .check_mark
-                                                      : null,
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                    builder: (_) =>
+                                        buildSortTypes(sourceProvider, context),
                                   );
                                 },
                               ),
@@ -259,12 +173,14 @@ class _AllComicsPageState extends State<AllComicsPage>
                       SizedBox(
                         height: 10,
                       ),
-                      (_loadingMore)
-                          ? LoadingIndicator()
-                          : CupertinoButton(
-                              child: Text("Load More"),
-                              onPressed: () => paginate(),
-                            ),
+                      (_comics.isNotEmpty)
+                          ? (_loadingMore)
+                              ? LoadingIndicator()
+                              : CupertinoButton(
+                                  child: Text("Load More"),
+                                  onPressed: () => paginate(),
+                                )
+                          : Container(),
                     ],
                   ),
                 ),
@@ -280,6 +196,73 @@ class _AllComicsPageState extends State<AllComicsPage>
               );
             }
           }),
+    );
+  }
+
+  PlatformWidget buildSortTypes(
+      SourceNotifier sourceProvider, BuildContext context) {
+    return PlatformWidget(
+      material: (_, __) => ListView.builder(
+        shrinkWrap: true,
+        itemCount: sourceProvider.source.sorters.length,
+        itemBuilder: (BuildContext context, index) => ListTile(
+          title: Text(
+            sourceProvider.source.sorters[index]['name'],
+          ),
+          leading: Icon(
+            Icons.check,
+            color: (_sort['selector'] ==
+                    sourceProvider.source.sorters[index]['selector'])
+                ? Colors.purple
+                : Colors.transparent,
+          ),
+          onTap: () {
+            setState(() {
+              _sort = sourceProvider.source.sorters[index];
+              _futureComics = _loadComics(
+                  sourceProvider.source.selector, _sort['selector'], 1, {});
+              Navigator.pop(context);
+            });
+          },
+        ),
+      ),
+      cupertino: (_, __) => CupertinoActionSheet(
+        title: Text(
+          "Sort by",
+        ),
+        cancelButton: CupertinoActionSheetAction(
+          child: Text("Cancel"),
+          isDestructiveAction: true,
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: List<CupertinoActionSheetAction>.generate(
+          sourceProvider.source.sorters.length,
+          (index) => CupertinoActionSheetAction(
+            onPressed: () {
+              setState(() {
+                _sort = sourceProvider.source.sorters[index];
+                _futureComics = _loadComics(
+                    sourceProvider.source.selector, _sort['selector'], 1, {});
+                Navigator.pop(context);
+              });
+            },
+            child: Row(
+              children: <Widget>[
+                Text(
+                  sourceProvider.source.sorters[index]['name'],
+                ),
+                Spacer(),
+                Icon(
+                  _sort['selector'] ==
+                          sourceProvider.source.sorters[index]['selector']
+                      ? CupertinoIcons.check_mark
+                      : null,
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

@@ -196,9 +196,12 @@ class EditTrack extends StatelessWidget {
                 SizedBox(
                   width: 5,
                 ),
-                Text(
-                  tracker.title,
-                  style: notInLibraryFont,
+                Flexible(
+                  flex: 8,
+                  child: Text(
+                    tracker.title,
+                    style: notInLibraryFont,
+                  ),
                 ),
                 Spacer(),
                 IconButton(
@@ -299,42 +302,46 @@ class EditTrack extends StatelessWidget {
               ),
             ],
           ),
-          Divider(
-            color: Colors.grey[700],
-            thickness: 2,
-            height: 10,
-          ),
-          Row(
-            children: [
-              Spacer(),
-              MaterialButton(
-                onPressed: () => datePickerDialog(context: context),
-                child: Text(
-                  (tracker.dateStarted != null
-                          ? "${DateFormat('yyyy-MM-dd').format(tracker.dateStarted)}"
-                          : "-") +
-                      "\nStart Date",
-                  textAlign: TextAlign.center,
-                  style: def,
-                ),
-              ),
-              Spacer(),
-              MaterialButton(
-                onPressed: () => datePickerDialog(context: context),
-                child: Text(
-                  (tracker.dateEnded != null
-                          ? "${DateFormat('yyyy-MM-dd').format(tracker.dateEnded)}"
-                          : "-") +
-                      "\nEnd Date",
-                  textAlign: TextAlign.center,
-                  style: def,
-                ),
-              ),
-              Spacer(),
-            ],
-          )
+          // Divider(
+          //   color: Colors.grey[700],
+          //   thickness: 2,
+          //   height: 10,
+          // ),
+          // buildDate(context, def)
         ]),
       ),
+    );
+  }
+
+  Row buildDate(BuildContext context, TextStyle def) {
+    return Row(
+      children: [
+        Spacer(),
+        MaterialButton(
+          onPressed: () => datePickerDialog(context: context),
+          child: Text(
+            (tracker.dateStarted != null
+                    ? "${DateFormat('yyyy-MM-dd').format(tracker.dateStarted)}"
+                    : "-") +
+                "\nStart Date",
+            textAlign: TextAlign.center,
+            style: def,
+          ),
+        ),
+        Spacer(),
+        MaterialButton(
+          onPressed: () => datePickerDialog(context: context),
+          child: Text(
+            (tracker.dateEnded != null
+                    ? "${DateFormat('yyyy-MM-dd').format(tracker.dateEnded)}"
+                    : "-") +
+                "\nEnd Date",
+            textAlign: TextAlign.center,
+            style: def,
+          ),
+        ),
+        Spacer(),
+      ],
     );
   }
 }

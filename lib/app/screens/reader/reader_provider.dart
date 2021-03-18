@@ -8,13 +8,14 @@ import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/downloads.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_chapter.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/models/reader_page.dart';
-import 'package:mangasoup_prototype_3/app/screens/reader/webtoon_reader/webtoon_view_holder.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/empty_response.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/widgets/image_holder.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reached_end_page.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/widgets/reader_transition_page.dart';
 import 'package:provider/provider.dart';
@@ -25,11 +26,11 @@ class ReaderProvider with ChangeNotifier {
   String source;
   bool showControls = false;
 
-  List<ReaderChapter> readerChapters = List(); // loaded chapters
-  List<Widget> widgetPageList = List(); // Pages to be shown
-  List<Chapter> chapters = List(); // the chapters from the profile
-  List pagePositionList = List(); // the page number for each widget page
-  List indexList = List(); // the chapter index for each page
+  List<ReaderChapter> readerChapters = []; // loaded chapters
+  List<Widget> widgetPageList = []; // Pages to be shown
+  List<Chapter> chapters = []; // the chapters from the profile
+  List pagePositionList = []; // the page number for each widget page
+  List indexList = []; // the chapter index for each page
 
   int currentPage = 0;
   String selector;
@@ -51,7 +52,7 @@ class ReaderProvider with ChangeNotifier {
       int initialIndex,
       String incomingSelector,
       BuildContext widgetContext,
-      int comic_id,
+      int cId,
       String incomingSource,
       {bool loaded = false,
       bool imgurAlbum = false,
@@ -63,7 +64,7 @@ class ReaderProvider with ChangeNotifier {
     currentIndex = initialIndex;
     selector = incomingSelector;
     context = widgetContext;
-    comicId = comic_id;
+    comicId = cId;
     source = incomingSource;
     // Get Chapter being pointed to
     Chapter chapter = incomingChapters.elementAt(initialIndex);
@@ -85,36 +86,24 @@ class ReaderProvider with ChangeNotifier {
         source,
         selector,
       );
-      print("History Initialized");
+      // print("History Initialized");
     }
 
     // Debugging
-    print("Specified Initial Page Index: $initialPageIndex");
+    // print("Specified Initial Page Index: $initialPageIndex");
     // Initialize Reader Chapter
     ReaderChapter firstChapter = ReaderChapter();
     firstChapter.chapterName = chapter.name;
     firstChapter.generatedNumber = chapter.generatedNumber;
     firstChapter.index = initialIndex;
-
-    ImageChapter response;
+    ImageChapter response = ImageChapter();
     try {
-      // Get Images
-      response = !loaded
-          ? await ApiManager().getImages(selector, chapter.link)
-          : loadedChapter;
-    } catch (err) {
+      response = await retrieveImages(chapter, initPage, loaded, loadedChapter);
+    } catch (err, stacktrace) {
+      print(stacktrace);
       ErrorManager.analyze(err);
     }
 
-    try {
-      await Provider.of<DatabaseProvider>(context, listen: false)
-          .updateChapterImages(chapter, response.images);
-      print("Images set for ${chapter.name}");
-      await Provider.of<DatabaseProvider>(context, listen: false)
-          .updateChapterInfo(initPage, chapter);
-    } catch (err) {
-      print("IMAGE ERROR: $err");
-    }
     if (response.images.isEmpty) {
       emptyResponse();
     } else {
@@ -132,6 +121,59 @@ class ReaderProvider with ChangeNotifier {
 
     notifyListeners();
     return true;
+  }
+
+  Future<ImageChapter> retrieveImages(Chapter chapter, int initialPage,
+      bool externalImageChapter, ImageChapter external) async {
+    ImageChapter response = ImageChapter(images: [], referer: chapter.link);
+
+    ChapterDownload download =
+        Provider.of<DatabaseProvider>(context, listen: false)
+            .chapterDownloads
+            .firstWhere(
+                (element) =>
+                    element.chapterUrl == chapter.link &&
+                    element.status == MSDownloadStatus.done,
+                orElse: () => null);
+
+    // Downloaded Chapter
+    if (download != null) {
+      // Chapter has a download pointer
+      response.images = download.links;
+      response.referer = "MangaSoup";
+    }
+
+    // External Chapter
+    else if (externalImageChapter && external != null)
+      response = external;
+    else {
+      ChapterData target = Provider.of<DatabaseProvider>(context, listen: false)
+          .checkIfChapterMatch(chapter);
+
+      // ChapterData Contains Images
+      if (target != null && target.images.isNotEmpty) {
+        response.images =
+            (target.images)?.map((item) => item as String)?.toList();
+      } else {
+        // ChapterData does not contain images, call API
+        try {
+          response = await ApiManager().getImages(selector, chapter.link);
+          try {
+            // Save Image Response
+            await Provider.of<DatabaseProvider>(context, listen: false)
+                .updateChapterImages(chapter, response.images);
+          } catch (err) {
+            print("IMAGE ERROR: $err");
+          }
+        } catch (err) {
+          ErrorManager.analyze(err);
+        }
+      }
+    }
+
+    await Provider.of<DatabaseProvider>(context, listen: false)
+        .updateChapterInfo(initialPage, chapter);
+    return response;
   }
 
   addInitialChapterToView(ReaderChapter chapter) {
@@ -217,31 +259,28 @@ class ReaderProvider with ChangeNotifier {
         readerChapter.generatedNumber = chapter.generatedNumber;
         readerChapter.index = nextIndex;
         // Get Images
-        ImageChapter response =
-            await ApiManager().getImages(selector, chapter.link);
         try {
-          await Provider.of<DatabaseProvider>(context, listen: false)
-              .updateChapterImages(chapter, response.images);
-          print("Images set for ${chapter.name}");
-        } catch (err) {
-          print("IMAGE ERROR: $err");
-        }
+          ImageChapter response = await retrieveImages(chapter, 1, false, null);
 
-        if (response.images.isEmpty) {
-          emptyResponse();
-        } else {
-          int c = 0;
-          pagePositionList.add(null); // for transition page
-          indexList.add(null);
+          if (response.images.isEmpty) {
+            emptyResponse();
+          } else {
+            int c = 0;
+            pagePositionList.add(null); // for transition page
+            indexList.add(null);
 
-          for (String uri in response.images) {
-            ReaderPage newPage = ReaderPage(c, uri, response.referer);
-            readerChapter.pages.add(newPage);
-            c++;
-            pagePositionList.add(c);
-            indexList.add(nextIndex);
+            for (String uri in response.images) {
+              ReaderPage newPage = ReaderPage(c, uri, response.referer);
+              readerChapter.pages.add(newPage);
+              c++;
+              pagePositionList.add(c);
+              indexList.add(nextIndex);
+            }
+            addChapterToView(readerChapter);
           }
-          addChapterToView(readerChapter);
+        } catch (err, stacktrace) {
+          print(stacktrace);
+          showSnackBarMessage("Failed to load next chapter", error: true);
         }
       }
     }
@@ -303,7 +342,7 @@ class ReaderProvider with ChangeNotifier {
         !imgur) {
       // things to fix, going bac would cause next to be triggered
       int nextIndex = currentIndex - 1;
-      print(chapterHolder.keys.toList());
+      // print(chapterHolder.keys.toList());
       if (!chapterHolder.keys.contains(nextIndex)) {
         print("loading next");
 
@@ -340,7 +379,7 @@ class ReaderProvider with ChangeNotifier {
                   await ApiManager().syncChapters(
                       [chapters.elementAt(currentIndex).link], true);
                 } catch (err) {
-                  showSnackBarMessage(err);
+                  showSnackBarMessage(err, error: true);
                 }
               }
               try {
@@ -357,13 +396,17 @@ class ReaderProvider with ChangeNotifier {
                     // do nothing, no element was found
                   }
                   if (t != null) {
-                    t.lastChapterRead = chapters
+                    int chapt = chapters
                         .elementAt(indexList[page])
                         .generatedNumber
                         .toInt();
-                    print(t.lastChapterRead);
-                    await Provider.of<DatabaseProvider>(context, listen: false)
-                        .updateTracker(t);
+                    // Only Update if Read More not less
+                    if (chapt > t.lastChapterRead) {
+                      t.lastChapterRead = chapt;
+                      await Provider.of<DatabaseProvider>(context,
+                              listen: false)
+                          .updateTracker(t);
+                    }
                   }
                 }
               } catch (err) {
@@ -420,59 +463,64 @@ class ReaderProvider with ChangeNotifier {
   }
 
   moveToChapter({bool next = true, int index}) async {
-    if (index == null) {
-      index = currentIndex;
-    }
-    // Might have to reinitialize entire reader
-    int target;
-    if (next) {
-      // Move to Next chapter
-      target = index - 1;
-    } else {
-      // Move to Previous Chapter
-      target = index + 1;
-    }
-    int mode = Provider.of<PreferenceProvider>(context, listen: false)
-        .readerScrollDirection;
-    int pow =
-        Provider.of<PreferenceProvider>(context, listen: false).readerMode;
-    if (target < 0) {
-      // no chapter after it.
-      showMessage(
-          "Last chapter",
-          (pow == 1)
-              ? (mode == 1)
-                  ? Icons.skip_previous_outlined
-                  : Icons.skip_next_outlined
-              : Icons.skip_next_outlined,
-          Duration(seconds: 1));
-    } else if (target >= chapters.length) {
-      // no chapters before it
-      showMessage(
-          "First Chapter",
-          (pow == 1)
-              ? (mode == 1)
-                  ? Icons.skip_next_outlined
-                  : Icons.skip_previous_outlined
-              : Icons.skip_previous_outlined,
-          Duration(seconds: 1));
-    } else {
-      // Check for duplicates
-      Chapter chapter = chapters.elementAt(target);
-      Chapter current = chapters.elementAt(currentIndex);
-
-      if (chapter.generatedNumber == current.generatedNumber) {
-        // print("match at index: $target, ${chapter.generatedNumber} == ${current.generatedNumber}");
-        await moveToChapter(next: next, index: target);
-      } else {
-        print("Changing Chapters");
-        var c = List.of(chapters);
-        var s = selector;
-        var ctx = context;
-        var id = comicId;
-        var src = source;
-        await init(c, target, s, ctx, id, src);
+    try {
+      if (index == null) {
+        index = currentIndex;
       }
+      // Might have to reinitialize entire reader
+      int target;
+      if (next) {
+        // Move to Next chapter
+        target = index - 1;
+      } else {
+        // Move to Previous Chapter
+        target = index + 1;
+      }
+      int mode = Provider.of<PreferenceProvider>(context, listen: false)
+          .readerScrollDirection;
+      int pow =
+          Provider.of<PreferenceProvider>(context, listen: false).readerMode;
+      if (target < 0) {
+        // no chapter after it.
+        showMessage(
+            "Last chapter",
+            (pow == 1)
+                ? (mode == 1)
+                    ? Icons.skip_previous_outlined
+                    : Icons.skip_next_outlined
+                : Icons.skip_next_outlined,
+            Duration(seconds: 1));
+      } else if (target >= chapters.length) {
+        // no chapters before it
+        showMessage(
+            "First Chapter",
+            (pow == 1)
+                ? (mode == 1)
+                    ? Icons.skip_next_outlined
+                    : Icons.skip_previous_outlined
+                : Icons.skip_previous_outlined,
+            Duration(seconds: 1));
+      } else {
+        // Check for duplicates
+        Chapter chapter = chapters.elementAt(target);
+        Chapter current = chapters.elementAt(currentIndex);
+
+        if (chapter.generatedNumber == current.generatedNumber) {
+          // print("match at index: $target, ${chapter.generatedNumber} == ${current.generatedNumber}");
+          await moveToChapter(next: next, index: target);
+        } else {
+          print("Changing Chapters");
+          var c = List.of(chapters);
+          var s = selector;
+          var ctx = context;
+          var id = comicId;
+          var src = source;
+          await init(c, target, s, ctx, id, src);
+        }
+      }
+    } catch (err, stacktrace) {
+      print(stacktrace);
+      showSnackBarMessage("Failed to load chapter", error: true);
     }
   }
 
@@ -500,5 +548,12 @@ class ReaderProvider with ChangeNotifier {
     initialPageIndex = 1;
     currentPage = 0;
     pageBookmarked = false;
+  }
+
+  String getCurrentChapterLink() {
+    if (indexList[currentIndex] != null) {
+      return chapters.elementAt(indexList[currentIndex]).link;
+    } else
+      return null;
   }
 }

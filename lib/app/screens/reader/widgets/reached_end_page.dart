@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/widgets/comic_collection_widget.dart';
@@ -19,8 +18,8 @@ class ReachedEndPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "That was the last available chapter.\n"
-              "${inLibrary.inLibrary ? "This comic is in your library, you will be notified when a new chapter is available" : "Add this comic to your library to be updated when more chapters are released!"}",
+              "Reached End.\n"
+              "${inLibrary.inLibrary ? "In your library, you will be notified when a new chapter is available" : "Add this comic to your library to be updated when more chapters are released!"}",
               style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,

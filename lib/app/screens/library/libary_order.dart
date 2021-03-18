@@ -1,25 +1,25 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LibraryOrderManagerPage extends StatefulWidget {
   @override
-  _LibraryOrderManagerPageState createState() => _LibraryOrderManagerPageState();
+  _LibraryOrderManagerPageState createState() =>
+      _LibraryOrderManagerPageState();
 }
 
 class _LibraryOrderManagerPageState extends State<LibraryOrderManagerPage> {
   @override
   Widget build(BuildContext context) {
     return PlatformScaffold(
-      iosContentPadding: true,
-      appBar: PlatformAppBar(
-        title: Text("Library Order"),
-      ),
-      body: CollectionOrderManager()
-    );
+        iosContentPadding: true,
+        appBar: PlatformAppBar(
+          title: Text("Library Order"),
+        ),
+        body: CollectionOrderManager());
   }
 }
 
@@ -33,46 +33,63 @@ class CollectionOrderManager extends StatefulWidget {
 }
 
 class _CollectionOrderManagerState extends State<CollectionOrderManager> {
+  List<Collection> collections = List();
+
+  @override
+  void initState() {
+    collections = List.of(
+        Provider.of<DatabaseProvider>(context, listen: false).collections);
+    collections.removeWhere((element) => element.order == 0); //Remove Default.
+    collections.sort((a, b) => a.order.compareTo(b.order)); // Sort Order
+    super.initState();
+  }
+
+  void _reOrderList(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+
+      Collection c = collections.removeAt(oldIndex);
+      collections.insert(newIndex, c);
+      Provider.of<DatabaseProvider>(context, listen: false)
+          .updateCollectionOrder(collections);
+      // Update in Provider
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<DatabaseProvider>(
-        builder: (BuildContext context, provider, _) {
-      List<Collection> collections = List.of(provider.collections);
-      collections
-          .removeWhere((element) => element.order == 0); //Remove Default.
-      collections.sort((a, b) => a.order.compareTo(b.order)); // Sort Order
-
-      // Uncomment this line below for collection debugging
-      // print(collections.map((e) => "${e.name}: ${e.order}").toList() );
-      return ReorderableListView(
-        padding:EdgeInsets.all(10.w),
-        onReorder: provider.updateCollectionOrder,
-        children: [
-          for (final collection in collections)
-            SizedBox(
-              height: 70,
-              key: ValueKey(collection.name),
-              child: Center(
-                child: Card(
-                  color: Colors.grey[900],
-                  elevation: 2,
-                  child: ListTile(
-                    title: Text(collection.name, style: TextStyle(fontSize:20 ),),
-                    trailing: Icon(
-                      Icons.dehaze,
-                      color: Colors.grey[800],
+    return Column(
+      children: [
+        Expanded(
+          child: ReorderableListView(
+            padding: EdgeInsets.all(10),
+            onReorder: _reOrderList,
+            children: collections
+                .map(
+                  (collection) => Card(
+                    color: Colors.grey[900],
+                    elevation: 2,
+                    key: Key(collection.name),
+                    child: ListTile(
+                      title: Text(
+                        collection.name,
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.dehaze,
+                        color: Colors.grey[800],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
-        ],
-      );
-    });
+                )
+                .toList(),
+          ),
+        ),
+      ],
+    );
   }
 }
-
-/*
-* Settings: Order, View
-* */

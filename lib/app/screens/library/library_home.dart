@@ -15,6 +15,7 @@ import 'package:mangasoup_prototype_3/app/data/enums/collection_sort.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/library_options_dialog.dart';
 import 'package:mangasoup_prototype_3/app/screens/library/library_search.dart';
+import 'package:mangasoup_prototype_3/app/screens/mangadex/mangadex_home.dart';
 import 'package:provider/provider.dart';
 
 class LibraryHome extends StatefulWidget {
@@ -151,24 +152,51 @@ class _LibraryHomeState extends State<LibraryHome>
             ),
             FlatButton(
               color: Colors.purple,
-              onPressed: () {
-                showPlatformDialog(
-                    context: context,
-                    builder: (_) => PlatformAlertDialog(
-                          title: Text("Import Library"),
-                          content: Text(
-                              "You can import your MDList Library by going to\nMangaDex Home>View Library>Merge Into Local"),
-                          actions: [
-                            PlatformDialogAction(
-                                child: Text("OK"),
-                                onPressed: () => Navigator.pop(context)),
-                          ],
-                        ));
-              },
+              onPressed: () => showPlatformModalSheet(
+                context: context,
+                builder: (_) => PlatformWidget(
+                  cupertino: (_, __) => CupertinoActionSheet(
+                    title: Text('Import from'),
+                    cancelButton: CupertinoActionSheetAction(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text("Cancel"),
+                      isDefaultAction: true,
+                    ),
+                    actions: [
+                      CupertinoActionSheetAction(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          showSnackBarMessage("Not Implemented", error: true);
+                        },
+                        child: Text("MangaSoup Cloud Sync"),
+                      ),
+                      CupertinoActionSheetAction(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => DexHubHome(),
+                          ),
+                        ).then(
+                          (value) => Navigator.pop(context),
+                        ),
+                        child: Text("MangaDex"),
+                      ),
+                      CupertinoActionSheetAction(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          showSnackBarMessage("Not Implemented", error: true);
+                        },
+                        child: Text("Local BackUp"),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               child: Text("Import"),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  side: BorderSide(color: Colors.grey[900])),
+                borderRadius: BorderRadius.circular(10.0),
+                side: BorderSide(color: Colors.grey[900]),
+              ),
             ),
           ],
         ),
@@ -337,7 +365,7 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
             mainAxisSize: MainAxisSize.min,
           ),
           cupertino: (_, __) => CupertinoActionSheet(
-            title: Text("Collection Sort"),
+            message: Text("Sort By"),
             cancelButton: CupertinoActionSheetAction(
               child: Text("Cancel"),
               isDestructiveAction: true,
@@ -351,9 +379,13 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
                   provider.updateCollection(collection);
                   Navigator.pop(context);
                 },
-                child: Text(
-                  collectionSortNames[index],
-                ),
+                child: Row(children: [
+                  Text(collectionSortNames[index]),
+                  Spacer(),
+                  collection.librarySort == index
+                      ? Icon(Icons.check)
+                      : Container(),
+                ]),
               ),
             ),
           ),

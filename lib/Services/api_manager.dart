@@ -11,20 +11,26 @@ import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/homepage.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/language_server.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
+import 'package:mangasoup_prototype_3/app/data/enums/comic_status.dart';
 import 'package:mangasoup_prototype_3/app/data/mangadex/models/mangadex_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiManager {
-  //10.0.2.2 /127.0.0.1  http://10.0.2.2:8080/app/sources?server=live
-
-  static String _devAddress = "http://34.70.145.22";
+  static String _devAddress = "https://api.mangasoup.net";
+  static String _localAddress = "http://127.0.0.1:5000";
 
   static BaseOptions _options = BaseOptions(
-    // actual route -->
     baseUrl: _devAddress,
     connectTimeout: 50000,
     receiveTimeout: 50000,
+  );
+
+  static BaseOptions _download = BaseOptions(
+    baseUrl: _devAddress,
+    connectTimeout: 5000,
+    receiveTimeout: 5000,
   );
   final Dio _dio = Dio(_options);
   final DexHub dex = DexHub();
@@ -52,10 +58,25 @@ class ApiManager {
     return sources;
   }
 
+  Future<List<LanguageServer>> getLanguageServers() async {
+    List<LanguageServer> servers = [];
+    try {
+      Response response = await _dio.get("/app/sources/servers");
+
+      for (var map in response.data['data']) {
+        servers.add(LanguageServer.fromMap(map));
+      }
+    } catch (err) {
+      ErrorManager.analyze(err);
+    }
+
+    return servers;
+  }
+
   Future<List<HomePage>> getHomePage() async {
     Response response = await _dio.get('/app/sources/homepage');
     List initial = response.data['content'];
-    debugPrint(initial.length.toString());
+    // debugPrint(initial.length.toString());
     List<HomePage> pages = [];
     for (int index = 0; index < initial.length; index++) {
       Map test = initial[index];
@@ -108,13 +129,12 @@ class ApiManager {
       "data": additionalParams
     };
     Response response = await _dio.post("/api/v1/all", data: jsonEncode(data));
-    debugPrint(response.request.data.toString());
+    // debugPrint(response.request.data.toString());
     List dataPoints = response.data['comics'];
     List<ComicHighlight> comics = [];
     for (int index = 0; index < dataPoints.length; index++) {
       comics.add(ComicHighlight.fromMap(dataPoints[index]));
     }
-    debugPrint("Retrieval Complete : /all @$source s/$sortBy");
     return comics;
   }
 
@@ -134,7 +154,6 @@ class ApiManager {
     for (int index = 0; index < dataPoints.length; index++) {
       comics.add(ComicHighlight.fromMap(dataPoints[index]));
     }
-    debugPrint("Retrieval Complete : /latest @$source");
     return comics;
   }
 
@@ -145,10 +164,7 @@ class ApiManager {
       Map additionalParams = await prepareAdditionalInfo(source);
       if (source == "mangadex") return dex.profile(link, additionalParams);
       Map data = {"selector": source, "link": link, "data": additionalParams};
-      print(data);
       Response response = await _dio.post('/api/v1/profile', data: data);
-      debugPrint(
-          "Retrieval Complete : /Profile : ${response.data['title']} @$source");
       p = Profile.fromMap(response.data);
     } catch (err) {
       ErrorManager.analyze(err);
@@ -188,7 +204,6 @@ class ApiManager {
       for (int index = 0; index < dataPoints.length; index++) {
         tags.add(Tag.fromMap(dataPoints[index]));
       }
-      debugPrint("Retrieval Complete : /Tags @$source");
     } catch (err) {
       ErrorManager.analyze(err);
     }
@@ -217,7 +232,6 @@ class ApiManager {
       for (int index = 0; index < dataPoints.length; index++) {
         comics.add(ComicHighlight.fromMap(dataPoints[index]));
       }
-      debugPrint("Retrieval Complete : /tagComics @$source");
     } catch (err) {
       ErrorManager.analyze(err);
     }
@@ -239,11 +253,10 @@ class ApiManager {
         "data": additionalParams,
       };
       Response response = await _dio.post('/api/v1/search', data: data);
-      List dataPoints = response.data['comics'];
+      List dataPoints = response.data['comics'] ?? [];
       for (int index = 0; index < dataPoints.length; index++) {
         comics.add(ComicHighlight.fromMap(dataPoints[index]));
       }
-      debugPrint("Retrieval Complete : /search @$source");
     } catch (err) {
       ErrorManager.analyze(err);
     }
@@ -266,7 +279,6 @@ class ApiManager {
       for (int index = 0; index < dataPoints.length; index++) {
         comics.add(ComicHighlight.fromMap(dataPoints[index]));
       }
-      debugPrint("Retrieval Complete : /browse @$source");
     } catch (err) {
       ErrorManager.analyze(err);
     }
@@ -294,7 +306,7 @@ class ApiManager {
       await DexHub().markChapter(ids, read, additionalParams);
     } catch (e) {
       print(e.response.data);
-      throw "Parsing Error";
+      throw "Chapter Sync Error";
     }
   }
 
@@ -302,7 +314,7 @@ class ApiManager {
     List<ImageSearchResult> isrResults = List();
 
     try {
-      debugPrint("${image.path}");
+      // debugPrint("${image.path}");
       FormData _data = FormData.fromMap({
         "file": await MultipartFile.fromFile(image.path,
             filename: image.path.split('/').last)
@@ -326,10 +338,10 @@ class ApiManager {
     // Link
     if (info.contains("http")) {
       if (info.endsWith("/")) info = info.substring(0, info.length - 1);
-      print(info);
+      // print(info);
       // get id
       albumID = info.split("/").last;
-      print(albumID);
+      // print(albumID);
     } else {
       albumID = info;
     }
@@ -396,4 +408,12 @@ Future<Map> prepareAdditionalInfo(String source) async {
     // print("DATA: $generated");
     return generated;
   }
+}
+
+Status statusLogic(String status) {
+  int index = 0;
+  try {
+    index = int.parse(status);
+  } catch (err) {}
+  return Status.values[index];
 }

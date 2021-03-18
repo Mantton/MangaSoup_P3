@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Globals.dart';
 import 'package:mangasoup_prototype_3/Models/Setting.dart';
 import 'package:mangasoup_prototype_3/Providers/SourceProvider.dart';
+import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -57,17 +57,40 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
         children: [
           ListTile(
             title: Text("Clear Source Cookies"),
-            subtitle: Text("This would log you out or remove cloudfare bypasses"),
-            onTap: ()async{
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              prefs.setString("${_selector}_cookies", null).then((value){
-                showSnackBarMessage("Source Cookies cleared!");
-
-              });
-            },
+            subtitle: Text(
+                "This would remove authentication credentials and clear CloudFlare bypasses for this source"),
+            onTap: () => showPlatformDialog(
+              context: context,
+              builder: (_) => PlatformAlertDialog(
+                title: Text("Confirm Clear"),
+                content: Text(
+                    "Proceeding will forcefully remove any log in credentials and clear the cloudflare bypasses"),
+                actions: [
+                  PlatformDialogAction(
+                    child: Text("Cancel"),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  PlatformDialogAction(
+                    child: Text("Proceed"),
+                    cupertino: (_, __) =>
+                        CupertinoDialogActionData(isDestructiveAction: true),
+                    onPressed: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      if (_selector == "mangadex") {
+                        DexHub().logout();
+                      }
+                      prefs.remove("${_selector}_cookies").then((value) {
+                        showSnackBarMessage("Source Cookies cleared!");
+                      });
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
           (userSourceSettings != null) ? sourceSettings() : Container(),
-
         ],
       )),
     );
@@ -188,9 +211,9 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
                 newList.add(SettingOption.fromMap(map));
               }
               showDialog(
-                  context: context,
-                  builder: (BuildContext context) =>
-                      MultiSelectDialog(items: newList, setting: setting))
+                      context: context,
+                      builder: (BuildContext context) =>
+                          MultiSelectDialog(items: newList, setting: setting))
                   .then((value) async {
                 print(value);
                 if (value != null) {
@@ -200,7 +223,7 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
                   print(userSourceSettings);
                   showLoadingDialog(context);
                   SharedPreferences manager =
-                  await SharedPreferences.getInstance();
+                      await SharedPreferences.getInstance();
                   await manager.setString(
                       "${selector}_settings", jsonEncode(userSourceSettings));
                   sourcesStream.add(selector);
@@ -213,10 +236,7 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
               });
             },
             child: Text(
-              "${userSourceSettings[setting.selector].isNotEmpty
-                  ? (userSourceSettings[setting.selector] as List).map((
-                  obj) => obj['name']).join(", ")
-                  : "Not Set"}",
+              "${userSourceSettings[setting.selector].isNotEmpty ? (userSourceSettings[setting.selector] as List).map((obj) => obj['name']).join(", ") : "Not Set"}",
               style: isEmptyFont,
               softWrap: true,
             ),

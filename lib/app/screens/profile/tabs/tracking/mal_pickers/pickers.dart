@@ -149,7 +149,7 @@ class MangaSoupScorePicker extends StatelessWidget {
               style: notInLibraryFont,
             ),
             Container(
-              height: 150,
+              height: 130,
               child: PlatformWidget(
                 cupertino: (_, __) => CupertinoPicker.builder(
                   itemExtent: 40,
@@ -447,10 +447,11 @@ class _ChapterPickerWidgetState extends State<ChapterPickerWidget> {
             SizedBox(
               height: 5,
             ),
-            Flexible(
-              child: Center(
+            Expanded(
+              child: Container(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(

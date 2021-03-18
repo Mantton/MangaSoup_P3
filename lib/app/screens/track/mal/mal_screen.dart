@@ -1,6 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mangasoup_prototype_3/Components/Images.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Screens/WebViews/mal_login.dart';
@@ -50,7 +50,7 @@ class _MALHomeState extends State<MALHome> {
                 child: Column(
                   children: [
                     Container(
-                      color: Colors.grey[900],
+                      color: Color.fromRGBO(9, 9, 9, 1),
                       margin: EdgeInsets.all(10),
                       child: Row(
                         children: [
@@ -58,8 +58,11 @@ class _MALHomeState extends State<MALHome> {
                             width: 140,
                             height: 150,
                             padding: EdgeInsets.all(5),
-                            child: SoupImage(
-                              url: target.avatar,
+                            child: CircleAvatar(
+                              backgroundColor: Colors.grey[900],
+                              backgroundImage: CachedNetworkImageProvider(
+                                target.avatar,
+                              ),
                             ),
                           ),
                           SizedBox(
@@ -79,10 +82,10 @@ class _MALHomeState extends State<MALHome> {
                     SwitchListTile.adaptive(
                       title: Text("Auto Sync Progress"),
                       onChanged: (v) => Provider.of<PreferenceProvider>(context,
-                              listen: false)
+                          listen: false)
                           .setMALAutoSync(v),
                       value:
-                          Provider.of<PreferenceProvider>(context).malAutoSync,
+                      Provider.of<PreferenceProvider>(context).malAutoSync,
                     ),
                     ListTile(
                       title: Text(
@@ -94,17 +97,17 @@ class _MALHomeState extends State<MALHome> {
                         ),
                       ),
                       trailing: Icon(
-                        CupertinoIcons.clear,
+                        Icons.logout,
                         color: Colors.redAccent,
                       ),
                       onTap: () async {
                         showLoadingDialog(context);
                         await Provider.of<DatabaseProvider>(context,
-                                listen: false)
+                            listen: false)
                             .deleteAllTrackers();
                         try {
                           SharedPreferences _p =
-                              await SharedPreferences.getInstance();
+                          await SharedPreferences.getInstance();
                           await _p.remove(PreferenceKeys.MAL_AUTH);
                           Navigator.pop(context);
                           setState(() {
