@@ -251,8 +251,9 @@ class ReaderProvider with ChangeNotifier {
         await loadNextChapter(nextIndex - 1);
       } else {
         // create chapter data object
-        Provider.of<DatabaseProvider>(context, listen: false)
-            .updateFromACS([chapter], comicId, false, source, selector);
+        Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
+            [chapter], comicId, false, source, selector,
+            toggleRead: false);
         // Initialize Reader Chapter
         ReaderChapter readerChapter = ReaderChapter();
         readerChapter.chapterName = chapter.name;
