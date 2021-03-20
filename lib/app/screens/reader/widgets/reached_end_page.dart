@@ -11,7 +11,7 @@ class ReachedEndPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height,
+      height: MediaQuery.of(context).size.height * .85,
       width: MediaQuery.of(context).size.width,
       child: Center(
         child: Column(

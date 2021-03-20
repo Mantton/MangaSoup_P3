@@ -217,6 +217,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
           ),
           header(),
           footer(),
+          // scrollBar(),
         ],
       ),
     );
@@ -357,6 +358,66 @@ class _ReaderFrameState extends State<ReaderFrame> {
     });
   }
 
+  // Widget scrollBar() {
+  //   return Consumer<ReaderProvider>(builder: (context, provider, _) {
+  //     return AnimatedPositioned(
+  //       duration: Duration(milliseconds: 150),
+  //       curve: Curves.ease,
+  //       top: 150,
+  //       bottom: 100,
+  //       right: provider.showControls ? 0 : -60,
+  //       child: Container(
+  //         // width: 100,
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             ElevatedButton(
+  //               child:  Icon(Icons.keyboard_arrow_up_outlined),
+  //               onPressed: ()=>print("OK"),
+  //               style: ElevatedButton.styleFrom(
+  //                 primary: Colors.black87,
+  //                 onPrimary: Colors.white,
+  //                 shape: CircleBorder(),
+  //               ),
+  //             ),
+  //             Expanded(
+  //               flex: 9,
+  //               child: RotatedBox(
+  //                 quarterTurns: 1,
+  //                 child: Container(
+  //                   height: MediaQuery.of(context).size.height - 200,
+  //                   child: Slider.adaptive(
+  //                     activeColor: Colors.purple,
+  //                     value: _pagedController.page + 1 /provider.widgetPageList.length,
+  //                     min: 0,
+  //                     max: 100,
+  //                     onChanged: (v){
+  //                       int page =(provider.widgetPageList.length *  v~/100);
+  //                       print("$v, $page");
+  //                       setState(() {
+  //                         _pagedController.jumpToPage(page);
+  //
+  //                       });
+  //                     },
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //             ElevatedButton(
+  //               child:  Icon(Icons.keyboard_arrow_down_outlined),
+  //               onPressed: ()=>print("OK"),
+  //               style: ElevatedButton.styleFrom(
+  //                 primary: Colors.black87,
+  //                 onPrimary: Colors.white,
+  //                 shape: CircleBorder(),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     );
+  //   });
+  // }
   Widget footer() {
     return Consumer<ReaderProvider>(builder: (context, provider, _) {
       int mode = Provider.of<PreferenceProvider>(context).readerScrollDirection;
@@ -379,13 +440,13 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     onPressed: () async {
                       try {
                         showLoadingDialog(context);
-                        resetControllers();
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
                                     ? true
                                     : false
                                 : false);
+                        resetControllers();
                         Navigator.pop(context);
                       } catch (err) {
                         print(err);
@@ -421,13 +482,13 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     onPressed: () async {
                       try {
                         showLoadingDialog(context);
-                        resetControllers();
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
                                     ? false
                                     : true
                                 : true);
+                        resetControllers();
                         Navigator.pop(context);
                       } catch (err) {
                         print(err);
