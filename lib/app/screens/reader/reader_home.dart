@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
@@ -80,17 +83,16 @@ class ReaderOpener extends StatefulWidget {
   final bool imgur;
   final int initialPage;
 
-  const ReaderOpener(
-      {Key key,
-      this.chapters,
-      this.initialChapterIndex,
-      this.selector,
-      this.source,
-      this.comicId,
-      this.preloaded,
-      this.preloadedChapter,
-      this.imgur,
-      this.initialPage})
+  const ReaderOpener({Key key,
+    this.chapters,
+    this.initialChapterIndex,
+    this.selector,
+    this.source,
+    this.comicId,
+    this.preloaded,
+    this.preloadedChapter,
+    this.imgur,
+    this.initialPage})
       : super(key: key);
 
   @override
@@ -104,11 +106,11 @@ class _ReaderOpenerState extends State<ReaderOpener> {
   void initState() {
     providerInitializer = Provider.of<ReaderProvider>(context, listen: false)
         .init(widget.chapters, widget.initialChapterIndex, widget.selector,
-            context, widget.comicId, widget.source,
-            loaded: widget.preloaded,
-            loadedChapter: widget.preloadedChapter,
-            imgurAlbum: widget.imgur,
-            initPage: widget.initialPage);
+        context, widget.comicId, widget.source,
+        loaded: widget.preloaded,
+        loadedChapter: widget.preloadedChapter,
+        imgurAlbum: widget.imgur,
+        initPage: widget.initialPage);
     super.initState();
   }
 
@@ -169,11 +171,26 @@ class _ReaderFrameState extends State<ReaderFrame> {
   PreloadPageController _pagedController;
   PreloadPageController _doublePagedController;
   ItemScrollController _webtoonController;
+  String _timeString;
+
+  void _getTime() {
+    final DateTime now = DateTime.now();
+    final String formattedDateTime = _formatDateTime(now);
+    setState(() {
+      _timeString = formattedDateTime;
+    });
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return DateFormat('hh:mm:ss').format(dateTime);
+  }
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIOverlays([]);
+    _timeString = _formatDateTime(DateTime.now());
+    Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
     _pagedController = PreloadPageController(
         initialPage: Provider.of<ReaderProvider>(context, listen: false)
             .initialPageIndex);
@@ -217,11 +234,41 @@ class _ReaderFrameState extends State<ReaderFrame> {
           ),
           header(),
           footer(),
+          Provider.of<PreferenceProvider>(context).showTimeInReader
+              ? time()
+              : Container(),
           // scrollBar(),
         ],
       ),
     );
   }
+
+  Widget time() => Consumer<ReaderProvider>(
+        builder: (context, provider, _) => AnimatedPositioned(
+          duration: Duration(
+            milliseconds: 150,
+          ),
+          top: provider.showControls ? -120 : 0,
+          curve: Curves.easeIn,
+          // height: 120,
+          child: Container(
+            padding: const EdgeInsets.all(4.0),
+            decoration: BoxDecoration(
+              color: Color.fromRGBO(105, 105, 105, .45),
+              borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(10),
+              ),
+            ),
+            child: Text(
+              "$_timeString",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: "Lato",
+              ),
+            ),
+          ),
+        ),
+      );
 
   Widget plain() => GestureDetector(
         onTap: () {
@@ -235,12 +282,12 @@ class _ReaderFrameState extends State<ReaderFrame> {
             color: p == 0
                 ? Colors.black
                 : p == 1
-                    ? Colors.white
-                    : p == 2
-                        ? Colors.grey
-                        : p == 3
-                            ? Colors.grey[900]
-                            : Colors.purple,
+                ? Colors.white
+                : p == 2
+                ? Colors.grey
+                : p == 3
+                ? Colors.grey[900]
+                : Colors.purple,
           );
         }),
       );
@@ -311,12 +358,12 @@ class _ReaderFrameState extends State<ReaderFrame> {
                         child: Container(
                           child: provider.currentChapterName != null
                               ? Text(
-                                  "${provider.currentChapterName}",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 18,
-                                  ),
-                                )
+                            "${provider.currentChapterName}",
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 18,
+                            ),
+                          )
                               : Container(),
                         ),
                       ),
@@ -443,8 +490,8 @@ class _ReaderFrameState extends State<ReaderFrame> {
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
-                                    ? true
-                                    : false
+                                ? true
+                                : false
                                 : false);
                         resetControllers();
                         Navigator.pop(context);
@@ -464,15 +511,15 @@ class _ReaderFrameState extends State<ReaderFrame> {
                   flex: 8,
                   child: provider.pageDisplayNumber != null
                       ? Text(
-                          "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            fontFamily: 'Lato',
-                            color: Colors.grey,
-                          ),
-                          textAlign: TextAlign.center,
-                        )
+                    "${provider.pageDisplayNumber}/${provider.pageDisplayCount}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      fontFamily: 'Lato',
+                      color: Colors.grey,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
                       : Container(),
                 ),
 
@@ -485,8 +532,8 @@ class _ReaderFrameState extends State<ReaderFrame> {
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
-                                    ? false
-                                    : true
+                                ? false
+                                : true
                                 : true);
                         resetControllers();
                         Navigator.pop(context);

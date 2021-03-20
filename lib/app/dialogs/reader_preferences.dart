@@ -143,7 +143,7 @@ Widget readerModeSetting() {
           Spacer(),
           Consumer<PreferenceProvider>(builder: (context, provider, _) {
             return Container(
-              padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10.0),
                 color: Colors.grey[900],
@@ -175,6 +175,20 @@ Widget readerModeSetting() {
           ),
           value: provider.readerMaxWidth,
           onChanged: (v) => provider.setReaderMaxWidth(v),
+        ),
+      ),
+      Consumer<PreferenceProvider>(
+        builder: (context, provider, _) => SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.all(0),
+          title: Text(
+            "Show Clock",
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 20,
+            ),
+          ),
+          value: provider.showTimeInReader,
+          onChanged: (v) => provider.setShowTimeInReader(v),
         ),
       ),
     ],
