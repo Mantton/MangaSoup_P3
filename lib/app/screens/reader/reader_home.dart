@@ -222,29 +222,28 @@ class _ReaderFrameState extends State<ReaderFrame> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Provider.of<ReaderProvider>(context, listen: false)
-            .toggleShowControls();
-      },
-      child: Stack(
-        children: [
-          plain(),
+    return Stack(
+      children: [
+        GestureDetector(
+            child: plain(),
+            onTap: () {
+              Provider.of<ReaderProvider>(context, listen: false)
+                  .toggleShowControls();
+            }),
 
-          ViewerGateWay(
-            pagedController: _pagedController,
-            webToonController: _webtoonController,
-            doublePagedController: _doublePagedController,
-          ),
-          Provider.of<PreferenceProvider>(context).showTimeInReader
-              ? time()
-              : Container(),
-          header(),
-          footer(),
+        ViewerGateWay(
+          pagedController: _pagedController,
+          webToonController: _webtoonController,
+          doublePagedController: _doublePagedController,
+        ),
+        Provider.of<PreferenceProvider>(context).showTimeInReader
+            ? time()
+            : Container(),
+        header(),
+        footer(),
 
-          // scrollBar(),
-        ],
-      ),
+        // scrollBar(),
+      ],
     );
   }
 
@@ -262,8 +261,9 @@ class _ReaderFrameState extends State<ReaderFrame> {
             margin: EdgeInsets.all(10),
             padding: const EdgeInsets.all(4.0),
             decoration: BoxDecoration(
-                color: Color.fromRGBO(105, 105, 105, .45),
-                borderRadius: BorderRadius.circular(10)),
+              color: Color.fromRGBO(105, 105, 105, .45),
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Text(
               "$_timeString",
               style: TextStyle(
