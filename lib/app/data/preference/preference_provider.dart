@@ -2,10 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:mangasoup_prototype_3/app/data/api/discussion_models/mangasoup_combined_model.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'keys.dart';
@@ -46,6 +44,7 @@ class PreferenceProvider with ChangeNotifier {
         _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
     languageServer = _p.getString(PreferenceKeys.MS_LANG_SERVER) ?? "en";
     updateOnStartUp = _p.getBool(PreferenceKeys.UPDATE_ON_STARTUP) ?? true;
+    showTimeInReader = _p.getBool(PreferenceKeys.READER_SHOW_TIME) ?? true;
 
     msUser = _p.getString(PreferenceKeys.MS_T_USER) != null
         ? MSUserCombined.fromMap(
@@ -295,8 +294,17 @@ class PreferenceProvider with ChangeNotifier {
     msUser = null;
     notifyListeners();
   }
-  
+
   String paths;
+
+  bool showTimeInReader;
+
+  setShowTimeInReader(bool show) async {
+    SharedPreferences p = await preferences();
+    showTimeInReader = show;
+    p.setBool(PreferenceKeys.READER_SHOW_TIME, show);
+    notifyListeners();
+  }
 
   /// Functions
   List<DropdownMenuItem> buildItems(Map pref) => pref.entries

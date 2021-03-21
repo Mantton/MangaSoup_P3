@@ -13,7 +13,7 @@ class PreferenceKeys {
   static const MANGA_SNAPPING = "manga_mode_snapping"; // True or False
   static const READER_MAX_WIDTH = "max_reader_width"; // override reader width
   static const READER_DOUBLE_MODE = "reader_double_paged"; // double page mode
-
+  static const READER_SHOW_TIME = "reader_show_time"; // show time in reader
   static const WEBTOON_MSV =
       "webtoon_max_scroll_velocity"; // 2500, 3000, 4000, 5000, 6000, 7000, 8000, 8500
 

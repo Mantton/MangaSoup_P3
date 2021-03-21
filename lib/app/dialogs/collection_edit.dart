@@ -14,15 +14,37 @@ collectionEditDialog({@required BuildContext context, Collection collection}) {
 }
 
 collectionEditBuilder(BuildContext context, Collection collection) {
-  String newName;
   return Dialog(
-    backgroundColor: Colors.grey[900], //blue for testing, change to black
+    backgroundColor: Colors.grey[900],
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(20.0),
     ),
-    child: CreateCollectionWidget(
+    child: AddCollection(
+      collectionID: collection.id,
       rename: true,
-      toRename: collection,
+    ),
+  );
+}
+
+collectionAddDialog({@required BuildContext context}) {
+  showGeneralDialog(
+    barrierLabel: "Rename this Collection",
+    barrierDismissible: true,
+    barrierColor: Colors.black.withOpacity(0.5),
+    transitionDuration: Duration(milliseconds: 70),
+    context: context,
+    pageBuilder: (_, __, ___) => collectionAddBuilder(),
+  );
+}
+
+collectionAddBuilder() {
+  return Dialog(
+    backgroundColor: Colors.grey[900],
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20.0),
+    ),
+    child: AddCollection(
+      dialog: true,
     ),
   );
 }

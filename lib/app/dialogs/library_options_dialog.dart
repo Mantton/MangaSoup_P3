@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 libraryOptionsDialog({@required BuildContext context, int comicId}) {
   showGeneralDialog(
-    barrierLabel: "Libary Options",
+    barrierLabel: "Library Options",
     barrierDismissible: true,
     barrierColor: Colors.black.withOpacity(0.5),
     transitionDuration: Duration(milliseconds: 70),
@@ -55,7 +55,7 @@ class LibraryOptions extends StatelessWidget {
           ),
           ListTile(
             title: Text(
-              "Library Collection Order",
+              "Edit Collections",
               style: libraryOptionsFont,
             ),
             trailing: Icon(
@@ -65,9 +65,10 @@ class LibraryOptions extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               CupertinoPageRoute(
-                  builder: (_) => LibraryOrderManagerPage(),
-                  fullscreenDialog: true,
-                  maintainState: true),
+                builder: (_) => LibraryOrderManagerPage(),
+                fullscreenDialog: true,
+                maintainState: true,
+              ),
             ),
           ),
           ListTile(
