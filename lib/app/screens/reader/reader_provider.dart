@@ -8,6 +8,7 @@ import 'package:mangasoup_prototype_3/app/data/api/models/chapter.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/bookmark.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/chapter.dart';
+import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/downloads.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/track.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
@@ -79,6 +80,14 @@ class ReaderProvider with ChangeNotifier {
     } else {
       pageDisplayNumber = initPage;
     }
+    // Switch Reader Mode
+    Comic c = Provider.of<DatabaseProvider>(context, listen: false)
+        .retrieveComic(comicId);
+    int readerMode = c.viewerMode;
+
+    if (readerMode == 0) readerMode = 1;
+    await Provider.of<PreferenceProvider>(context, listen: false)
+        .setReaderMode(readerMode);
     if (!imgur) {
       await Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
         chapter,
