@@ -1,14 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
-import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/collection.dart';
-import 'package:mangasoup_prototype_3/app/widgets/textfields.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 
 libraryDialog({@required BuildContext context, int comicId}) {
   buildCollectionSheet(context, comicId);
@@ -47,7 +43,7 @@ createCollectionDialog({@required BuildContext context}) {
 }
 
 createCollectionBuilder(BuildContext context) => Dialog(
-  backgroundColor: Colors.grey[900], //blue for testing, change to black
+      backgroundColor: Colors.grey[900], //blue for testing, change to black
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
       ),
@@ -168,6 +164,14 @@ class _AddToLibraryState extends State<AddToLibrary> {
 }
 
 class AddCollection extends StatefulWidget {
+  final bool rename;
+  final int collectionID;
+  final bool dialog;
+
+  const AddCollection(
+      {Key key, this.rename = false, this.collectionID, this.dialog = false})
+      : super(key: key);
+
   @override
   _AddCollectionState createState() => _AddCollectionState();
 }
@@ -198,9 +202,24 @@ class _AddCollectionState extends State<AddCollection> {
   Future<void> create() async {
     if (_formKey.currentState.validate()) {
       // If Valid
+      if (widget.rename) if (widget.collectionID == null)
+        showSnackBarMessage("Bad Implementation Contact Dev Team", error: true);
+      else {
+        Collection c = Provider.of<DatabaseProvider>(context, listen: false)
+            .collections
+            .firstWhere((element) => element.id == widget.collectionID);
+        c.name = _textController.text.trim();
+        await Provider.of<DatabaseProvider>(context, listen: false)
+            .updateCollection(c);
+        Navigator.pop(context);
+      }
+      else {
+        await Provider.of<DatabaseProvider>(context, listen: false)
+            .createCollection(_textController.text.trim());
 
-      await Provider.of<DatabaseProvider>(context, listen: false)
-          .createCollection(_textController.text);
+        if (widget.dialog) Navigator.pop(context);
+      }
+
       setState(() {
         _textController.clear();
       });
@@ -229,13 +248,12 @@ class _AddCollectionState extends State<AddCollection> {
               style: textFieldStyle,
               validator: consumerValidator,
               autofocus: false,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
             ),
           ),
           Divider(),
           CupertinoButton(
             onPressed: () => create(),
-            child: Text("Create Collection"),
+            child: Text(widget.rename ? "Rename" : "Create Collection"),
           ),
         ],
       ),
