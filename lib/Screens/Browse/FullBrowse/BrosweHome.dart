@@ -136,19 +136,11 @@ class _BrowsePageState extends State<BrowsePage> {
   }
 
   showFilters() {
-    showGeneralDialog(
-      barrierLabel: "Barrier",
-      barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.5),
-      transitionDuration: Duration(milliseconds: 200),
+    showModalBottomSheet(
       context: context,
-      pageBuilder: (_, __, ___) => buildFilters(),
-      transitionBuilder: (_, anim, __, child) {
-        return SlideTransition(
-          position: Tween(begin: Offset(0, 1), end: Offset(0, 0)).animate(anim),
-          child: child,
-        );
-      },
+      builder: (_) => buildFilters(),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
     );
   }
 
@@ -238,101 +230,108 @@ class _BrowsePageState extends State<BrowsePage> {
     );
   }
 
-  buildFilters() => Dialog(
-        backgroundColor: Color.fromRGBO(10, 10, 10, 1.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Container(
-          height: 500,
-          child: Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Text(
-                        "Filters",
-                        style: TextStyle(fontFamily: "Roboto", fontSize: 30),
-                      ),
-                      Spacer(),
-                      IconButton(
-                        icon: Icon(
-                          Icons.cancel_outlined,
-                          size: 30,
-                          color: Colors.red,
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Expanded(
-                  flex: 7,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+  buildFilters() => Container(
+        height: MediaQuery.of(context).size.height * .75,
+        color: Color.fromRGBO(9, 9, 9, .95),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          resizeToAvoidBottomInset: false,
+          body: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Row(
                       children: [
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: List.generate(
-                            Provider.of<SourceNotifier>(context)
-                                .source
-                                .filters
-                                .length,
-                            (index) => TesterFilter(
-                              filter: SourceSetting.fromMap(
-                                Provider.of<SourceNotifier>(context)
-                                    .source
-                                    .filters[index],
-                              ),
-                            ),
-                          ),
+                        Text(
+                          "Filters",
+                          style: TextStyle(fontFamily: "Roboto", fontSize: 30),
                         ),
+                        Spacer(),
+                        IconButton(
+                          icon: Icon(
+                            Icons.cancel_outlined,
+                            size: 30,
+                            color: Colors.red,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        )
                       ],
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: EdgeInsets.all(3.0),
-                    child: MaterialButton(
-                      // height: 40,
-                      minWidth: 100,
-                      onPressed: () {
-                        Navigator.pop(context);
-                        queryMap =
-                            Provider.of<BrowseProvider>(context, listen: false)
-                                .encodedData;
-                        print(queryMap);
-                        // API SEARCH
-                        setState(() {
-                          results = getResults();
-                          filters = false;
-                        });
-                      },
-                      child: Text(
-                        "Browse",
-                        style: isEmptyFont,
-                      ),
-                      color: Colors.deepPurpleAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Flexible(
+                    flex: 7,
+                    child: CupertinoScrollbar(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: List.generate(
+                                Provider.of<SourceNotifier>(context)
+                                    .source
+                                    .filters
+                                    .length,
+                                (index) => TesterFilter(
+                                  filter: SourceSetting.fromMap(
+                                    Provider.of<SourceNotifier>(context)
+                                        .source
+                                        .filters[index],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Padding(
+                      padding: EdgeInsets.all(3.0),
+                      child: ElevatedButton(
+                        // height: 40,
+
+                        onPressed: () {
+                          Navigator.pop(context);
+                          queryMap = Provider.of<BrowseProvider>(context,
+                                  listen: false)
+                              .encodedData;
+                          print(queryMap);
+                          // API SEARCH
+                          setState(() {
+                            results = getResults();
+                            filters = false;
+                          });
+                        },
+                        child: Text(
+                          "Browse",
+                          style: isEmptyFont,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.purple.shade700,
+                          onPrimary: Colors.white,
+                          minimumSize: Size(100, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

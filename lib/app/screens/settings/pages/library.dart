@@ -30,18 +30,22 @@ class _LibrarySettingsPageState extends State<LibrarySettingsPage> {
           return Column(
             children: [
               Container(
-                child: ListView.builder(
+                child: ListView.separated(
+                  separatorBuilder: (_, i) => SizedBox(
+                    height: 5,
+                  ),
                   shrinkWrap: true,
                   itemCount: collections.length,
                   itemBuilder: (_, int index) => ListTile(
+                    tileColor: Color.fromRGBO(10, 10, 10, 1.0),
                     title: Text(
                       collections[index].name,
                       style: notInLibraryFont,
                     ),
                     trailing: IconButton(
                       icon: Icon(
-                        CupertinoIcons.pen,
-                        color: Colors.purple,
+                        CupertinoIcons.ellipsis,
+                        color: Colors.grey,
                       ),
                       onPressed: () => deleteRenameDialog(collections[index]),
                     ),

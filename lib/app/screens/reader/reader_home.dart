@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
@@ -169,11 +172,27 @@ class _ReaderFrameState extends State<ReaderFrame> {
   PreloadPageController _pagedController;
   PreloadPageController _doublePagedController;
   ItemScrollController _webtoonController;
+  String _timeString;
+  var _timer;
+
+  void _getTime() {
+    final DateTime now = DateTime.now();
+    final String formattedDateTime = _formatDateTime(now);
+    setState(() {
+      _timeString = formattedDateTime;
+    });
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return DateFormat('hh:mm:ss').format(dateTime);
+  }
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIOverlays([]);
+    _timeString = _formatDateTime(DateTime.now());
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
     _pagedController = PreloadPageController(
         initialPage: Provider.of<ReaderProvider>(context, listen: false)
             .initialPageIndex);
@@ -189,6 +208,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     _pagedController.dispose();
     _doublePagedController.dispose();
+    _timer.cancel();
   }
 
   void resetControllers() {
@@ -202,25 +222,58 @@ class _ReaderFrameState extends State<ReaderFrame> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Provider.of<ReaderProvider>(context, listen: false)
-            .toggleShowControls();
-      },
-      child: Stack(
-        children: [
-          plain(),
-          ViewerGateWay(
-            pagedController: _pagedController,
-            webToonController: _webtoonController,
-            doublePagedController: _doublePagedController,
-          ),
-          header(),
-          footer(),
-        ],
-      ),
+    return Stack(
+      children: [
+        GestureDetector(
+            child: plain(),
+            onTap: () {
+              Provider.of<ReaderProvider>(context, listen: false)
+                  .toggleShowControls();
+            }),
+
+        ViewerGateWay(
+          pagedController: _pagedController,
+          webToonController: _webtoonController,
+          doublePagedController: _doublePagedController,
+        ),
+        Provider.of<PreferenceProvider>(context).showTimeInReader
+            ? time()
+            : Container(),
+        header(),
+        footer(),
+
+        // scrollBar(),
+      ],
     );
   }
+
+  Widget time() => Consumer<ReaderProvider>(
+        builder: (context, provider, _) => AnimatedPositioned(
+          duration: Duration(
+            milliseconds: 150,
+          ),
+          top: provider.showControls ? -120 : 20,
+
+          curve: Curves.easeIn,
+          // height: 120,
+          child: Container(
+            alignment: Alignment.topLeft,
+            margin: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(4.0),
+            decoration: BoxDecoration(
+              color: Color.fromRGBO(105, 105, 105, .45),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              "$_timeString",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: "Lato",
+              ),
+            ),
+          ),
+        ),
+      );
 
   Widget plain() => GestureDetector(
         onTap: () {
@@ -357,6 +410,66 @@ class _ReaderFrameState extends State<ReaderFrame> {
     });
   }
 
+  // Widget scrollBar() {
+  //   return Consumer<ReaderProvider>(builder: (context, provider, _) {
+  //     return AnimatedPositioned(
+  //       duration: Duration(milliseconds: 150),
+  //       curve: Curves.ease,
+  //       top: 150,
+  //       bottom: 100,
+  //       right: provider.showControls ? 0 : -60,
+  //       child: Container(
+  //         // width: 100,
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             ElevatedButton(
+  //               child:  Icon(Icons.keyboard_arrow_up_outlined),
+  //               onPressed: ()=>print("OK"),
+  //               style: ElevatedButton.styleFrom(
+  //                 primary: Colors.black87,
+  //                 onPrimary: Colors.white,
+  //                 shape: CircleBorder(),
+  //               ),
+  //             ),
+  //             Expanded(
+  //               flex: 9,
+  //               child: RotatedBox(
+  //                 quarterTurns: 1,
+  //                 child: Container(
+  //                   height: MediaQuery.of(context).size.height - 200,
+  //                   child: Slider.adaptive(
+  //                     activeColor: Colors.purple,
+  //                     value: _pagedController.page + 1 /provider.widgetPageList.length,
+  //                     min: 0,
+  //                     max: 100,
+  //                     onChanged: (v){
+  //                       int page =(provider.widgetPageList.length *  v~/100);
+  //                       print("$v, $page");
+  //                       setState(() {
+  //                         _pagedController.jumpToPage(page);
+  //
+  //                       });
+  //                     },
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //             ElevatedButton(
+  //               child:  Icon(Icons.keyboard_arrow_down_outlined),
+  //               onPressed: ()=>print("OK"),
+  //               style: ElevatedButton.styleFrom(
+  //                 primary: Colors.black87,
+  //                 onPrimary: Colors.white,
+  //                 shape: CircleBorder(),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     );
+  //   });
+  // }
   Widget footer() {
     return Consumer<ReaderProvider>(builder: (context, provider, _) {
       int mode = Provider.of<PreferenceProvider>(context).readerScrollDirection;
@@ -379,13 +492,13 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     onPressed: () async {
                       try {
                         showLoadingDialog(context);
-                        resetControllers();
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
                                     ? true
                                     : false
                                 : false);
+                        resetControllers();
                         Navigator.pop(context);
                       } catch (err) {
                         print(err);
@@ -421,13 +534,13 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     onPressed: () async {
                       try {
                         showLoadingDialog(context);
-                        resetControllers();
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
                                     ? false
                                     : true
                                 : true);
+                        resetControllers();
                         Navigator.pop(context);
                       } catch (err) {
                         print(err);

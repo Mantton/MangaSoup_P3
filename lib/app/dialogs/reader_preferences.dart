@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
+import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:provider/provider.dart';
@@ -106,7 +107,7 @@ Widget readerModeSetting() {
           Spacer(),
           Consumer<PreferenceProvider>(builder: (context, provider, _) {
             return Container(
-              padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10.0),
                 color: Colors.grey[900],
@@ -121,6 +122,16 @@ Widget readerModeSetting() {
                     Provider.of<ReaderProvider>(context, listen: false)
                         .changeMode();
                     provider.setReaderMode(value);
+                    var comicId =
+                        Provider.of<ReaderProvider>(context, listen: false)
+                            .comicId;
+                    // Update comic from database
+                    var comic =
+                        Provider.of<DatabaseProvider>(context, listen: false)
+                            .retrieveComic(comicId);
+                    comic.viewerMode = value;
+                    Provider.of<DatabaseProvider>(context, listen: false)
+                        .evaluate(comic);
                   },
                 ),
               ),
@@ -143,7 +154,7 @@ Widget readerModeSetting() {
           Spacer(),
           Consumer<PreferenceProvider>(builder: (context, provider, _) {
             return Container(
-              padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10.0),
                 color: Colors.grey[900],
@@ -175,6 +186,20 @@ Widget readerModeSetting() {
           ),
           value: provider.readerMaxWidth,
           onChanged: (v) => provider.setReaderMaxWidth(v),
+        ),
+      ),
+      Consumer<PreferenceProvider>(
+        builder: (context, provider, _) => SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.all(0),
+          title: Text(
+            "Show Clock",
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 20,
+            ),
+          ),
+          value: provider.showTimeInReader,
+          onChanged: (v) => provider.setShowTimeInReader(v),
         ),
       ),
     ],
@@ -215,7 +240,7 @@ Widget webToonModeOptions() {
               Spacer(),
               Consumer<PreferenceProvider>(builder: (context, provider, _) {
                 return Container(
-                  padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+                  padding: EdgeInsets.only(left: 10.0, right: 10.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
                     color: Colors.grey[900],
@@ -276,7 +301,7 @@ Widget mangaModeOptions() {
             Spacer(),
             Consumer<PreferenceProvider>(builder: (context, provider, _) {
               return Container(
-                padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+                padding: EdgeInsets.only(left: 10.0, right: 10.0),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
                     color: Colors.grey[900],
@@ -318,7 +343,7 @@ Widget mangaModeOptions() {
                 Spacer(),
                 Consumer<PreferenceProvider>(builder: (context, provider, _) {
                   return Container(
-                    padding: EdgeInsets.only(left: 10.0.w, right: 10.0.w),
+                    padding: EdgeInsets.only(left: 10.0, right: 10.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
                       color: Colors.grey[900],

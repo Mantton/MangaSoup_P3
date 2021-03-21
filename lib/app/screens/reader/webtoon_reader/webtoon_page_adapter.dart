@@ -23,16 +23,26 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
   @override
   void initState() {
     itemPositionsListener.itemPositions.addListener(() {
-      int max = itemPositionsListener.itemPositions.value
+      var item = itemPositionsListener.itemPositions.value
           .where((ItemPosition position) => position.itemLeadingEdge < .33)
           .reduce((ItemPosition max, ItemPosition position) =>
-              position.itemLeadingEdge > max.itemLeadingEdge ? position : max)
-          .index;
+              position.itemLeadingEdge > max.itemLeadingEdge ? position : max);
 
+      var last = itemPositionsListener.itemPositions.value
+          .where((ItemPosition position) => position.itemLeadingEdge < .9)
+          .reduce((ItemPosition max, ItemPosition position) =>
+              position.itemLeadingEdge > max.itemLeadingEdge ? position : max);
+      int max = item.index;
+      int t = last.index;
       int itemCount = Provider.of<ReaderProvider>(context, listen: false)
           .widgetPageList
           .length;
+      // print("$max, $t, $itemCount");
+      if (t + 1 == itemCount) {
+        max = t;
+      }
       if (max != lastPage && max >= 0 && max < itemCount) {
+        // Check if scroll controller is on the last page
         Provider.of<ReaderProvider>(context, listen: false).pageChanged(max);
         lastPage = max;
       }
@@ -52,7 +62,11 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
             velocityT:
                 Provider.of<PreferenceProvider>(context).maxScrollVelocity,
           ),
-          itemBuilder: (_, index) => provider.widgetPageList[index],
+          itemBuilder: (_, index) => provider.widgetPageList.isNotEmpty
+              ? provider.widgetPageList[index]
+              : SizedBox(
+                  height: 50,
+                ),
           itemCount: provider.widgetPageList.length,
           itemScrollController: widget.controller,
           itemPositionsListener: itemPositionsListener,
