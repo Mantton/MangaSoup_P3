@@ -492,13 +492,14 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     onPressed: () async {
                       try {
                         showLoadingDialog(context);
+                        resetControllers();
+
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
                                     ? true
                                     : false
                                 : false);
-                        resetControllers();
                         Navigator.pop(context);
                       } catch (err) {
                         print(err);
@@ -534,13 +535,14 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     onPressed: () async {
                       try {
                         showLoadingDialog(context);
+                        resetControllers();
+
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
                                     ? false
                                     : true
                                 : true);
-                        resetControllers();
                         Navigator.pop(context);
                       } catch (err) {
                         print(err);
