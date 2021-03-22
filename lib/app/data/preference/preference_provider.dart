@@ -44,7 +44,7 @@ class PreferenceProvider with ChangeNotifier {
         _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
     languageServer = _p.getString(PreferenceKeys.MS_LANG_SERVER) ?? "en";
     updateOnStartUp = _p.getBool(PreferenceKeys.UPDATE_ON_STARTUP) ?? true;
-    showTimeInReader = _p.getBool(PreferenceKeys.READER_SHOW_TIME) ?? true;
+    showTimeInReader = _p.getBool(PreferenceKeys.READER_SHOW_TIME) ?? false;
 
     msUser = _p.getString(PreferenceKeys.MS_T_USER) != null
         ? MSUserCombined.fromMap(

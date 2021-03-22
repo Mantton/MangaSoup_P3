@@ -862,8 +862,12 @@ class DatabaseProvider with ChangeNotifier {
       }
 
       if (download.saveDir.isNotEmpty) {
-        String path = directory.path + "/" + download.saveDir;
-        Directory(path).deleteSync(recursive: true);
+        String path = directory.path + download.saveDir;
+        try {
+          Directory(path).deleteSync(recursive: true);
+        } catch (err) {
+          showSnackBarMessage("Dangling Downloads Uncleared", error: true);
+        }
       }
     }
     notifyListeners();
@@ -872,48 +876,53 @@ class DatabaseProvider with ChangeNotifier {
   void monitorDownloads(TaskInfo task) async {
     // This essentially monitors the callback and syncs the task with the db
     // Get ChapterDownload to be updated
-    ChapterDownload c = chapterDownloads
-        .firstWhere((element) => element.taskIds.contains(task.taskId));
-    if (task.status != DownloadTaskStatus.failed) {
-      // Task has not failed
+    ChapterDownload c = chapterDownloads.firstWhere(
+        (element) => element.taskIds.contains(task.taskId),
+        orElse: () => null);
 
-      // Update progress
-      List<DownloadTask> pointers = [];
-      String test =
-          "(${c.taskIds.map((e) => "'${e.toString()}\'").join(", ")})";
-      String query = "SELECT * FROM task WHERE task_id IN $test";
-      pointers = await FlutterDownloader.loadTasksWithRawQuery(query: query);
+    if (c != null) {
+      if (task.status != DownloadTaskStatus.failed) {
+        // Task has not failed
 
-      if (task.status == DownloadTaskStatus.complete) {
-        var t = pointers.firstWhere((element) => element.taskId == task.taskId);
-        String fil = c.saveDir + t.filename;
+        // Update progress
+        List<DownloadTask> pointers = [];
+        String test =
+            "(${c.taskIds.map((e) => "'${e.toString()}\'").join(", ")})";
+        String query = "SELECT * FROM task WHERE task_id IN $test";
+        pointers = await FlutterDownloader.loadTasksWithRawQuery(query: query);
 
-        if (!c.links.contains(fil)) {
-          c.links.add(fil);
+        if (task.status == DownloadTaskStatus.complete) {
+          var t =
+              pointers.firstWhere((element) => element.taskId == task.taskId);
+          String fil = c.saveDir + t.filename;
+
+          if (!c.links.contains(fil)) {
+            c.links.add(fil);
+          }
         }
-      }
 
-      if (c.progress != 100.0) {
-        int taskProgress =
-            pointers.map((e) => e.progress).toList().fold(0, (p, c) => p + c);
-        c.progress = taskProgress / c.count;
-        // print("${c.chapterId}: ${c.progress}, $taskProgress");
-        // if (c.progress == 100) print("Complete : ${c.chapterId}");
-        // print(query);
+        if (c.progress != 100.0) {
+          int taskProgress =
+              pointers.map((e) => e.progress).toList().fold(0, (p, c) => p + c);
+          c.progress = taskProgress / c.count;
+          // print("${c.chapterId}: ${c.progress}, $taskProgress");
+          // if (c.progress == 100) print("Complete : ${c.chapterId}");
+          // print(query);
+        } else {
+          if (c.progress == 100.0 &&
+              c.links.length == c.count &&
+              c.count == c.taskIds.length) {
+            c.status = MSDownloadStatus.done;
+            c.links.sort((a, b) => parsePageNum(a).compareTo(parsePageNum(b)));
+            print("${c.chapterId}: Download Complete");
+          }
+        }
       } else {
-        if (c.progress == 100.0 &&
-            c.links.length == c.count &&
-            c.count == c.taskIds.length) {
-          c.status = MSDownloadStatus.done;
-          c.links.sort((a, b) => parsePageNum(a).compareTo(parsePageNum(b)));
-          print("${c.chapterId}: Download Complete");
-        }
+        c.status = MSDownloadStatus.error;
       }
-    } else {
-      c.status = MSDownloadStatus.error;
+      await downloadManager.updateDownload(c);
+      notifyListeners();
     }
-    await downloadManager.updateDownload(c);
-    notifyListeners();
   }
 
   parsePageNum(String page) {

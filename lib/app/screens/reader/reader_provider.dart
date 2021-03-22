@@ -85,9 +85,11 @@ class ReaderProvider with ChangeNotifier {
         .retrieveComic(comicId);
     int readerMode = c.viewerMode;
 
-    if (readerMode == 0) readerMode = 1;
-    await Provider.of<PreferenceProvider>(context, listen: false)
-        .setReaderMode(readerMode);
+    if (readerMode != 0) {
+      await Provider.of<PreferenceProvider>(context, listen: false)
+          .setReaderMode(readerMode);
+    }
+
     if (!imgur) {
       await Provider.of<DatabaseProvider>(context, listen: false).historyLogic(
         chapter,

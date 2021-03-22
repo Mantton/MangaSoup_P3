@@ -493,7 +493,6 @@ class _ReaderFrameState extends State<ReaderFrame> {
                       try {
                         showLoadingDialog(context);
                         resetControllers();
-
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
@@ -536,7 +535,6 @@ class _ReaderFrameState extends State<ReaderFrame> {
                       try {
                         showLoadingDialog(context);
                         resetControllers();
-
                         await provider.moveToChapter(
                             next: (pow == 1)
                                 ? (mode == 1)
