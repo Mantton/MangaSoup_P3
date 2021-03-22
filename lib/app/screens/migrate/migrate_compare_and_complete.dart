@@ -7,7 +7,6 @@ import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Providers/migrate_provider.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
-import 'package:mangasoup_prototype_3/app/data/api/models/book.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
@@ -50,7 +49,7 @@ class _MigrateCompareState extends State<MigrateCompare> {
                   children: [
                     Expanded(
                       flex: 5,
-                      child: ComicInformation(
+                      child: DestinationInformation(
                         comic: widget.current.toHighlight(),
                       ),
                     ),
@@ -60,7 +59,7 @@ class _MigrateCompareState extends State<MigrateCompare> {
                     ),
                     Expanded(
                       flex: 5,
-                      child: ComicInformation(
+                      child: DestinationInformation(
                         comic: widget.destination,
                         isDestination: true,
                       ),
@@ -149,7 +148,8 @@ class _MigrateCompareState extends State<MigrateCompare> {
     Navigator.pop(context);
     showLoadingDialog(context);
     try {
-      Profile c = Provider.of<MigrateProvider>(context, listen: false).current;
+      ComicHighlight c =
+          Provider.of<MigrateProvider>(context, listen: false).current;
       Profile d =
           Provider.of<MigrateProvider>(context, listen: false).destination;
       ComicHighlight dest =
@@ -176,21 +176,19 @@ class _MigrateCompareState extends State<MigrateCompare> {
   }
 }
 
-class ComicInformation extends StatefulWidget {
+class DestinationInformation extends StatefulWidget {
   final ComicHighlight comic;
   final bool isDestination;
 
-  const ComicInformation({
-    Key key,
-    @required this.comic,
-    this.isDestination = false,
-  }) : super(key: key);
+  const DestinationInformation(
+      {Key key, this.comic, this.isDestination = false})
+      : super(key: key);
 
   @override
-  _ComicInformationState createState() => _ComicInformationState();
+  _DestinationInformationState createState() => _DestinationInformationState();
 }
 
-class _ComicInformationState extends State<ComicInformation> {
+class _DestinationInformationState extends State<DestinationInformation> {
   Future<Profile> p;
 
   @override
@@ -200,12 +198,15 @@ class _ComicInformationState extends State<ComicInformation> {
   }
 
   Future<Profile> getProfile() async {
+    if (!widget.isDestination)
+      Provider.of<MigrateProvider>(context, listen: false)
+          .setCurrent(widget.comic);
     var c = await Provider.of<DatabaseProvider>(context, listen: false)
         .generate(widget.comic);
     Profile y = c['profile'];
-    Provider.of<MigrateProvider>(context, listen: false)
-        .setProfile(y, widget.isDestination);
-
+    if (widget.isDestination) {
+      Provider.of<MigrateProvider>(context, listen: false).setDestination(y);
+    }
     return y;
   }
 
@@ -224,7 +225,7 @@ class _ComicInformationState extends State<ComicInformation> {
             return Container(
               child: Center(
                 child: Text(
-                  "Migration Error",
+                  "Failed to Load Profile.\n${widget.comic.title}",
                   style: notInLibraryFont,
                   textAlign: TextAlign.center,
                 ),

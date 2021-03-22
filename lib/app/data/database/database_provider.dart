@@ -695,7 +695,7 @@ class DatabaseProvider with ChangeNotifier {
     comicTrackers.clear();
   }
 
-  Future<ComicHighlight> migrateComic(Profile c, Profile d) async {
+  Future<ComicHighlight> migrateComic(ComicHighlight c, Profile d) async {
     // the process really is a waste
     // get Comics for the profiles
     Comic current = comics.firstWhere((element) => element.link == c.link);
@@ -728,6 +728,12 @@ class DatabaseProvider with ChangeNotifier {
     await batchSetComicCollection(targetCollections, destination.id);
     // Tracking
     // todo, move tracking.
+    var trackers =
+        comicTrackers.where((element) => element.comicId == current.id);
+    for (var T in trackers) {
+      T.comicId = destination.id;
+      await updateTracker(T);
+    }
 
     // Update Comic
     int i1 = comics.indexOf(current);

@@ -184,7 +184,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
   }
 
   String _formatDateTime(DateTime dateTime) {
-    return DateFormat('hh:mm:ss').format(dateTime);
+    return DateFormat('hh:mm').format(dateTime);
   }
 
   @override

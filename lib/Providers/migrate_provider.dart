@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 
 class MigrateProvider with ChangeNotifier {
-  Profile current;
+  ComicHighlight current;
   Profile destination;
   bool canMigrate = false;
 
@@ -12,28 +13,29 @@ class MigrateProvider with ChangeNotifier {
     canMigrate = false;
   }
 
-  setProfile(Profile p, bool isDestination) {
-    if (isDestination)
-      destination = p;
-    else
-      current = p;
+  setCurrent(ComicHighlight c) {
+    current = c;
+    print("current set");
+    canMigrateLogic();
+    notifyListeners();
+  }
+
+  setDestination(Profile p) {
+    print("destination set");
+    destination = p;
     canMigrateLogic();
     notifyListeners();
   }
 
   canMigrateLogic() {
-    if (current != null && destination != null) {
-      // Current and Destination have data
-      if (current.chapters != null && destination.chapters != null) {
-        if (current.chapterCount != null && destination.chapterCount != null) {
-          // Chapters have information
-          canMigrate = true;
-        } else
-          canMigrate = false;
-      } else
-        canMigrate = false;
-    } else
+    if (current != null &&
+        destination != null &&
+        destination.chapters != null &&
+        destination.chapters.isNotEmpty)
+      canMigrate = true;
+    else {
       canMigrate = false;
+    }
     notifyListeners();
   }
 }
