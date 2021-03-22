@@ -192,7 +192,7 @@ class _ReaderFrameState extends State<ReaderFrame> {
     super.initState();
     SystemChrome.setEnabledSystemUIOverlays([]);
     _timeString = _formatDateTime(DateTime.now());
-    _timer = Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
+    _timer = Timer.periodic(Duration(seconds: 60), (Timer t) => _getTime());
     _pagedController = PreloadPageController(
         initialPage: Provider.of<ReaderProvider>(context, listen: false)
             .initialPageIndex);

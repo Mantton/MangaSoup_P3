@@ -340,7 +340,7 @@ class ReaderProvider with ChangeNotifier {
     try {
       if (!imgur) {
         Chapter pointer = chapters.elementAt(indexList[page]);
-        Provider.of<DatabaseProvider>(context, listen: false)
+        await Provider.of<DatabaseProvider>(context, listen: false)
             .updateHistoryFromChapter(comicId, pointer, pageDisplayNumber);
       }
     } catch (e) {
@@ -363,24 +363,18 @@ class ReaderProvider with ChangeNotifier {
             print("reached end, do nothing");
           } else
             // Add to Read
-            Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
-                [chapters.elementAt(currentIndex)],
-                comicId,
-                true,
-                source,
-                selector);
+            await Provider.of<DatabaseProvider>(context, listen: false)
+                .updateFromACS([chapters.elementAt(currentIndex)], comicId,
+                    true, source, selector);
           print("End Reached for First time");
 
           endReached();
         } else {
           // Load Next chapter
           // Add to Read
-          Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
-              [chapters.elementAt(currentIndex)],
-              comicId,
-              true,
-              source,
-              selector);
+          await Provider.of<DatabaseProvider>(context, listen: false)
+              .updateFromACS([chapters.elementAt(currentIndex)], comicId, true,
+                  source, selector);
           // MD Sync Logic
           if (selector == "mangadex") {
             SharedPreferences.getInstance().then((_prefs) async {
