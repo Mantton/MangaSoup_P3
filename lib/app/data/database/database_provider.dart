@@ -190,6 +190,14 @@ class DatabaseProvider with ChangeNotifier {
     return comics.firstWhere((element) => element.id == id);
   }
 
+  Comic nullableRetrieveComic(ComicHighlight highlight) {
+    return comics.firstWhere(
+        (element) =>
+            element.sourceSelector == highlight.selector &&
+            element.link == highlight.link,
+        orElse: () => null);
+  }
+
   Collection retrieveCollection(int id) {
     return collections.firstWhere((element) => element.id == id);
   }

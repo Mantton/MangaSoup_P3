@@ -1,12 +1,11 @@
 import "package:flutter/material.dart";
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
-import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
-import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/custom_profile.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/generic_profile.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/error_profile_page.dart';
 import 'package:provider/provider.dart';
 
 class ProfileGateWay extends StatefulWidget {
@@ -51,16 +50,10 @@ class _ProfileGateWayState extends State<ProfileGateWay> {
 
           if (snapshot.hasError) {
             return Scaffold(
-              body: Center(
-                child: InkWell(
-                  child: Text(
-                    "An Error Occurred\n ${snapshot.error.toString()}\n Tap to go back home",
-                    textAlign: TextAlign.center,
-                  ),
-                  onTap: () => Navigator.pop(context),
-                ),
-              ),
-            );
+                body: ErrorProfilePage(
+              highlight: widget.highlight,
+              error: snapshot.error,
+            ));
           }
 
           if (snapshot.hasData) {

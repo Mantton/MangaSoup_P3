@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 TextStyle def =
-    TextStyle(color: Colors.white, fontSize: 18, fontFamily: "Lato");
+    TextStyle(color: Colors.white, fontSize: 16, fontFamily: "Lato");
 
 TextStyle notInLibraryFont = TextStyle(fontSize: 20, fontFamily: "Lato");
 TextStyle updateFont = TextStyle(

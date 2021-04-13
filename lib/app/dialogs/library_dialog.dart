@@ -270,7 +270,7 @@ buildCollectionSheet(BuildContext context, int id) {
     builder: (_) => Container(
       height: MediaQuery.of(context).orientation == Orientation.portrait
           ? MediaQuery.of(context).size.height * .85
-          : MediaQuery.of(context).size.height,
+          : MediaQuery.of(context).size.height * .75,
       child: CupertinoPageScaffold(
         // resizeToAvoidBottomInset: true,
         navigationBar: CupertinoNavigationBar(

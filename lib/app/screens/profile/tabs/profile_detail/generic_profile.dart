@@ -14,6 +14,7 @@ import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/history.dart';
 import 'package:mangasoup_prototype_3/app/data/enums/comic_status.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/comic_rating.dart';
+import 'package:mangasoup_prototype_3/app/screens/migrate/migrate_select_source.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/profile_bookmarks.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/tabs/profile_detail/widgets/tag_widget.dart';
 import 'package:mangasoup_prototype_3/app/screens/profile/widgets/content_preview.dart';
@@ -216,7 +217,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                     Icon(
                       CupertinoIcons.play,
                       color: Colors.purpleAccent,
-                      size: 30,
+                      size: 27,
                     ),
                     Text(
                       exists ? "Continue\n" : "Read\n",
@@ -252,10 +253,11 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                   Icon(
                     CupertinoIcons.book,
                     color: Colors.purpleAccent,
-                    size: 30,
+                    size: 27,
                   ),
                   Text(
-                    "${idk.length} Unique ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}",
+                    "${idk.length}\n",
+                    // ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}
                     textAlign: TextAlign.center,
                     style: def,
                   )
@@ -279,7 +281,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                   Icon(
                     CupertinoIcons.bookmark,
                     color: Colors.purpleAccent,
-                    size: 30,
+                    size: 27,
                   ),
                   Text(
                     "Bookmarks\n",
@@ -293,6 +295,34 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
           Expanded(
             child: ratings(comic),
           ),
+          comic.inLibrary
+              ? Expanded(
+                  child: InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MigrateSourceSelector(
+                          comic: comic,
+                        ),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(
+                          CupertinoIcons.arrow_up_bin,
+                          color: Colors.purpleAccent,
+                          size: 27,
+                        ),
+                        Text(
+                          "Migrate\n",
+                          textAlign: TextAlign.center,
+                          style: def,
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              : Container(),
           // Spacer()
         ],
       ),
@@ -491,7 +521,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                 Icon(
                   CupertinoIcons.chart_bar_square,
                   color: Colors.purpleAccent,
-                  size: 30,
+                  size: 27,
                 ),
                 Text(
                   "Rate\n",
