@@ -41,7 +41,7 @@ class _MALHomeState extends State<MALHome> {
             return Center(child: LoadingIndicator());
           else if (snapshot.hasError)
             return Center(
-              child: Text("${snapshot.error}"),
+              child: Text("An Error Occurred"),
             );
           else if (snapshot.hasData) {
             MALUser target = snapshot.data;

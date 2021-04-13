@@ -84,11 +84,15 @@ class MALManager {
       String accessToken = jsonDecode(raw)['access_token'];
       Map<String, dynamic> headers = Map.of(requestHeader);
       headers.putIfAbsent("Authorization", () => "Bearer $accessToken");
-
-      Response response =
-          await dio.get(url, options: Options(headers: headers));
-      print(response.data);
-      return MALUser.fromMap(response.data);
+      try {
+        Response response =
+            await dio.get(url, options: Options(headers: headers));
+        print(response.data);
+        return MALUser.fromMap(response.data);
+      } catch (err) {
+        print(err.response.data);
+        return null;
+      }
     } else
       return null;
   }
