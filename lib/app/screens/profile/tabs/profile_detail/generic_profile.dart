@@ -174,6 +174,13 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                   SizedBox(
                     height: 10,
                   ),
+                  Text(
+                    "${widget.profile.chapters.map((e) => e.generatedNumber).toSet().length} Unique Chapter(s)",
+                    style: def,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   FittedBox(
                     child: Text(
                       "Source: " + widget.profile.source,
@@ -188,12 +195,8 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
       );
 
   profileActionWidget(Comic comic) {
-    List idk = [];
-    idk =
-        widget.profile.chapters.map((e) => e.generatedNumber).toSet().toList();
-
     return Container(
-      padding: EdgeInsets.all(3),
+      padding: EdgeInsets.all(1),
       child: Row(
         // mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -220,7 +223,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                       size: 27,
                     ),
                     Text(
-                      exists ? "Continue\n" : "Read\n",
+                      exists ? "Continue" : "Read",
                       textAlign: TextAlign.center,
                       style: def,
                     ),
@@ -256,7 +259,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                     size: 27,
                   ),
                   Text(
-                    "${idk.length}\n",
+                    "Chapters",
                     // ${idk.length > 1 || idk.length == 0 ? "Chapters" : "Chapter"}
                     textAlign: TextAlign.center,
                     style: def,
@@ -284,7 +287,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                     size: 27,
                   ),
                   Text(
-                    "Bookmarks\n",
+                    "Bookmarks",
                     textAlign: TextAlign.center,
                     style: def,
                   )
@@ -314,7 +317,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                           size: 27,
                         ),
                         Text(
-                          "Migrate\n",
+                          "Migrate",
                           textAlign: TextAlign.center,
                           style: def,
                         )
@@ -524,7 +527,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
                   size: 27,
                 ),
                 Text(
-                  "Rate\n",
+                  "Rate",
                   textAlign: TextAlign.center,
                   style: def,
                 )
