@@ -336,17 +336,6 @@ class ReaderProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {}
 
-    /// History Update LOGIC
-    try {
-      if (!imgur) {
-        Chapter pointer = chapters.elementAt(indexList[page]);
-        await Provider.of<DatabaseProvider>(context, listen: false)
-            .updateHistoryFromChapter(comicId, pointer, pageDisplayNumber);
-      }
-    } catch (e) {
-      // do nothing
-    }
-
     /// UPDATE LOGIC
     if (pageDisplayCount != null &&
         pageDisplayNumber == pageDisplayCount &&
@@ -362,9 +351,11 @@ class ReaderProvider with ChangeNotifier {
           if (reachedEnd) {
             print("reached end, do nothing");
           } else
-            // Add to Read
-            await Provider.of<DatabaseProvider>(context, listen: false)
-                .updateFromACS([chapters.elementAt(currentIndex)], comicId,
+
+            /// History Update LOGIC
+            await updateHistory();
+          // Add to Read
+          Provider.of<DatabaseProvider>(context, listen: false).updateFromACS([chapters.elementAt(currentIndex)], comicId,
                     true, source, selector);
           print("End Reached for First time");
 
@@ -372,8 +363,7 @@ class ReaderProvider with ChangeNotifier {
         } else {
           // Load Next chapter
           // Add to Read
-          await Provider.of<DatabaseProvider>(context, listen: false)
-              .updateFromACS([chapters.elementAt(currentIndex)], comicId, true,
+          Provider.of<DatabaseProvider>(context, listen: false).updateFromACS([chapters.elementAt(currentIndex)], comicId, true,
                   source, selector);
           // MD Sync Logic
           if (selector == "mangadex") {
@@ -382,7 +372,7 @@ class ReaderProvider with ChangeNotifier {
                 // Cookies containing profile exists
                 // Sync to MD
                 try {
-                  await ApiManager().syncChapters(
+                  ApiManager().syncChapters(
                       [chapters.elementAt(currentIndex).link], true);
                 } catch (err) {
                   showSnackBarMessage(err, error: true);
@@ -409,8 +399,7 @@ class ReaderProvider with ChangeNotifier {
                     // Only Update if Read More not less
                     if (chapt > t.lastChapterRead) {
                       t.lastChapterRead = chapt;
-                      await Provider.of<DatabaseProvider>(context,
-                              listen: false)
+                      Provider.of<DatabaseProvider>(context, listen: false)
                           .updateTracker(t);
                     }
                   }
@@ -428,6 +417,20 @@ class ReaderProvider with ChangeNotifier {
     }
 
     lastPage = page;
+  }
+
+  updateHistory() async {
+    /// History Update LOGIC
+    try {
+      if (!imgur) {
+        Chapter pointer = chapters.elementAt(indexList[currentPage]);
+        await Provider.of<DatabaseProvider>(context, listen: false)
+            .updateHistoryFromChapter(comicId, pointer, pageDisplayNumber);
+        debugPrint("History Updated");
+      }
+    } catch (e) {
+      // do nothing
+    }
   }
 
   toggleBookMark() async {
@@ -469,6 +472,7 @@ class ReaderProvider with ChangeNotifier {
   }
 
   moveToChapter({bool next = true, int index}) async {
+    await updateHistory();
     try {
       if (index == null) {
         index = currentIndex;
@@ -492,8 +496,8 @@ class ReaderProvider with ChangeNotifier {
             "Last chapter",
             (pow == 1)
                 ? (mode == 1)
-                    ? Icons.skip_previous_outlined
-                    : Icons.skip_next_outlined
+                ? Icons.skip_previous_outlined
+                : Icons.skip_next_outlined
                 : Icons.skip_next_outlined,
             Duration(seconds: 1));
       } else if (target >= chapters.length) {
@@ -502,8 +506,8 @@ class ReaderProvider with ChangeNotifier {
             "First Chapter",
             (pow == 1)
                 ? (mode == 1)
-                    ? Icons.skip_next_outlined
-                    : Icons.skip_previous_outlined
+                ? Icons.skip_next_outlined
+                : Icons.skip_previous_outlined
                 : Icons.skip_previous_outlined,
             Duration(seconds: 1));
       } else {

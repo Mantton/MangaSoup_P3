@@ -6,6 +6,7 @@ class ChapterQuery {
   Database db;
 
   ChapterQuery(this.db);
+
   // all chapters
   // get all
   Future<List<ChapterData>> getAll() async {
@@ -16,11 +17,19 @@ class ChapterQuery {
     return chapters;
   }
 
+  Future<void> delete(List<ChapterData> data) async {
+    String ids = "(" + data.map((e) => e.id).join(",") + ")";
+    ids.replaceAll(",)", ")");
+    // await db.delete(ChapterTable.TABLE, where: "${ChapterTable.COL_ID} IN ?", whereArgs: [ids]);
+    await db.rawDelete("DELETE FROM manga_chapters WHERE id IN $ids");
+  }
+
   Future<ChapterData> add(ChapterData chapterData) async {
     chapterData.id = await db.insert(ChapterTable.TABLE, chapterData.toMap());
     return chapterData;
   }
-    // chapters for specific comic
+
+  // chapters for specific comic
   Future<List<ChapterData>> getForComic(int comicId) async {
     List<Map> queryMap = await db.query(ChapterTable.TABLE,
         where: "${ChapterTable.COL_COMIC_ID} = ?", whereArgs: [comicId]);

@@ -321,7 +321,15 @@ class _ReaderFrameState extends State<ReaderFrame> {
                     children: <Widget>[
                       Container(
                         child: GestureDetector(
-                          onTap: () {
+                          onTap: () async {
+                            showLoadingDialog(context);
+                            try {
+                              await provider.updateHistory();
+                            } catch (err) {
+                              showSnackBarMessage("Progress Update Error",
+                                  error: true);
+                            }
+                            Navigator.pop(context);
                             Navigator.pop(context);
                           },
                           child: Text(

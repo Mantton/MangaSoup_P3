@@ -98,7 +98,7 @@ class NewCustomScrollPhysics extends ScrollPhysics {
   /// Creates scroll physics that bounce back from the edge.
   final double velocityT;
 
-  const NewCustomScrollPhysics({ScrollPhysics parent, this.velocityT = 7500})
+  const NewCustomScrollPhysics({ScrollPhysics parent, this.velocityT = 8500})
       : super(parent: parent);
 
   @override

@@ -493,8 +493,11 @@ class DatabaseProvider with ChangeNotifier {
     int t = chapters
         .where((element) => element.mangaId == c.id && element.read)
         .length;
-    c.unreadCount = c.chapterCount - t;
-    evaluate(c);
+    if (c.chapterCount == t)
+      c.unreadCount = 0;
+    else
+      c.unreadCount = c.chapterCount - t;
+    await evaluate(c);
     notifyListeners();
     // MD Sync
     if (selector == "mangadex" && read) {
@@ -512,22 +515,24 @@ class DatabaseProvider with ChangeNotifier {
     }
   }
 
-  updateChapterInfo(int page, Chapter chapter) async {
+  Future<void> updateChapterInfo(int page, Chapter chapter) async {
     ChapterData data = checkIfChapterMatch(chapter);
     data.lastPageRead = page;
     int d = chapters.indexWhere((element) => element.id == data.id);
     chapters[d] = data;
+    // notifyListeners();
     await chapterManager.updateBatch([data]);
-    notifyListeners();
   }
 
-  updateHistoryFromChapter(int comicId, Chapter chapter, int page) {
-    updateChapterInfo(page, chapter);
-    ChapterData pointed = checkIfChapterMatch(chapter);
-    updateHistory(comicId, pointed.id);
+  Future<void> updateHistoryFromChapter(
+      int comicId, Chapter chapter, int page) async {
+    updateChapterInfo(page, chapter).then((value) async {
+      ChapterData pointed = checkIfChapterMatch(chapter);
+      await updateHistory(comicId, pointed.id);
+    });
   }
 
-  updateHistory(int comicId, int chapterId) async {
+  Future<void> updateHistory(int comicId, int chapterId) async {
     if (historyList.any((element) => element.comicId == comicId)) {
       int targetIndex =
           historyList.indexWhere((element) => element.comicId == comicId);
