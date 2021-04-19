@@ -10,6 +10,7 @@ class PreferenceKeys {
   static const MANGA_ORIENTATION =
       "manga_mode_orientation"; // Vertical or Horizontal
   static const MANGA_PADDING = "manga_mode_padding"; // True or False
+  static const WEBTOON_PADDING = "webtoon_mode_padding"; // true or false
   static const MANGA_SNAPPING = "manga_mode_snapping"; // True or False
   static const READER_MAX_WIDTH = "max_reader_width"; // override reader width
   static const READER_DOUBLE_MODE = "reader_double_paged"; // double page mode

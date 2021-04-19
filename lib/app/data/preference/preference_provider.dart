@@ -28,6 +28,8 @@ class PreferenceProvider with ChangeNotifier {
     readerOrientation = _p.getInt(PreferenceKeys.MANGA_ORIENTATION) ?? 1;
     comicGridMode = _p.getInt(PreferenceKeys.COMIC_GRID_MODE) ?? 0;
     readerPadding = _p.getBool(PreferenceKeys.MANGA_PADDING) ?? true;
+    webtoonPadding = _p.getBool(PreferenceKeys.WEBTOON_PADDING) ?? false;
+
     readerPageSnapping = _p.getBool(PreferenceKeys.MANGA_SNAPPING) ?? true;
     comicGridCrossAxisCount =
         _p.getInt(PreferenceKeys.COMIC_GRID_CROSS_AXIS_COUNT) ?? 3;
@@ -84,6 +86,7 @@ class PreferenceProvider with ChangeNotifier {
   int readerScrollDirection;
   int readerOrientation;
   bool readerPadding;
+  bool webtoonPadding;
   bool readerPageSnapping;
 
   /// Reader Mode
@@ -138,6 +141,15 @@ class PreferenceProvider with ChangeNotifier {
     SharedPreferences p = await preferences();
     readerPadding = padding;
     p.setBool(PreferenceKeys.MANGA_PADDING, padding);
+    notifyListeners();
+  }
+
+  Map webToonPaddingOptions = {true: "Enabled", false: "Disabled"};
+
+  setWebtoonPadding(bool padding) async {
+    SharedPreferences p = await preferences();
+    webtoonPadding = padding;
+    p.setBool(PreferenceKeys.WEBTOON_PADDING, padding);
     notifyListeners();
   }
 

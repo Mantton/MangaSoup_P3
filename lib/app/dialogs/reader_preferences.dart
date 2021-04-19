@@ -225,6 +225,36 @@ Widget webToonModeOptions() {
             indent: 10,
             endIndent: 10,
           ),
+
+          /// Page Padding
+          Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    "Padding",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 20,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 9,
+                  ),
+                  Spacer(),
+                  Consumer<PreferenceProvider>(builder: (context, provider, _) {
+                    return Container(
+                      child: PlatformSwitch(
+                        value: provider.webtoonPadding,
+                        onChanged: (v) => provider
+                            .setWebtoonPadding(!provider.webtoonPadding),
+                      ),
+                    );
+                  })
+                ],
+              ),
+            ],
+          ),
           Row(
             children: [
               Text(
