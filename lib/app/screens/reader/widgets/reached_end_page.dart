@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/database/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:mangasoup_prototype_3/app/widgets/comic_collection_widget.dart';
+import 'package:provider/provider.dart';
 
 class ReachedEndPage extends StatelessWidget {
   final Comic inLibrary;
@@ -43,9 +46,13 @@ class ReachedEndPage extends StatelessWidget {
             MaterialButton(
               height: 60,
               minWidth: 120,
-              onPressed: () {
+              onPressed: () async {
                 // Provider.of<PreferenceProvider>(context, listen: false)
                 //     .setReaderMode(1);
+                showLoadingDialog(context);
+                await Provider.of<ReaderProvider>(context, listen: false)
+                    .updateHistory();
+                Navigator.pop(context);
                 Navigator.pop(context);
               },
               shape: RoundedRectangleBorder(

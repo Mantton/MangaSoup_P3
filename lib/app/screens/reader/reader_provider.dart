@@ -131,6 +131,7 @@ class ReaderProvider with ChangeNotifier {
     }
 
     notifyListeners();
+
     return true;
   }
 
@@ -355,8 +356,9 @@ class ReaderProvider with ChangeNotifier {
             /// History Update LOGIC
             await updateHistory();
           // Add to Read
-          Provider.of<DatabaseProvider>(context, listen: false).updateFromACS([chapters.elementAt(currentIndex)], comicId,
-                    true, source, selector);
+          await Provider.of<DatabaseProvider>(context, listen: false)
+              .updateFromACS([chapters.elementAt(currentIndex)], comicId, true,
+                  source, selector);
           print("End Reached for First time");
 
           endReached();
@@ -421,15 +423,26 @@ class ReaderProvider with ChangeNotifier {
 
   updateHistory() async {
     /// History Update LOGIC
+    debugPrint("History Called");
+
     try {
       if (!imgur) {
-        Chapter pointer = chapters.elementAt(indexList[currentPage]);
+        var c = indexList[currentPage];
+        var displayNum = pageDisplayNumber;
+        if (c == null) {
+          c = indexList[currentPage - 1];
+          displayNum = pagePositionList[currentPage - 1];
+        }
+        Chapter pointer = chapters.elementAt(c);
         await Provider.of<DatabaseProvider>(context, listen: false)
-            .updateHistoryFromChapter(comicId, pointer, pageDisplayNumber);
+            .updateHistoryFromChapter(comicId, pointer, displayNum);
         debugPrint("History Updated");
       }
     } catch (e) {
       // do nothing
+      showSnackBarMessage("Failed to update history", error: true);
+      debugPrint("Caught error when updating history");
+      print(e);
     }
   }
 
