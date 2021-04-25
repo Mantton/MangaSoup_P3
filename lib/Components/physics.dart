@@ -96,10 +96,8 @@ class NoMomentumScrollPhysics extends ScrollPhysics {
 
 class NewCustomScrollPhysics extends ScrollPhysics {
   /// Creates scroll physics that bounce back from the edge.
-  final double velocityT;
 
-  const NewCustomScrollPhysics({ScrollPhysics parent, this.velocityT = 8500})
-      : super(parent: parent);
+  const NewCustomScrollPhysics({ScrollPhysics parent}) : super(parent: parent);
 
   @override
   NewCustomScrollPhysics applyTo(ScrollPhysics ancestor) {
@@ -180,10 +178,10 @@ class NewCustomScrollPhysics extends ScrollPhysics {
   // ClampingScrollPhysics so we require a more deliberate input gesture
   // to trigger a fling.
   @override
-  double get minFlingVelocity => kMinFlingVelocity * 2.0;
+  double get minFlingVelocity => kMinFlingVelocity;
 
   @override
-  double get maxFlingVelocity => velocityT ?? 8000;
+  double get maxFlingVelocity => 8000;
 
   // Methodology:
   // 1- Use https://github.com/flutter/platform_tests/tree/master/scroll_overlay to test with
@@ -200,11 +198,14 @@ class NewCustomScrollPhysics extends ScrollPhysics {
   /// calculations.
   @override
   double carriedMomentum(double existingVelocity) {
-    return 90.0;
+    return 170.0;
   }
 
   // Eyeballed from observation to counter the effect of an unintended scroll
   // from the natural motion of lifting the finger after a scroll.
   @override
   double get dragStartDistanceMotionThreshold => 3.5;
+
+  @override
+  bool get allowImplicitScrolling => true;
 }

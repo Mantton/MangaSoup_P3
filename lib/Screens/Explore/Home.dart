@@ -39,7 +39,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
         designSize: Size(450, 747.5),
-        allowFontScaling: true,
         builder: () {
           return DefaultTabController(
             length: 3,

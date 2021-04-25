@@ -103,7 +103,6 @@ class _SourcesPageState extends State<SourcesPage> {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       designSize: Size(450, 747.5),
-      allowFontScaling: true,
       builder: () => Scaffold(
         body: FutureBuilder(
           future: getSources(),

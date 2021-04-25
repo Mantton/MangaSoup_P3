@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mangasoup_prototype_3/Components/physics.dart';
 import 'package:mangasoup_prototype_3/app/screens/reader/reader_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -56,10 +57,7 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
         width: MediaQuery.of(context).size.width,
         child: ScrollablePositionedList.builder(
           addAutomaticKeepAlives: false,
-          // physics: NewCustomScrollPhysics(
-          //   velocityT:
-          //       Provider.of<PreferenceProvider>(context).maxScrollVelocity,
-          // ),
+          physics: NewCustomScrollPhysics(),
           itemBuilder: (_, index) => provider.widgetPageList.isNotEmpty
               ? provider.widgetPageList[index]
               : SizedBox(

@@ -84,7 +84,6 @@ class ReaderProvider with ChangeNotifier {
     Comic c = Provider.of<DatabaseProvider>(context, listen: false)
         .retrieveComic(comicId);
     int readerMode = c.viewerMode;
-
     if (readerMode != 0) {
       await Provider.of<PreferenceProvider>(context, listen: false)
           .setReaderMode(readerMode);
@@ -351,22 +350,29 @@ class ReaderProvider with ChangeNotifier {
         if (nextIndex < 0) {
           if (reachedEnd) {
             print("reached end, do nothing");
-          } else
-
+          } else {
             /// History Update LOGIC
+            // Add to Read
+            await Provider.of<DatabaseProvider>(context, listen: false)
+                .updateFromACS([chapters.elementAt(currentIndex)], comicId,
+                    true, source, selector);
             await updateHistory();
-          // Add to Read
-          await Provider.of<DatabaseProvider>(context, listen: false)
-              .updateFromACS([chapters.elementAt(currentIndex)], comicId, true,
-                  source, selector);
-          print("End Reached for First time");
 
-          endReached();
+            print("End Reached for First time");
+            endReached();
+          }
         } else {
           // Load Next chapter
+
           // Add to Read
-          Provider.of<DatabaseProvider>(context, listen: false).updateFromACS([chapters.elementAt(currentIndex)], comicId, true,
-                  source, selector);
+          Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
+              [chapters.elementAt(currentIndex)],
+              comicId,
+              true,
+              source,
+              selector);
+          await updateHistory();
+
           // MD Sync Logic
           if (selector == "mangadex") {
             SharedPreferences.getInstance().then((_prefs) async {
