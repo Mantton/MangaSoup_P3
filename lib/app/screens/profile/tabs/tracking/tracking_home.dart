@@ -196,12 +196,9 @@ class EditTrack extends StatelessWidget {
                 SizedBox(
                   width: 5,
                 ),
-                Flexible(
-                  flex: 8,
-                  child: Text(
-                    tracker.title,
-                    style: notInLibraryFont,
-                  ),
+                Text(
+                  tracker.title,
+                  style: notInLibraryFont,
                 ),
                 Spacer(),
                 IconButton(
@@ -215,7 +212,7 @@ class EditTrack extends StatelessWidget {
                       builder: (_) => PlatformAlertDialog(
                         title: Text("Delete Local Tracker"),
                         content: Text(
-                          "This would delete the tracker locally, This is useful when re-syncing your Library",
+                          "This would delete the tracker locally.",
                         ),
                         actions: [
                           PlatformDialogAction(

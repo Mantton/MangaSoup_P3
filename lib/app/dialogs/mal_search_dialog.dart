@@ -76,106 +76,104 @@ class _MALQueryState extends State<MALQuery> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: TextField(
-              controller: _c,
-              decoration: mangasoupInputDecoration("Title"),
-              onSubmitted: (q) {
-                results = MALManager().queryMAL(q);
-              },
+          Flexible(
+            flex: 1,
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: TextField(
+                controller: _c,
+                decoration: mangasoupInputDecoration("Title"),
+                onSubmitted: (q) {
+                  setState(() {
+                    results = MALManager().queryMAL(q);
+                  });
+                },
+              ),
             ),
           ),
-          Container(
+          Expanded(
             child: FutureBuilder(
                 future: results,
                 builder: (_, snapshot) {
                   if (snapshot.hasData) {
                     return snapshot.data.length > 0
-                        ? Container(
-                            height: 500,
-                            child: ListView.separated(
-                              physics: AlwaysScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemBuilder: (_, index) => InkWell(
-                                onTap: () async {
-                                  try {
-                                    showLoadingDialog(context);
-                                    MALDetailedTrackResult r =
-                                        await MALManager()
-                                            .getManga(snapshot.data[index].id);
-                                    // Add tracker using provider object;
-                                    await Provider.of<DatabaseProvider>(context,
-                                            listen: false)
-                                        .addTracker(r, widget.comicId);
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
-                                  } catch (err) {
-                                    Navigator.pop(context);
-                                    print(err);
-                                    showSnackBarMessage("An Error Occurred");
-                                  }
-                                },
-                                child: Card(
-                                  color: Colors.grey[900],
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 3,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(3.0),
-                                          child: Container(
-                                            height: 150,
-                                            width: 100,
-                                            child: SoupImage(
-                                              url: snapshot
-                                                  .data[index].thumbnail,
-                                            ),
+                        ? ListView.separated(
+                            shrinkWrap: true,
+                            itemBuilder: (_, index) => InkWell(
+                              onTap: () async {
+                                try {
+                                  showLoadingDialog(context);
+                                  MALDetailedTrackResult r = await MALManager()
+                                      .getManga(snapshot.data[index].id);
+                                  // Add tracker using provider object;
+                                  await Provider.of<DatabaseProvider>(context,
+                                          listen: false)
+                                      .addTracker(r, widget.comicId);
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                } catch (err) {
+                                  Navigator.pop(context);
+                                  print(err);
+                                  showSnackBarMessage("An Error Occurred");
+                                }
+                              },
+                              child: Card(
+                                color: Colors.grey[900],
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 3,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(3.0),
+                                        child: Container(
+                                          height: 150,
+                                          width: 100,
+                                          child: SoupImage(
+                                            url: snapshot.data[index].thumbnail,
                                           ),
                                         ),
                                       ),
-                                      Expanded(
-                                        flex: 7,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              AutoSizeText(
-                                                snapshot.data[index].title,
-                                                style: notInLibraryFont,
-                                                maxLines: 2,
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              AutoSizeText(
-                                                "Status: " +
-                                                    snapshot.data[index].status,
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 15),
-                                              ),
-                                              AutoSizeText(
-                                                "Synopsis: " +
-                                                    snapshot
-                                                        .data[index].synopsis,
-                                                maxLines: 5,
-                                              )
-                                            ],
-                                          ),
+                                    ),
+                                    Expanded(
+                                      flex: 7,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            AutoSizeText(
+                                              snapshot.data[index].title,
+                                              style: notInLibraryFont,
+                                              maxLines: 2,
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            AutoSizeText(
+                                              "Status: " +
+                                                  snapshot.data[index].status,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 15),
+                                            ),
+                                            AutoSizeText(
+                                              "Synopsis: " +
+                                                  snapshot.data[index].synopsis,
+                                              maxLines: 3,
+                                            )
+                                          ],
                                         ),
-                                      )
-                                    ],
-                                  ),
+                                      ),
+                                    )
+                                  ],
                                 ),
                               ),
-                              separatorBuilder: (_, index) => SizedBox(
-                                height: 5,
-                              ),
-                              itemCount: snapshot.data.length,
                             ),
+                            separatorBuilder: (_, index) => SizedBox(
+                              height: 3,
+                            ),
+                            itemCount: snapshot.data.length,
                           )
                         : Center(
                             child: Text("No Comics Found"),

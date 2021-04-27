@@ -265,7 +265,7 @@ class PreferenceProvider with ChangeNotifier {
   setDoublePagedMode(bool mode) async {
     SharedPreferences p = await preferences();
     readerDoublePagedMode = mode;
-    p.setBool(PreferenceKeys.MAL_AUTO_SYNC, mode);
+    p.setBool(PreferenceKeys.READER_DOUBLE_MODE, mode);
     notifyListeners();
   }
 
