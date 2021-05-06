@@ -81,6 +81,9 @@ class AniList {
         return null;
     } catch (err) {
       // print(err.response.data);
+      SharedPreferences _p = await SharedPreferences.getInstance();
+      _p.remove(PreferenceKeys.ANILIST_ACCESS_TOKEN);
+      _p.remove(PreferenceKeys.ANILIST_USER_ID);
       ErrorManager.analyze(err);
     }
     return null;

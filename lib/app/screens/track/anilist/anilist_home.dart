@@ -107,7 +107,8 @@ class _AnilistHomeState extends State<AnilistHome> {
                       ),
                     ),
                     SwitchListTile.adaptive(
-                      title: Text("Auto Sync Progress"),
+                      title:
+                          Text("Auto Sync Progress", style: notInLibraryFont),
                       onChanged: (v) => Provider.of<PreferenceProvider>(context,
                               listen: false)
                           .setMALAutoSync(v),

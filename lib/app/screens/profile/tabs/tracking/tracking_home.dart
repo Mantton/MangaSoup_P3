@@ -106,7 +106,7 @@ class _MALTrackingWidgetState extends State<MALTrackingWidget> {
                                 ),
                                 Center(
                                   child: CupertinoButton(
-                                    child: Text("Add"),
+                                    child: Text("Add", style: notInLibraryFont),
                                     onPressed: () => malSearchDialog(
                                         context: context,
                                         initialQuery: p.comics
@@ -152,7 +152,7 @@ class _MALTrackingWidgetState extends State<MALTrackingWidget> {
                       ),
                       Center(
                         child: CupertinoButton(
-                          child: Text("Sign In"),
+                          child: Text("Sign In", style: notInLibraryFont),
                           onPressed: () => Navigator.push(
                             context,
                             MaterialPageRoute(
