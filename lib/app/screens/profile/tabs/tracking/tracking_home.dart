@@ -10,6 +10,7 @@ import 'package:mangasoup_prototype_3/app/data/enums/mal.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/mal_search_dialog.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/tabs/tracking/anilist_tracking_widget.dart';
 import 'package:mangasoup_prototype_3/app/screens/track/mal/mal_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -28,6 +29,9 @@ class TrackingHome extends StatelessWidget {
           MALTrackingWidget(
             highlight: highlight,
           ),
+          AnilistWidget(
+            highlight: highlight,
+          )
         ],
       ),
     );
@@ -192,7 +196,9 @@ class EditTrack extends StatelessWidget {
             height: 50,
             child: Row(
               children: [
-                Image.asset("assets/images/mal.png"),
+                Image.asset(tracker.trackerType == 2
+                    ? "assets/images/mal.png"
+                    : "assets/images/anilist.png"),
                 SizedBox(
                   width: 5,
                 ),
@@ -252,7 +258,7 @@ class EditTrack extends StatelessWidget {
                     onPressed: () =>
                         statusPickerDialog(context: context, t: tracker),
                     child: Text(
-                      convertToPresentatble(tracker.status),
+                      convertToPresentable(tracker.status, tracker.trackerType),
                       style: def,
                     ),
                   ),

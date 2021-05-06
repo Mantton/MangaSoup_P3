@@ -41,6 +41,8 @@ class PreferenceProvider with ChangeNotifier {
     libraryViewMode = _p.getInt(PreferenceKeys.LIBRARY_VIEW_TYPE) ?? 1;
     readerBGColor = _p.getInt(PreferenceKeys.READER_BG_COLOR) ?? 0;
     malAutoSync = _p.getBool(PreferenceKeys.MAL_AUTO_SYNC) ?? true;
+    anilistAutoSync = _p.getBool(PreferenceKeys.ANILIST_AUTO_SYNC) ?? true;
+
     readerMaxWidth = _p.getBool(PreferenceKeys.READER_MAX_WIDTH) ?? false;
     readerDoublePagedMode =
         _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
@@ -257,6 +259,16 @@ class PreferenceProvider with ChangeNotifier {
     SharedPreferences p = await preferences();
     malAutoSync = sync;
     p.setBool(PreferenceKeys.MAL_AUTO_SYNC, sync);
+    notifyListeners();
+  }
+
+  bool anilistAutoSync;
+
+  setAniListAutoSync(bool sync) async {
+    // SURCM = Show UnRead Count Mode
+    SharedPreferences p = await preferences();
+    anilistAutoSync = sync;
+    p.setBool(PreferenceKeys.ANILIST_AUTO_SYNC, sync);
     notifyListeners();
   }
 

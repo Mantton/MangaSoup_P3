@@ -374,8 +374,8 @@ class ReaderProvider with ChangeNotifier {
           await updateHistory();
 
           // MD Sync Logic
-          if (selector == "mangadex") {
             SharedPreferences.getInstance().then((_prefs) async {
+            if (selector == "mangadex") {
               if (_prefs.getString("mangadex_cookies") != null) {
                 // Cookies containing profile exists
                 // Sync to MD
@@ -386,17 +386,23 @@ class ReaderProvider with ChangeNotifier {
                   showSnackBarMessage(err, error: true);
                 }
               }
-              try {
-                if (_prefs.get(PreferenceKeys.MAL_AUTH) != null &&
-                    Provider.of<PreferenceProvider>(context, listen: false)
-                        .malAutoSync) {
-                  // Sync to MAL
-                  Tracker t;
-                  try {
-                    t = Provider.of<DatabaseProvider>(context, listen: false)
-                        .comicTrackers
-                        .firstWhere((element) => element.comicId == comicId);
-                  } catch (err) {
+            }
+
+            print("Trackers");
+
+            try {
+              if (_prefs.get(PreferenceKeys.MAL_AUTH) != null &&
+                  Provider.of<PreferenceProvider>(context, listen: false)
+                      .malAutoSync) {
+                // Sync to MAL
+                Tracker t;
+                try {
+                  t = Provider.of<DatabaseProvider>(context, listen: false)
+                      .comicTrackers
+                      .firstWhere((element) =>
+                          element.comicId == comicId &&
+                          element.trackerType == 2);
+                } catch (err) {
                     // do nothing, no element was found
                   }
                   if (t != null) {
@@ -405,19 +411,53 @@ class ReaderProvider with ChangeNotifier {
                         .generatedNumber
                         .toInt();
                     // Only Update if Read More not less
-                    if (chapt > t.lastChapterRead) {
-                      t.lastChapterRead = chapt;
-                      Provider.of<DatabaseProvider>(context, listen: false)
-                          .updateTracker(t);
-                    }
+                  if (chapt > t.lastChapterRead) {
+                    t.lastChapterRead = chapt;
+                    Provider.of<DatabaseProvider>(context, listen: false)
+                        .updateTracker(t);
                   }
                 }
-              } catch (err) {
-                print(err);
-                showSnackBarMessage("Failed to sync to MAL");
               }
-            });
-          }
+            } catch (err) {
+              print(err);
+              showSnackBarMessage("Failed to Sync.", error: true);
+            }
+
+            try {
+              if (_prefs.get(PreferenceKeys.ANILIST_ACCESS_TOKEN) != null &&
+                  Provider.of<PreferenceProvider>(context, listen: false)
+                      .anilistAutoSync) {
+                // Sync to AniList
+                Tracker t;
+                t = Provider.of<DatabaseProvider>(context, listen: false)
+                    .comicTrackers
+                    .firstWhere(
+                        (element) =>
+                            element.comicId == comicId &&
+                            element.trackerType == 3,
+                        orElse: () => null);
+
+                //Tracker Found
+                if (t != null) {
+                  int targetChapter = chapters
+                      .elementAt(indexList[page])
+                      .generatedNumber
+                      .toInt();
+                  // Only Update if Read More not less
+
+                  if (targetChapter > t.lastChapterRead) {
+                    t.lastChapterRead = targetChapter;
+                    Provider.of<DatabaseProvider>(context, listen: false)
+                        .updateTracker(t);
+                  }
+                }
+              }
+            } catch (err) {
+              print(err);
+              showSnackBarMessage("Failed to Sync to AniList", error: true);
+            }
+          });
+
           await loadNextChapter(nextIndex);
           currentIndex--;
         }
@@ -515,8 +555,8 @@ class ReaderProvider with ChangeNotifier {
             "Last chapter",
             (pow == 1)
                 ? (mode == 1)
-                ? Icons.skip_previous_outlined
-                : Icons.skip_next_outlined
+                    ? Icons.skip_previous_outlined
+                    : Icons.skip_next_outlined
                 : Icons.skip_next_outlined,
             Duration(seconds: 1));
       } else if (target >= chapters.length) {
@@ -525,8 +565,8 @@ class ReaderProvider with ChangeNotifier {
             "First Chapter",
             (pow == 1)
                 ? (mode == 1)
-                ? Icons.skip_next_outlined
-                : Icons.skip_previous_outlined
+                    ? Icons.skip_next_outlined
+                    : Icons.skip_previous_outlined
                 : Icons.skip_previous_outlined,
             Duration(seconds: 1));
       } else {

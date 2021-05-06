@@ -36,4 +36,9 @@ class PreferenceKeys {
   static const MS_T_USER = "ms_user_t";
   static const UPDATE_ON_STARTUP = "uonsp";
   static const SHOW_UNREAD_COUNT = "show_unread";
+
+  // ANILIST
+  static const ANILIST_ACCESS_TOKEN = 'anilist_token';
+  static const ANILIST_USER_ID = "anilist_user";
+  static const ANILIST_AUTO_SYNC = 'anilist_sync';
 }

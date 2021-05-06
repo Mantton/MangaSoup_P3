@@ -276,7 +276,7 @@ class MangaSoupMalStatusPicker extends StatefulWidget {
 }
 
 class _MangaSoupMalStatusPickerState extends State<MangaSoupMalStatusPicker> {
-  MALTrackStatus s;
+  TrackStatus s;
 
   @override
   void initState() {
@@ -304,19 +304,18 @@ class _MangaSoupMalStatusPickerState extends State<MangaSoupMalStatusPicker> {
                 padding: const EdgeInsets.all(5.0),
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: MALTrackStatus.values.length,
+                  itemCount: TrackStatus.values.length,
                   itemBuilder: (_, index) => CheckboxListTile(
                     title: Text(
-                      convertToPresentatble(
-                        MALTrackStatus.values[index],
-                      ),
+                      convertToPresentable(TrackStatus.values[index],
+                          widget.tracker.trackerType),
                     ),
                     onChanged: (bool value) {
                       setState(() {
-                        s = MALTrackStatus.values[index];
+                        s = TrackStatus.values[index];
                       });
                     },
-                    value: s == MALTrackStatus.values[index],
+                    value: s == TrackStatus.values[index],
                     checkColor: Colors.purple,
                     activeColor: Colors.white,
                   ),

@@ -1,16 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
-import 'package:mangasoup_prototype_3/app/screens/mangadex/mangadex_home.dart';
-import 'package:mangasoup_prototype_3/app/screens/mangasoup/mangasoup_profile_screen.dart';
 import 'package:mangasoup_prototype_3/app/screens/track/mal/mal_screen.dart';
+
+import 'anilist/anilist_home.dart';
 
 class ServicesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    List names = ['MangaDex', "MyAnimeList", "MangaSoup"];
-    List pages = [DexHubHome(), MALHome(), MangaSoupUserHome()];
-    List images = ["mangadex.png", "mal.png", "icon.png"];
+    List names = ["MyAnimeList", "AniList"];
+    List pages = [MALHome(), AnilistHome()];
+    List images = ["mal.png", "anilist.png"];
     return Scaffold(
       appBar: AppBar(
         title: Text("Services"),
