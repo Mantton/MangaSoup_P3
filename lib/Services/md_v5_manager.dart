@@ -15,6 +15,47 @@ class MangaDexV5 {
   final String temporaryThumbnail = 'https://i.imgur.com/6TrIues.jpg';
   static String selector = "md-v5";
   static String source = "MangaDex V5";
+  final Map langMapping = {
+    'en': 'gb',
+    'pt-br': 'pt',
+    'ru': 'ru',
+    'fr': 'fr',
+    'es-la': 'es',
+    'pl': 'pl',
+    'tr': 'tr',
+    'it': 'it',
+    'es': 'es',
+    'id': 'id',
+    'vi': 'vn',
+    'hu': 'hu',
+    'zh': 'cn',
+    'ar': 'sa', // Arabic
+    'de': 'de',
+    'zh-hk': 'hk',
+    'ca': 'ct', // Catalan
+    'th': 'th',
+    'bg': 'bg',
+    'uk': 'ua',
+    'mn': 'mn',
+    'he': 'il', // Hebrew
+    'ro': 'ro',
+    'ms': 'my',
+    'tl': 'th', // Tagalog
+    'ja': 'jp',
+    'ko': 'kr',
+    'hi': 'in', // Hindi
+    'my': 'my', // Malaysian
+    'cs': 'cz',
+    'pt': 'pt',
+    'nl': 'nl',
+    'sv': 'se', // Swedish
+    'bn': 'bd', // Bengali
+    'no': 'no',
+    'lt': 'lt',
+    // 'sr': '', // Serbian
+    'da': 'dk',
+    'fi': 'fi',
+  };
 
   /// Profile Related.
   // GET Manga Profile
@@ -89,7 +130,8 @@ class MangaDexV5 {
           var attributes = r['attributes'];
           var volume = attributes['volume'];
           var chapter = attributes['chapter'];
-          var language = attributes['translatedLanguage'];
+          String rawLang = attributes['translatedLanguage'];
+          var language = langMapping[rawLang];
           var title = attributes['title'];
 
           var finalTitle =
@@ -101,7 +143,8 @@ class MangaDexV5 {
             "name": finalTitle,
             "link": id,
             "date": formattedDate,
-            "maker": ""
+            "maker":
+                "${language != null ? emoji(language) : rawLang.toUpperCase()}"
             // "maker": "${_emoji(lang)} - $groupName"
           });
         }
@@ -127,6 +170,18 @@ class MangaDexV5 {
     };
     debugPrint("Retrieval Complete : /Profile: $title @$source ");
     return Profile.fromMap(x);
+  }
+
+  String emoji(String country) {
+    country = country.toUpperCase();
+    int flagOffset = 0x1F1E6;
+    int asciiOffset = 0x41;
+
+    int firstChar = country.codeUnitAt(0) - asciiOffset + flagOffset;
+    int secondChar = country.codeUnitAt(1) - asciiOffset + flagOffset;
+    String emoji =
+        String.fromCharCode(firstChar) + String.fromCharCode(secondChar);
+    return emoji;
   }
 
   int parseStatus(String string) {
