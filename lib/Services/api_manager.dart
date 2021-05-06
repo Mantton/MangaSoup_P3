@@ -8,6 +8,7 @@ import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/Models/Misc.dart';
 import 'package:mangasoup_prototype_3/Models/Source.dart';
 import 'package:mangasoup_prototype_3/Services/mangadex_manager.dart';
+import 'package:mangasoup_prototype_3/Services/md_v5_manager.dart';
 import 'package:mangasoup_prototype_3/Utilities/Exceptions.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/homepage.dart';
@@ -22,7 +23,7 @@ class ApiManager {
   static String _localAddress = "http://127.0.0.1:5000";
 
   static BaseOptions _options = BaseOptions(
-    baseUrl: _devAddress,
+    baseUrl: _localAddress,
     connectTimeout: 50000,
     receiveTimeout: 50000,
   );
@@ -34,6 +35,7 @@ class ApiManager {
   );
   final Dio _dio = Dio(_options);
   final DexHub dex = DexHub();
+  final MangaDexV5 v5 = MangaDexV5();
   final String imgSrcUrl = 'https://saucenao.com/search.php?db=37'
       '&output_type=2'
       '&numres=10'
@@ -121,6 +123,7 @@ class ApiManager {
       String source, String sortBy, int page) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     if (source == "mangadex") return dex.get(sortBy, page, additionalParams);
+    if (source == "md-v5") return v5.all(page, additionalParams);
 
     Map data = {
       "selector": source,
@@ -142,6 +145,7 @@ class ApiManager {
   Future<List<ComicHighlight>> getLatest(String source, int page) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     if (source == "mangadex") return dex.get("0", page, additionalParams);
+    if (source == "md-v5") return v5.all(page, additionalParams);
 
     Map data = {
       "selector": source,
@@ -163,6 +167,8 @@ class ApiManager {
     try {
       Map additionalParams = await prepareAdditionalInfo(source);
       if (source == "mangadex") return dex.profile(link, additionalParams);
+      if (source == "md-v5") return v5.profile(link, additionalParams);
+
       Map data = {"selector": source, "link": link, "data": additionalParams};
       Response response = await _dio.post('/api/v1/profile', data: data);
       p = Profile.fromMap(response.data);
@@ -178,6 +184,7 @@ class ApiManager {
     try {
       Map additionalParams = await prepareAdditionalInfo(source);
       if (source == "mangadex") return dex.images(link, additionalParams);
+      if (source == "md-v5") return v5.images(link, additionalParams);
 
       Map data = {
         "selector": source,
@@ -219,6 +226,7 @@ class ApiManager {
       Map additionalParams = await prepareAdditionalInfo(source);
       if (source == "mangadex")
         return dex.getTagComics(sort, page, link, additionalParams);
+      if (source == 'md-v5') return v5.tagComics(link, page);
 
       Map data = {
         "selector": source,
@@ -246,6 +254,8 @@ class ApiManager {
       Map additionalParams = await prepareAdditionalInfo(source);
 
       if (source == "mangadex") return dex.search(query, additionalParams);
+      if (source == "md-v5")
+        return v5.browse({'title': query}, additionalParams);
 
       Map data = {
         "selector": source,
@@ -269,6 +279,8 @@ class ApiManager {
     try {
       Map additionalParams = await prepareAdditionalInfo(source);
       if (source == "mangadex") return dex.browse(query, additionalParams);
+      if (source == "md-v5") return v5.browse(query, additionalParams);
+
       additionalParams.addAll(query);
       Map data = {
         "selector": source,
@@ -405,7 +417,6 @@ Future<Map> prepareAdditionalInfo(String source) async {
       generated['cookies'] = jsonDecode(sourceCookies);
     }
 
-    // print("DATA: $generated");
     return generated;
   }
 }
