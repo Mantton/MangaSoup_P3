@@ -201,10 +201,12 @@ class ApiManager {
 
   /// Get Tags
   Future<List<Tag>> getTags(String source) async {
-    List<Tag> tags = List();
+    List<Tag> tags = [];
     try {
       Map additionalParams = await prepareAdditionalInfo(source);
       if (source == "mangadex") return dex.getTags();
+      if (source == "md-v5") return v5.tags();
+
       Map data = {"selector": source, "data": additionalParams};
       Response response = await _dio.post('/api/v1/tags', data: data);
       List dataPoints = response.data['genres'] ?? response.data;
@@ -220,7 +222,7 @@ class ApiManager {
   /// Get Tag Comics
   Future<List<ComicHighlight>> getTagComics(
       String source, int page, String link, String sort) async {
-    List<ComicHighlight> comics = List();
+    List<ComicHighlight> comics = [];
 
     try {
       Map additionalParams = await prepareAdditionalInfo(source);
@@ -248,7 +250,7 @@ class ApiManager {
 
   /// Search
   Future<List<ComicHighlight>> search(String source, String query) async {
-    List<ComicHighlight> comics = List();
+    List<ComicHighlight> comics = [];
 
     try {
       Map additionalParams = await prepareAdditionalInfo(source);
@@ -274,7 +276,7 @@ class ApiManager {
   }
 
   Future<List<ComicHighlight>> browse(String source, Map query) async {
-    List<ComicHighlight> comics = List();
+    List<ComicHighlight> comics = [];
 
     try {
       Map additionalParams = await prepareAdditionalInfo(source);
@@ -309,7 +311,7 @@ class ApiManager {
 
   Future<void> syncChapters(List<String> links, bool read) async {
     Map additionalParams = await prepareAdditionalInfo("mangadex");
-    List<int> ids = List();
+    List<int> ids = [];
     try {
       for (String link in links) {
         String target = link.split("/").last;
@@ -323,7 +325,7 @@ class ApiManager {
   }
 
   Future<List<ImageSearchResult>> imageSearch(File image) async {
-    List<ImageSearchResult> isrResults = List();
+    List<ImageSearchResult> isrResults = [];
 
     try {
       // debugPrint("${image.path}");

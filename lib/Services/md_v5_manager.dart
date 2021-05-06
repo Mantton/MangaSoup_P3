@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:mangasoup_prototype_3/Models/Comic.dart';
 import 'package:mangasoup_prototype_3/Models/ImageChapter.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/comic.dart';
+import 'package:mangasoup_prototype_3/app/data/api/models/tag.dart';
 
 class MangaDexV5 {
   /* Holds the tags uuid for the new API*/
@@ -343,5 +344,32 @@ class MangaDexV5 {
       highlights.add(h);
     }
     return highlights;
+  }
+
+  Future<List<Tag>> tags() async {
+    List<Tag> tags = [];
+    Dio _dio = Dio();
+    Response response;
+
+    try {
+      response = await _dio.get(apiURL + '/manga/tag');
+    } catch (err) {
+      debugPrint("MangaDex API Error: GET TAGS");
+      throw "Failed to reach MangaDex V5 API.";
+    }
+
+    List results = [];
+    results = response.data;
+
+    for (Map result in results) {
+      result = result['data'];
+      var id = result['id'];
+      var attributes = result['attributes'];
+      var title = attributes['name']['en'];
+
+      Tag t = Tag(title, id, selector, true);
+      tags.add(t);
+    }
+    return tags;
   }
 }
