@@ -111,9 +111,9 @@ class _AnilistHomeState extends State<AnilistHome> {
                           Text("Auto Sync Progress", style: notInLibraryFont),
                       onChanged: (v) => Provider.of<PreferenceProvider>(context,
                               listen: false)
-                          .setMALAutoSync(v),
-                      value:
-                          Provider.of<PreferenceProvider>(context).malAutoSync,
+                          .setAniListAutoSync(v),
+                      value: Provider.of<PreferenceProvider>(context)
+                          .anilistAutoSync,
                     ),
                     ListTile(
                       title: Text(

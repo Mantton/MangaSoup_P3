@@ -23,7 +23,7 @@ class ApiManager {
   static String _localAddress = "http://127.0.0.1:5000";
 
   static BaseOptions _options = BaseOptions(
-    baseUrl: _localAddress,
+    baseUrl: _devAddress,
     connectTimeout: 50000,
     receiveTimeout: 50000,
   );

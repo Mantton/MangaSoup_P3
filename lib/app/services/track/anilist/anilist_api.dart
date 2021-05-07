@@ -63,11 +63,12 @@ class AniList {
       SharedPreferences _p = await SharedPreferences.getInstance();
       String token = _p.getString(PreferenceKeys.ANILIST_ACCESS_TOKEN);
 
-      if (token.contains('&')) {
-        token = token.split('&').first;
-        _p.setString(PreferenceKeys.ANILIST_ACCESS_TOKEN, token);
-      }
       if (token != null) {
+        if (token.contains('&')) {
+          token = token.split('&').first;
+          _p.setString(PreferenceKeys.ANILIST_ACCESS_TOKEN, token);
+        }
+
         Map<String, dynamic> headers = Map.of(requestHeader);
         headers.putIfAbsent("Authorization", () => "Bearer $token");
         response = await Dio().post(apiUrl,
