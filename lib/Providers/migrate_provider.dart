@@ -15,6 +15,7 @@ class MigrateProvider with ChangeNotifier {
 
   setCurrent(ComicHighlight c) {
     current = c;
+    print(current.link);
     print("current set");
     canMigrateLogic();
     notifyListeners();
@@ -23,6 +24,7 @@ class MigrateProvider with ChangeNotifier {
   setDestination(Profile p) {
     print("destination set");
     destination = p;
+    print(destination.link);
     canMigrateLogic();
     notifyListeners();
   }

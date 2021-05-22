@@ -700,11 +700,6 @@ class DatabaseProvider with ChangeNotifier {
       try {
         // API UPDATE
         await MALManager().updateTracker(tracker);
-        trackerManager.updateTracker(tracker);
-        int target =
-            comicTrackers.indexWhere((element) => element.id == tracker.id);
-        comicTrackers[target] = tracker;
-        notifyListeners();
       } catch (err) {
         ErrorManager.analyze(err);
       }
@@ -713,14 +708,19 @@ class DatabaseProvider with ChangeNotifier {
       try {
         // API UPDATE
         await AniList().updateTracker(tracker);
-        trackerManager.updateTracker(tracker);
-        int target =
-            comicTrackers.indexWhere((element) => element.id == tracker.id);
-        comicTrackers[target] = tracker;
-        notifyListeners();
       } catch (err) {
         ErrorManager.analyze(err);
       }
+    }
+
+    try {
+      trackerManager.updateTracker(tracker);
+      int target =
+          comicTrackers.indexWhere((element) => element.id == tracker.id);
+      comicTrackers[target] = tracker;
+      notifyListeners();
+    } catch (err) {
+      throw "Failed to Update local Tracker";
     }
   }
 
@@ -763,7 +763,6 @@ class DatabaseProvider with ChangeNotifier {
     await batchSetComicCollection([], current.id);
     await batchSetComicCollection(targetCollections, destination.id);
     // Tracking
-    // todo, move tracking.
     var trackers =
         comicTrackers.where((element) => element.comicId == current.id);
     for (var T in trackers) {

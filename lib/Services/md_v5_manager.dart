@@ -63,11 +63,16 @@ class MangaDexV5 {
     Dio _dio = Dio();
     Response response;
     Response chapterResponse;
+    Response coverResponse;
     debugPrint(id);
 
     try {
       // Profile Details
       response = await _dio.get(apiURL + '/manga/$id');
+      coverResponse =
+          await _dio.get(apiURL + '/cover', queryParameters: {'manga[]': id});
+
+      // print(coverResponse.data);
       // Chapter Details
 
     } catch (err) {
@@ -115,7 +120,7 @@ class MangaDexV5 {
           queryParameters: {
             'limit': 500,
             'offset': 100 * (page - 1),
-            'locales[]': contentLang
+            'translatedLanguage[]': contentLang
           });
       page++;
 
