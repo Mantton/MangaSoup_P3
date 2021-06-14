@@ -13,6 +13,7 @@ class MangaDexV5 {
   final String baseURL = "https://mangadex.org";
   final String apiURL = "https://api.mangadex.org";
   final String temporaryThumbnail = 'https://i.imgur.com/6TrIues.jpg';
+  final String thumbnailAddress = "https://uploads.mangadex.org/covers";
   static String selector = "md-v5";
   static String source = "MangaDex V5";
   final Map langMapping = {
@@ -64,20 +65,25 @@ class MangaDexV5 {
     Response response;
     Response chapterResponse;
     Response coverResponse;
+    String thumbnail;
     debugPrint(id);
 
     try {
       // Profile Details
       response = await _dio.get(apiURL + '/manga/$id');
-      coverResponse =
-          await _dio.get(apiURL + '/cover', queryParameters: {'manga[]': id});
 
-      // print(coverResponse.data);
       // Chapter Details
 
     } catch (err) {
       debugPrint("MangaDex API Error: GET Profile");
       throw "Failed to reach MangaDex V5 API.";
+    }
+
+    try{
+      coverResponse =
+      await _dio.get(apiURL + '/cover', queryParameters: {'manga[]': id});
+    }catch (err){
+
     }
 
     Map manga = Map();
@@ -115,7 +121,7 @@ class MangaDexV5 {
     var contentLang = info['contentLang'];
 
     while (chapterResponse?.statusCode != 204) {
-      print(page);
+      // print(page);
       chapterResponse = await _dio.get(apiURL + '/manga/$id/feed/',
           queryParameters: {
             'limit': 500,
@@ -154,12 +160,24 @@ class MangaDexV5 {
           });
         }
       }
+
+      try {
+        String filename = coverResponse.data['results'][0]['data']['attributes']['fileName'];
+
+        thumbnail = "$thumbnailAddress/$id/$filename";
+
+      }catch(err){
+          print("Error creating thumbnail");
+      }
+
     }
+
+
 
     Map<String, dynamic> x = {
       "title": HtmlUnescape().convert(title),
       "summary": HtmlUnescape().convert(summary),
-      "thumbnail": temporaryThumbnail,
+      "thumbnail": thumbnail != null ? thumbnail : temporaryThumbnail,
       "alt_title": '',
       "author": author,
       "artist": artist,
@@ -225,9 +243,9 @@ class MangaDexV5 {
       {bool latest = false}) async {
     Dio _dio = Dio();
     Response response;
+    Response coverResponse;
+    List imageResults = [];
     List<ComicHighlight> highlights = [];
-    print(info);
-
     var contentRating = info['contentRating'];
     var contentLang = info['contentLang'];
     try {
@@ -243,11 +261,24 @@ class MangaDexV5 {
       response = await _dio.get(apiURL + '/manga', queryParameters: params);
       print(response.statusCode);
     } catch (err) {
-      print(err.response.data);
+      // print(err.response.data);
       debugPrint("MangaDex API Error: GET Highlights");
       throw "Failed to reach MangaDex V5 API.";
     }
     List results = response.data['results'];
+    try {
+      List ids = results.map((e) => e['data']['id']).toList();
+      coverResponse =
+      await _dio.get(apiURL + '/cover', queryParameters: {'manga[]': ids, "limit": 100});
+      // print(ids.length);
+      imageResults = coverResponse.data['results'];
+
+      // print(imageResults.length);
+
+    }
+    catch(err){
+      print("Error mapping $err");
+    }
 
     for (Map result in results) {
       result = result['data'];
@@ -255,8 +286,23 @@ class MangaDexV5 {
       var id = result['id'];
       var attributes = result['attributes'];
       var title = HtmlUnescape().convert(attributes['title']['en']);
+      var thumbnail;
+      try {
+        for (Map r in imageResults){
+          var target = r['relationships'].firstWhere((elem) => elem['type'] == 'manga')['id'];
+          if (id == target) {
+            var filename = r['data']['attributes']['fileName'];
+            // print(thumbnail);
+            thumbnail = "$thumbnailAddress/$id/$filename";
+          }
+        }
+      }
+      catch(err){
+        print(err);
+      }
+
       ComicHighlight h = ComicHighlight(
-          title, id, temporaryThumbnail, selector, source, false, baseURL);
+          title, id, thumbnail != null ? thumbnail : temporaryThumbnail, selector, source, false, baseURL);
       highlights.add(h);
     }
 
@@ -309,6 +355,9 @@ class MangaDexV5 {
   Future<List<ComicHighlight>> tagComics(String id, int page) async {
     Dio _dio = Dio();
     Response response;
+    Response coverResponse;
+    List imageResults = [];
+
     List<ComicHighlight> highlights = [];
     try {
       // Profile Details
@@ -321,6 +370,19 @@ class MangaDexV5 {
       throw "Failed to reach MangaDex V5 API.";
     }
     List results = response.data['results'];
+    try {
+      List ids = results.map((e) => e['data']['id']).toList();
+      coverResponse =
+      await _dio.get(apiURL + '/cover', queryParameters: {'manga[]': ids, "limit": 100});
+      // print(ids.length);
+      imageResults = coverResponse.data['results'];
+
+      // print(imageResults.length);
+
+    }
+    catch(err){
+      print("Error mapping $err");
+    }
 
     for (Map result in results) {
       result = result['data'];
@@ -328,8 +390,23 @@ class MangaDexV5 {
       var id = result['id'];
       var attributes = result['attributes'];
       var title = HtmlUnescape().convert(attributes['title']['en']);
+      var thumbnail;
+      try {
+        for (Map r in imageResults){
+          var target = r['relationships'].firstWhere((elem) => elem['type'] == 'manga')['id'];
+          if (id == target) {
+            var filename = r['data']['attributes']['fileName'];
+            // print(thumbnail);
+            thumbnail = "$thumbnailAddress/$id/$filename";
+          }
+        }
+      }
+      catch(err){
+        print(err);
+      }
+
       ComicHighlight h = ComicHighlight(
-          title, id, temporaryThumbnail, selector, source, false, baseURL);
+          title, id, thumbnail != null ? thumbnail : temporaryThumbnail, selector, source, false, baseURL);
       highlights.add(h);
     }
     return highlights;
@@ -338,6 +415,9 @@ class MangaDexV5 {
   Future<List<ComicHighlight>> browse(Map query, Map info) async {
     Dio _dio = Dio();
     Response response;
+    Response coverResponse;
+    List imageResults = [];
+
     List<ComicHighlight> highlights = [];
     Map<String, dynamic> params = {};
 
@@ -393,14 +473,42 @@ class MangaDexV5 {
     if (response.statusCode != 204) {
       results = response.data['results'];
     }
+    try {
+      List ids = results.map((e) => e['data']['id']).toList();
+      coverResponse =
+      await _dio.get(apiURL + '/cover', queryParameters: {'manga[]': ids, "limit": 100});
+      // print(ids.length);
+      imageResults = coverResponse.data['results'];
+
+      // print(imageResults.length);
+
+    }
+    catch(err){
+      print("Error mapping $err");
+    }
 
     for (Map result in results) {
       result = result['data'];
       var id = result['id'];
       var attributes = result['attributes'];
       var title = HtmlUnescape().convert(attributes['title']['en']);
+      var thumbnail;
+      try {
+        for (Map r in imageResults){
+          var target = r['relationships'].firstWhere((elem) => elem['type'] == 'manga')['id'];
+          if (id == target) {
+            var filename = r['data']['attributes']['fileName'];
+            // print(thumbnail);
+            thumbnail = "$thumbnailAddress/$id/$filename";
+          }
+        }
+      }
+      catch(err){
+        print(err);
+      }
+
       ComicHighlight h = ComicHighlight(
-          title, id, temporaryThumbnail, selector, source, false, baseURL);
+          title, id, thumbnail != null ? thumbnail : temporaryThumbnail, selector, source, false, baseURL);
       highlights.add(h);
     }
     return highlights;

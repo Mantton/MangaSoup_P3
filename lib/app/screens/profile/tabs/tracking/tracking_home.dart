@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -196,50 +197,57 @@ class EditTrack extends StatelessWidget {
             height: 50,
             child: Row(
               children: [
-                Image.asset(tracker.trackerType == 2
-                    ? "assets/images/mal.png"
-                    : "assets/images/anilist.png"),
-                SizedBox(
-                  width: 5,
+                Expanded(
+                  flex: 1,
+                  child: Image.asset(tracker.trackerType == 2
+                      ? "assets/images/mal.png"
+                      : "assets/images/anilist.png"),
                 ),
-                Text(
-                  tracker.title,
-                  style: notInLibraryFont,
-                ),
-                Spacer(),
-                IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    color: Colors.redAccent,
+
+                Expanded(
+                  flex: 8,
+                  child: Text(
+                    tracker.title,
+                    style: notInLibraryFont,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  onPressed: () async {
-                    showPlatformDialog(
-                      context: context,
-                      builder: (_) => PlatformAlertDialog(
-                        title: Text("Delete Local Tracker"),
-                        content: Text(
-                          "This would delete the tracker locally.",
+                ),
+                Expanded(
+                  flex: 1,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.clear,
+                      color: Colors.redAccent,
+                    ),
+                    onPressed: () async {
+                      showPlatformDialog(
+                        context: context,
+                        builder: (_) => PlatformAlertDialog(
+                          title: Text("Delete Local Tracker"),
+                          content: Text(
+                            "This would delete the tracker locally.",
+                          ),
+                          actions: [
+                            PlatformDialogAction(
+                              child: Text("Cancel"),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            PlatformDialogAction(
+                              cupertino: (_, __) => CupertinoDialogActionData(
+                                  isDestructiveAction: true),
+                              child: Text("Proceed"),
+                              onPressed: () {
+                                Provider.of<DatabaseProvider>(context,
+                                        listen: false)
+                                    .deleteTracker(tracker)
+                                    .then((value) => Navigator.pop(context));
+                              },
+                            ),
+                          ],
                         ),
-                        actions: [
-                          PlatformDialogAction(
-                            child: Text("Cancel"),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          PlatformDialogAction(
-                            cupertino: (_, __) => CupertinoDialogActionData(
-                                isDestructiveAction: true),
-                            child: Text("Proceed"),
-                            onPressed: () {
-                              Provider.of<DatabaseProvider>(context,
-                                      listen: false)
-                                  .deleteTracker(tracker)
-                                  .then((value) => Navigator.pop(context));
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 )
               ],
             ),

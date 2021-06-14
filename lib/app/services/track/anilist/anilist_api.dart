@@ -205,7 +205,8 @@ class AniList {
           var x = AnilistDetailedResponse.fromMap(result[0]);
           return x;
         } else {
-          addManga(mangaId).then((value) => getLibraryManga(mangaId));
+          await addManga(mangaId);
+          return await getLibraryManga(mangaId);
         }
       } else
         return null;
@@ -279,8 +280,12 @@ class AniList {
           "listId": tracker.syncId,
           'status': getAnilistStatusString(tracker.status),
           'progress': tracker.lastChapterRead,
-          'score': tracker.score * 10
+
         };
+
+        if(tracker.score != null){
+          variables['score'] = tracker.score * 10;
+        }
         response = await Dio().post(apiUrl,
             data: jsonEncode({'query': query, "variables": variables}),
             options: Options(headers: headers));
@@ -289,7 +294,7 @@ class AniList {
       } else
         return null;
     } catch (err) {
-      // print(err.response.data);
+      print(err);
       ErrorManager.analyze(err);
     }
   }

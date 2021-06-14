@@ -680,6 +680,11 @@ class DatabaseProvider with ChangeNotifier {
       tracker.lastChapterRead = result.userStatus.progress;
       tracker.score = result.userStatus.score;
       tracker.status = getAniStatus(result.userStatus.status);
+
+      print("Anilist");
+    }
+    else {
+      throw "Invalid Input";
     }
     print("saving & adding");
     tracker = await trackerManager.addTracker(tracker);
