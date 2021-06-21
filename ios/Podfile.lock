@@ -80,7 +80,7 @@ SPEC CHECKSUMS:
   flutter_downloader: 058b9c41564a90500f67f3e432e3524613a7fd83
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
-  image_picker: 50e7c7ff960e5f58faa4d1f4af84a771c671bc4a
+  image_picker: e06f7a68f000bd36f552c1847e33cda96ed31f1f
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
@@ -90,6 +90,6 @@ SPEC CHECKSUMS:
   webview_flutter: 9f491a9b5a66f2573946a389b2677987b0ff8c0b
   workmanager: 0afdcf5628bbde6924c21af7836fed07b42e30e6
 
-PODFILE CHECKSUM: 7368163408c647b7eb699d0d788ba6718e18fb8d
+PODFILE CHECKSUM: 97305c28c0944463088a8a81c0048d5658aad2cd
 
 COCOAPODS: 1.10.1

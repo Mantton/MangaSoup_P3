@@ -94,6 +94,7 @@ class SeparatedGridTile extends StatelessWidget {
                   url: comic.thumbnail,
                   referer: comic.imageReferer,
                   fit: BoxFit.cover,
+                  sourceId: comic.selector,
                 ),
               ),
               Expanded(
@@ -262,6 +263,7 @@ class CompactGridTile extends StatelessWidget {
                     url: comic.thumbnail,
                     referer: comic.imageReferer,
                     fit: BoxFit.cover,
+                    sourceId: comic.selector,
                   ),
                 ),
               ),

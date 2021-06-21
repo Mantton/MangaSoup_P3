@@ -1,30 +1,58 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 import '../Globals.dart';
 
-class SoupImage extends StatelessWidget {
+
+class SoupImage extends StatefulWidget {
   final String url;
   final String referer;
   final BoxFit fit;
+  final String sourceId;
 
-  const SoupImage({Key key, this.url, this.referer, this.fit = BoxFit.cover})
+  const SoupImage({Key key, this.url, this.referer, this.sourceId ,this.fit = BoxFit.cover })
       : super(key: key);
 
   @override
+  _SoupImageState createState() => _SoupImageState();
+}
+
+class _SoupImageState extends State<SoupImage> {
+  Future<String> cookies;
+  @override
   Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: getCookies(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return Center(
+              child: CupertinoActivityIndicator(),
+            );
+
+          if (snapshot.hasData) {
+            return mainBody(snapshot.data);
+          }
+          else {
+            return CupertinoActivityIndicator();
+          }
+        }
+        );
+  }
+
+  Widget mainBody(String cookies) {
     return Container(
       child: CachedNetworkImage(
         memCacheHeight: 800,
         memCacheWidth: 600,
-        imageUrl: (!url.contains("https:https:"))
-            ? url
-            : url.replaceFirst("https:", ""),
+        imageUrl: (!widget.url.contains("https:https:"))
+            ? widget.url
+            : widget.url.replaceFirst("https:", ""),
         httpHeaders:
-            referer != null ? {"referer": referer ?? imageHeaders(url)} : null,
+        widget.referer != null ? {"User-Agent": 'MangaSoup/0.0.3',"Cookie": cookies, "referer": widget.referer ?? imageHeaders(widget.url)} : null,
         placeholder: (context, url) => Center(
           child: CupertinoActivityIndicator(
             radius: 10,
@@ -42,11 +70,24 @@ class SoupImage extends StatelessWidget {
             color: Colors.purple,
           );
         },
-        fit: fit,
+        fit: widget.fit,
       ),
     );
   }
+
+  Future<String> getCookies() async {
+    Map info = await prepareAdditionalInfo(widget.sourceId);
+
+    Map cookies = info['cookies'];
+
+    if (cookies == null) return "";
+    return stringifyCookies(cookies);
+  }
+
+  String stringifyCookies(Map cookies) =>
+      cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
 }
+
 
 class GalleryViewer extends StatefulWidget {
   final List images;

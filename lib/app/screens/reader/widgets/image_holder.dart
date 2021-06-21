@@ -18,14 +18,17 @@ class ImageHolder extends StatelessWidget {
         return GestureDetector(
           onTap: ()=>Provider.of<ReaderProvider>(context, listen: false).toggleShowControls(),
           child: Padding(
-            padding:  EdgeInsets.all(
-             settings .readerMode == 1? settings.readerPadding ? 4 : 0.0: 0.0,
-            ),
-            child: ReaderImage(
-              url: page.imgUrl,
-              referer: page.referer,
-            ),
+          padding: settings.readerMode == 1
+              ? EdgeInsets.all(
+                  settings.readerPadding ? 4 : 0.0,
+                )
+              : EdgeInsets.only(bottom: settings.webtoonPadding ? 5 : 0.0),
+          child: ReaderImage(
+            url: page.imgUrl,
+            referer: page.referer,
+            sourceId: page.sourceId,
           ),
+        ),
         );
       }
     );

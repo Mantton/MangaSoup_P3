@@ -219,6 +219,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                                   width: 100,
                                   child: SoupImage(
                                     url: searchResult.thumbnail,
+
                                   ),
                                 ),
                               )

@@ -28,6 +28,8 @@ import 'package:mangasoup_prototype_3/app/data/database/queries/history_queries.
 import 'package:mangasoup_prototype_3/app/data/database/queries/track_queries.dart';
 import 'package:mangasoup_prototype_3/app/data/enums/mal.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
+import 'package:mangasoup_prototype_3/app/screens/track/anilist/track_result.dart';
+import 'package:mangasoup_prototype_3/app/services/track/anilist/anilist_api.dart';
 import 'package:mangasoup_prototype_3/app/services/track/myanimelist/mal_api_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -667,15 +669,28 @@ class DatabaseProvider with ChangeNotifier {
           tracker.dateStarted = DateTime.parse(r.userStatus.startDate);
         } catch (err) {}
       } else {
-        tracker.status = MALTrackStatus.reading;
+        tracker.status = TrackStatus.reading;
       }
+    } else if (result is AnilistDetailedResponse) {
+      tracker.trackerType = 3;
+      tracker.title = result.title;
+      tracker.mediaId = result.mangaId;
+      tracker.syncId = result.syncId;
+      tracker.totalChapters = 0;
+      tracker.lastChapterRead = result.userStatus.progress;
+      tracker.score = result.userStatus.score;
+      tracker.status = getAniStatus(result.userStatus.status);
+
+      print("Anilist");
+    }
+    else {
+      throw "Invalid Input";
     }
     print("saving & adding");
     tracker = await trackerManager.addTracker(tracker);
     comicTrackers.add(tracker);
     notifyListeners();
     print("done");
-    print(tracker.toMap());
   }
 
   Future<void> deleteTracker(Tracker tracker) async {
@@ -690,14 +705,27 @@ class DatabaseProvider with ChangeNotifier {
       try {
         // API UPDATE
         await MALManager().updateTracker(tracker);
-        trackerManager.updateTracker(tracker);
-        int target =
-            comicTrackers.indexWhere((element) => element.id == tracker.id);
-        comicTrackers[target] = tracker;
-        notifyListeners();
       } catch (err) {
         ErrorManager.analyze(err);
       }
+    } else if (tracker.trackerType == 3) {
+      /// ANILIST
+      try {
+        // API UPDATE
+        await AniList().updateTracker(tracker);
+      } catch (err) {
+        ErrorManager.analyze(err);
+      }
+    }
+
+    try {
+      trackerManager.updateTracker(tracker);
+      int target =
+          comicTrackers.indexWhere((element) => element.id == tracker.id);
+      comicTrackers[target] = tracker;
+      notifyListeners();
+    } catch (err) {
+      throw "Failed to Update local Tracker";
     }
   }
 
@@ -740,7 +768,6 @@ class DatabaseProvider with ChangeNotifier {
     await batchSetComicCollection([], current.id);
     await batchSetComicCollection(targetCollections, destination.id);
     // Tracking
-    // todo, move tracking.
     var trackers =
         comicTrackers.where((element) => element.comicId == current.id);
     for (var T in trackers) {

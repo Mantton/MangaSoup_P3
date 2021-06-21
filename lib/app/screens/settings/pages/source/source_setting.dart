@@ -177,8 +177,7 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<SettingOption>(
                     value: setting.options.singleWhere(
-                            (element) => t.selector == element.selector) ??
-                        v[0],
+                        (element) => t.selector == element.selector),
                     items: v,
                     dropdownColor: Colors.grey[900],
                     style: TextStyle(fontSize: 20),

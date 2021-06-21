@@ -28,6 +28,8 @@ class PreferenceProvider with ChangeNotifier {
     readerOrientation = _p.getInt(PreferenceKeys.MANGA_ORIENTATION) ?? 1;
     comicGridMode = _p.getInt(PreferenceKeys.COMIC_GRID_MODE) ?? 0;
     readerPadding = _p.getBool(PreferenceKeys.MANGA_PADDING) ?? true;
+    webtoonPadding = _p.getBool(PreferenceKeys.WEBTOON_PADDING) ?? false;
+
     readerPageSnapping = _p.getBool(PreferenceKeys.MANGA_SNAPPING) ?? true;
     comicGridCrossAxisCount =
         _p.getInt(PreferenceKeys.COMIC_GRID_CROSS_AXIS_COUNT) ?? 3;
@@ -39,6 +41,8 @@ class PreferenceProvider with ChangeNotifier {
     libraryViewMode = _p.getInt(PreferenceKeys.LIBRARY_VIEW_TYPE) ?? 1;
     readerBGColor = _p.getInt(PreferenceKeys.READER_BG_COLOR) ?? 0;
     malAutoSync = _p.getBool(PreferenceKeys.MAL_AUTO_SYNC) ?? true;
+    anilistAutoSync = _p.getBool(PreferenceKeys.ANILIST_AUTO_SYNC) ?? true;
+
     readerMaxWidth = _p.getBool(PreferenceKeys.READER_MAX_WIDTH) ?? false;
     readerDoublePagedMode =
         _p.getBool(PreferenceKeys.READER_DOUBLE_MODE) ?? false;
@@ -84,6 +88,7 @@ class PreferenceProvider with ChangeNotifier {
   int readerScrollDirection;
   int readerOrientation;
   bool readerPadding;
+  bool webtoonPadding;
   bool readerPageSnapping;
 
   /// Reader Mode
@@ -138,6 +143,15 @@ class PreferenceProvider with ChangeNotifier {
     SharedPreferences p = await preferences();
     readerPadding = padding;
     p.setBool(PreferenceKeys.MANGA_PADDING, padding);
+    notifyListeners();
+  }
+
+  Map webToonPaddingOptions = {true: "Enabled", false: "Disabled"};
+
+  setWebtoonPadding(bool padding) async {
+    SharedPreferences p = await preferences();
+    webtoonPadding = padding;
+    p.setBool(PreferenceKeys.WEBTOON_PADDING, padding);
     notifyListeners();
   }
 
@@ -248,12 +262,22 @@ class PreferenceProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  bool anilistAutoSync;
+
+  setAniListAutoSync(bool sync) async {
+    // SURCM = Show UnRead Count Mode
+    SharedPreferences p = await preferences();
+    anilistAutoSync = sync;
+    p.setBool(PreferenceKeys.ANILIST_AUTO_SYNC, sync);
+    notifyListeners();
+  }
+
   bool readerDoublePagedMode;
 
   setDoublePagedMode(bool mode) async {
     SharedPreferences p = await preferences();
     readerDoublePagedMode = mode;
-    p.setBool(PreferenceKeys.MAL_AUTO_SYNC, mode);
+    p.setBool(PreferenceKeys.READER_DOUBLE_MODE, mode);
     notifyListeners();
   }
 

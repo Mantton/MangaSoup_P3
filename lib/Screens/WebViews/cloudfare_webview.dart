@@ -46,6 +46,7 @@ class WebViewExampleState extends State<WebViewExample> {
     cookieManagerr.clearCookies();
   }
 
+  String clearance = "";
   final cookieManagerr = TestCookieManager();
 
   final Completer<WebViewController> _controller =
@@ -80,24 +81,19 @@ class WebViewExampleState extends State<WebViewExample> {
         print('Page started loading: $url');
       },
       onPageFinished: (String url) {
-        _controller.future.then((view) async {
-          String id;
-          String clearance;
-          final gotCookies = await cookieManagerr.testGetCookies(widget.url);
-          for (var item in gotCookies) {
-            // required Cookies
-            if (item != null) {
-              if (item.name == "cf_clearance")
-                clearance = "${item.name}=${item.value}";
-              if (item.name == "__cfduid") id = "${item.name}=${item.value}";
-            }
-          }
 
-          if (clearance != null) {
-            String cookies = '$id; $clearance';
-            Navigator.pop(context, cookies);
-          }
-        });
+        if (url.contains("__cf_chl_jschl")){
+          _controller.future.then((view) async {
+            String clearance = "";
+            final gotCookies = await cookieManagerr.testGetCookies(widget.url);
+            for (var item in gotCookies) {
+              // required Cookies
+              clearance += "${item.name}=${item.value}; ";
+            }
+            Navigator.pop(context, clearance);
+          });
+        }
+
       },
       gestureNavigationEnabled: true,
     );

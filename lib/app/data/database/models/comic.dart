@@ -38,7 +38,7 @@ class Comic {
     this.inLibrary = false;
     this.updateCount = 0;
     this.unreadCount = 0;
-    this.viewerMode = 1;
+    this.viewerMode = 0;
     this.isNsfw = false;
     this.rating = 0;
     this.dateAdded = null;

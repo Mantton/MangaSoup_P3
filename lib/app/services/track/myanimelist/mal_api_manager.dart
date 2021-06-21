@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MALManager {
   static const _clientId = "cb25a7db7422802cc9ab6030727c3a16";
-  static const redirectUrl = "https://mangasoup.com/";
+  static const redirectUrl = "https://mangasoup-4500a.uc.r.appspot.com/";
 
   static Map<String, dynamic> requestHeader = {
     "Host": "api.myanimelist.net",

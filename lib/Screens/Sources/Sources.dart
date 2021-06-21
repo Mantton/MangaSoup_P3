@@ -67,14 +67,9 @@ class _SourcesPageState extends State<SourcesPage> {
       String srcCookies = pref.getString("${src.selector}_cookies");
       if (srcCookies == null) {
         await cloudFareProtectedDialog(src.cloudFareLink);
-
-        if (bypassSuccess) {
-          print(newCookies);
-          pref.setString('${src.selector}_cookies', jsonEncode(newCookies));
-        } else {
-          showSnackBarMessage("Failed to Bypass");
-          return;
-        }
+        print(newCookies);
+        pref.setString('${src.selector}_cookies', jsonEncode(newCookies));
+        return;
       }
     }
     showLoadingDialog(context);
@@ -103,7 +98,6 @@ class _SourcesPageState extends State<SourcesPage> {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       designSize: Size(450, 747.5),
-      allowFontScaling: true,
       builder: () => Scaffold(
         body: FutureBuilder(
           future: getSources(),
@@ -322,12 +316,14 @@ class _SourcesPageState extends State<SourcesPage> {
                   Map encodedCookies = Map();
                   for (String c in listedCookies) {
                     List d = c.split("=");
-                    MapEntry entry = MapEntry(d[0], d[1]);
-                    encodedCookies.putIfAbsent(entry.key, () => entry.value);
+                    print(d);
+                    if (d.length >1){
+                      MapEntry entry = MapEntry(d[0], d[1]);
+                      encodedCookies.putIfAbsent(entry.key, () => entry.value);
+                    }
+
                   }
-                  print(cookies);
                   newCookies = encodedCookies;
-                  bypassSuccess = true;
                 }
               })
         ],

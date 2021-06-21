@@ -100,8 +100,8 @@ class ChapterTile extends StatelessWidget {
                     )
                   : Container(),
               // Date
-              Text(
-                chapter.date,
+              Text(chapter.date.isNotEmpty?
+                chapter.date: " ",
                 style: TextStyle(
                   color: Colors.grey[700],
                 ),

@@ -3,27 +3,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mangasoup_prototype_3/Components/Messages.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
-import 'package:mangasoup_prototype_3/Screens/WebViews/mal_login.dart';
+import 'package:mangasoup_prototype_3/Screens/WebViews/anilist_login.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/data/api/models/mal_user.dart';
-import 'package:mangasoup_prototype_3/app/data/database/database_provider.dart';
-import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
-import 'package:mangasoup_prototype_3/app/services/track/myanimelist/mal_api_manager.dart';
+import 'package:mangasoup_prototype_3/app/services/track/anilist/anilist_api.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class MALHome extends StatefulWidget {
+class AnilistHome extends StatefulWidget {
   @override
-  _MALHomeState createState() => _MALHomeState();
+  _AnilistHomeState createState() => _AnilistHomeState();
 }
 
-class _MALHomeState extends State<MALHome> {
-  Future<MALUser> user;
+class _AnilistHomeState extends State<AnilistHome> {
+  Future<AniListUser> user;
 
   @override
   void initState() {
-    user = MALManager().getUserInfo();
+    user = AniList().getCurrentUser();
     super.initState();
   }
 
@@ -31,7 +28,7 @@ class _MALHomeState extends State<MALHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("MyAnimeList"),
+        title: Text("AniList"),
         centerTitle: true,
       ),
       body: FutureBuilder(
@@ -42,10 +39,13 @@ class _MALHomeState extends State<MALHome> {
             return Center(child: LoadingIndicator());
           else if (snapshot.hasError)
             return Center(
-              child: Text("An Error Occurred"),
+              child: Text(
+                "An Error Occurred",
+                style: notInLibraryFont,
+              ),
             );
           else if (snapshot.hasData) {
-            MALUser target = snapshot.data;
+            AniListUser target = snapshot.data;
             return Container(
               child: SingleChildScrollView(
                 child: Column(
@@ -80,13 +80,40 @@ class _MALHomeState extends State<MALHome> {
                         ],
                       ),
                     ),
+                    Container(
+                      color: Color.fromRGBO(9, 9, 9, 1),
+                      margin: EdgeInsets.all(10),
+                      child: Text(
+                        target.about ?? "",
+                        style: notInLibraryFont,
+                      ),
+                    ),
+                    Container(
+                      color: Color.fromRGBO(9, 9, 9, 1),
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            target.chaptersRead.toString() + " Chapter(s) Read",
+                            style: notInLibraryFont,
+                          ),
+                          Text(
+                            target.volumesRead.toString() + " Volume(s) Read",
+                            style: notInLibraryFont,
+                          ),
+                        ],
+                      ),
+                    ),
                     SwitchListTile.adaptive(
-                      title: Text("Auto Sync Progress"),
+                      title:
+                          Text("Auto Sync Progress", style: notInLibraryFont),
                       onChanged: (v) => Provider.of<PreferenceProvider>(context,
-                          listen: false)
-                          .setMALAutoSync(v),
-                      value:
-                      Provider.of<PreferenceProvider>(context).malAutoSync,
+                              listen: false)
+                          .setAniListAutoSync(v),
+                      value: Provider.of<PreferenceProvider>(context)
+                          .anilistAutoSync,
                     ),
                     ListTile(
                       title: Text(
@@ -103,21 +130,11 @@ class _MALHomeState extends State<MALHome> {
                       ),
                       onTap: () async {
                         showLoadingDialog(context);
-                        await Provider.of<DatabaseProvider>(context,
-                            listen: false)
-                            .deleteAllTrackers();
-                        try {
-                          SharedPreferences _p =
-                          await SharedPreferences.getInstance();
-                          await _p.remove(PreferenceKeys.MAL_AUTH);
-                          Navigator.pop(context);
-                          setState(() {
-                            user = MALManager().getUserInfo();
-                          });
-                        } catch (err) {
-                          Navigator.pop(context);
-                          showSnackBarMessage("An Error Occurred");
-                        }
+                        await AniList().deleteUser();
+                        Navigator.pop(context);
+                        setState(() {
+                          user = AniList().getCurrentUser();
+                        });
                       },
                     )
                   ],
@@ -138,20 +155,16 @@ class _MALHomeState extends State<MALHome> {
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => MALLogin(),
+                        builder: (_) => AniListLogin(),
                       ),
                     ).then((value) async {
                       if (value != null) {
-                        String authCode = value[0];
-                        String verifier = value[1];
                         try {
                           showLoadingDialog(context);
-                          await MALManager()
-                              .codeExchange(authCode, verifier)
-                              .then((value) {
+                          await AniList().saveUser(value).then((value) {
                             Navigator.pop(context);
                             setState(() {
-                              user = MALManager().getUserInfo();
+                              user = AniList().getCurrentUser();
                             });
                             print("success");
                           });

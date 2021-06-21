@@ -4,7 +4,7 @@ class Tracker {
   int id;
   int comicId;
   int trackerType;
-  MALTrackStatus status;
+  TrackStatus status;
   int syncId;
   int mediaId;
   String title;

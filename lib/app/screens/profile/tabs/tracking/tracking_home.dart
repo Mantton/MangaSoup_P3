@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -10,6 +11,7 @@ import 'package:mangasoup_prototype_3/app/data/enums/mal.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/keys.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:mangasoup_prototype_3/app/dialogs/mal_search_dialog.dart';
+import 'package:mangasoup_prototype_3/app/screens/profile/tabs/tracking/anilist_tracking_widget.dart';
 import 'package:mangasoup_prototype_3/app/screens/track/mal/mal_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -28,6 +30,9 @@ class TrackingHome extends StatelessWidget {
           MALTrackingWidget(
             highlight: highlight,
           ),
+          AnilistWidget(
+            highlight: highlight,
+          )
         ],
       ),
     );
@@ -102,7 +107,7 @@ class _MALTrackingWidgetState extends State<MALTrackingWidget> {
                                 ),
                                 Center(
                                   child: CupertinoButton(
-                                    child: Text("Add"),
+                                    child: Text("Add", style: notInLibraryFont),
                                     onPressed: () => malSearchDialog(
                                         context: context,
                                         initialQuery: p.comics
@@ -148,7 +153,7 @@ class _MALTrackingWidgetState extends State<MALTrackingWidget> {
                       ),
                       Center(
                         child: CupertinoButton(
-                          child: Text("Sign In"),
+                          child: Text("Sign In", style: notInLibraryFont),
                           onPressed: () => Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -192,51 +197,57 @@ class EditTrack extends StatelessWidget {
             height: 50,
             child: Row(
               children: [
-                Image.asset("assets/images/mal.png"),
-                SizedBox(
-                  width: 5,
+                Expanded(
+                  flex: 1,
+                  child: Image.asset(tracker.trackerType == 2
+                      ? "assets/images/mal.png"
+                      : "assets/images/anilist.png"),
                 ),
-                Flexible(
+
+                Expanded(
                   flex: 8,
                   child: Text(
                     tracker.title,
                     style: notInLibraryFont,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Spacer(),
-                IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    color: Colors.redAccent,
-                  ),
-                  onPressed: () async {
-                    showPlatformDialog(
-                      context: context,
-                      builder: (_) => PlatformAlertDialog(
-                        title: Text("Delete Local Tracker"),
-                        content: Text(
-                          "This would delete the tracker locally, This is useful when re-syncing your Library",
+                Expanded(
+                  flex: 1,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.clear,
+                      color: Colors.redAccent,
+                    ),
+                    onPressed: () async {
+                      showPlatformDialog(
+                        context: context,
+                        builder: (_) => PlatformAlertDialog(
+                          title: Text("Delete Local Tracker"),
+                          content: Text(
+                            "This would delete the tracker locally.",
+                          ),
+                          actions: [
+                            PlatformDialogAction(
+                              child: Text("Cancel"),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            PlatformDialogAction(
+                              cupertino: (_, __) => CupertinoDialogActionData(
+                                  isDestructiveAction: true),
+                              child: Text("Proceed"),
+                              onPressed: () {
+                                Provider.of<DatabaseProvider>(context,
+                                        listen: false)
+                                    .deleteTracker(tracker)
+                                    .then((value) => Navigator.pop(context));
+                              },
+                            ),
+                          ],
                         ),
-                        actions: [
-                          PlatformDialogAction(
-                            child: Text("Cancel"),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          PlatformDialogAction(
-                            cupertino: (_, __) => CupertinoDialogActionData(
-                                isDestructiveAction: true),
-                            child: Text("Proceed"),
-                            onPressed: () {
-                              Provider.of<DatabaseProvider>(context,
-                                      listen: false)
-                                  .deleteTracker(tracker)
-                                  .then((value) => Navigator.pop(context));
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 )
               ],
             ),
@@ -255,7 +266,7 @@ class EditTrack extends StatelessWidget {
                     onPressed: () =>
                         statusPickerDialog(context: context, t: tracker),
                     child: Text(
-                      convertToPresentatble(tracker.status),
+                      convertToPresentable(tracker.status, tracker.trackerType),
                       style: def,
                     ),
                   ),
