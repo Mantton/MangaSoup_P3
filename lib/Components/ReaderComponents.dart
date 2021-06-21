@@ -178,7 +178,19 @@ class MainImageWidget extends StatelessWidget {
       ),
     );
   }
+  Map<String, String> prepareHeaders(String cookies) {
+    Map<String, String> headers = Map();
 
+    if (referer != null || referer.isNotEmpty)
+      headers.putIfAbsent("Referer", () => referer ?? imageHeaders(url));
+
+    if (cookies.isNotEmpty) {
+      headers.putIfAbsent("User-Agent", () => 'MangaSoup/0.0.3');
+      headers.putIfAbsent("Cookie", () => cookies);
+    }
+
+    return headers;
+  }
   Widget mainBody(String cookies, BuildContext context) {
     return Container(
       child: CachedNetworkImage(
@@ -213,13 +225,7 @@ class MainImageWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-        httpHeaders: referer != null
-            ? {
-                "User-Agent": 'MangaSoup/0.0.3',
-                "Cookie": cookies,
-                "referer": referer ?? imageHeaders(url)
-              }
-            : null,
+        httpHeaders: prepareHeaders(cookies),
         errorWidget: (context, url, error) => Center(
           child: Container(
             height: MediaQuery.of(context).size.height,

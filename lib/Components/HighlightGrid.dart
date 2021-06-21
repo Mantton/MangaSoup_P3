@@ -43,13 +43,19 @@ class ComicGrid extends StatelessWidget {
   }
 }
 
-class ComicGridTile extends StatelessWidget {
+class ComicGridTile extends StatefulWidget {
   final ComicHighlight comic;
 
   const ComicGridTile({Key key, @required this.comic}) : super(key: key);
 
   @override
+  _ComicGridTileState createState() => _ComicGridTileState();
+}
+
+class _ComicGridTileState extends State<ComicGridTile> with AutomaticKeepAliveClientMixin {
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Container(
       key: UniqueKey(),
       child: InkWell(
@@ -59,16 +65,19 @@ class ComicGridTile extends StatelessWidget {
             context,
             MaterialPageRoute(
               maintainState: true,
-              builder: (_) => ProfileHome(highlight: comic),
+              builder: (_) => ProfileHome(highlight: widget.comic),
             ),
           );
         },
         child: Provider.of<PreferenceProvider>(context).comicGridMode == 1
-            ? CompactGridTile(comic: comic)
-            : SeparatedGridTile(comic: comic),
+            ? CompactGridTile(comic: widget.comic)
+            : SeparatedGridTile(comic: widget.comic),
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class SeparatedGridTile extends StatelessWidget {

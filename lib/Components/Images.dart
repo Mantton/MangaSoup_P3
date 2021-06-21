@@ -7,13 +7,11 @@ import 'package:photo_view/photo_view_gallery.dart';
 
 import '../Globals.dart';
 
-
 class SoupImage extends StatelessWidget {
   final String url;
   final String referer;
   final BoxFit fit;
   final String sourceId;
-  Future<String> cookies;
 
   SoupImage(
       {Key key, this.url, this.referer, this.sourceId, this.fit = BoxFit.cover})
@@ -31,6 +29,8 @@ class SoupImage extends StatelessWidget {
 
           if (snapshot.hasData) {
             return mainBody(snapshot.data);
+          } else if (snapshot.hasError) {
+            return mainBody("");
           } else {
             return CupertinoActivityIndicator();
           }
@@ -45,13 +45,7 @@ class SoupImage extends StatelessWidget {
         imageUrl: (!url.contains("https:https:"))
             ? url
             : url.replaceFirst("https:", ""),
-        httpHeaders: referer != null
-            ? {
-                "User-Agent": 'MangaSoup/0.0.3',
-                "Cookie": cookies,
-                "referer": referer ?? imageHeaders(url)
-              }
-            : null,
+        httpHeaders: prepareHeaders(cookies),
         placeholder: (context, url) => Center(
           child: CupertinoActivityIndicator(
             radius: 10,
@@ -72,13 +66,32 @@ class SoupImage extends StatelessWidget {
     );
   }
 
+  Map<String, String> prepareHeaders(String cookies) {
+    Map<String, String> headers = Map();
+
+    if (referer != null || referer.isNotEmpty)
+      headers.putIfAbsent("Referer", () => referer ?? imageHeaders(url));
+
+    if (cookies.isNotEmpty) {
+      headers.putIfAbsent("User-Agent", () => 'MangaSoup/0.0.3');
+      headers.putIfAbsent("Cookie", () => cookies);
+    }
+
+    return headers;
+  }
+
   Future<String> getCookies() async {
-    Map info = await prepareAdditionalInfo(sourceId);
+    try {
+      Map info = await prepareAdditionalInfo(sourceId);
 
-    Map cookies = info['cookies'];
+      Map cookies = info['cookies'];
 
-    if (cookies == null) return "";
-    return stringifyCookies(cookies);
+      if (cookies == null) return "";
+      return stringifyCookies(cookies);
+    } catch (err) {
+      print(err);
+      return "";
+    }
   }
 
   String stringifyCookies(Map cookies) =>
