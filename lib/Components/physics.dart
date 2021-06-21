@@ -178,7 +178,7 @@ class NewCustomScrollPhysics extends ScrollPhysics {
   // ClampingScrollPhysics so we require a more deliberate input gesture
   // to trigger a fling.
   @override
-  double get minFlingVelocity => kMinFlingVelocity;
+  double get minFlingVelocity => kMinFlingVelocity * 2.0;
 
   @override
   double get maxFlingVelocity => 8000;
@@ -198,13 +198,13 @@ class NewCustomScrollPhysics extends ScrollPhysics {
   /// calculations.
   @override
   double carriedMomentum(double existingVelocity) {
-    return 170.0;
+    return 175.0;
   }
 
   // Eyeballed from observation to counter the effect of an unintended scroll
   // from the natural motion of lifting the finger after a scroll.
   @override
-  double get dragStartDistanceMotionThreshold => 3.5;
+  double get dragStartDistanceMotionThreshold => 2.5;
 
   @override
   bool get allowImplicitScrolling => true;

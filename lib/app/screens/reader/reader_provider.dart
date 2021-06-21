@@ -47,6 +47,7 @@ class ReaderProvider with ChangeNotifier {
   bool imgur = false;
   int initialPageIndex = 1;
   bool chapterSynced = false;
+  String cookies = '';
 
   Future init(
       List<Chapter> incomingChapters,
@@ -117,9 +118,10 @@ class ReaderProvider with ChangeNotifier {
     if (response.images.isEmpty) {
       emptyResponse();
     } else {
+      cookies = await getCookies();
       int c = 0;
       for (String uri in response.images) {
-        ReaderPage newPage = ReaderPage(c + 1, uri, response.referer, selector);
+        ReaderPage newPage = ReaderPage(c + 1, uri, response.referer, cookies);
         firstChapter.pages.add(newPage);
         c++;
         pagePositionList.add(c);
@@ -130,7 +132,6 @@ class ReaderProvider with ChangeNotifier {
     }
 
     notifyListeners();
-
     return true;
   }
 
@@ -188,6 +189,18 @@ class ReaderProvider with ChangeNotifier {
         .updateChapterInfo(initialPage, chapter);
     return response;
   }
+
+  Future<String> getCookies() async {
+    Map info = await prepareAdditionalInfo(selector);
+
+    Map cookies = info['cookies'];
+
+    if (cookies == null) return "";
+    return stringifyCookies(cookies);
+  }
+
+  String stringifyCookies(Map cookies) =>
+      cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
 
   addInitialChapterToView(ReaderChapter chapter) {
     /// This adds the initial ReaderChapter ReaderPages to the PageListView
@@ -284,7 +297,8 @@ class ReaderProvider with ChangeNotifier {
             indexList.add(null);
 
             for (String uri in response.images) {
-              ReaderPage newPage = ReaderPage(c, uri, response.referer, selector);
+              ReaderPage newPage =
+                  ReaderPage(c, uri, response.referer, cookies);
               readerChapter.pages.add(newPage);
               c++;
               pagePositionList.add(c);

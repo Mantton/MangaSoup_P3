@@ -21,6 +21,8 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
 
   @override
   void initState() {
+    super.initState();
+
     itemPositionsListener.itemPositions.addListener(() {
       var item = itemPositionsListener.itemPositions.value
           .where((ItemPosition position) => position.itemLeadingEdge < .33)
@@ -46,7 +48,6 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
         lastPage = max;
       }
     });
-    super.initState();
   }
 
   @override
@@ -56,10 +57,10 @@ class _WebToonPageAdapterState extends State<WebToonPageAdapter> {
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         child: ScrollablePositionedList.builder(
-          addAutomaticKeepAlives: false,
+          addAutomaticKeepAlives: true,
           physics: NewCustomScrollPhysics(),
           itemBuilder: (_, index) => provider.widgetPageList.isNotEmpty
-              ? provider.widgetPageList[index]
+              ? Container(child: provider.widgetPageList[index])
               : SizedBox(
                   height: 50,
                 ),

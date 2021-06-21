@@ -112,7 +112,7 @@ class _ReaderImageState extends State<ReaderImage>
                   referer: widget.referer,
                   fit: widget.fit,
                   maxWidth: provider.readerMaxWidth,
-                  sourceId: widget.sourceId,
+                  cookies: widget.sourceId,
                 ),
               ),
             ),
@@ -129,36 +129,33 @@ class _ReaderImageState extends State<ReaderImage>
 // ? null
 // : AlwaysScrollableScrollPhysics(),
 //width: _transformationController.value == Matrix4.identity()?null:MediaQuery.of(context).size.width,
-class MainImageWidget extends StatefulWidget {
+
+class MainImageWidget extends StatelessWidget {
   const MainImageWidget({
     Key key,
     @required this.url,
     @required this.referer,
     @required this.fit,
-    @required this.sourceId,
+    @required this.cookies,
     this.maxWidth = false,
   }) : super(key: key);
 
   final String url;
   final String referer;
   final BoxFit fit;
-  final String sourceId;
+  final String cookies;
   final bool maxWidth;
 
   @override
-  _MainImageWidgetState createState() => _MainImageWidgetState();
-}
-
-class _MainImageWidgetState extends State<MainImageWidget> {
-  @override
   Widget build(BuildContext context) {
     return Container(
+      key: Key("$url"),
       // height: MediaQuery.of(context).size.height,
-      width: widget.maxWidth ? MediaQuery.of(context).size.width : null,
-      child: (!widget.url.contains(msDownloadFolderName))
-          ? urlCaller()
+      width: maxWidth ? MediaQuery.of(context).size.width : null,
+      child: (!url.contains(msDownloadFolderName))
+          ? mainBody(cookies, context)
           : Image.file(
-              File(Provider.of<PreferenceProvider>(context).paths + widget.url),
+              File(Provider.of<PreferenceProvider>(context).paths + url),
               errorBuilder: (_, err, trace) => Container(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
@@ -170,46 +167,28 @@ class _MainImageWidgetState extends State<MainImageWidget> {
                         Icons.error_outline,
                         color: Colors.purple,
                       ),
-                      Text(
-                        "Unable to decode downloaded image data.",
-                        style: textFieldStyle,
-                      )
-                    ],
-                  ),
+                    Text(
+                      "Unable to decode downloaded image data.",
+                      style: textFieldStyle,
+                    )
+                  ],
                 ),
               ),
             ),
+      ),
     );
   }
 
-  Widget urlCaller() {
-    return FutureBuilder(
-        future: getCookies(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return Center(
-              child: CupertinoActivityIndicator(),
-            );
-
-          if (snapshot.hasData) {
-            return mainBody(snapshot.data);
-          } else {
-            return CupertinoActivityIndicator();
-          }
-        });
-  }
-
-  Widget mainBody(String cookies) {
+  Widget mainBody(String cookies, BuildContext context) {
     return Container(
       child: CachedNetworkImage(
-
-        imageUrl: (!widget.url.contains("https:https:"))
-            ? widget.url
-            : widget.url.replaceFirst("https:", ""),
+        imageUrl: (!url.contains("https:https:"))
+            ? url
+            : url.replaceFirst("https:", ""),
         progressIndicatorBuilder: (_, url, var progress) =>
             progress.progress != null
                 ? Container(
-                    height: MediaQuery.of(context).size.height,
+                    height: MediaQuery.of(context).size.height * .65,
                     width: MediaQuery.of(context).size.width,
                     child: Center(
                       child: CircularPercentIndicator(
@@ -234,14 +213,13 @@ class _MainImageWidgetState extends State<MainImageWidget> {
                       ),
                     ),
                   ),
-        httpHeaders: widget.referer != null
+        httpHeaders: referer != null
             ? {
                 "User-Agent": 'MangaSoup/0.0.3',
                 "Cookie": cookies,
-                "referer": widget.referer ?? imageHeaders(widget.url)
+                "referer": referer ?? imageHeaders(url)
               }
             : null,
-
         errorWidget: (context, url, error) => Center(
           child: Container(
             height: MediaQuery.of(context).size.height,
@@ -254,24 +232,14 @@ class _MainImageWidgetState extends State<MainImageWidget> {
             ),
           ),
         ),
-        fit: widget.fit,
+        fit: fit,
         fadeInDuration: Duration(microseconds: 500),
         fadeInCurve: Curves.easeIn,
       ),
     );
   }
 
-  Future<String> getCookies() async {
-    Map info = await prepareAdditionalInfo(widget.sourceId);
 
-    Map cookies = info['cookies'];
-
-    if (cookies == null) return "";
-    return stringifyCookies(cookies);
-  }
-
-  String stringifyCookies(Map cookies) =>
-      cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
 }
 
 class VioletImage extends StatefulWidget {

@@ -8,21 +8,17 @@ import 'package:photo_view/photo_view_gallery.dart';
 import '../Globals.dart';
 
 
-class SoupImage extends StatefulWidget {
+class SoupImage extends StatelessWidget {
   final String url;
   final String referer;
   final BoxFit fit;
   final String sourceId;
+  Future<String> cookies;
 
-  const SoupImage({Key key, this.url, this.referer, this.sourceId ,this.fit = BoxFit.cover })
+  SoupImage(
+      {Key key, this.url, this.referer, this.sourceId, this.fit = BoxFit.cover})
       : super(key: key);
 
-  @override
-  _SoupImageState createState() => _SoupImageState();
-}
-
-class _SoupImageState extends State<SoupImage> {
-  Future<String> cookies;
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -35,12 +31,10 @@ class _SoupImageState extends State<SoupImage> {
 
           if (snapshot.hasData) {
             return mainBody(snapshot.data);
-          }
-          else {
+          } else {
             return CupertinoActivityIndicator();
           }
-        }
-        );
+        });
   }
 
   Widget mainBody(String cookies) {
@@ -48,11 +42,16 @@ class _SoupImageState extends State<SoupImage> {
       child: CachedNetworkImage(
         memCacheHeight: 800,
         memCacheWidth: 600,
-        imageUrl: (!widget.url.contains("https:https:"))
-            ? widget.url
-            : widget.url.replaceFirst("https:", ""),
-        httpHeaders:
-        widget.referer != null ? {"User-Agent": 'MangaSoup/0.0.3',"Cookie": cookies, "referer": widget.referer ?? imageHeaders(widget.url)} : null,
+        imageUrl: (!url.contains("https:https:"))
+            ? url
+            : url.replaceFirst("https:", ""),
+        httpHeaders: referer != null
+            ? {
+                "User-Agent": 'MangaSoup/0.0.3',
+                "Cookie": cookies,
+                "referer": referer ?? imageHeaders(url)
+              }
+            : null,
         placeholder: (context, url) => Center(
           child: CupertinoActivityIndicator(
             radius: 10,
@@ -62,21 +61,19 @@ class _SoupImageState extends State<SoupImage> {
           microseconds: 100,
         ),
         errorWidget: (context, url, error) {
-          print(url);
-          print(error);
           CachedNetworkImage.evictFromCache(url);
           return Icon(
             Icons.error,
             color: Colors.purple,
           );
         },
-        fit: widget.fit,
+        fit: fit,
       ),
     );
   }
 
   Future<String> getCookies() async {
-    Map info = await prepareAdditionalInfo(widget.sourceId);
+    Map info = await prepareAdditionalInfo(sourceId);
 
     Map cookies = info['cookies'];
 
@@ -87,7 +84,6 @@ class _SoupImageState extends State<SoupImage> {
   String stringifyCookies(Map cookies) =>
       cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
 }
-
 
 class GalleryViewer extends StatefulWidget {
   final List images;
