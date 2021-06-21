@@ -84,6 +84,7 @@ class ComicDownloadBlock extends StatelessWidget {
         child: FittedBox(
           child: SoupImage(
             url: comic.thumbnail,
+            sourceId: comic.sourceSelector,
           ),
         ),
       ),

@@ -106,6 +106,7 @@ class _HistoryHomeState extends State<HistoryHome>
                                 url: comic.thumbnail,
                                 referer: comic.referer,
                                 fit: BoxFit.fitWidth,
+                                sourceId: comic.sourceSelector,
                               ),
                             ),
                           ),

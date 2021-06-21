@@ -119,7 +119,7 @@ class ReaderProvider with ChangeNotifier {
     } else {
       int c = 0;
       for (String uri in response.images) {
-        ReaderPage newPage = ReaderPage(c + 1, uri, response.referer);
+        ReaderPage newPage = ReaderPage(c + 1, uri, response.referer, selector);
         firstChapter.pages.add(newPage);
         c++;
         pagePositionList.add(c);
@@ -168,6 +168,8 @@ class ReaderProvider with ChangeNotifier {
       } else {
         // ChapterData does not contain images, call API
         try {
+          print("received");
+
           response = await ApiManager().getImages(selector, chapter.link);
           try {
             // Save Image Response
@@ -282,7 +284,7 @@ class ReaderProvider with ChangeNotifier {
             indexList.add(null);
 
             for (String uri in response.images) {
-              ReaderPage newPage = ReaderPage(c, uri, response.referer);
+              ReaderPage newPage = ReaderPage(c, uri, response.referer, selector);
               readerChapter.pages.add(newPage);
               c++;
               pagePositionList.add(c);

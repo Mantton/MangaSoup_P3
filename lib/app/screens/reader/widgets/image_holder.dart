@@ -26,6 +26,7 @@ class ImageHolder extends StatelessWidget {
           child: ReaderImage(
             url: page.imgUrl,
             referer: page.referer,
+            sourceId: page.sourceId,
           ),
         ),
         );

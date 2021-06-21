@@ -33,6 +33,7 @@ class PagedImage extends StatelessWidget {
     return ReaderImage(
       referer: page.referer,
       url: page.imgUrl,
+      sourceId: page.sourceId ,
       // fit: BoxFit.fitWidth,
     );
   }

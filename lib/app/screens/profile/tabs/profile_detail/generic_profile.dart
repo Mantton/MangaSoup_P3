@@ -40,62 +40,64 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Consumer<DatabaseProvider>(
-        builder: (context, provider, _) {
-          // read chapters
-          Comic comic = provider.retrieveComic(widget.comicId);
-          return homeView(comic: comic);
-        },
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+
+      child: Container(
+        child: Consumer<DatabaseProvider>(
+          builder: (context, provider, _) {
+            // read chapters
+            Comic comic = provider.retrieveComic(widget.comicId);
+            return homeView(comic: comic);
+          },
+        ),
       ),
     );
   }
 
-  Widget homeView({@required Comic comic}) => SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(2.0),
-          child: Container(
-            color: Colors.black,
+  Widget homeView({@required Comic comic}) => Padding(
+    padding: EdgeInsets.all(2.0),
+    child: Container(
+      color: Colors.black,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: Column(
-                    children: [
-                      profileHeader(comic),
-                      Divider(
-                        height: 5,
-                        indent: 5,
-                        endIndent: 5,
-                        color: Colors.white12,
-                        thickness: 2,
-                      ),
-                      CollectionStateWidget(
-                        comicId: widget.comicId,
-                      ),
-                      profileActionWidget(comic),
-                      profileBody(),
-                      ProfileContentPreview(
-                        profile: widget.profile,
-                        comicId: widget.comicId,
-                        history: Provider.of<DatabaseProvider>(context)
-                            .historyList
-                            .firstWhere(
-                                (element) => element.comicId == widget.comicId,
-                                orElse: () => null),
-                      )
-                      // (profile.altTitles != null)
-                      //     ? alternativeTitles()
-                      //     : Container(),
-                    ],
-                  ),
+                profileHeader(comic),
+                Divider(
+                  height: 5,
+                  indent: 5,
+                  endIndent: 5,
+                  color: Colors.white12,
+                  thickness: 2,
+                ),
+                CollectionStateWidget(
+                  comicId: widget.comicId,
+                ),
+                profileActionWidget(comic),
+                profileBody(),
+                ProfileContentPreview(
+                  profile: widget.profile,
+                  comicId: widget.comicId,
+                  history: Provider.of<DatabaseProvider>(context)
+                      .historyList
+                      .firstWhere(
+                          (element) => element.comicId == widget.comicId,
+                          orElse: () => null),
                 )
+                // (profile.altTitles != null)
+                //     ? alternativeTitles()
+                //     : Container(),
               ],
             ),
-          ),
-        ),
-      );
+          )
+        ],
+      ),
+    ),
+  );
 
   Widget profileHeader(Comic comic) => Row(
         children: [
@@ -107,6 +109,7 @@ class _GenericProfilePageState extends State<GenericProfilePage> {
               url: widget.profile.thumbnail,
               referer: comic.referer,
               fit: BoxFit.scaleDown,
+              sourceId: widget.profile.selector,
             ),
           ),
           SizedBox(

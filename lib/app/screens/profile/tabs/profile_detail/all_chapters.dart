@@ -222,7 +222,7 @@ class _ChapterListState extends State<ChapterList> {
                           : Container(),
                       // Date
                       Text(
-                        chapter.date,
+                       chapter.date.isNotEmpty ?  chapter.date: " ",
                         style: TextStyle(
                           color: Colors.grey[700],
                         ),

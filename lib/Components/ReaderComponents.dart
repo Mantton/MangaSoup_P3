@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mangasoup_prototype_3/Components/PlatformComponents.dart';
+import 'package:mangasoup_prototype_3/Services/api_manager.dart';
 import 'package:mangasoup_prototype_3/app/constants/fonts.dart';
 import 'package:mangasoup_prototype_3/app/constants/variables.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
@@ -19,12 +21,14 @@ class ReaderImage extends StatefulWidget {
   final String url;
   final BoxFit fit;
   final String referer;
+  final String sourceId;
 
   const ReaderImage({
     Key key,
     this.url,
     this.fit = BoxFit.fitWidth,
     this.referer,
+    @required this.sourceId,
   }) : super(key: key);
 
   @override
@@ -108,6 +112,7 @@ class _ReaderImageState extends State<ReaderImage>
                   referer: widget.referer,
                   fit: widget.fit,
                   maxWidth: provider.readerMaxWidth,
+                  sourceId: widget.sourceId,
                 ),
               ),
             ),
@@ -124,77 +129,36 @@ class _ReaderImageState extends State<ReaderImage>
 // ? null
 // : AlwaysScrollableScrollPhysics(),
 //width: _transformationController.value == Matrix4.identity()?null:MediaQuery.of(context).size.width,
-class MainImageWidget extends StatelessWidget {
+class MainImageWidget extends StatefulWidget {
   const MainImageWidget({
     Key key,
     @required this.url,
     @required this.referer,
     @required this.fit,
+    @required this.sourceId,
     this.maxWidth = false,
   }) : super(key: key);
 
   final String url;
   final String referer;
   final BoxFit fit;
+  final String sourceId;
   final bool maxWidth;
 
+  @override
+  _MainImageWidgetState createState() => _MainImageWidgetState();
+}
+
+class _MainImageWidgetState extends State<MainImageWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
       // height: MediaQuery.of(context).size.height,
-      width: maxWidth ? MediaQuery.of(context).size.width : null,
-      child: (!url.contains(msDownloadFolderName))
-          ? CachedNetworkImage(
-              imageUrl: url,
-              progressIndicatorBuilder: (_, url, var progress) =>
-                  progress.progress != null
-                      ? Container(
-                          height: MediaQuery.of(context).size.height,
-                          width: MediaQuery.of(context).size.width,
-                          child: Center(
-                            child: CircularPercentIndicator(
-                              radius: 45.0,
-                              lineWidth: 3.0,
-                              percent: progress.progress,
-                              progressColor: Colors.purple,
-                              backgroundColor: Colors.grey[900],
-                              // fillColor: Colors.grey[900],
-                            ),
-                          ),
-                        )
-                      : Center(
-                          child: Container(
-                            height: MediaQuery.of(context).size.height,
-                            width: MediaQuery.of(context).size.width,
-                            child: Center(
-                              child: Text(
-                                "Loading...",
-                                style: notInLibraryFont,
-                              ),
-                            ),
-                          ),
-                        ),
-              httpHeaders: referer != null
-                  ? {"referer": referer ?? imageHeaders(url)}
-                  : null,
-              errorWidget: (context, url, error) => Center(
-                child: Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  child: Center(
-                    child: Icon(
-                      Icons.error_outline,
-                      color: Colors.purple,
-                    ),
-                  ),
-                ),
-              ),
-              fit: fit,
-              fadeInDuration: Duration(microseconds: 500),
-              fadeInCurve: Curves.easeIn,
-            )
+      width: widget.maxWidth ? MediaQuery.of(context).size.width : null,
+      child: (!widget.url.contains(msDownloadFolderName))
+          ? urlCaller()
           : Image.file(
-        File(Provider.of<PreferenceProvider>(context).paths + url),
+              File(Provider.of<PreferenceProvider>(context).paths + widget.url),
               errorBuilder: (_, err, trace) => Container(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
@@ -217,6 +181,97 @@ class MainImageWidget extends StatelessWidget {
             ),
     );
   }
+
+  Widget urlCaller() {
+    return FutureBuilder(
+        future: getCookies(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return Center(
+              child: CupertinoActivityIndicator(),
+            );
+
+          if (snapshot.hasData) {
+            return mainBody(snapshot.data);
+          } else {
+            return CupertinoActivityIndicator();
+          }
+        });
+  }
+
+  Widget mainBody(String cookies) {
+    return Container(
+      child: CachedNetworkImage(
+
+        imageUrl: (!widget.url.contains("https:https:"))
+            ? widget.url
+            : widget.url.replaceFirst("https:", ""),
+        progressIndicatorBuilder: (_, url, var progress) =>
+            progress.progress != null
+                ? Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    child: Center(
+                      child: CircularPercentIndicator(
+                        radius: 45.0,
+                        lineWidth: 3.0,
+                        percent: progress.progress,
+                        progressColor: Colors.purple,
+                        backgroundColor: Colors.grey[900],
+                        // fillColor: Colors.grey[900],
+                      ),
+                    ),
+                  )
+                : Center(
+                    child: Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      child: Center(
+                        child: Text(
+                          "Loading...",
+                          style: notInLibraryFont,
+                        ),
+                      ),
+                    ),
+                  ),
+        httpHeaders: widget.referer != null
+            ? {
+                "User-Agent": 'MangaSoup/0.0.3',
+                "Cookie": cookies,
+                "referer": widget.referer ?? imageHeaders(widget.url)
+              }
+            : null,
+
+        errorWidget: (context, url, error) => Center(
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: Center(
+              child: Icon(
+                Icons.error_outline,
+                color: Colors.purple,
+              ),
+            ),
+          ),
+        ),
+        fit: widget.fit,
+        fadeInDuration: Duration(microseconds: 500),
+        fadeInCurve: Curves.easeIn,
+      ),
+    );
+  }
+
+  Future<String> getCookies() async {
+    Map info = await prepareAdditionalInfo(widget.sourceId);
+
+    Map cookies = info['cookies'];
+
+    if (cookies == null) return "";
+    return stringifyCookies(cookies);
+  }
+
+  String stringifyCookies(Map cookies) =>
+      cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
 }
 
 class VioletImage extends StatefulWidget {

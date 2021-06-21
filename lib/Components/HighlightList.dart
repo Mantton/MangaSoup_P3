@@ -58,6 +58,7 @@ class ComicListTile extends StatelessWidget {
         child: SoupImage(
           url: comic.thumbnail,
           referer: comic.imageReferer,
+          sourceId: comic.selector,
           // fit: BoxFit.fitWidth,
         ),
       ),

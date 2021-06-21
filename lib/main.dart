@@ -37,7 +37,7 @@ import 'app/data/database/models/downloads.dart';
 const simplePeriodicTask = "simplePeriodicTask";
 
 void callbackDispatcher() {
-  Workmanager.executeTask((task, inputData) async {
+  Workmanager().executeTask((task, inputData) async {
     /// initialize notifications settings
     FlutterLocalNotificationsPlugin flp = FlutterLocalNotificationsPlugin();
     var android = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -118,7 +118,7 @@ void showNotification(v, flp) async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  Workmanager.initialize(
+  Workmanager().initialize(
       callbackDispatcher, // The top level function, aka callbackDispatcher
       isInDebugMode: false);
   await FlutterDownloader.initialize(
@@ -128,7 +128,7 @@ Future<void> main() async {
   // await FlutterDownloader.initialize(debug: false); this is causing issues on IOS
 
   if (Platform.isAndroid) {
-    await Workmanager.registerPeriodicTask(
+    await Workmanager().registerPeriodicTask(
       "1",
       simplePeriodicTask,
       existingWorkPolicy: ExistingWorkPolicy.replace,
