@@ -35,8 +35,8 @@ class _ComicGridState extends State<ComicGrid>
             crossAxisCount: settings.scaleToMatchIntended
                 ? settings.comicGridCrossAxisCount.w.toInt()
                 : settings.comicGridCrossAxisCount,
-            crossAxisSpacing: 7,
-            mainAxisSpacing: settings.comicGridMode == 1 ? 10 : 5,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: settings.comicGridMode == 1 ? 10 : 7,
             childAspectRatio:
                 settings.comicGridMode == 0 ? (53 / 100) : (60 / 100),
           ),
