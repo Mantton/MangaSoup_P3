@@ -7,7 +7,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 
 import '../Globals.dart';
 
-class SoupImage extends StatelessWidget {
+class SoupImage extends StatefulWidget {
   final String url;
   final String referer;
   final BoxFit fit;
@@ -18,9 +18,21 @@ class SoupImage extends StatelessWidget {
       : super(key: key);
 
   @override
+  _SoupImageState createState() => _SoupImageState();
+}
+
+class _SoupImageState extends State<SoupImage> {
+  Future<String> cookies;
+
+  @override
+  void initState() {
+    super.initState();
+    cookies = getCookies();
+  }
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: getCookies(),
+        future: cookies,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
@@ -40,11 +52,11 @@ class SoupImage extends StatelessWidget {
   Widget mainBody(String cookies) {
     return Container(
       child: CachedNetworkImage(
-        memCacheHeight: 800,
-        memCacheWidth: 600,
-        imageUrl: (!url.contains("https:https:"))
-            ? url
-            : url.replaceFirst("https:", ""),
+        memCacheHeight: (300 * 1.5).toInt(),
+        memCacheWidth: 300,
+        imageUrl: (!widget.url.contains("https:https:"))
+            ? widget.url
+            : widget.url.replaceFirst("https:", ""),
         httpHeaders: prepareHeaders(cookies),
         placeholder: (context, url) => Center(
           child: CupertinoActivityIndicator(
@@ -61,7 +73,7 @@ class SoupImage extends StatelessWidget {
             color: Colors.purple,
           );
         },
-        fit: fit,
+        fit: widget.fit,
       ),
     );
   }
@@ -69,8 +81,8 @@ class SoupImage extends StatelessWidget {
   Map<String, String> prepareHeaders(String cookies) {
     Map<String, String> headers = Map();
 
-    if (referer != null || referer.isNotEmpty)
-      headers.putIfAbsent("Referer", () => referer ?? imageHeaders(url));
+    if (widget.referer != null && widget.referer.isNotEmpty)
+      headers.putIfAbsent("Referer", () => widget.referer ?? imageHeaders(widget.url));
 
     if (cookies.isNotEmpty) {
       headers.putIfAbsent("User-Agent", () => 'MangaSoup/0.0.3');
@@ -82,7 +94,7 @@ class SoupImage extends StatelessWidget {
 
   Future<String> getCookies() async {
     try {
-      Map info = await prepareAdditionalInfo(sourceId);
+      Map info = await prepareAdditionalInfo(widget.sourceId);
 
       Map cookies = info['cookies'];
 
@@ -97,6 +109,7 @@ class SoupImage extends StatelessWidget {
   String stringifyCookies(Map cookies) =>
       cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
 }
+
 
 class GalleryViewer extends StatefulWidget {
   final List images;

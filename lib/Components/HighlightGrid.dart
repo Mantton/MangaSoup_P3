@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 
 import 'Images.dart';
 
-class ComicGrid extends StatelessWidget {
+class ComicGrid extends StatefulWidget {
   final List<ComicHighlight> comics;
   final int crossAxisCount;
 
@@ -17,47 +17,52 @@ class ComicGrid extends StatelessWidget {
       : super(key: key);
 
   @override
+  _ComicGridState createState() => _ComicGridState();
+}
+
+class _ComicGridState extends State<ComicGrid>
+    with AutomaticKeepAliveClientMixin {
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer<PreferenceProvider>(builder: (context, settings, _) {
       return Padding(
         padding: EdgeInsets.all(4.0),
         child: GridView.builder(
+          addAutomaticKeepAlives: true,
           physics: ScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: settings.scaleToMatchIntended
                 ? settings.comicGridCrossAxisCount.w.toInt()
                 : settings.comicGridCrossAxisCount,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
+            crossAxisSpacing: 7,
+            mainAxisSpacing: settings.comicGridMode == 1 ? 10 : 5,
             childAspectRatio:
                 settings.comicGridMode == 0 ? (53 / 100) : (60 / 100),
           ),
           shrinkWrap: true,
-          itemCount: comics.length,
+          itemCount: widget.comics.length,
           itemBuilder: (BuildContext context, index) => ComicGridTile(
-            comic: comics[index],
+            comic: widget.comics[index],
           ),
         ),
       );
     });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
-class ComicGridTile extends StatefulWidget {
+
+
+class ComicGridTile extends StatelessWidget {
   final ComicHighlight comic;
 
-  const ComicGridTile({Key key, @required this.comic}) : super(key: key);
-
-  @override
-  _ComicGridTileState createState() => _ComicGridTileState();
-}
-
-class _ComicGridTileState extends State<ComicGridTile> with AutomaticKeepAliveClientMixin {
+  const ComicGridTile({Key key, this.comic}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Container(
-      key: UniqueKey(),
       child: InkWell(
         onTap: () {
           // debugPrint("${comic.title} @ ${comic.link} /f ${comic.source}");
@@ -65,19 +70,17 @@ class _ComicGridTileState extends State<ComicGridTile> with AutomaticKeepAliveCl
             context,
             MaterialPageRoute(
               maintainState: true,
-              builder: (_) => ProfileHome(highlight: widget.comic),
+              builder: (_) => ProfileHome(highlight: comic),
             ),
           );
         },
         child: Provider.of<PreferenceProvider>(context).comicGridMode == 1
-            ? CompactGridTile(comic: widget.comic)
-            : SeparatedGridTile(comic: widget.comic),
+            ? CompactGridTile(comic: comic)
+            : SeparatedGridTile(comic: comic),
       ),
     );
   }
 
-  @override
-  bool get wantKeepAlive => true;
 }
 
 class SeparatedGridTile extends StatelessWidget {
@@ -99,11 +102,15 @@ class SeparatedGridTile extends StatelessWidget {
             children: [
               Expanded(
                 flex: 8,
-                child: SoupImage(
-                  url: comic.thumbnail,
-                  referer: comic.imageReferer,
-                  fit: BoxFit.cover,
-                  sourceId: comic.selector,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(7.0),
+
+                  child: SoupImage(
+                    url: comic.thumbnail,
+                    referer: comic.imageReferer,
+                    fit: BoxFit.cover,
+                    sourceId: comic.selector,
+                  ),
                 ),
               ),
               Expanded(
@@ -119,21 +126,15 @@ class SeparatedGridTile extends StatelessWidget {
                           child: AutoSizeText(
                             comic.title,
                             style: TextStyle(
-                                fontFamily: "Roboto",
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 17),
+                              fontFamily: "Roboto",
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
                             textAlign: TextAlign.left,
-                            // overflow: TextOverflow.ellipsis,
                             softWrap: true,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-
-                            // presetFontSizes: [17],
-                            // overflowReplacement: Text("..."),
-                            minFontSize: 14,
-                            maxFontSize: 17,
-                            // stepGranularity: 1.4,
+                            minFontSize: 17,
                           ),
                         ),
                       ),

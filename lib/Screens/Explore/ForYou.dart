@@ -26,8 +26,7 @@ class ForYouPage extends StatefulWidget {
   _ForYouPageState createState() => _ForYouPageState();
 }
 
-class _ForYouPageState extends State<ForYouPage>
-    with AutomaticKeepAliveClientMixin {
+class _ForYouPageState extends State<ForYouPage> {
   Future<List<HomePage>> pages;
 
   Future<List<HomePage>> getPages() async {
@@ -49,7 +48,6 @@ class _ForYouPageState extends State<ForYouPage>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return FutureBuilder(
         future: pages,
         builder: (BuildContext context, snapshot) {
@@ -77,63 +75,72 @@ class _ForYouPageState extends State<ForYouPage>
             );
           }
           if (snapshot.hasData) {
-            List<HomePage> sourcePages = snapshot.data;
-            return SingleChildScrollView(
-              child: Column(
-                children: List.generate(sourcePages.length, (index) {
-                  HomePage page = sourcePages[index];
-                  List<ComicHighlight> highlights = [];
-                  page.comics.forEach((element) {
-                    highlights.add(ComicHighlight.fromMap(element));
-                  });
-                  if (highlights.isNotEmpty)
-                    return Container(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(5, 10, 5, 3),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              sourcePages[index].header,
-                              style: TextStyle(
-                                fontSize: 25,
-                                fontFamily: "Lato",
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 3,
-                            ),
-                            Text(
-                              sourcePages[index].subHeader,
-                              style: TextStyle(
-                                fontSize: 17,
-                                color: Colors.grey,
-                                fontFamily: "Lato",
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            ListGridComicHighlight(highlights: highlights),
-                          ],
-                        ),
-                      ),
-                    );
-                  else
-                    return Container();
-                }),
-              ),
-            );
+            List<HomePage> pages = snapshot.data;
+            return ListView.separated(
+                itemBuilder: (_, index) => pages[index].comics.isNotEmpty
+                    ? CollectionGroupView(
+                        title: pages[index].header,
+                        subtitle: pages[index].subHeader,
+                        highlights: pages[index]
+                            .comics
+                            .map((e) => ComicHighlight.fromMap(e))
+                            .toList(),
+                      )
+                    : Container(),
+                separatorBuilder: (_, index) => SizedBox(
+                      height: 0,
+                    ),
+                itemCount: pages.length);
           } else {
             return Container();
           }
         });
   }
+}
 
+class CollectionGroupView extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final List<ComicHighlight> highlights;
+
+  const CollectionGroupView({this.title, this.subtitle, this.highlights});
   @override
-  bool get wantKeepAlive => true;
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(5, 10, 5, 3),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 25,
+                fontFamily: "Lato",
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(
+              height: 3,
+            ),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 17,
+                color: Colors.grey,
+                fontFamily: "Lato",
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            ListGridComicHighlight(highlights: highlights),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class ListGridComicHighlight extends StatelessWidget {
@@ -148,7 +155,7 @@ class ListGridComicHighlight extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<PreferenceProvider>(builder: (context, settings, _) {
       return Container(
-        height: 250,
+        height: 300,
         child: GridView.builder(
           physics: ScrollPhysics(),
           scrollDirection: Axis.horizontal,
