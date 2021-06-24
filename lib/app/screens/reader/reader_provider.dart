@@ -367,20 +367,15 @@ class ReaderProvider with ChangeNotifier {
           if (reachedEnd) {
             print("reached end, do nothing");
           } else {
-            /// History Update LOGIC
-            // Add to Read
             await Provider.of<DatabaseProvider>(context, listen: false)
                 .updateFromACS([chapters.elementAt(currentIndex)], comicId,
                     true, source, selector);
             await updateHistory();
-
+            await syncLibrary(page);
             print("End Reached for First time");
             endReached();
           }
         } else {
-          // Load Next chapter
-
-          // Add to Read
           Provider.of<DatabaseProvider>(context, listen: false).updateFromACS(
               [chapters.elementAt(currentIndex)],
               comicId,
@@ -388,92 +383,7 @@ class ReaderProvider with ChangeNotifier {
               source,
               selector);
           await updateHistory();
-
-          // MD Sync Logic
-            SharedPreferences.getInstance().then((_prefs) async {
-            if (selector == "mangadex") {
-              if (_prefs.getString("mangadex_cookies") != null) {
-                // Cookies containing profile exists
-                // Sync to MD
-                try {
-                  ApiManager().syncChapters(
-                      [chapters.elementAt(currentIndex).link], true);
-                } catch (err) {
-                  showSnackBarMessage(err, error: true);
-                }
-              }
-            }
-
-            print("Trackers");
-
-            try {
-              if (_prefs.get(PreferenceKeys.MAL_AUTH) != null &&
-                  Provider.of<PreferenceProvider>(context, listen: false)
-                      .malAutoSync) {
-                // Sync to MAL
-                Tracker t;
-                try {
-                  t = Provider.of<DatabaseProvider>(context, listen: false)
-                      .comicTrackers
-                      .firstWhere((element) =>
-                          element.comicId == comicId &&
-                          element.trackerType == 2);
-                } catch (err) {
-                    // do nothing, no element was found
-                  }
-                  if (t != null) {
-                    int chapt = chapters
-                        .elementAt(indexList[page])
-                        .generatedNumber
-                        .toInt();
-                    // Only Update if Read More not less
-                  if (chapt > t.lastChapterRead) {
-                    t.lastChapterRead = chapt;
-                    Provider.of<DatabaseProvider>(context, listen: false)
-                        .updateTracker(t);
-                  }
-                }
-              }
-            } catch (err) {
-              print(err);
-              showSnackBarMessage("Failed to Sync.", error: true);
-            }
-
-            try {
-              if (_prefs.get(PreferenceKeys.ANILIST_ACCESS_TOKEN) != null &&
-                  Provider.of<PreferenceProvider>(context, listen: false)
-                      .anilistAutoSync) {
-                // Sync to AniList
-                Tracker t;
-                t = Provider.of<DatabaseProvider>(context, listen: false)
-                    .comicTrackers
-                    .firstWhere(
-                        (element) =>
-                            element.comicId == comicId &&
-                            element.trackerType == 3,
-                        orElse: () => null);
-
-                //Tracker Found
-                if (t != null) {
-                  int targetChapter = chapters
-                      .elementAt(indexList[page])
-                      .generatedNumber
-                      .toInt();
-                  // Only Update if Read More not less
-
-                  if (targetChapter > t.lastChapterRead) {
-                    t.lastChapterRead = targetChapter;
-                    Provider.of<DatabaseProvider>(context, listen: false)
-                        .updateTracker(t);
-                  }
-                }
-              }
-            } catch (err) {
-              print(err);
-              showSnackBarMessage("Failed to Sync to AniList", error: true);
-            }
-          });
-
+          await syncLibrary(page);
           await loadNextChapter(nextIndex);
           currentIndex--;
         }
@@ -483,6 +393,94 @@ class ReaderProvider with ChangeNotifier {
     lastPage = page;
   }
 
+
+  syncLibrary(int page) async {
+    // MD Sync Logic
+    SharedPreferences.getInstance().then((_prefs) async {
+      if (selector == "mangadex") {
+        if (_prefs.getString("mangadex_cookies") != null) {
+          // Cookies containing profile exists
+          // Sync to MD
+          try {
+            ApiManager().syncChapters(
+                [chapters.elementAt(currentIndex).link], true);
+          } catch (err) {
+            showSnackBarMessage(err, error: true);
+          }
+        }
+      }
+
+      // Trackers
+      /// MAL
+      try {
+        if (_prefs.get(PreferenceKeys.MAL_AUTH) != null &&
+            Provider.of<PreferenceProvider>(context, listen: false)
+                .malAutoSync) {
+          // Sync to MAL
+          Tracker t;
+          try {
+            t = Provider.of<DatabaseProvider>(context, listen: false)
+                .comicTrackers
+                .firstWhere((element) =>
+            element.comicId == comicId &&
+                element.trackerType == 2);
+          } catch (err) {
+            // do nothing, no element was found
+          }
+          if (t != null) {
+            int chapt = chapters
+                .elementAt(indexList[page])
+                .generatedNumber
+                .toInt();
+            // Only Update if Read More not less
+            if (chapt > t.lastChapterRead) {
+              t.lastChapterRead = chapt;
+              Provider.of<DatabaseProvider>(context, listen: false)
+                  .updateTracker(t);
+            }
+          }
+        }
+      } catch (err) {
+        print(err);
+        showSnackBarMessage("Failed to Sync to MAL.", error: true);
+      }
+
+      /// ANILIST
+      try {
+        if (_prefs.get(PreferenceKeys.ANILIST_ACCESS_TOKEN) != null &&
+            Provider.of<PreferenceProvider>(context, listen: false)
+                .anilistAutoSync) {
+          // Sync to AniList
+          Tracker t;
+          t = Provider.of<DatabaseProvider>(context, listen: false)
+              .comicTrackers
+              .firstWhere(
+                  (element) =>
+              element.comicId == comicId &&
+                  element.trackerType == 3,
+              orElse: () => null);
+
+          //Tracker Found
+          if (t != null) {
+            int targetChapter = chapters
+                .elementAt(indexList[page])
+                .generatedNumber
+                .toInt();
+            // Only Update if Read More not less
+
+            if (targetChapter > t.lastChapterRead) {
+              t.lastChapterRead = targetChapter;
+              Provider.of<DatabaseProvider>(context, listen: false)
+                  .updateTracker(t);
+            }
+          }
+        }
+      } catch (err) {
+        print(err);
+        showSnackBarMessage("Failed to Sync to AniList", error: true);
+      }
+    });
+  }
   updateHistory() async {
     /// History Update LOGIC
     debugPrint("History Called");
