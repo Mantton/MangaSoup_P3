@@ -23,7 +23,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   List<Source> sources = [];
   int _index = 0;
   final Map<int, Widget> myTabs = const <int, Widget>{
-    0: Text("For You"),
+    0: Text("Discover"),
     1: Text("Home"),
     2: Text("Latest"),
   };
@@ -62,7 +62,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   },
                 ),
                 title: Text(
-                  "Discover",
+                  "Explore",
                   style: notInLibraryFont,
                 ),
                 centerTitle: true,
@@ -130,7 +130,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       isScrollable: false,
                       tabs: <Widget>[
                         Tab(
-                          text: "For You",
+                          text: "Discover",
                         ),
                         Tab(
                           text: "Home",

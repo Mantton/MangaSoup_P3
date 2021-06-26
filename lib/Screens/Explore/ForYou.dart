@@ -9,24 +9,14 @@ import 'package:mangasoup_prototype_3/app/data/api/models/homepage.dart';
 import 'package:mangasoup_prototype_3/app/data/preference/preference_provider.dart';
 import 'package:provider/provider.dart';
 
-class MangaSoupHomePage extends StatefulWidget {
-  @override
-  _MangaSoupHomePageState createState() => _MangaSoupHomePageState();
-}
-
-class _MangaSoupHomePageState extends State<MangaSoupHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold();
-  }
-}
 
 class ForYouPage extends StatefulWidget {
   @override
   _ForYouPageState createState() => _ForYouPageState();
 }
 
-class _ForYouPageState extends State<ForYouPage> {
+class _ForYouPageState extends State<ForYouPage>
+    with AutomaticKeepAliveClientMixin {
   Future<List<HomePage>> pages;
 
   Future<List<HomePage>> getPages() async {
@@ -48,6 +38,7 @@ class _ForYouPageState extends State<ForYouPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
         future: pages,
         builder: (BuildContext context, snapshot) {
@@ -96,6 +87,9 @@ class _ForYouPageState extends State<ForYouPage> {
           }
         });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class CollectionGroupView extends StatelessWidget {
