@@ -123,7 +123,6 @@ class ApiManager {
       String source, String sortBy, int page) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     if (source == "mangadex") return dex.get(sortBy, page, additionalParams);
-    if (source == "md-v5") return v5.all(page, additionalParams);
 
     Map data = {
       "selector": source,
@@ -145,7 +144,6 @@ class ApiManager {
   Future<List<ComicHighlight>> getLatest(String source, int page) async {
     Map additionalParams = await prepareAdditionalInfo(source);
     if (source == "mangadex") return dex.get("0", page, additionalParams);
-    if (source == "md-v5") return v5.all(page, additionalParams);
 
     Map data = {
       "selector": source,
@@ -167,7 +165,6 @@ class ApiManager {
     try {
       Map additionalParams = await prepareAdditionalInfo(source);
       if (source == "mangadex") return dex.profile(link, additionalParams);
-      if (source == "md-v5") return v5.profile(link, additionalParams);
 
       Map data = {"selector": source, "link": link, "data": additionalParams};
       Response response = await _dio.post('/api/v1/profile', data: data);
@@ -228,7 +225,6 @@ class ApiManager {
       Map additionalParams = await prepareAdditionalInfo(source);
       if (source == "mangadex")
         return dex.getTagComics(sort, page, link, additionalParams);
-      if (source == 'md-v5') return v5.tagComics(link, page);
 
       Map data = {
         "selector": source,
@@ -256,8 +252,8 @@ class ApiManager {
       Map additionalParams = await prepareAdditionalInfo(source);
 
       if (source == "mangadex") return dex.search(query, additionalParams);
-      if (source == "md-v5")
-        return v5.browse({'title': query}, additionalParams);
+      // if (source == "md-v5")
+      //   return v5.browse({'title': query}, additionalParams);
 
       Map data = {
         "selector": source,
@@ -281,7 +277,6 @@ class ApiManager {
     try {
       Map additionalParams = await prepareAdditionalInfo(source);
       if (source == "mangadex") return dex.browse(query, additionalParams);
-      if (source == "md-v5") return v5.browse(query, additionalParams);
 
       additionalParams.addAll(query);
       Map data = {

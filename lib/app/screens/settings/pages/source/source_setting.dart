@@ -100,7 +100,7 @@ class _SourceSettingsPageState extends State<SourceSettingsPage> {
     List settings = Provider.of<SourceNotifier>(context).source.settings;
     return SingleChildScrollView(
       child: Column(
-        children: List<Widget>.generate(settings.length, (index) {
+        children: List<Widget>.generate( settings != null ? settings.length : 0, (index) {
           SourceSetting ss = SourceSetting.fromMap(settings[index]);
           return Padding(
             padding: EdgeInsets.fromLTRB(20, 5, 20, 5),
