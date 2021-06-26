@@ -19,7 +19,7 @@ class _ProfileHomeState extends State<ProfileHome>
   Widget build(BuildContext context) {
     super.build(context);
     return DefaultTabController(
-        length: 3,
+        length: 2,
         child: Scaffold(
           appBar: AppBar(
             title: Text(
@@ -33,9 +33,6 @@ class _ProfileHomeState extends State<ProfileHome>
                   text: "Profile",
                 ),
                 Tab(
-                  text: "Discussions",
-                ),
-                Tab(
                   text: "Track",
                 ),
               ],
@@ -45,7 +42,6 @@ class _ProfileHomeState extends State<ProfileHome>
             child: TabBarView(
               children: [
                 ProfileGateWay(widget.highlight),
-                DiscussionHome(),
                 TrackingHome(
                   highlight: widget.highlight,
                 ),

@@ -50,7 +50,7 @@ class ChapterTile extends StatelessWidget {
         subtitle: chapter.maker.isNotEmpty
             ? Text(
                 chapter.maker,
-                style: readFont,
+                style: TextStyle(color: Colors.grey[700]),
               )
             : null,
         trailing: FittedBox(

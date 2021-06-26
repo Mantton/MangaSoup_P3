@@ -170,7 +170,7 @@ class _ChapterListState extends State<ChapterList> {
                 subtitle: chapter.maker.isNotEmpty
                     ? Text(
                         chapter.maker,
-                        style: readFont,
+                  style: TextStyle(color: Colors.grey[700]),
                       )
                     : null,
                 trailing: FittedBox(
