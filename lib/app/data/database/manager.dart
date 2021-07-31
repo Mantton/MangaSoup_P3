@@ -16,7 +16,7 @@ import 'package:sqflite/sqflite.dart';
 class DatabaseManager {
   static Database db;
   static const String DB_NAME = 'mangasoup.db';
-  static const int VERSION = 5;
+  static const int VERSION = 6;
 
   static initDB() async {
     io.Directory documentDirectory = await getApplicationDocumentsDirectory();
@@ -66,6 +66,11 @@ class DatabaseManager {
       } catch (err) {
         print("Oh no");
       }
+    }
+    if (oldV < 6){
+      await db.execute(
+          "ALTER TABLE ${ComicTable.TABLE} ADD ${ComicTable.COL_UNREAD_COUNT} TEXT DEFAULT NULL");
+
     }
   }
 }

@@ -800,7 +800,7 @@ class DatabaseProvider with ChangeNotifier {
     await updateFromACS(toDownload, comicId, false, source, selector,
         toggleRead: false);
     List<ChapterDownload> newDownloads = [];
-    for (Chapter chapter in toDownload) {
+    for (Chapter chapter in toDownload.reversed) {
       // Get the ChapterData object
       if (chapter.openInBrowser) continue;
       ChapterData pointer = checkIfChapterMatch(chapter);

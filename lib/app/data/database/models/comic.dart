@@ -6,6 +6,7 @@ class Comic {
   // Highlight Information
   String title;
   String link;
+  String v2Id;
   String thumbnail;
   String referer;
   bool isNsfw; // Either Hentai or contains adult tags
@@ -42,6 +43,7 @@ class Comic {
     this.isNsfw = false;
     this.rating = 0;
     this.dateAdded = null;
+    this.v2Id = null;
   }
 
   // Create Comic from map
@@ -60,6 +62,7 @@ class Comic {
     isNsfw = map['nsfw'] == 1 ? true : false;
     rating = map['rating'];
     dateAdded = DateTime.fromMicrosecondsSinceEpoch(map['date_added']);
+    v2Id = map['v2Id'];
   }
 
   ComicHighlight toHighlight() {
@@ -86,6 +89,7 @@ class Comic {
       "nsfw": isNsfw ? 1 : 0,
       "rating": rating,
       "date_added": dateAdded.microsecondsSinceEpoch,
+      "v2Id": v2Id,
     };
   }
 }

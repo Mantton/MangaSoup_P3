@@ -22,6 +22,8 @@ class ComicTable {
   static const COL_DATE_ADDED = "date_added";
   static const COL_RATING = "rating";
 
+  static const COL_V2ID = "v2Id";
+
   static String createTableQuery() => """CREATE TABLE $TABLE(
             $COL_ID INTEGER NOT NULL PRIMARY KEY,
             $COL_TITLE TEXT NOT NULL,
@@ -36,7 +38,8 @@ class ComicTable {
             $COL_VIEW_MODE INTEGER NOT NULL,
             $COL_IS_NSFW INTEGER NOT NULL,
             $COL_RATING INTEGER NOT NULL,
-            $COL_DATE_ADDED INTEGER NOT NULL
+            $COL_DATE_ADDED INTEGER NOT NULL,
+            $COL_V2ID TEXT
             )""";
 
 
