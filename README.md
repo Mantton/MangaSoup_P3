@@ -1,5 +1,4 @@
-# MangaSoup 3rd Prototype
+# MangaSoup
 
-The 3rd Rendition of the MangaSoup App
-
+A Manga Reader written in Flutter.
 
